@@ -19,6 +19,15 @@ import org.infernalstudios.questlog.util.QuestlogMigrator;
 public class QuestlogEvents {
 
     public static void onServerStart(MinecraftServer server) {
+        // A normal server lifecycle stops the previous generation first. Keep an
+        // explicit replacement guard so retained Triggers callbacks cannot remain
+        // active if a loader/platform edge case initializes Questlog twice.
+        if (ServerPlayerManager.INSTANCE != null) {
+            Questlog.LOGGER.warn("Replacing an existing server quest manager generation during server start");
+            ServerPlayerManager.INSTANCE.shutdown();
+            ServerPlayerManager.INSTANCE = null;
+        }
+
         QuestlogMigrator.attemptMigration(server);
         DefinitionUtil.loadFromConfig();
         ServerPlayerManager.INSTANCE = new ServerPlayerManager(server);
@@ -34,6 +43,7 @@ public class QuestlogEvents {
     public static void onServerStop() {
         if (ServerPlayerManager.INSTANCE != null) {
             ServerPlayerManager.INSTANCE.save();
+            ServerPlayerManager.INSTANCE.shutdown();
             ServerPlayerManager.INSTANCE = null;
         }
         Questlog.EVENTS.removeAllListeners();
@@ -50,23 +60,40 @@ public class QuestlogEvents {
     }
 
     public static void onQuestTriggered(QuestEvent.Triggered event) {
+        if (event == null || event.quest == null || event.player == null) {
+            Questlog.LOGGER.warn("Ignoring invalid quest trigger event");
+            return;
+        }
+
         if (event.isServer) {
-            Services.PLATFORM.sendPacketToClient((ServerPlayer) event.player, new QuestTriggeredPacket(event.quest.getId()));
+            if (!(event.player instanceof ServerPlayer serverPlayer)) {
+                Questlog.LOGGER.warn("Ignoring server quest trigger event without a ServerPlayer for {}", event.quest.getId());
+                return;
+            }
+            Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestTriggeredPacket(event.quest.getId()));
         } else {
             QuestlogClientEvents.onQuestTriggered(event);
         }
     }
 
     public static void onQuestCompleted(QuestEvent.Completed event) {
+        if (event == null || event.quest == null || event.player == null) {
+            Questlog.LOGGER.warn("Ignoring invalid quest completion event");
+            return;
+        }
+
         if (event.isServer) {
+            if (!(event.player instanceof ServerPlayer serverPlayer)) {
+                Questlog.LOGGER.warn("Ignoring server quest completion event without a ServerPlayer for {}", event.quest.getId());
+                return;
+            }
+
             Questlog.EVENTS.post(event);
-            Services.PLATFORM.sendPacketToClient((ServerPlayer) event.player, new QuestCompletedPacket(event.quest.getId()));
+            Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestCompletedPacket(event.quest.getId()));
 
             for (Reward reward : event.quest.rewards) {
-                if (reward.isAutoClaim()) {
-                    if (!reward.hasRewarded()) {
-                        reward.applyReward((ServerPlayer) event.player);
-                    }
+                if (reward.isAutoClaim() && !reward.hasRewarded()) {
+                    reward.applyReward(serverPlayer);
                 }
             }
         } else {
