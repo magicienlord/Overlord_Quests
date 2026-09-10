@@ -56,12 +56,13 @@ public class QuestlogClientEvents {
         QuestlogClient.isEditModeActive = false;
         ClientPacketHandler.clearDeferredState();
         QuestlogClient.destroyLocal();
-        // DefinitionUtil's caches are static and shared with the integrated server
-        // in single-player. Do not clear them from the client logout hook because
-        // server shutdown can still be in progress on the same JVM. The next full
-        // sync replaces them before client quest state is rebuilt.
+        // DefinitionUtil's caches and Questlog.EVENTS are static and therefore
+        // shared with the integrated server in single-player. Client quest objects
+        // never register the private Objective listeners, so the client logout hook
+        // has nothing to clear from Questlog.EVENTS. Clearing it here could remove
+        // the still-running integrated server's Read/QuestComplete listeners during
+        // shutdown ordering. Server lifecycle cleanup owns that event bus.
         QuestlogClient.ALL_ADVANCEMENTS = new ArrayList<>();
-        Questlog.EVENTS.removeAllListeners();
         QuestToastState.addedToasts.clear();
         QuestToastState.completedToasts.clear();
         QuestToastState.queuedPopups.clear();
