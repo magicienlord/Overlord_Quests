@@ -21,10 +21,13 @@ public class ItemObtainObjective extends AbstractItemObjective {
     }
 
     private void onPlayerTick(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
 
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
-
+        if (--ticksUntilCheck <= 0) {
             int currentCount = 0;
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                 ItemStack stack = player.getInventory().getItem(i);
