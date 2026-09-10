@@ -19,7 +19,9 @@ public class QuestlogForgeEventForwarder {
 
     @SubscribeEvent
     public static void onPlayerSave(PlayerEvent.SaveToFile event) {
-        QuestlogEvents.onPlayerSave((ServerPlayer) event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            QuestlogEvents.onPlayerSave(player);
+        }
     }
 
     @SubscribeEvent
@@ -29,7 +31,9 @@ public class QuestlogForgeEventForwarder {
 
     @SubscribeEvent
     public static void onServerPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        QuestlogEvents.onServerPlayerLogin((ServerPlayer) event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            QuestlogEvents.onServerPlayerLogin(player);
+        }
     }
 
     @SubscribeEvent
