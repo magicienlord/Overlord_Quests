@@ -30,8 +30,8 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     private final ResourceLocation id;
     public boolean hasSentCompletion = false;
     public boolean hasSentTrigger = false;
-    private boolean repeatable = false;
-    private boolean global = false;
+    private final boolean repeatable;
+    private final boolean global;
     private boolean disposed = false;
 
     public Quest(
@@ -217,6 +217,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     public void writeInitialData(CompoundTag data) {
         data.putBoolean("completed", this.hasSentCompletion);
         data.putBoolean("triggered", this.hasSentTrigger);
+        // Keep these legacy metadata keys in serialized state for compatibility
+        // with older Questlog data readers. This fork does not deserialize them:
+        // repeatable/global are definition-owned behavior, not player progress.
         data.putBoolean("repeatable", this.repeatable);
         data.putBoolean("global", this.global);
 
@@ -262,12 +265,12 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         if (this.disposed) return;
         this.hasSentCompletion = data.getBoolean("completed");
         this.hasSentTrigger = data.getBoolean("triggered");
-        if (data.contains("repeatable")) {
-            this.repeatable = data.getBoolean("repeatable");
-        }
-        if (data.contains("global")) {
-            this.global = data.getBoolean("global");
-        }
+
+        // `repeatable` and `global` may exist in inherited saves, but current
+        // definition data is authoritative. Applying persisted values here made
+        // an editor/config change to either flag silently revert on reload and
+        // could keep a quest globally synchronized after its definition stopped
+        // being global.
 
         if (this.prerequisites.isEmpty()) {
             this.hasSentTrigger = true;
