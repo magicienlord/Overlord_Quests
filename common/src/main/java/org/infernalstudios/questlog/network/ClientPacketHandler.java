@@ -53,6 +53,9 @@ public class ClientPacketHandler {
             if (quest == null) {
                 throw new IllegalStateException("Quest is null, likely definition not loaded yet");
             }
+            if (packet.data() == null) {
+                throw new IllegalArgumentException("Quest data payload is null");
+            }
             quest.deserialize(packet.data());
         } catch (Throwable e) {
             Questlog.LOGGER.error("Failed to handle QuestDataPacket for {}", packet.id(), e);
@@ -199,13 +202,29 @@ public class ClientPacketHandler {
 
     private static void processSync(QuestSyncPacket packet) {
         Questlog.LOGGER.info("Received quest & chapter sync from server.");
-        DefinitionUtil.clearClientCaches();
-        QuestlogClient.ALL_ADVANCEMENTS = packet.advancements();
+
+        Minecraft minecraft = Minecraft.getInstance();
+        // In an integrated single-player server, DefinitionUtil's static caches
+        // are shared by the logical client and server in the same JVM. Clearing
+        // and rebuilding them from the client thread creates a cross-thread empty
+        // cache window for the still-running server. The server has already loaded
+        // exactly the definitions represented by this sync packet, so the client
+        // can consume the packet directly without mutating those shared caches.
+        // Remote multiplayer clients have no local server and therefore maintain
+        // their own static mirror from the received definitions.
+        boolean sharesDefinitionCacheWithIntegratedServer = minecraft.hasSingleplayerServer();
+        if (!sharesDefinitionCacheWithIntegratedServer) {
+            DefinitionUtil.clearClientCaches();
+        }
+
+        QuestlogClient.ALL_ADVANCEMENTS = new java.util.ArrayList<>(packet.advancements());
         for (Map.Entry<ResourceLocation, String> entry : packet.chapterDefinitions().entrySet()) {
             try {
                 JsonObject def = GSON.fromJson(entry.getValue(), JsonObject.class);
                 if (def != null) {
-                    DefinitionUtil.putCachedChapter(entry.getKey(), def);
+                    if (!sharesDefinitionCacheWithIntegratedServer) {
+                        DefinitionUtil.putCachedChapter(entry.getKey(), def);
+                    }
                 } else {
                     Questlog.LOGGER.warn("Ignoring JSON-null synced chapter {}", entry.getKey());
                 }
@@ -213,6 +232,7 @@ public class ClientPacketHandler {
                 Questlog.LOGGER.error("Failed to parse synced chapter {}", entry.getKey(), e);
             }
         }
+
         QuestManager manager = QuestlogClient.getLocal();
         manager.clearQuests();
         for (Map.Entry<ResourceLocation, String> entry : packet.definitions().entrySet()) {
@@ -221,7 +241,9 @@ public class ClientPacketHandler {
                 if (def == null) {
                     throw new IllegalArgumentException("Synced quest definition is JSON null");
                 }
-                DefinitionUtil.putCachedQuest(entry.getKey(), def);
+                if (!sharesDefinitionCacheWithIntegratedServer) {
+                    DefinitionUtil.putCachedQuest(entry.getKey(), def);
+                }
                 Quest quest = Quest.create(def, entry.getKey(), manager);
                 manager.addQuest(quest);
             } catch (Exception e) {
