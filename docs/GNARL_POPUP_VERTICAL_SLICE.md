@@ -1,6 +1,6 @@
 # Gnarl Popup Vertical Slice
 
-Status: FOUNDATION B IMPLEMENTATION TEST
+Status: FOUNDATION B IMPLEMENTATION TEST - TECHNICAL BUILD GREEN - IN-GAME ACCEPTANCE PENDING
 
 This document defines the first visual validation pass for Gnarl's quest presentation. It contains no OVERLORD REIGN story canon.
 
@@ -33,6 +33,25 @@ The approved baseline preserves the established portrait and changes only the pu
 Do not otherwise blend the popup portrait with the current WIP in-game Gnarl model yet. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The controlled comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
 This approval locks the popup character design for Foundation B. It does not lock parchment placement, portrait scale, or screen composition. Those remain subject to the in-game vertical-slice test below.
+
+## Approved asset integration
+
+The approved portrait is now physically present at the runtime resource path above. The repository keeps the exact approved 1254 x 1254 RGBA source rather than silently resampling the reviewed artwork.
+
+Mechanical validation of that binary reports:
+
+```text
+sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
+size: 1154559 bytes
+dimensions: 1254 x 1254
+PNG color type: RGBA
+fully transparent pixels: 713423
+partially transparent pixels: 858065
+```
+
+Questlog still renders the texture into the fixture's 160 x 160 overlay rectangle. Source texture resolution and on-screen presentation size are therefore separate concerns.
+
+The approved asset and current popup implementation passed GitHub Actions run `34528438059` at commit `51319a85fde584e4b44c95b43c6a55b1e3f444c5`. That establishes a green technical build, not visual acceptance.
 
 ## Runtime scope
 
@@ -98,6 +117,8 @@ No conclusion should be drawn from the left-side placement until an in-game comp
 
 The GitHub Actions build publishes a dedicated `overlord-quests-gnarl-popup-test-kit` artifact prepared in an instance-shaped layout.
 
+The current green technical gate produced test-kit artifact ID `10172531627` and Forge artifact ID `10172530649`.
+
 Install the OVERLORD QUESTS JAR, ensure a separate upstream Questlog JAR is not present, place the development quest under `config/questlog/quests/`, and launch an unpublished local single-player test world. Do not use Open to LAN for the acceptance pass.
 
 Use a disposable test world or reset quest state before repeating the unlock test. Remove the debug stick before resetting so the inventory objective cannot immediately retrigger.
@@ -106,7 +127,7 @@ Use a disposable test world or reset quest state before repeating the unlock tes
 
 `tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` placement constants and reports horizontal/vertical clipping plus the description-rectangle intersection.
 
-`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha capability, size, and SHA-256. It does not assess whether the picture matches the approved character design.
+`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256. It does not assess whether the picture matches the approved character design.
 
 Static checks are not acceptance evidence. Minecraft still needs to render the popup directly.
 
