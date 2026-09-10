@@ -17,8 +17,12 @@ public class BlockPlaceObjective extends AbstractBlockObjective {
     }
 
     private void onBlockPlace(TriggerBlockEvent.Place event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.entity instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && this.test(event.state)) {
+        if (!(event.entity instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+        if (this.test(event.state)) {
             this.setUnits(this.getUnits() + 1);
         }
     }
