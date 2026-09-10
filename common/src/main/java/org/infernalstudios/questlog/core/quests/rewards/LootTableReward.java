@@ -34,13 +34,18 @@ public class LootTableReward extends Reward {
             Questlog.LOGGER.error("Loot table not found: {}", this.lootTable);
         }
 
-        List<ItemStack> stacks = table.getRandomItems(
-                new LootParams.Builder(player.serverLevel())
-                        .withParameter(LootContextParams.THIS_ENTITY, player)
-                        .withParameter(LootContextParams.ORIGIN, player.position())
-                        .withParameter(LootContextParams.KILLER_ENTITY, player)
-                        .create(LootContextParamSets.EMPTY)
-        );
+        // Quest rewards are semantically closest to vanilla advancement rewards.
+        // The inherited implementation supplied entity/origin/killer parameters
+        // while creating LootContextParamSets.EMPTY, which rejects non-empty
+        // parameter sets. ADVANCEMENT_REWARD explicitly permits THIS_ENTITY and
+        // ORIGIN and therefore gives loot conditions the expected player context.
+        LootParams params = new LootParams.Builder(player.serverLevel())
+                .withParameter(LootContextParams.THIS_ENTITY, player)
+                .withParameter(LootContextParams.ORIGIN, player.position())
+                .withLuck(player.getLuck())
+                .create(LootContextParamSets.ADVANCEMENT_REWARD);
+
+        List<ItemStack> stacks = table.getRandomItems(params);
 
         for (ItemStack stack : stacks) {
             Util.giveToPlayer(player, stack);
