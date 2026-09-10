@@ -29,11 +29,13 @@ public class EffectAddedObjective extends Objective {
     }
 
     private void onEffectAdded(TriggerEntityEvent.EffectAdded event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.entity instanceof ServerPlayer player && this.getParent().manager.player.equals(player)) {
-            if (event.effect.getEffect().equals(this.effect.get())) {
-                this.setUnits(this.getUnits() + 1);
-            }
+        if (!(event.entity instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+        if (event.effect.getEffect().equals(this.effect.get())) {
+            this.setUnits(this.getUnits() + 1);
         }
     }
 }
