@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.platform.Services;
+import org.infernalstudios.questlog.util.DefinitionLimits;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.io.File;
@@ -104,6 +105,7 @@ public class DefinitionUtil {
         if (path == null || definition == null) {
             throw new IllegalArgumentException("Quest cache id and definition must be non-null");
         }
+        DefinitionLimits.requireWireSafe(definition, "Synced quest definition " + path);
         QUEST_DEFINITION_CACHE.put(path, definition.deepCopy());
     }
 
@@ -158,6 +160,7 @@ public class DefinitionUtil {
         if (path == null || definition == null) {
             throw new IllegalArgumentException("Chapter cache id and definition must be non-null");
         }
+        DefinitionLimits.requireWireSafe(definition, "Synced chapter definition " + path);
         CHAPTER_DEFINITION_CACHE.put(path, definition.deepCopy());
     }
 
@@ -271,6 +274,7 @@ public class DefinitionUtil {
                         Questlog.LOGGER.error("Bundled {} definition is empty: {}", key, resourcePath);
                         continue;
                     }
+                    DefinitionLimits.requireWireSafe(json, "Bundled " + key + " definition " + id);
                     cache.put(id, json);
                     bundledIds.add(id);
                 }
@@ -323,9 +327,10 @@ public class DefinitionUtil {
             if (json == null) {
                 throw new IllegalArgumentException("Definition root is JSON null");
             }
+            DefinitionLimits.requireWireSafe(json, "Config definition " + id);
             cache.put(id, json);
         } catch (Exception e) {
-            Questlog.LOGGER.error("Failed to parse file: {}", path, e);
+            Questlog.LOGGER.error("Failed to parse or accept definition file: {}", path, e);
             if (cache == QUEST_DEFINITION_CACHE) {
                 cache.put(id, createBrokenQuestFallback(path, id, e));
             }
