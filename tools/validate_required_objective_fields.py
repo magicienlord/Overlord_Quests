@@ -21,6 +21,7 @@ BUNDLED_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets" / "ques
 BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 EQUIPMENT_SLOTS = {"mainhand", "offhand", "feet", "legs", "chest", "head"}
+MAX_CHOICE_SELECTIONS = 256
 
 
 def iter_quest_files() -> Iterable[Path]:
@@ -105,6 +106,14 @@ def validate_reward(entry: Any, location: str, errors: list[str]) -> None:
 
     if reward_type == "questlog:choice":
         choices = entry.get("choices", [])
+        pick_count = entry.get("pick_count", 1)
+        if isinstance(pick_count, bool) or not isinstance(pick_count, int):
+            errors.append(f"{location}: choice reward pick_count must be an integer")
+        elif pick_count > MAX_CHOICE_SELECTIONS:
+            errors.append(
+                f"{location}: choice reward pick_count cannot exceed claim protocol maximum "
+                f"{MAX_CHOICE_SELECTIONS}"
+            )
         if isinstance(choices, list):
             for index, child in enumerate(choices):
                 validate_reward(child, f"{location}.choices[{index}]", errors)
