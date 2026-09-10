@@ -33,8 +33,12 @@ public class ServerPlayerManager {
     }
 
     public void addPlayer(Player player) {
-        QuestManager questManager = new QuestManager(player);
-        this.questManagers.put(player.getUUID(), questManager);
+        QuestManager existing = this.questManagers.get(player.getUUID());
+        if (existing != null) {
+            existing.player = player;
+            return;
+        }
+        this.questManagers.put(player.getUUID(), new QuestManager(player));
     }
 
     public QuestManager getManagerByPlayer(Player player) {
@@ -45,6 +49,18 @@ public class ServerPlayerManager {
         }
 
         return this.questManagers.get(player.getUUID());
+    }
+
+    /**
+     * Permanently invalidates every manager owned by this server generation.
+     * Retained Triggers callbacks can then recognize that their quest manager is
+     * obsolete even if the event bus still holds the callback object.
+     */
+    public void shutdown() {
+        for (QuestManager questManager : this.questManagers.values()) {
+            questManager.deactivate();
+        }
+        this.questManagers.clear();
     }
 
     /**
@@ -64,6 +80,9 @@ public class ServerPlayerManager {
      * @param questManager The quest manager whose data will be saved.
      */
     public void save(QuestManager questManager) {
+        if (!questManager.isActive()) {
+            return;
+        }
         Questlog.LOGGER.debug("Saving player data for {}", questManager.player.getGameProfile().getName());
         CompoundTag data = new CompoundTag();
         for (Quest quest : questManager.getAllQuests()) {
@@ -101,6 +120,9 @@ public class ServerPlayerManager {
      * @param questManager The quest manager whose data will be loaded.
      */
     public void load(QuestManager questManager) {
+        if (!questManager.isActive()) {
+            return;
+        }
         Questlog.LOGGER.debug("Loading player data for {}", questManager.player.getGameProfile().getName());
         File playerDataFile = this.getPlayerDataFile(questManager.player);
 
@@ -180,7 +202,7 @@ public class ServerPlayerManager {
     }
 
     public void onGlobalQuestUpdated(Quest sourceQuest) {
-        if (isSyncingGlobal) return;
+        if (isSyncingGlobal || !sourceQuest.manager.isActive()) return;
         isSyncingGlobal = true;
         try {
             ResourceLocation id = sourceQuest.getId();
@@ -191,6 +213,7 @@ public class ServerPlayerManager {
             saveGlobalData(globalTag);
 
             for (QuestManager manager : this.questManagers.values()) {
+                if (!manager.isActive()) continue;
                 Quest q = manager.getQuest(id);
                 if (q != null) {
                     q.deserialize(serialized);
@@ -208,6 +231,7 @@ public class ServerPlayerManager {
         try {
             CompoundTag globalTag = loadGlobalData();
             for (QuestManager manager : this.questManagers.values()) {
+                if (!manager.isActive()) continue;
                 Quest q = manager.getQuest(id);
                 if (q != null) {
                     q.resetProgress();
@@ -222,6 +246,9 @@ public class ServerPlayerManager {
     }
 
     public void syncPlayer(QuestManager questManager) {
+        if (!questManager.isActive()) {
+            return;
+        }
         if (questManager.player instanceof ServerPlayer serverPlayer) {
             Map<ResourceLocation, String> definitions = new HashMap<>();
             Map<ResourceLocation, String> chapterDefinitions = new HashMap<>();
