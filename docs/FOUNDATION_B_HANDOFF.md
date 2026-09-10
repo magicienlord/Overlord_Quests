@@ -1,81 +1,65 @@
 # OVERLORD QUESTS Foundation B Handoff
 
-Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL ASSET/BUILD GATE COMPLETE - MANUAL IN-GAME ACCEPTANCE PENDING
+Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL BUILD GATE GREEN - MANUAL IN-GAME ACCEPTANCE AND FINAL PORTRAIT-BINARY APPROVAL PENDING
 
-This handoff is repository-local development state, not OVERLORD REIGN world or story canon.
+This handoff records repository-local development state, not OVERLORD REIGN world or story canon.
 
 ## Foundation A
 
-Foundation A is complete and validated on Java 17 / Minecraft 1.20.1 / Forge 47.4.10.
-
-The normal GitHub Actions build compiles, reobfuscates, verifies the assembled JAR, and uploads the Forge artifact.
+Foundation A is complete and validated on Java 17, Minecraft 1.20.1, and Forge 47.4.10. The normal GitHub Actions build compiles, reobfuscates, verifies the assembled JAR, validates quest-definition contracts, and uploads the Forge artifact.
 
 ## Foundation B objective
 
 Foundation B validates Gnarl's quest-popup presentation using Questlog's existing data-driven overlay controls before any dedicated portrait renderer is introduced.
 
-## Locked character decisions
+## Locked character-design target
 
-The popup Gnarl character baseline is approved for this milestone:
+The following target is decided for this milestone:
 
-- preserve the established popup design;
+- preserve the established popup Gnarl design;
 - square pupils;
 - player-directed gaze;
-- pupils perspective-aligned with each eye;
-- preserve the restored snout geometry;
-- preserve the sly/non-angry expression;
-- do not merge in WIP in-game-model traits automatically.
+- each square pupil remains perspective-aligned with its eye plane;
+- preserve the original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship;
+- preserve the original sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
+- do not merge WIP in-game-model traits into the popup automatically.
 
-The approved portrait is now integrated at:
+These are approved design constraints. They do **not** constitute approval of the current repository PNG as the final corrected portrait.
+
+## Current repository test asset
+
+A 1254 x 1254 RGBA Gnarl test portrait is present at:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
-The repository preserves the exact approved 1254 x 1254 RGBA source rather than creating an unreviewed resampled derivative. Questlog displays that source in the development fixture's 160 x 160 GUI overlay rectangle.
-
-Mechanical asset validation on the accepted binary reports:
+Mechanical validation currently records:
 
 ```text
 bytes: 1154559
 sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
 dimensions: 1254 x 1254
-bit depth: 8
-PNG color type: 6
+PNG color type: RGBA
 fully transparent pixels: 713423
 partially transparent pixels: 858065
 ```
 
-This mechanical report proves PNG integrity and usable alpha. It does not substitute for visual acceptance in Minecraft.
+This proves file integrity and usable alpha only. It does not prove that the raster satisfies the locked direct-gaze square-pupil correction. The runtime resource must not be labelled final until the Overlord explicitly accepts the corrected visual.
 
 ## Runtime scope: DECIDED
 
-OVERLORD REIGN is a single-player project.
+OVERLORD REIGN is a single-player project. Automatic full-screen Gnarl quest popups are intentionally limited to an unpublished local single-player world.
 
-Automatic full-screen Gnarl quest popups are intentionally limited to an unpublished local single-player world. The existing Questlog restriction is therefore retained as project behavior rather than treated as a missing feature.
-
-LAN-published worlds and dedicated multiplayer are outside the OVERLORD REIGN popup acceptance scope and do not block Foundation B.
-
-## Still under test
-
-The following are implementation-test values and are not locked design:
-
-- portrait scale;
-- parchment placement;
-- portrait-to-parchment overlap;
-- minimum supported scaled GUI width and height;
-- whether left-side placement is final;
-- whether the native Questlog overlay path is sufficient.
+LAN-published worlds and dedicated multiplayer remain outside the target runtime for automatic full-screen presentation. If a queued popup becomes ineligible because the integrated server is published, the client may fall back to an ordinary unlock toast only when the current quest definition already permits that toast.
 
 ## Development fixture
 
-Quest:
+The development quest is:
 
 `examples/questlog/quests/overlord_gnarl_popup_dev.json`
 
-Deterministic prerequisite:
+It uses `minecraft:debug_stick` as a deterministic prerequisite, one `questlog:read` objective, no rewards, and a harmless vanilla trigger sound used only to test exactly-once unlock audio.
 
-`minecraft:debug_stick`
-
-Reset and trigger sequence:
+Primary reset/trigger sequence:
 
 ```text
 /clear @s minecraft:debug_stick
@@ -83,9 +67,7 @@ Reset and trigger sequence:
 /give @s minecraft:debug_stick 1
 ```
 
-The debug stick replaced the original ordinary-stick trigger so a normal test inventory is much less likely to satisfy the prerequisite before the tester is ready.
-
-The fixture uses one harmless vanilla trigger sound so Foundation B also verifies that the unlock cue plays exactly once rather than once at trigger time and again when the delayed popup opens.
+The fixture is development content and is deliberately excluded from the bundled production definition manifest.
 
 ## Current layout facts
 
@@ -96,46 +78,54 @@ Static source-derived geometry currently yields:
 - 20 px horizontal portrait/parchment overlap;
 - 440 scaled GUI px minimum width for full horizontal visibility;
 - 229 scaled GUI px minimum height for the panel, portrait, and primary button to remain fully visible;
-- the portrait rectangle reaches 2 px into the description rectangle horizontally, producing a 2 x 122 px geometric intersection before alpha is considered.
+- a 2 x 122 px geometric portrait/description intersection before alpha is considered.
 
-The description intersection is a warning, not proof of visible text obstruction. The actual portrait contains transparency and only the in-game render can determine whether visible pixels interfere with glyphs.
+The intersection is only a static warning. Direct Minecraft rendering determines whether visible portrait pixels actually obstruct text.
 
-Use `tools/check_gnarl_popup_layout.py` for the static geometry report. It is an implementation aid only and does not replace in-game validation.
+## Popup reliability state
 
-## Popup reliability corrections
+The automatic-popup path now follows these lifecycle rules:
 
-Foundation B source review found and repaired two upstream presentation defects that matter to Gnarl delivery:
+- popup entries are queued by quest resource ID rather than by retaining Quest objects;
+- duplicate IDs are not queued simultaneously;
+- any active GUI defers automatic full-screen presentation instead of being replaced;
+- each retry resolves the current quest instance and current display data by ID;
+- removed or reset quests are discarded before display;
+- the unpublished-local-single-player scope is checked again at consumption time;
+- the LAN fallback path also resolves current quest state rather than using stale queued display data;
+- logout clears the popup queue and retry state;
+- unlock audio is emitted at the trigger event and is not replayed when a deferred popup eventually opens.
 
-1. If the popup retry fired while the player was carrying an item stack in a container GUI, the code returned without resetting the retry timer. The quest remained queued but the timer dropped below zero on the next tick, so the popup could be stranded indefinitely. The carried-stack path now resets the retry delay.
-2. `triggered_sound` was played once when the quest triggered and then played a second time when a queued popup opened. The second playback was removed so a popup unlock sound is emitted once per trigger.
+These are implementation safeguards. They still require runtime validation through the Foundation B protocol.
 
-Both corrections have passed the Forge build pipeline. The Foundation B manual protocol contains regression checks for them.
+## Technical gate
 
-## Green technical gate
+The authoritative Forge pipeline has already reached green state with the current engine-hardening baseline. It covers:
 
-The approved portrait and current Foundation B implementation passed the authoritative GitHub Actions run:
+- definition-validator self-tests;
+- OVERLORD quest-definition validation;
+- specialized runtime-required objective/reward field validation;
+- Gnarl PNG integrity and alpha checks;
+- static popup-layout reporting;
+- Java 17 Forge compilation and reobfuscation;
+- assembled-JAR resource/class inspection;
+- Foundation B test-kit preparation;
+- Forge artifact and test-kit artifact upload.
 
-```text
-run: 34528438059
-commit: 51319a85fde584e4b44c95b43c6a55b1e3f444c5
-workflow: Build Forge 1.20.1
-result: SUCCESS
-```
+Subsequent source and documentation corrections continue through the same workflow. A green workflow is necessary but cannot close Foundation B by itself.
 
-The run passed quest-definition validation, Gnarl PNG integrity/alpha validation, static layout reporting, Java 17 setup, Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload.
+## Still under test
 
-The assembled runtime JAR was:
+The following remain implementation-test values rather than locked design:
 
-`overlord-quests-forge-1.20.1-0.1.0-alpha.1.jar`
+- portrait scale;
+- parchment placement;
+- portrait-to-parchment overlap;
+- minimum supported scaled GUI width and height;
+- whether left-side placement is final;
+- whether the native Questlog overlay path is sufficient.
 
-## Test artifacts
-
-The green run publishes:
-
-- `overlord-quests-forge-1.20.1`, artifact ID `10172530649`;
-- `overlord-quests-gnarl-popup-test-kit`, artifact ID `10172531627`.
-
-The test kit is prepared as an instance-shaped directory with the mod under `mods/`, the development quest under `config/questlog/quests/`, documentation, static reports, build metadata, checksums, and the exact portrait used by the build.
+In addition, the exact corrected portrait binary remains pending explicit visual approval even though its design target is locked.
 
 ## Canon boundary
 
@@ -145,12 +135,11 @@ The bundled production definition manifest remains intentionally empty.
 
 ## Remaining Foundation B gate
 
-The technical asset/build gate is complete. Foundation B remains open only for direct presentation acceptance:
+Foundation B remains open for two direct acceptance items:
 
-1. install the green Foundation B test kit in an OVERLORD REIGN test instance;
-2. run the unpublished-local-single-player acceptance protocol;
-3. retain the required screenshots and any relevant log evidence;
-4. review portrait placement, clipping, transparency, text readability, GUI-scale behavior, exactly-once unlock audio, and deferred-popup reliability;
-5. accept the data-driven native overlay composition or revise only the observed failing presentation values.
+1. approve an exact Gnarl portrait binary that satisfies the locked pupil/gaze change without altering the snout or expression;
+2. install a green Foundation B test kit in an OVERLORD REIGN test instance and perform the unpublished-local-single-player presentation protocol, retaining screenshots and relevant logs.
+
+The runtime review must cover transparency, clipping, anchoring, text readability, GUI-scale behavior, exactly-once unlock audio, deferred-popup reliability, and current-state resolution after queue deferral.
 
 Do not introduce a dedicated Gnarl renderer unless direct in-game evidence shows that Questlog's native overlay controls cannot satisfy the presentation requirements.
