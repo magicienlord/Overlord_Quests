@@ -30,6 +30,58 @@ def scanline_bytes(width: int, bit_depth: int, color_type: int) -> int | None:
     return 1 + math.ceil(width * channels * bit_depth / 8)
 
 
+def add_partial_idat_diagnostics(
+    compressed: bytes,
+    ihdr: tuple[int, int, int, int, int, int, int] | None,
+    diagnostics: list[str],
+) -> None:
+    if not compressed:
+        return
+
+    try:
+        inflater = zlib.decompressobj()
+        decompressed = inflater.decompress(compressed)
+        diagnostics.append(
+            f"partial wrapped-zlib diagnostic: {len(compressed)} compressed bytes yield {len(decompressed)} decompressed bytes; zlib_eof={inflater.eof}"
+        )
+        report_rows(decompressed, ihdr, diagnostics, "wrapped-zlib")
+        return
+    except zlib.error as exc:
+        diagnostics.append(f"partial wrapped-zlib diagnostic failed: {exc}")
+
+    # If the PNG was truncated after valid deflate data but before the Adler-32
+    # trailer, normal zlib decoding can reject the checksum before exposing how
+    # much image data survived. Skip the two-byte zlib header and inspect the raw
+    # deflate stream only for diagnostics. This never turns a corrupt PNG into a
+    # passing asset.
+    if len(compressed) > 2:
+        try:
+            inflater = zlib.decompressobj(-15)
+            decompressed = inflater.decompress(compressed[2:])
+            diagnostics.append(
+                f"partial raw-deflate diagnostic: {len(compressed) - 2} bytes yield {len(decompressed)} decompressed bytes; deflate_eof={inflater.eof}"
+            )
+            report_rows(decompressed, ihdr, diagnostics, "raw-deflate")
+        except zlib.error as exc:
+            diagnostics.append(f"partial raw-deflate diagnostic failed: {exc}")
+
+
+def report_rows(
+    decompressed: bytes,
+    ihdr: tuple[int, int, int, int, int, int, int] | None,
+    diagnostics: list[str],
+    label: str,
+) -> None:
+    if ihdr is None:
+        return
+    width, height, bit_depth, color_type, *_ = ihdr
+    row_bytes = scanline_bytes(width, bit_depth, color_type)
+    if row_bytes:
+        diagnostics.append(
+            f"{label} scanline diagnostic: row_bytes={row_bytes}, complete_rows={len(decompressed) // row_bytes}/{height}, expected_raw_bytes={row_bytes * height}"
+        )
+
+
 def main() -> int:
     errors: list[str] = []
     diagnostics: list[str] = []
@@ -68,23 +120,8 @@ def main() -> int:
                 f"truncated PNG chunk {chunk_type!r}: declared {length} data bytes but only {available} bytes remain before EOF"
             )
             if chunk_type == b"IDAT" and available:
-                partial = raw[data_start:]
-                idat_payload.extend(partial)
-                try:
-                    inflater = zlib.decompressobj()
-                    decompressed = inflater.decompress(bytes(idat_payload))
-                    diagnostics.append(
-                        f"partial IDAT diagnostic: {len(idat_payload)} compressed bytes yield {len(decompressed)} decompressed bytes; zlib_eof={inflater.eof}"
-                    )
-                    if ihdr is not None:
-                        width, height, bit_depth, color_type, *_ = ihdr
-                        row_bytes = scanline_bytes(width, bit_depth, color_type)
-                        if row_bytes:
-                            diagnostics.append(
-                                f"partial scanline diagnostic: row_bytes={row_bytes}, complete_rows={len(decompressed) // row_bytes}/{height}, expected_raw_bytes={row_bytes * height}"
-                            )
-                except zlib.error as exc:
-                    diagnostics.append(f"partial IDAT zlib diagnostic failed: {exc}")
+                idat_payload.extend(raw[data_start:])
+                add_partial_idat_diagnostics(bytes(idat_payload), ihdr, diagnostics)
             break
 
         data = raw[data_start:data_end]
