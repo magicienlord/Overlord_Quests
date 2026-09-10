@@ -27,6 +27,11 @@ public record QuestResetPacket(ResourceLocation id) {
         }
 
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(sender);
+        if (!manager.isActive()) {
+            Questlog.LOGGER.warn("Ignoring reset request for {} from an inactive quest manager", packet.id);
+            return;
+        }
+
         Quest quest = manager.getQuest(packet.id);
         if (quest == null) {
             Questlog.LOGGER.warn("Ignoring reset request for unknown quest {}", packet.id);
@@ -34,6 +39,20 @@ public record QuestResetPacket(ResourceLocation id) {
         }
         if (!quest.isRepeatable()) {
             Questlog.LOGGER.warn("Ignoring reset request for non-repeatable quest {}", packet.id);
+            return;
+        }
+
+        // The client only exposes reset after a repeatable quest has completed and
+        // all rewards have been collected. Enforce the same contract on the server
+        // so a forged packet cannot erase in-progress state or bypass a pending
+        // reward choice.
+        if (!quest.isCompleted() || !quest.isRewarded()) {
+            Questlog.LOGGER.warn(
+                    "Ignoring premature reset request for repeatable quest {} (completed={}, rewarded={})",
+                    packet.id,
+                    quest.isCompleted(),
+                    quest.isRewarded()
+            );
             return;
         }
 
