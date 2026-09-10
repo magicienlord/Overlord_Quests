@@ -67,9 +67,9 @@ public class ItemMatcher {
         }
         if (this.nbtJson != null && !this.nbtJson.isJsonNull()) {
             NbtPredicate predicate = getNbtPredicate();
-            if (predicate != null) {
-                return predicate.matches(stack);
-            }
+            // A malformed configured predicate must never degrade into a wildcard
+            // match. Invalid filtering data is safer as an unsatisfied objective.
+            return predicate != null && predicate.matches(stack);
         }
         return true;
     }
