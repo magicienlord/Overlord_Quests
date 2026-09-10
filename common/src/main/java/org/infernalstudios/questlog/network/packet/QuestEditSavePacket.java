@@ -12,6 +12,7 @@ import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.platform.Services;
+import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -52,9 +53,14 @@ public class QuestEditSavePacket {
 
         try {
             JsonObject definition = GSON.fromJson(packet.json, JsonObject.class);
+            if (definition == null) {
+                Questlog.LOGGER.warn("Rejected empty quest definition for {}", packet.id);
+                return;
+            }
+
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path questDir = configDir.resolve("quests");
-            Path filePath = questDir.resolve(packet.id.getPath() + ".json");
+            Path filePath = DefinitionPathUtil.resolveJsonDefinition(questDir, packet.id);
             Files.createDirectories(filePath.getParent());
             try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
                 GSON.toJson(definition, writer);
@@ -70,6 +76,8 @@ public class QuestEditSavePacket {
                     ServerPlayerManager.INSTANCE.syncPlayer(manager);
                 }
             }
+        } catch (IllegalArgumentException e) {
+            Questlog.LOGGER.warn("Rejected unsafe quest definition path for {}: {}", packet.id, e.getMessage());
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to save quest definition", e);
         }
