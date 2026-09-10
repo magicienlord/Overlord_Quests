@@ -42,6 +42,8 @@ The following Questlog 3.3.3 systems are retained unless a concrete OVERLORD REI
 - in-game quest editor
 - external `config/questlog/quests` and `config/questlog/chapters` workflow
 
+Preserving an upstream system does not forbid correctness or authority hardening around it. The adaptation keeps the inherited behavior surface while rejecting malformed, stale, or unsupported state that the original client could send to the server.
+
 ## OVERLORD adaptation targets
 
 The initial targets are:
@@ -71,29 +73,35 @@ The earlier compile-common-once experiment was rejected because it prevented the
 
 ## Bundled definitions
 
-`DefinitionUtil` now loads approved definitions bundled under `assets/questlog/overlord/definitions/` before reading external config definitions.
+`DefinitionUtil` loads approved definitions bundled under `assets/questlog/overlord/definitions/` before reading external config definitions.
 
 The bundled `index.json` explicitly lists packaged quests and chapters. External definitions in `config/questlog/` load afterward and therefore remain higher-priority overrides for development and pack maintenance.
 
 The repository validator checks the bundled manifest and prevents development fixtures from being promoted through that path. The manifest currently contains no story quests or chapters.
 
+The in-game editor remains a config-layer editor. Because config definitions are reconstructed under the technical `questlog` namespace, editor save/remove packets now reject other namespaces rather than allowing an ID that cannot round-trip through the loader.
+
 ## Definition validation contract
 
-The repository validator has been hardened against the actual built-in objective and reward registries rather than validating generic JSON shape only. It now checks known `questlog:` type IDs, recursive logic objectives, recursive choice rewards, registry/tag matcher syntax, built-in required fields, panel/sound/overlay fields, and development-content boundaries.
+The repository validator is hardened against the actual built-in objective and reward registries rather than validating generic JSON shape only. It checks known `questlog:` type IDs, recursive logic objectives, choice rewards, registry/tag matcher syntax, built-in required fields, panel/sound/overlay fields, and development-content boundaries.
 
-A self-test suite exercises positive and deliberately invalid definitions and runs in the normal Forge CI before production/example validation. Custom non-`questlog` namespaces remain permitted extension points so future OVERLORD compatibility objectives can define their own schemas without the bootstrap validator inventing them prematurely.
+A self-test suite exercises positive and deliberately invalid definitions and runs in normal Forge CI before production/example validation. Custom non-`questlog` namespaces remain permitted extension points so future OVERLORD compatibility objectives can define their own schemas without the bootstrap validator inventing them prematurely.
+
+Runtime choice-reward rules are intentionally stricter than upstream: `pick_count` must be satisfiable, a choice reward cannot `auto_claim`, and nested choice rewards are rejected because the current claim packet has no representation for nested selection state. The repository validator must mirror these restrictions before production content is bundled.
 
 This validation layer is technical. Passing it does not imply that a quest is approved story content, balanced, or correct for OVERLORD REIGN progression.
 
 ## Quest engine hardening
 
-Two source-derived authoring issues have been corrected without creating story content.
+`visit_position` supports an optional `dimension` field. When absent it retains inherited coordinate-only behavior. When present, both the configured dimension and bounding box must match before the objective progresses. This prevents future location objectives from being accidentally satisfied by the same coordinates in another dimension. No canonical coordinates are assigned by this capability.
 
-First, `visit_position` now supports an optional `dimension` field. When absent it retains inherited coordinate-only behavior. When present, both the configured dimension and bounding box must match before the objective progresses. This prevents future location objectives from being accidentally satisfied by the same coordinates in another dimension. No canonical coordinates are assigned by this capability.
-
-Second, the inherited editor metadata for `questlog:trample` advertised a block filter even though `TrampleObjective` ignores such a field and listens specifically for farmland-trample events. The misleading block input has been removed from the editor metadata so authoring UI and runtime semantics agree.
+The inherited editor metadata for `questlog:trample` advertised a block filter even though `TrampleObjective` ignores such a field and listens specifically for farmland-trample events. The misleading block input has been removed from the editor metadata so authoring UI and runtime semantics agree.
 
 Quest persistence is positional inside each prerequisite, objective, failure, and reward list. Once a production quest has live saved progress, reordering those entries should therefore be treated as a save migration concern rather than a harmless JSON cleanup.
+
+The Triggers 1.0.1 shared event bus cannot unregister one listener. Hot-reloading definitions can therefore leave listeners belonging to old Objective instances registered. OVERLORD QUESTS avoids clearing the shared bus, which could break other consumers, and instead makes stale Objective instances inert by checking that their parent Quest is still the current QuestManager instance before state mutation.
+
+The client-to-server packet surface has also been hardened. Reward collection, read acknowledgement, repeatable reset, and quest/chapter editor operations now validate their server-side sender and authoritative state before acting. Reward collection rejects early claims and invalid indices. Choice selections are validated before state mutation. Editor operations require permission level 2, reject unsupported namespaces, reject malformed save JSON, and confine filesystem operations to their intended config roots.
 
 Detailed source-derived capability notes are maintained in `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md`.
 
@@ -105,15 +113,17 @@ Questlog 3.3.3 already supports the relevant presentation primitives on individu
 
 The approved popup-character baseline keeps the established portrait design. The approved face correction is square pupils that look toward the player while respecting each eye's perspective. Gnarl's existing snout geometry and non-angry expression are invariants and must not be altered by that correction.
 
-The exact approved 1254 x 1254 RGBA portrait is now integrated at `assets/questlog/textures/gui/overlord/gnarl_popup.png`. It is displayed in the current development fixture through a 160 x 160 overlay rectangle, so source texture resolution is not the same thing as on-screen size.
+The exact approved 1254 x 1254 RGBA portrait is integrated at `assets/questlog/textures/gui/overlord/gnarl_popup.png`. It is displayed in the current development fixture through a 160 x 160 overlay rectangle, so source texture resolution is not the same thing as on-screen size.
 
-The integrated portrait passed PNG integrity and alpha-content validation. The technical Foundation B pipeline also passed definition validation, static layout reporting, Java 17 Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload. The first green full pipeline with the approved portrait was run `34528438059`; subsequent hardening has also continued through normal CI.
+The integrated portrait passed PNG integrity and alpha-content validation. The technical Foundation B pipeline has also passed definition validation, static layout reporting, Java 17 Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload. Current popup queue and engine hardening continue to pass the same full workflow.
 
 The separate in-game Gnarl model remains work in progress and is not a source for automatic popup redesign. Full cross-alignment is deferred until the model reaches the review gate defined in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
 Automatic full-screen popup behavior remains single-player only by explicit project decision. The client code keeps a named local-singleplayer gate around the popup queue rather than expanding the feature to multiplayer.
 
-Foundation B has also repaired two popup-delivery defects found during source review: a queued popup can no longer become permanently stranded merely because the player was carrying a stack when the retry fired, and the quest trigger sound is no longer replayed when the delayed popup screen opens.
+The popup queue now delays automatic full-screen presentation while any other GUI is active. It does not replace inventory, container, chat, editor, or other screens. When normal gameplay resumes, the queue resolves the current quest by ID and opens only if it is still triggered. Duplicate queued IDs are suppressed, logout clears queue state, and the unpublished-singleplayer scope is checked again immediately before display.
+
+The trigger sound remains bound to the trigger event, not delayed popup display, so queue deferral must not produce a second identical cue when the screen eventually opens.
 
 If the native overlay path cannot achieve a stable readable Gnarl layout at normal GUI scales, only then should the renderer receive a dedicated speaker/portrait field.
 
@@ -132,7 +142,8 @@ Foundation B is complete only when direct in-game review confirms:
 - quest title and body text remain readable;
 - popup-on-unlock works from an actual locked-to-unlocked transition in unpublished local single-player;
 - the trigger cue occurs once rather than being replayed when the popup appears;
-- a temporarily blocked queued popup resumes rather than becoming stranded;
+- an automatic popup does not steal focus from another active GUI;
+- a temporarily deferred queued popup resumes after the GUI closes rather than becoming stranded;
 - the composition remains usable across the agreed GUI scales/window sizes;
 - the native Questlog overlay path is either accepted or rejected based on observed behavior rather than assumption.
 
