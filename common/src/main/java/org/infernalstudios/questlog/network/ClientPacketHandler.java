@@ -21,7 +21,6 @@ import org.infernalstudios.questlog.network.packet.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientPacketHandler {
@@ -30,11 +29,24 @@ public class ClientPacketHandler {
     private static QuestSyncPacket DEFERRED_SYNC_PACKET = null;
 
     public static void handle(QuestCompletedPacket packet, IPacketContext ctx) {
+        if (Minecraft.getInstance().player == null) {
+            Questlog.LOGGER.warn("Ignoring quest completion packet for {} because no local player is available", packet.id());
+            return;
+        }
         QuestManager manager = QuestlogClient.getLocal();
-        QuestlogEvents.onQuestCompleted(new QuestEvent.Completed(manager.player, manager.getQuest(packet.id()), false));
+        Quest quest = manager.getQuest(packet.id());
+        if (quest == null) {
+            Questlog.LOGGER.warn("Ignoring quest completion packet for unknown quest {}", packet.id());
+            return;
+        }
+        QuestlogEvents.onQuestCompleted(new QuestEvent.Completed(manager.player, quest, false));
     }
 
     public static void handle(QuestDataPacket packet, IPacketContext ctx) {
+        if (Minecraft.getInstance().player == null) {
+            Questlog.LOGGER.warn("Ignoring quest data packet for {} because no local player is available", packet.id());
+            return;
+        }
         try {
             QuestManager manager = QuestlogClient.getLocal();
             Quest quest = manager.getQuest(packet.id());
@@ -43,12 +55,16 @@ public class ClientPacketHandler {
             }
             quest.deserialize(packet.data());
         } catch (Throwable e) {
-            Questlog.LOGGER.error("Failed to handle QuestDataPacket", e);
+            Questlog.LOGGER.error("Failed to handle QuestDataPacket for {}", packet.id(), e);
         }
     }
 
     public static void handle(QuestDefinitionPacket packet, IPacketContext ctx) {
         if (Minecraft.getInstance().player == null) {
+            // Keep at most the newest definition for an ID while the local player
+            // is unavailable. This prevents repeated server reloads during login
+            // from growing the deferred queue or replaying stale definitions.
+            DEFERRED_DEFS.removeIf(existing -> existing.id().equals(packet.id()));
             DEFERRED_DEFS.add(packet);
             return;
         }
@@ -56,32 +72,63 @@ public class ClientPacketHandler {
             QuestManager manager = QuestlogClient.getLocal();
             Quest existing = manager.getQuest(packet.id());
             CompoundTag savedData = existing != null ? existing.serialize() : null;
-            Quest quest = Quest.create(Objects.requireNonNull(GSON.fromJson(packet.getJsonString(), JsonObject.class)), packet.id(), manager);
+            JsonObject definition = GSON.fromJson(packet.getJsonString(), JsonObject.class);
+            if (definition == null) {
+                throw new IllegalArgumentException("Synced quest definition is JSON null");
+            }
+            Quest quest = Quest.create(definition, packet.id(), manager);
             if (savedData != null) {
                 quest.deserialize(savedData);
             }
             manager.addQuest(quest);
         } catch (Throwable e) {
-            Questlog.LOGGER.error("Failed to handle QuestDefinitionPacket", e);
+            Questlog.LOGGER.error("Failed to handle QuestDefinitionPacket for {}", packet.id(), e);
         }
     }
 
     public static void handleDeferredDefinitions() {
+        if (Minecraft.getInstance().player == null) {
+            return;
+        }
         for (QuestDefinitionPacket packet : DEFERRED_DEFS) {
             handle(packet, null);
         }
         DEFERRED_DEFS.clear();
     }
 
+    /**
+     * Clears packet state that belongs to a client connection. A disconnect can
+     * occur before the local-player login callback consumes deferred packets, so
+     * leaving these statics populated would allow one server/world's definitions
+     * to be applied to the next connection.
+     */
+    public static void clearDeferredState() {
+        DEFERRED_DEFS.clear();
+        DEFERRED_SYNC_PACKET = null;
+    }
+
     public static void handle(QuestRemovePacket packet, IPacketContext ctx) {
+        if (Minecraft.getInstance().player == null) {
+            DEFERRED_DEFS.removeIf(existing -> existing.id().equals(packet.id()));
+            return;
+        }
         Questlog.LOGGER.trace("Received remove packet for quest {}", packet.id().toString());
         QuestManager manager = QuestlogClient.getLocal();
         manager.removeQuest(packet.id());
     }
 
     public static void handle(QuestTriggeredPacket packet, IPacketContext ctx) {
+        if (Minecraft.getInstance().player == null) {
+            Questlog.LOGGER.warn("Ignoring quest trigger packet for {} because no local player is available", packet.id());
+            return;
+        }
         QuestManager manager = QuestlogClient.getLocal();
-        QuestlogEvents.onQuestTriggered(new QuestEvent.Triggered(manager.player, manager.getQuest(packet.id()), false));
+        Quest quest = manager.getQuest(packet.id());
+        if (quest == null) {
+            Questlog.LOGGER.warn("Ignoring quest trigger packet for unknown quest {}", packet.id());
+            return;
+        }
+        QuestlogEvents.onQuestTriggered(new QuestEvent.Triggered(manager.player, quest, false));
     }
 
     public static void handle(QuestOpenPacket packet, IPacketContext ctx) {
@@ -112,10 +159,16 @@ public class ClientPacketHandler {
 
     public static void handle(QuestSyncPacket packet, IPacketContext ctx) {
         if (Minecraft.getInstance().player == null) {
+            // Full sync supersedes any earlier full sync. Keep only the latest one
+            // until the local player exists.
             DEFERRED_SYNC_PACKET = packet;
             return;
         }
         processSync(packet);
+        refreshOpenQuestScreenAfterSync();
+    }
+
+    private static void refreshOpenQuestScreenAfterSync() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen instanceof QuestlogScreen questlogScreen) {
             questlogScreen.init(mc, questlogScreen.width, questlogScreen.height);
@@ -136,9 +189,11 @@ public class ClientPacketHandler {
     }
 
     public static void handleDeferredSync() {
-        if (DEFERRED_SYNC_PACKET != null) {
-            processSync(DEFERRED_SYNC_PACKET);
+        if (DEFERRED_SYNC_PACKET != null && Minecraft.getInstance().player != null) {
+            QuestSyncPacket packet = DEFERRED_SYNC_PACKET;
             DEFERRED_SYNC_PACKET = null;
+            processSync(packet);
+            refreshOpenQuestScreenAfterSync();
         }
     }
 
@@ -151,6 +206,8 @@ public class ClientPacketHandler {
                 JsonObject def = GSON.fromJson(entry.getValue(), JsonObject.class);
                 if (def != null) {
                     DefinitionUtil.putCachedChapter(entry.getKey(), def);
+                } else {
+                    Questlog.LOGGER.warn("Ignoring JSON-null synced chapter {}", entry.getKey());
                 }
             } catch (Exception e) {
                 Questlog.LOGGER.error("Failed to parse synced chapter {}", entry.getKey(), e);
@@ -161,23 +218,24 @@ public class ClientPacketHandler {
         for (Map.Entry<ResourceLocation, String> entry : packet.definitions().entrySet()) {
             try {
                 JsonObject def = GSON.fromJson(entry.getValue(), JsonObject.class);
-                if (def != null) {
-                    DefinitionUtil.putCachedQuest(entry.getKey(), def);
+                if (def == null) {
+                    throw new IllegalArgumentException("Synced quest definition is JSON null");
                 }
+                DefinitionUtil.putCachedQuest(entry.getKey(), def);
                 Quest quest = Quest.create(def, entry.getKey(), manager);
                 manager.addQuest(quest);
             } catch (Exception e) {
                 Questlog.LOGGER.error("Failed to parse synced quest {}", entry.getKey(), e);
                 try {
-                    JsonObject def = GSON.fromJson(entry.getValue(), JsonObject.class);
+                    JsonObject sourceDef = GSON.fromJson(entry.getValue(), JsonObject.class);
                     JsonObject fallbackDef = new JsonObject();
                     fallbackDef.addProperty("title", "Broken Quest (" + entry.getKey().getPath() + ")");
                     String errorMsg = e.getMessage() != null ? e.getMessage() : e.toString();
-                    if (e.getCause() != null) {
+                    if (e.getCause() != null && e.getCause().getMessage() != null) {
                         errorMsg += "\nCaused by: " + e.getCause().getMessage();
                     }
                     fallbackDef.addProperty("description", "This quest failed to load properly. Edit it to fix errors.\n\nError details:\n" + errorMsg);
-                    fallbackDef.addProperty("chapter", def != null && def.has("chapter") ? def.get("chapter").getAsString() : "main");
+                    fallbackDef.addProperty("chapter", sourceDef != null && sourceDef.has("chapter") ? sourceDef.get("chapter").getAsString() : "main");
                     Quest quest = Quest.create(fallbackDef, entry.getKey(), manager);
                     manager.addQuest(quest);
                 } catch (Exception ex) {
@@ -189,6 +247,8 @@ public class ClientPacketHandler {
             Quest quest = manager.getQuest(entry.getKey());
             if (quest != null) {
                 quest.deserialize(entry.getValue());
+            } else {
+                Questlog.LOGGER.warn("Ignoring synced quest data for unknown quest {}", entry.getKey());
             }
         }
     }
