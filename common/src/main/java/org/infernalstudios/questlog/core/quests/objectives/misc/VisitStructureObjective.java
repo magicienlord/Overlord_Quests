@@ -1,0 +1,46 @@
+package org.infernalstudios.questlog.core.quests.objectives.misc;
+
+import com.evandev.triggers.Triggers;
+import com.evandev.triggers.event.events.TriggerPlayerEvent;
+import com.google.gson.JsonObject;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import org.infernalstudios.questlog.core.quests.objectives.Objective;
+import org.infernalstudios.questlog.util.JsonUtils;
+
+public class VisitStructureObjective extends Objective {
+
+    private final ResourceKey<Structure> structure;
+    // Checks every second for performance
+    private int ticksUntilCheck = 0;
+
+    public VisitStructureObjective(JsonObject definition) {
+        super(definition);
+        this.structure = ResourceKey.create(
+                Registries.STRUCTURE,
+                new ResourceLocation(JsonUtils.getString(definition, "structure"))
+        );
+    }
+
+    @Override
+    public void registerEventListeners() {
+        super.registerEventListeners();
+        Triggers.EVENTS.addListener(this::onPlayerMove);
+    }
+
+    private void onPlayerMove(TriggerPlayerEvent.Tick event) {
+        if (this.isCompleted() || this.getParent() == null) return;
+        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
+            ticksUntilCheck = 20;
+            if (!player.serverLevel().isLoaded(player.blockPosition())) return;
+
+            Structure struct = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE).get(this.structure);
+            if (struct != null && player.serverLevel().structureManager().getStructureWithPieceAt(player.blockPosition(), struct).isValid()) {
+                this.setUnits(this.getUnits() + 1);
+            }
+        }
+    }
+}

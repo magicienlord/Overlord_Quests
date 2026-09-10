@@ -1,0 +1,7 @@
+{
+  "title": "Avian Origin",
+  "description": "Prerequisite for the Avian origin",
+  "type": "questlog:origin",
+  "origin": "origins:avian",
+  "name": "Avian Origin"
+}
