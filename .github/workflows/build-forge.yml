@@ -77,6 +77,11 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'assets/questlog/textures/gui/overlord/gnarl_popup.png'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/overlord/definitions/index.json'
           jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
+          jar tf "$JAR" | grep -Fxq 'META-INF/jarjar/metadata.json'
+          jar tf "$JAR" | grep -Eq '^META-INF/jarjar/.*triggers.*\.jar$'
+
+          unzip -p "$JAR" META-INF/mods.toml > assembled-mods.toml
+          grep -Fq 'modId = "cloth_config"' assembled-mods.toml
 
           if jar tf "$JAR" | grep -Eq '^assets/questlog/overlord/definitions/(quests|chapters)/.*_dev\.json$'; then
             echo "Development quest/chapter content was bundled into the runtime JAR."
