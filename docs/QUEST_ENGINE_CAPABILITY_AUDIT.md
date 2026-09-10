@@ -4,7 +4,7 @@ Status: TECHNICAL / PREPARATORY - NOT STORY CANON
 
 This document records source-derived quest-engine capabilities and limitations relevant to future OVERLORD REIGN quest authoring. It does not define quest chronology, story text, locations, rewards, faction outcomes, or other world canon.
 
-Foundation B remains the active presentation milestone until the Gnarl popup receives direct in-game acceptance. The work here is preparatory hardening that can proceed without inventing story content.
+Foundation B remains the active presentation milestone until the Gnarl popup receives direct in-game acceptance and the exact corrected portrait binary is approved. The work here is preparatory hardening that can proceed without inventing story content.
 
 ## 1. Objective surface
 
@@ -124,7 +124,7 @@ It validates:
 
 Custom non-`questlog` namespaces remain extension points. The validator applies the common structural contract to them but does not invent schemas for future compatibility objectives.
 
-A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the Gnarl portrait, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
+A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the Gnarl test portrait mechanically, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
 
 ## 5. Position objective dimensional safety
 
@@ -180,9 +180,9 @@ Quest state is stored per player in `<uuid>.questlog.dat` under the world's play
 
 Objective progress is clamped at runtime to the range from 0 through the current definition's `required_amount`. A malformed non-positive runtime `required_amount` is normalized to 1. This prevents corrupt or stale NBT from creating negative progress or progress values beyond the current objective contract.
 
-Player quest data and the global-quest data file are now written through a sibling temporary file and then replaced. Filesystems that support atomic moves use `ATOMIC_MOVE`; other filesystems fall back to a normal replace only after the temporary compressed NBT has been written successfully. This materially reduces the chance of a process interruption leaving a partially-written quest save.
+Player quest data and the global-quest data file are written through a sibling temporary file and then replaced. Filesystems that support atomic moves use `ATOMIC_MOVE`; other filesystems fall back to a normal replace only after the temporary compressed NBT has been written successfully. This materially reduces the chance of a process interruption leaving a partially-written quest save.
 
-`repeatable` and `global` are now definition-authoritative fields. They remain written into NBT for compatibility with inherited readers, but current OVERLORD QUESTS deserialization does not allow persisted values to override the active definition. The inherited behavior could silently undo an editor/config change to either flag and, in the `global` case, could keep a quest participating in cross-manager synchronization after its definition stopped being global.
+`repeatable` and `global` are definition-authoritative fields. They remain written into NBT for compatibility with inherited readers, but current OVERLORD QUESTS deserialization does not allow persisted values to override the active definition. The inherited behavior could silently undo an editor/config change to either flag and, in the `global` case, could keep a quest participating in cross-manager synchronization after its definition stopped being global.
 
 Objective and reward state remains position-based within each list. Reordering entries in a live production quest can therefore associate existing saved state with a different entry. Choice rewards also persist selected indices positionally. Production authoring should treat prerequisite/objective/failure/reward ordering, including choice ordering, as save-compatible data once released unless an explicit migration is implemented.
 
@@ -209,7 +209,7 @@ These checks are defense-in-depth for a local single-player project and keep mal
 
 The fork retains the technical `questlog` mod ID during bootstrap, but its packet contract is no longer guaranteed to be wire-compatible with unmodified Questlog 3.3.3.
 
-The Forge SimpleChannel now advertises an OVERLORD QUESTS-specific protocol version and requires exact equality on both sides. The inherited channel previously accepted every remote protocol string. Exact matching prevents a mismatched Questlog client or server from being admitted merely because both sides expose the same technical mod ID and channel name.
+The Forge SimpleChannel advertises an OVERLORD QUESTS-specific protocol version and requires exact equality on both sides. The inherited channel previously accepted every remote protocol string. Exact matching prevents a mismatched Questlog client or server from being admitted merely because both sides expose the same technical mod ID and channel name.
 
 This does not expand multiplayer support. Automatic Gnarl full-screen popups remain intentionally scoped to unpublished local single-player. The strict protocol is a correctness boundary for any connection path that does exist.
 
@@ -261,7 +261,7 @@ The remaining positional-list limitation means structural edits still need migra
 
 None of this preparatory hardening closes Foundation B.
 
-Foundation B still requires direct unpublished-local-single-player review of the approved Gnarl popup for:
+Foundation B still requires direct unpublished-local-single-player review of the Gnarl popup implementation for:
 
 - actual transparency in Minecraft;
 - clipping and anchoring;
@@ -271,7 +271,9 @@ Foundation B still requires direct unpublished-local-single-player review of the
 - queued-popup retry reliability;
 - final decision on whether native Questlog overlay controls are sufficient.
 
-Until that review is complete, portrait scale, parchment placement, and popup composition remain implementation-test values.
+The exact corrected portrait binary also remains pending explicit visual acceptance against the locked square-pupil, direct-gaze, perspective-aligned target while preserving the original snout and sly expression.
+
+Until those reviews are complete, the repository PNG is a technical test asset and portrait scale, parchment placement, and popup composition remain implementation-test values.
 
 ## 16. Current authoring policy
 
@@ -280,3 +282,49 @@ Future quest content should use the narrowest native objective that accurately e
 Once a production quest has persistent player progress, changing the order or semantic meaning of entries in its prerequisite, objective, failure, reward, or choice lists should be treated as a save migration concern rather than a harmless JSON edit.
 
 Engine capability must not be mistaken for story authorization. In particular, the presence of visit-position, command-reward, structure, dimension, Origins, global, repeatable, or other technical primitives does not establish that OVERLORD REIGN uses them in any specific quest.
+
+## 17. Integrated single-player definition-cache concurrency
+
+`DefinitionUtil` stores quest and chapter definitions in static maps. In the target integrated single-player runtime, the logical client and integrated server execute in the same JVM and therefore share those exact static map objects.
+
+The inherited client full-sync path treated the caches as client-local and cleared/repopulated them from the client thread. In integrated single-player that created a real concurrency hazard: the server could observe an empty or partially rebuilt definition cache while a full sync was being processed.
+
+OVERLORD QUESTS now treats integrated-server synchronization differently:
+
+- the server loads and owns the authoritative static definition cache;
+- an integrated client consumes the received full-sync definitions directly to rebuild its local QuestManager but does not clear or repopulate the shared static caches;
+- a remote multiplayer client, which has no integrated server sharing the JVM, continues to maintain its own definition mirror from the sync packet;
+- static definition-cache readers and writers use the same `DefinitionUtil` class monitor, preventing GUI-side iteration while a server-side definition reload is rebuilding the fastutil maps.
+
+Client logout deliberately does not clear the shared DefinitionUtil maps because integrated-server shutdown may still be in progress. Client-only transient advancement metadata and deferred packet state are cleared separately.
+
+Status: TARGET-RUNTIME RACE HARDENED.
+
+## 18. Full-sync input bounds
+
+`QuestSyncPacket` carries four potentially large collections: quest definitions, chapter definitions, quest-state NBT, and advancement IDs.
+
+The decoder now validates collection counts before allocation. Current generous ceilings are:
+
+```text
+quest definitions:   65536
+chapter definitions: 8192
+quest data entries:  65536
+advancement IDs:     131072
+```
+
+The packet also rejects duplicate map keys, null map values, null outgoing map keys/values, and null outgoing list entries. These checks do not alter normal wire structure or expand multiplayer support. They bound malformed or corrupt packet behavior before it can drive uncontrolled allocation or ambiguous last-write-wins state.
+
+A full sync received before the local player exists still keeps only the newest pending full-sync packet. Individual deferred quest definitions are deduplicated by quest ID. Disconnect clears deferred connection state so one world/server cannot leak queued definitions into the next connection.
+
+Status: MALFORMED FULL-SYNC INPUT HARDENED.
+
+## 19. Administrative command targeting
+
+Questlog's command suggestions expose chapter IDs as namespaced resource locations such as `questlog:main`, while quest JSON commonly stores the same chapter as the bare string `main`.
+
+The inherited chapter-target comparison used raw string equality. As a result, selecting a suggested namespaced chapter could fail to match quests whose display data used the equivalent bare chapter form.
+
+OVERLORD QUESTS normalizes both command targets and quest chapter strings to resource IDs before chapter-scoped progress operations. Bare chapter names are normalized under the retained technical `questlog` namespace. Command paths that require the server QuestManager also fail cleanly when that manager is unavailable rather than dereferencing a null singleton.
+
+This is administrative tooling consistency only. It does not change quest chronology, progression design, or story content.
