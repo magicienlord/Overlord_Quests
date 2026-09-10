@@ -12,7 +12,7 @@ The development definition is:
 
 `examples/questlog/quests/overlord_gnarl_popup_dev.json`
 
-The portrait asset is:
+The current test portrait asset is:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
@@ -20,25 +20,23 @@ The complete manual procedure is recorded in `docs/FOUNDATION_B_TEST_PROTOCOL.md
 
 ## Current design decision
 
-The popup Gnarl character design is approved for this milestone.
+The popup Gnarl character-design target is locked for this milestone. The final corrected PNG is not yet approved as a binary.
 
-The approved baseline preserves the established portrait and changes only the pupil treatment:
+The locked target preserves the established portrait and changes only the pupil treatment:
 
 - pupils are square;
 - pupils look toward the player;
 - each pupil remains perspective-aligned to the eye it sits within;
-- the original snout geometry is preserved;
-- Gnarl retains the established sly/non-angry expression.
+- the original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship are preserved unchanged;
+- Gnarl retains the established sly, amused, non-angry expression without brow, eyelid, grin, or facial-proportion drift.
 
 Do not otherwise blend the popup portrait with the current WIP in-game Gnarl model yet. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The controlled comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
-This approval locks the popup character design for Foundation B. It does not lock parchment placement, portrait scale, or screen composition. Those remain subject to the in-game vertical-slice test below.
+These decisions lock the target character design for Foundation B. They do not lock the current raster file, parchment placement, portrait scale, or screen composition. The raster file requires explicit visual acceptance once a correction satisfies all locked face invariants.
 
-## Approved asset integration
+## Current test asset integration
 
-The approved portrait is now physically present at the runtime resource path above. The repository keeps the exact approved 1254 x 1254 RGBA source rather than silently resampling the reviewed artwork.
-
-Mechanical validation of that binary reports:
+A 1254 x 1254 RGBA test portrait is physically present at the runtime resource path above. Mechanical validation of that binary reports:
 
 ```text
 sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
@@ -49,9 +47,9 @@ fully transparent pixels: 713423
 partially transparent pixels: 858065
 ```
 
-Questlog still renders the texture into the fixture's 160 x 160 overlay rectangle. Source texture resolution and on-screen presentation size are therefore separate concerns.
+These facts prove PNG integrity and usable alpha only. They do not prove that the image satisfies the final direct-gaze square-pupil correction, and they must not be used as evidence of final portrait approval.
 
-The approved asset and current popup implementation passed GitHub Actions run `34528438059` at commit `51319a85fde584e4b44c95b43c6a55b1e3f444c5`. That establishes a green technical build, not visual acceptance.
+Questlog renders the texture into the fixture's 160 x 160 overlay rectangle. Source texture resolution and on-screen presentation size are therefore separate concerns.
 
 ## Runtime scope
 
@@ -113,11 +111,15 @@ The last value is deliberately treated as a warning only. The portrait's transpa
 
 No conclusion should be drawn from the left-side placement until an in-game comparison has been reviewed.
 
+## Popup queue behavior
+
+Queued automatic popups store only quest resource IDs. When the retry fires, the client resolves the current quest instance by ID before opening the details screen. The same current-state resolution is used if the session leaves the unpublished-local-single-player scope and the queued event is eligible to fall back to an ordinary unlock toast.
+
+This prevents an obsolete Quest object or obsolete display definition from being retained across a hot definition reload. Removed or reset quests are discarded rather than opened from stale queue state.
+
 ## Test installation
 
 The GitHub Actions build publishes a dedicated `overlord-quests-gnarl-popup-test-kit` artifact prepared in an instance-shaped layout.
-
-The current green technical gate produced test-kit artifact ID `10172531627` and Forge artifact ID `10172530649`.
 
 Install the OVERLORD QUESTS JAR, ensure a separate upstream Questlog JAR is not present, place the development quest under `config/questlog/quests/`, and launch an unpublished local single-player test world. Do not use Open to LAN for the acceptance pass.
 
@@ -127,12 +129,12 @@ Use a disposable test world or reset quest state before repeating the unlock tes
 
 `tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` placement constants and reports horizontal/vertical clipping plus the description-rectangle intersection.
 
-`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256. It does not assess whether the picture matches the approved character design.
+`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256. It does not assess whether the picture matches the locked character-design target.
 
 Static checks are not acceptance evidence. Minecraft still needs to render the popup directly.
 
 ## Acceptance
 
-This vertical slice is accepted only after direct in-game review. A successful build or static report alone does not lock the composition.
+This vertical slice is accepted only after direct in-game review and final corrected-portrait approval. A successful build or static report alone does not lock the portrait binary or composition.
 
 If native overlay controls remain stable and readable, the renderer should stay unchanged and the presentation can remain data-driven. If clipping, scaling, anchoring, layering, or interaction problems cannot be corrected through the existing fields, the next implementation pass may introduce a dedicated Gnarl speaker/portrait primitive.
