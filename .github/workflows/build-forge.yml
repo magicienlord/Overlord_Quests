@@ -44,6 +44,9 @@ jobs:
       - name: Validate quest completion dependency graph
         run: python3 tools/validate_quest_dependency_cycles.py
 
+      - name: Validate definition cache authority
+        run: python3 tools/validate_definition_cache_authority.py
+
       - name: Validate Gnarl popup asset
         run: |
           set -o pipefail
