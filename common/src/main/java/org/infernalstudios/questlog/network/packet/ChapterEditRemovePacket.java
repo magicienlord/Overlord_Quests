@@ -16,8 +16,12 @@ import org.infernalstudios.questlog.util.AtomicJsonFileUtil;
 import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public record ChapterEditRemovePacket(ResourceLocation id) {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
@@ -55,19 +59,41 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
             // send one QuestEditSavePacket per member before deleting the chapter,
             // causing N full definition reloads/syncs and trusting a potentially
             // stale client cache to decide which quests needed reassignment.
-            // Resolve membership against the server cache and rewrite every
-            // matching quest override first, then remove the chapter in one pass.
+            //
+            // Preflight every rewrite before touching disk. In particular, a JSON
+            // parse failure is represented in the runtime cache by a synthetic
+            // Broken Quest fallback. Writing that fallback over the malformed source
+            // file would destroy the user's original content, so existing config
+            // files are parsed directly and the whole deletion is aborted if any
+            // member cannot be read safely.
+            List<QuestRewrite> rewrites = new ArrayList<>();
             for (ResourceLocation questId : DefinitionUtil.getCachedQuestKeys()) {
-                JsonObject questDefinition = DefinitionUtil.getCachedQuest(questId);
-                if (!belongsToChapter(questDefinition, packet.id)) {
+                JsonObject cachedDefinition = DefinitionUtil.getCachedQuest(questId);
+                Path questPath = DefinitionPathUtil.resolveJsonDefinition(questDir, questId);
+
+                JsonObject sourceDefinition = cachedDefinition;
+                if (Files.exists(questPath)) {
+                    try (Reader reader = Files.newBufferedReader(questPath, StandardCharsets.UTF_8)) {
+                        sourceDefinition = GSON.fromJson(reader, JsonObject.class);
+                    }
+                    if (sourceDefinition == null) {
+                        throw new IOException("Quest definition is JSON null: " + questPath);
+                    }
+                }
+
+                if (!belongsToChapter(sourceDefinition, packet.id)) {
                     continue;
                 }
 
-                questDefinition.addProperty("chapter", "main");
-                Path questPath = DefinitionPathUtil.resolveJsonDefinition(questDir, questId);
-                AtomicJsonFileUtil.write(questPath, GSON, questDefinition);
+                JsonObject reassigned = sourceDefinition.deepCopy();
+                reassigned.addProperty("chapter", "main");
+                rewrites.add(new QuestRewrite(questId, questPath, reassigned));
+            }
+
+            for (QuestRewrite rewrite : rewrites) {
+                AtomicJsonFileUtil.write(rewrite.path(), GSON, rewrite.definition());
                 diskMayHaveChanged = true;
-                Questlog.LOGGER.info("Reassigned quest {} to main before deleting chapter {}", questId, packet.id);
+                Questlog.LOGGER.info("Reassigned quest {} to main before deleting chapter {}", rewrite.id(), packet.id);
             }
 
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
@@ -79,8 +105,8 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
             }
         } catch (IllegalArgumentException e) {
             Questlog.LOGGER.warn("Rejected unsafe chapter definition operation for {}: {}", packet.id, e.getMessage());
-        } catch (IOException e) {
-            Questlog.LOGGER.error("Failed to delete chapter or reassign its quests", e);
+        } catch (IOException | RuntimeException e) {
+            Questlog.LOGGER.error("Failed to delete chapter or safely reassign its quests", e);
         } finally {
             // A multi-file chapter removal can partially update disk if an I/O
             // failure occurs after one quest rewrite. Reload whenever any write
@@ -116,6 +142,9 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
             return false;
         }
         return chapterId.equals(normalized);
+    }
+
+    private record QuestRewrite(ResourceLocation id, Path path, JsonObject definition) {
     }
 
     public void encode(FriendlyByteBuf buf) {
