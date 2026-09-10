@@ -15,7 +15,11 @@ public class ItemEquipObjective extends AbstractItemObjective {
 
     public ItemEquipObjective(JsonObject definition) {
         super(definition);
-        this.slot = EquipmentSlot.byName(JsonUtils.getString(definition, "slot"));
+        String slotName = JsonUtils.getString(definition, "slot");
+        this.slot = EquipmentSlot.byName(slotName);
+        if (this.slot == null) {
+            throw new IllegalArgumentException("Unknown equipment slot: " + slotName);
+        }
     }
 
     @Override
@@ -25,8 +29,13 @@ public class ItemEquipObjective extends AbstractItemObjective {
     }
 
     private void onPlayerTick(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
             if (this.test(player.getItemBySlot(this.slot))) {
                 this.setUnits(this.getUnits() + 1);
             }
