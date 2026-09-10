@@ -1,0 +1,40 @@
+{
+  "title": "[DEV] Gnarl Popup Prototype",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate the Gnarl portrait overlay, parchment placement, text readability, popup-on-unlock behavior, and GUI scaling. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:knowledge_book"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "prerequisites": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one stick to trigger the popup"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "[DEV] Acknowledge the prototype"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 300,
+  "right_panel_width": 170,
+  "panel_height": 190,
+  "left_panel_x_offset": 70,
+  "left_panel_y_offset": 0,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 160,
+  "overlay_height": 160,
+  "overlay_x_offset": -140,
+  "overlay_y_offset": 18
+}
