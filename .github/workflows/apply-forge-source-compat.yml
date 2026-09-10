@@ -7,6 +7,7 @@ on:
     paths:
       - tools/forge_47410_source_compat.py
       - common/src/main/java/org/infernalstudios/questlog/client/gui/components/FunctionalButton.java
+      - buildSrc/src/main/groovy/multiloader-loader.gradle
       - .github/workflows/apply-forge-source-compat.yml
 
 permissions:
