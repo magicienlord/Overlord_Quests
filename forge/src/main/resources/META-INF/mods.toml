@@ -1,7 +1,9 @@
 modLoader = "javafml"
 loaderVersion = "${forge_loader_version_range}"
 license = "${license}"
-issueTrackerURL = "https://github.com/infernalstudios/Questlog/issues"
+issueTrackerURL = "https://github.com/magicienlord/Overlord_Quests/issues"
+
+displayURL = "https://github.com/magicienlord/Overlord_Quests"
 
 [[mods]]
 modId = "${mod_id}"
@@ -9,6 +11,7 @@ version = "${version}"
 displayName = "${mod_name}"
 logoFile = "${mod_id}.png"
 authors = "${mod_author}"
+credits = "${credits}"
 description = '''${description}'''
 
 [[dependencies.${mod_id}]]
