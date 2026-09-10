@@ -31,7 +31,8 @@ public class LootTableReward extends Reward {
         LootTable table = tables.getLootTable(this.lootTable);
 
         if (table == LootTable.EMPTY) {
-            Questlog.LOGGER.error("Loot table not found: {}", this.lootTable);
+            Questlog.LOGGER.error("Loot table not found: {}. Reward remains unclaimed.", this.lootTable);
+            return;
         }
 
         // Quest rewards are semantically closest to vanilla advancement rewards.
