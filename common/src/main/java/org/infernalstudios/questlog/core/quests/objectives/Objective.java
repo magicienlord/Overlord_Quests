@@ -20,7 +20,10 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     private boolean isPartOfPrerequisites = false;
 
     public Objective(JsonObject definition) {
-        this.requiredAmount = JsonUtils.getOrDefault(definition, "required_amount", 1);
+        // Repository validation rejects non-positive required amounts, but config
+        // files and old saves are external inputs at runtime. Keep every objective
+        // in a representable state even when those inputs are malformed.
+        this.requiredAmount = Math.max(1, JsonUtils.getOrDefault(definition, "required_amount", 1));
         this.units = 0;
 
         this.display = new ObjectiveDisplayData(definition);
@@ -69,6 +72,10 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         );
     }
 
+    private int clampUnits(int units) {
+        return Math.max(0, Math.min(units, this.requiredAmount));
+    }
+
     public void setUnits(int units) {
         if (!this.isActiveQuestInstance()) {
             return;
@@ -78,7 +85,7 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
             return;
         }
 
-        this.units = Math.min(units, this.requiredAmount);
+        this.units = this.clampUnits(units);
         if (this.getParent() != null) {
             this.getParent().markForUpdate();
         }
@@ -108,7 +115,10 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
 
     @Override
     public void deserialize(CompoundTag data) {
-        this.units = data.getInt("units");
+        // Persisted NBT is compatibility input, not an authority boundary. Clamp
+        // stale/corrupt values so negative progress or values above the current
+        // definition cannot escape the objective's runtime invariant.
+        this.units = this.clampUnits(data.getInt("units"));
     }
 
     @Override
@@ -126,7 +136,7 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         if (!this.isActiveQuestInstance()) {
             return;
         }
-        this.units = Math.min(units, this.requiredAmount);
+        this.units = this.clampUnits(units);
         if (this.getParent() != null) {
             this.getParent().markForUpdate();
         }
