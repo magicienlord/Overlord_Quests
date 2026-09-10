@@ -21,13 +21,27 @@ public class ItemReward extends Reward {
 
     public ItemReward(JsonObject definition) {
         super(definition);
+
+        int count = JsonUtils.getOrDefault(definition, "count", 1);
+        if (count < 1) {
+            throw new IllegalArgumentException("Item reward count must be at least 1");
+        }
+
+        JsonElement itemDefinition = definition.get("item");
         this.stack = new CachedValue<>(() -> {
-            ItemStack parsed = parseItemStack(definition.get("item"));
-            if (!parsed.isEmpty()) {
-                parsed.setCount(JsonUtils.getOrDefault(definition, "count", 1));
+            ItemStack parsed = parseItemStack(itemDefinition);
+            if (parsed.isEmpty()) {
+                throw new IllegalArgumentException("Item reward must resolve to a non-empty registered item stack");
             }
+            parsed.setCount(count);
             return parsed;
         });
+
+        // Validate while Quest.create is still inside its definition-load error
+        // boundary. Leaving this lazy allowed an unknown/defaulted item ID to turn
+        // into AIR and only surface when the reward was displayed or claimed, at
+        // which point the quest could silently mark an empty reward as collected.
+        this.stack.get();
     }
 
     public static ItemStack parseItemStack(@Nullable JsonElement element) {
@@ -35,9 +49,12 @@ public class ItemReward extends Reward {
             return ItemStack.EMPTY;
         }
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-            String itemStr = element.getAsString();
-            Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(itemStr));
-            return new ItemStack(item);
+            ResourceLocation id = ResourceLocation.tryParse(element.getAsString());
+            if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+                return ItemStack.EMPTY;
+            }
+            Item item = BuiltInRegistries.ITEM.get(id);
+            return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
         }
         if (element.isJsonObject()) {
             try {
@@ -51,9 +68,15 @@ public class ItemReward extends Reward {
             }
 
             JsonObject obj = element.getAsJsonObject();
-            String idStr = obj.has("id") && obj.get("id").isJsonPrimitive() ? obj.get("id").getAsString() : (obj.has("item") && obj.get("item").isJsonPrimitive() ? obj.get("item").getAsString() : null);
+            String idStr = obj.has("id") && obj.get("id").isJsonPrimitive()
+                    ? obj.get("id").getAsString()
+                    : (obj.has("item") && obj.get("item").isJsonPrimitive() ? obj.get("item").getAsString() : null);
             if (idStr != null) {
-                Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(idStr));
+                ResourceLocation id = ResourceLocation.tryParse(idStr);
+                if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+                    return ItemStack.EMPTY;
+                }
+                Item item = BuiltInRegistries.ITEM.get(id);
                 if (item != Items.AIR) {
                     return new ItemStack(item);
                 }
