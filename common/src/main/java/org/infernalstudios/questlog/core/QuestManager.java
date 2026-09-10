@@ -46,18 +46,35 @@ public class QuestManager {
     }
 
     /**
-     * Permanently invalidates this manager generation.
+     * Permanently invalidates this manager generation and releases Questlog-owned
+     * event listeners before the quest instances become unreachable.
      */
     public void deactivate() {
+        if (!this.isActive()) return;
+        this.disposeAllQuests();
+        this.quests.clear();
         this.lifecycle.deactivate();
     }
 
+    private void disposeAllQuests() {
+        for (Quest quest : this.quests.values()) {
+            quest.dispose();
+        }
+    }
+
     public void addQuest(Quest quest) {
-        if (!this.isActive()) return;
-        this.quests.put(quest.getId(), quest);
+        if (!this.isActive()) {
+            quest.dispose();
+            return;
+        }
+        Quest previous = this.quests.put(quest.getId(), quest);
+        if (previous != null && previous != quest) {
+            previous.dispose();
+        }
     }
 
     public void clearQuests() {
+        this.disposeAllQuests();
         this.quests.clear();
     }
 
@@ -69,7 +86,7 @@ public class QuestManager {
             savedData.put(quest.getId().toString(), quest.serialize());
         }
 
-        this.quests.clear();
+        this.clearQuests();
         this.createAllQuests();
 
         for (Quest quest : this.quests.values()) {
@@ -80,10 +97,14 @@ public class QuestManager {
     }
 
     /**
-     * Removes a quest from the player's tracked quest list.
+     * Removes a quest from the player's tracked quest list and releases its
+     * Questlog-owned listeners.
      */
     public void removeQuest(ResourceLocation id) {
-        this.quests.remove(id);
+        Quest removed = this.quests.remove(id);
+        if (removed != null) {
+            removed.dispose();
+        }
     }
 
     public Quest getQuest(ResourceLocation id) {
