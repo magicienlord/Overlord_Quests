@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Guard the integrated-server definition-cache authority boundary.
+"""Guard the integrated-server definition-cache and bundled-content authority boundary.
 
 DefinitionUtil uses static maps, so an integrated client and server share the same
 objects. Client editor code may construct and send modified JSON, but only the
 server reload path may mutate the shared authoritative cache. Remote clients may
 maintain their own mirror through the explicit putClientMirror* methods.
+
+Definitions loaded from the bundled JAR are immutable production content. Config
+files may override them, but an editor action labelled Delete must not ambiguously
+remove an override and reveal the bundled base.
 """
 
 from __future__ import annotations
@@ -15,9 +19,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA_ROOT = ROOT / "common" / "src" / "main" / "java"
-DEFINITION_UTIL = JAVA_ROOT / "org" / "infernalstudios" / "questlog" / "core" / "DefinitionUtil.java"
-CLIENT_HANDLER = JAVA_ROOT / "org" / "infernalstudios" / "questlog" / "network" / "ClientPacketHandler.java"
-CHAPTER_EDITOR = JAVA_ROOT / "org" / "infernalstudios" / "questlog" / "client" / "gui" / "screen" / "ChapterEditorScreen.java"
+QUESTLOG_JAVA = JAVA_ROOT / "org" / "infernalstudios" / "questlog"
+DEFINITION_UTIL = QUESTLOG_JAVA / "core" / "DefinitionUtil.java"
+CLIENT_HANDLER = QUESTLOG_JAVA / "network" / "ClientPacketHandler.java"
+CHAPTER_EDITOR = QUESTLOG_JAVA / "client" / "gui" / "screen" / "ChapterEditorScreen.java"
+QUEST_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "QuestEditRemovePacket.java"
+CHAPTER_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "ChapterEditRemovePacket.java"
 
 
 def fail(message: str, errors: list[str]) -> None:
@@ -28,6 +35,8 @@ def main() -> int:
     errors: list[str] = []
     definition_source = DEFINITION_UTIL.read_text(encoding="utf-8")
     client_source = CLIENT_HANDLER.read_text(encoding="utf-8")
+    quest_remove_source = QUEST_REMOVE.read_text(encoding="utf-8")
+    chapter_remove_source = CHAPTER_REMOVE.read_text(encoding="utf-8")
 
     # Authoritative cache objects must never escape to callers as mutable JSON.
     quest_getter = re.search(
@@ -50,6 +59,22 @@ def main() -> int:
     for method in ("putClientMirrorQuest", "putClientMirrorChapter"):
         if f"DefinitionUtil.{method}(" not in client_source:
             fail(f"ClientPacketHandler must use DefinitionUtil.{method}", errors)
+
+    # Bundled identities must remain tracked separately even when a config override
+    # replaces the active JSON value in the ordinary cache.
+    for token in (
+        "BUNDLED_QUEST_IDS",
+        "BUNDLED_CHAPTER_IDS",
+        "isBundledQuest(ResourceLocation id)",
+        "isBundledChapter(ResourceLocation id)",
+    ):
+        if token not in definition_source:
+            fail(f"DefinitionUtil is missing bundled-authority marker: {token}", errors)
+
+    if "DefinitionUtil.isBundledQuest(packet.id)" not in quest_remove_source:
+        fail("QuestEditRemovePacket must reject editor deletion of bundled quests", errors)
+    if "DefinitionUtil.isBundledChapter(packet.id)" not in chapter_remove_source:
+        fail("ChapterEditRemovePacket must reject editor deletion of bundled chapters", errors)
 
     # Legacy optimistic editor writers are retained only as compatibility sinks.
     # No new call site may depend on them for authoritative state.
@@ -90,7 +115,7 @@ def main() -> int:
             print(f" - {error}", file=sys.stderr)
         return 1
 
-    print("Definition-cache authority boundary is intact.")
+    print("Definition-cache and bundled-content authority boundaries are intact.")
     return 0
 
 
