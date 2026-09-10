@@ -23,9 +23,12 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
     }
 
     public static void handle(ChapterEditRemovePacket packet, IPacketContext ctx) {
-        ServerPlayer player = (ServerPlayer) ctx.getSender();
-        if (player == null || !player.hasPermissions(2)) {
-            Questlog.LOGGER.warn("Player {} tried to remove chapter without permissions", player != null ? player.getGameProfile().getName() : "null");
+        if (!(ctx.getSender() instanceof ServerPlayer player) || !player.hasPermissions(2)) {
+            Questlog.LOGGER.warn("Rejected chapter editor remove request without a permitted server player sender");
+            return;
+        }
+        if (!Questlog.MODID.equals(packet.id.getNamespace())) {
+            Questlog.LOGGER.warn("Rejected chapter editor remove for unsupported namespace: {}", packet.id);
             return;
         }
 
