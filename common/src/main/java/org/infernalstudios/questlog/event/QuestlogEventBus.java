@@ -34,13 +34,31 @@ public class QuestlogEventBus {
         }
 
         List<Consumer<? extends QuestEvent>> listeners = this.listeners.computeIfAbsent(eventClass, k -> new ArrayList<>(1));
-        listeners.add(listener);
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes one exact listener registration without disturbing listeners owned
+     * by other active quest instances.
+     */
+    public <T extends QuestEvent> void removeListener(Class<T> eventClass, Consumer<T> listener) {
+        List<Consumer<? extends QuestEvent>> listeners = this.listeners.get(eventClass);
+        if (listeners == null) return;
+
+        listeners.remove(listener);
+        if (listeners.isEmpty()) {
+            this.listeners.remove(eventClass);
+        }
     }
 
     public <T extends QuestEvent> void post(T event) {
         List<Consumer<? extends QuestEvent>> listeners = this.listeners.get(event.getClass());
         if (listeners != null) {
-            for (Consumer<? extends QuestEvent> listener : listeners) {
+            // Snapshot the list so a callback can cause quest disposal/reload
+            // without invalidating iteration over the current event delivery.
+            for (Consumer<? extends QuestEvent> listener : List.copyOf(listeners)) {
                 //noinspection unchecked
                 ((Consumer<T>) listener).accept(event);
             }
@@ -51,4 +69,3 @@ public class QuestlogEventBus {
         this.listeners.clear();
     }
 }
-
