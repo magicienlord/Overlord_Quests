@@ -32,8 +32,13 @@ public class VisitStructureObjective extends Objective {
     }
 
     private void onPlayerMove(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
             ticksUntilCheck = 20;
             if (!player.serverLevel().isLoaded(player.blockPosition())) return;
 
