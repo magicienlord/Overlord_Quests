@@ -8,8 +8,12 @@ import org.infernalstudios.questlog.core.quests.objectives.Objective;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.util.JsonUtils;
 
+import java.util.function.Consumer;
+
 public class QuestCompleteObjective extends Objective {
     private final ResourceLocation quest;
+    private final Consumer<QuestEvent.Completed> completedListener = this::onQuestCompleted;
+    private boolean listenerRegistered = false;
 
     public QuestCompleteObjective(JsonObject definition) {
         super(definition);
@@ -19,11 +23,23 @@ public class QuestCompleteObjective extends Objective {
     @Override
     public void registerEventListeners() {
         super.registerEventListeners();
-        Questlog.EVENTS.addListener(this::onQuestCompleted);
+        if (!this.listenerRegistered) {
+            Questlog.EVENTS.addListener(QuestEvent.Completed.class, this.completedListener);
+            this.listenerRegistered = true;
+        }
+    }
+
+    @Override
+    public void unregisterEventListeners() {
+        if (this.listenerRegistered) {
+            Questlog.EVENTS.removeListener(QuestEvent.Completed.class, this.completedListener);
+            this.listenerRegistered = false;
+        }
+        super.unregisterEventListeners();
     }
 
     private void onQuestCompleted(QuestEvent.Completed event) {
-        if (this.isCompleted() || this.getParent() == null) return;
+        if (!this.isActiveQuestInstance() || this.isCompleted() || this.getParent() == null) return;
         if (event.player.equals(this.getParent().manager.player) && event.quest.getId().equals(this.quest)) {
             this.setUnits(this.getRequiredAmount());
         }
@@ -36,7 +52,7 @@ public class QuestCompleteObjective extends Objective {
             return baseUnits;
         }
 
-        if (this.getParent() != null && this.getParent().manager != null) {
+        if (this.getParent() != null && this.getParent().manager != null && this.getParent().manager.isActive()) {
             Quest targetQuest = this.getParent().manager.getQuest(this.quest);
             if (targetQuest != null && targetQuest.isCompleted()) {
                 return this.getRequiredAmount();
@@ -52,7 +68,7 @@ public class QuestCompleteObjective extends Objective {
             return true;
         }
 
-        if (this.getParent() != null && this.getParent().manager != null) {
+        if (this.getParent() != null && this.getParent().manager != null && this.getParent().manager.isActive()) {
             Quest targetQuest = this.getParent().manager.getQuest(this.quest);
             return targetQuest != null && targetQuest.isCompleted();
         }
