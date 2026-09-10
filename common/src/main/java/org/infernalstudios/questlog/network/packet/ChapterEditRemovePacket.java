@@ -9,6 +9,7 @@ import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.platform.Services;
+import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
         try {
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path chapterDir = configDir.resolve("chapters");
-            Path filePath = chapterDir.resolve(packet.id.getPath() + ".json");
+            Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
             if (Files.deleteIfExists(filePath)) {
                 Questlog.LOGGER.info("Deleted chapter definition file for {}", packet.id);
             } else {
@@ -47,6 +48,8 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
                     ServerPlayerManager.INSTANCE.syncPlayer(manager);
                 }
             }
+        } catch (IllegalArgumentException e) {
+            Questlog.LOGGER.warn("Rejected unsafe chapter definition path for {}: {}", packet.id, e.getMessage());
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to delete chapter definition", e);
         }
