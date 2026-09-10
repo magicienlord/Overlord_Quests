@@ -18,6 +18,8 @@ Foundation B targets an unpublished local single-player world only.
 
 Do not use Open to LAN during acceptance testing. Dedicated multiplayer and LAN-published worlds are outside the OVERLORD REIGN runtime scope for automatic full-screen Gnarl popups.
 
+Automatic popups now wait until normal screenless gameplay before opening. They must not replace an inventory, container, chat screen, Questlog editor, or other active GUI. This is intentional: interrupting a live GUI can close server menus, discard typed input, or leave stale screen state.
+
 ## Installation
 
 1. Back up the test instance.
@@ -52,7 +54,7 @@ Do not use `/questlog trigger` as the primary acceptance path. The milestone spe
 On receipt of the debug stick:
 
 1. The quest must transition from locked to triggered.
-2. The quest details screen must open automatically.
+2. The quest details screen must open automatically once no other GUI is active.
 3. No unlock or completion toast should appear, because both toast flags are disabled in the fixture.
 4. Gnarl's transparent overlay must render above the parchment background without a rectangular image backdrop.
 5. The overlay must not suppress title, description, buttons, or input handling.
@@ -63,16 +65,43 @@ The experience-orb sound is a test signal only. It is not approved production au
 
 ## Deferred-popup regression check
 
-Foundation B repaired a queue-stall case involving carried inventory stacks. Validate it separately after the normal trigger works:
+Foundation B now deliberately defers automatic full-screen presentation while any GUI is open. The queue must survive that deferral and open the current quest instance after the GUI closes.
 
-1. Reset the development quest and remove the debug stick.
-2. Open a container or inventory screen.
-3. Pick up an item stack so it is attached to the cursor.
-4. Cause the debug-stick prerequisite to become satisfied while the carried stack remains on the cursor.
-5. Keep the carried stack briefly, then return it to a slot.
-6. Confirm the Gnarl popup still opens after the carried stack is released rather than disappearing permanently.
+A deterministic way to exercise this path is:
 
-This is a reliability regression check. If arranging the trigger while a stack is carried proves impractical with the current test setup, retain that as a test limitation rather than changing quest behavior just to manufacture the case.
+1. Reset the development quest and remove any existing debug stick:
+
+```text
+/clear @s minecraft:debug_stick
+/questlog reset_all_progress_and_reload
+```
+
+2. Spawn a debug-stick item at the player with a five-second pickup delay:
+
+```text
+/summon minecraft:item ~ ~ ~ {Item:{id:"minecraft:debug_stick",Count:1b},PickupDelay:100s}
+```
+
+3. Immediately open the inventory. Optionally pick up another inventory stack with the cursor and leave it attached long enough for the spawned debug stick to become collectible.
+4. Remain close enough to the summoned item for it to enter the inventory when the pickup delay expires. The quest should unlock while the inventory GUI remains open.
+5. Confirm the Gnarl popup does **not** replace the open inventory. The trigger cue should still occur once at unlock time.
+6. Return any carried stack to a slot if one was used, then close the inventory normally.
+7. Confirm the Gnarl popup opens on a later retry rather than disappearing permanently.
+
+If five seconds is too short for the test setup, increase `PickupDelay` rather than changing the quest definition. Minecraft stores this field in ticks, so `200s` provides approximately ten seconds.
+
+This regression case also verifies that the queue is not tied to the original Quest object. If definitions or progress are reloaded while a popup waits, the queue resolves the quest by ID again before opening and must not display a removed or reset quest.
+
+## Popup queue lifecycle checks
+
+The following are defensive behavior checks and do not change story behavior:
+
+- Triggering the same quest twice before its popup is consumed must not enqueue duplicate popups for that quest ID.
+- Logging out clears queued popups and resets their retry timer.
+- If a queued quest is removed or reset before display, the stale popup must be discarded.
+- If the integrated server is published to LAN after a popup is queued but before it is consumed, automatic full-screen presentation must be cancelled. A normal unlock toast may be used only when that quest already permits unlock toasts.
+
+The development Gnarl fixture disables unlock toasts, so the LAN-published cancellation case is expected to clear its queued popup without substituting a toast.
 
 ## Approved character baseline
 
