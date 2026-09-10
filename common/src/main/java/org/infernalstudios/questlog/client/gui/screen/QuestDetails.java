@@ -21,8 +21,10 @@ import org.infernalstudios.questlog.client.gui.components.scrollable.ScrollableT
 import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.core.quests.display.Palette;
 import org.infernalstudios.questlog.core.quests.display.QuestDisplayData;
+import org.infernalstudios.questlog.core.quests.rewards.ChoiceReward;
 import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.network.packet.QuestReadPacket;
+import org.infernalstudios.questlog.network.packet.QuestResetPacket;
 import org.infernalstudios.questlog.network.packet.QuestRewardCollectPacket;
 import org.infernalstudios.questlog.platform.Services;
 import org.infernalstudios.questlog.util.texture.AnimatedTexture;
@@ -31,6 +33,9 @@ import org.infernalstudios.questlog.util.texture.Texture;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Collections;
+import java.util.List;
 
 public class QuestDetails extends Screen implements NarrationSupplier {
 
@@ -42,6 +47,8 @@ public class QuestDetails extends Screen implements NarrationSupplier {
     private static final int CONTENT_X = 18;
     private static final int CONTENT_Y = 36;
     private static final int HR_Y_OFFSET = -2;
+    private static final int MAX_TOOLTIP_DIMENSION = 2048;
+    private static final int MAX_TOOLTIP_FRAMES = 256;
 
     private static boolean showDetails = true;
 
@@ -122,10 +129,8 @@ public class QuestDetails extends Screen implements NarrationSupplier {
 
     private void setupButtons() {
         int height = this.getDisplay().getPanelHeight();
-        int leftWidth = this.getDisplay().getLeftPanelWidth();
 
         int buttonY = this.panel1Y + height + 2;
-        int rightBoundary = this.panel1X + leftWidth - 12;
 
         this.backButton = new QuestlogButton(
                 0, buttonY,
@@ -154,7 +159,7 @@ public class QuestDetails extends Screen implements NarrationSupplier {
             this.objectivesButton = null;
         }
 
-        this.updateButtonLayout(rightBoundary);
+        this.updateButtonLayout(this.getPrimaryRightBoundary());
 
         this.addRenderableWidget(this.backButton);
         if (this.objectivesButton != null) {
@@ -162,20 +167,28 @@ public class QuestDetails extends Screen implements NarrationSupplier {
         }
     }
 
+    private int getPrimaryRightBoundary() {
+        return this.panel1X + this.getDisplay().getLeftPanelWidth() - 12;
+    }
+
+    private boolean hasIncompleteChoiceRewards() {
+        for (Reward reward : this.quest.rewards) {
+            if (!reward.hasRewarded() && reward instanceof ChoiceReward choiceReward && !choiceReward.canClaim()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void updateButtonLayout(int rightBoundary) {
         if (this.backButton == null) return;
         Component backText = this.getDisplay().getBackButtonText();
+        boolean primaryActionEnabled = true;
 
         if (this.quest.isCompleted() && !this.quest.isRewarded()) {
-            boolean hasIncompleteChoices = false;
-            for (Reward reward : this.quest.rewards) {
-                if (!reward.hasRewarded() && reward instanceof org.infernalstudios.questlog.core.quests.rewards.ChoiceReward choiceReward && !choiceReward.canClaim()) {
-                    hasIncompleteChoices = true;
-                    break;
-                }
-            }
-            if (hasIncompleteChoices) {
+            if (this.hasIncompleteChoiceRewards()) {
                 backText = Component.translatable("questlog.reward.make_choices");
+                primaryActionEnabled = false;
             } else {
                 backText = this.getDisplay().getCollectButtonText();
             }
@@ -186,6 +199,7 @@ public class QuestDetails extends Screen implements NarrationSupplier {
         }
 
         this.backButton.setMessage(backText);
+        this.backButton.active = primaryActionEnabled;
 
         int backWidth = this.backButton.getExpectedWidth();
         this.backButton.setX(rightBoundary - backWidth);
@@ -198,9 +212,14 @@ public class QuestDetails extends Screen implements NarrationSupplier {
 
     private void handlePrimaryAction() {
         if (this.quest.isCompleted() && !this.quest.isRewarded()) {
-            this.claimAllRewards();
+            // The button is disabled while a choice is incomplete, but keep this
+            // guard at the action boundary as well so keyboard/programmatic calls
+            // cannot send a claim that the server will reject.
+            if (!this.hasIncompleteChoiceRewards()) {
+                this.claimAllRewards();
+            }
         } else if (this.quest.isCompleted() && this.quest.isRewarded() && this.quest.isRepeatable()) {
-            Services.PLATFORM.sendPacketToServer(new org.infernalstudios.questlog.network.packet.QuestResetPacket(this.quest.getId()));
+            Services.PLATFORM.sendPacketToServer(new QuestResetPacket(this.quest.getId()));
         } else if (this.needsRead()) {
             Services.PLATFORM.sendPacketToServer(new QuestReadPacket(this.quest.getId()));
         } else if (this.minecraft != null) {
@@ -211,16 +230,22 @@ public class QuestDetails extends Screen implements NarrationSupplier {
     private void claimAllRewards() {
         for (int i = 0; i < this.quest.rewards.size(); i++) {
             Reward reward = this.quest.rewards.get(i);
-            if (!reward.hasRewarded()) {
-                java.util.List<Integer> selections = java.util.Collections.emptyList();
-                if (reward instanceof org.infernalstudios.questlog.core.quests.rewards.ChoiceReward choiceReward) {
-                    selections = choiceReward.getSelectedIndicesList();
+            if (reward.hasRewarded()) {
+                continue;
+            }
+
+            List<Integer> selections = Collections.emptyList();
+            if (reward instanceof ChoiceReward choiceReward) {
+                if (!choiceReward.canClaim()) {
+                    continue;
                 }
-                Services.PLATFORM.sendPacketToServer(new QuestRewardCollectPacket(this.quest.getId(), i, selections));
-                SoundEvent sound = reward.getDisplay() != null ? reward.getDisplay().getClaimSound() : null;
-                if (sound != null && this.minecraft != null) {
-                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(sound, 1, 1));
-                }
+                selections = choiceReward.getSelectedIndicesList();
+            }
+
+            Services.PLATFORM.sendPacketToServer(new QuestRewardCollectPacket(this.quest.getId(), i, selections));
+            SoundEvent sound = reward.getDisplay() != null ? reward.getDisplay().getClaimSound() : null;
+            if (sound != null && this.minecraft != null) {
+                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(sound, 1, 1));
             }
         }
     }
@@ -297,7 +322,7 @@ public class QuestDetails extends Screen implements NarrationSupplier {
     }
 
     private void handleMouseOverLinks(int mouseX, int mouseY, GuiGraphics ps) {
-        if (this.description == null) return;
+        if (this.description == null || this.minecraft == null) return;
 
         long window = this.minecraft.getWindow().getWindow();
         boolean isHoveringLink = false;
@@ -313,8 +338,10 @@ public class QuestDetails extends Screen implements NarrationSupplier {
                         if (this.handCursor == 0L) {
                             this.handCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_HAND_CURSOR);
                         }
-                        GLFW.glfwSetCursor(window, this.handCursor);
-                        this.changedCursor = true;
+                        if (this.handCursor != 0L) {
+                            GLFW.glfwSetCursor(window, this.handCursor);
+                            this.changedCursor = true;
+                        }
                     }
                 }
                 this.renderHoverEffect(ps, style, mouseX, mouseY);
@@ -343,26 +370,59 @@ public class QuestDetails extends Screen implements NarrationSupplier {
     }
 
     private void renderImageTooltip(GuiGraphics ps, String data, int mouseX, int mouseY) {
-        String[] parts = data.split(":");
-        if (parts.length >= 3) {
-            ResourceLocation loc = new ResourceLocation(parts[1], parts[2]);
-            int w = parts.length >= 4 ? Integer.parseInt(parts[3]) : 16;
-            int h = parts.length >= 5 ? Integer.parseInt(parts[4]) : 16;
+        String[] parts = data.split(":", -1);
+        if (parts.length < 3) {
+            return;
+        }
 
-            ps.pose().pushPose();
+        ResourceLocation loc = ResourceLocation.tryParse(parts[1] + ":" + parts[2]);
+        if (loc == null) {
+            return;
+        }
+
+        final int width;
+        final int height;
+        final int frames;
+        final int frameTime;
+        try {
+            width = parts.length >= 4 ? Integer.parseInt(parts[3]) : 16;
+            height = parts.length >= 5 ? Integer.parseInt(parts[4]) : 16;
+            frames = parts.length >= 7 ? Integer.parseInt(parts[5]) : 1;
+            frameTime = parts.length >= 7 ? Integer.parseInt(parts[6]) : 100;
+        } catch (NumberFormatException ignored) {
+            return;
+        }
+
+        if (width < 1 || width > MAX_TOOLTIP_DIMENSION ||
+                height < 1 || height > MAX_TOOLTIP_DIMENSION ||
+                frames < 1 || frames > MAX_TOOLTIP_FRAMES ||
+                frameTime < 1) {
+            return;
+        }
+
+        ps.pose().pushPose();
+        try {
             ps.pose().translate(0.0F, 0.0F, 400.0F);
-
-            ps.fill(mouseX + 8, mouseY - 8, mouseX + 8 + w + 4, mouseY - 8 + h + 4, 0xDD000000);
+            ps.fill(mouseX + 8, mouseY - 8, mouseX + 8 + width + 4, mouseY - 8 + height + 4, 0xDD000000);
 
             Blittable textureToRender;
-            if (parts.length >= 7) {
-                int frames = Integer.parseInt(parts[5]);
-                int frameTime = Integer.parseInt(parts[6]);
-                textureToRender = new AnimatedTexture(loc, w, h, 0, 0, w, h * frames, frames, frameTime);
+            if (frames > 1) {
+                textureToRender = new AnimatedTexture(
+                        loc,
+                        width,
+                        height,
+                        0,
+                        0,
+                        width,
+                        height * frames,
+                        frames,
+                        frameTime
+                );
             } else {
-                textureToRender = new Texture(loc, w, h, 0, 0, w, h);
+                textureToRender = new Texture(loc, width, height, 0, 0, width, height);
             }
             textureToRender.blit(ps, mouseX + 10, mouseY - 6);
+        } finally {
             ps.pose().popPose();
         }
     }
@@ -376,10 +436,13 @@ public class QuestDetails extends Screen implements NarrationSupplier {
             if (style != null && style.getClickEvent() != null) {
                 ClickEvent click = style.getClickEvent();
                 if (click.getAction() == ClickEvent.Action.CHANGE_PAGE) {
-                    Quest target = QuestlogClient.getLocal().getQuest(new ResourceLocation(click.getValue()));
-                    if (target != null && this.minecraft != null) {
-                        this.minecraft.setScreen(new QuestDetails(this, target));
-                        return true;
+                    ResourceLocation id = ResourceLocation.tryParse(click.getValue());
+                    if (id != null) {
+                        Quest target = QuestlogClient.getLocal().getQuest(id);
+                        if (target != null && this.minecraft != null) {
+                            this.minecraft.setScreen(new QuestDetails(this, target));
+                            return true;
+                        }
                     }
                 }
             }
@@ -437,19 +500,14 @@ public class QuestDetails extends Screen implements NarrationSupplier {
         if (isShowingCollect && this.quest.isRewarded()) {
             this.rebuildWidgets();
         } else if (this.backButton != null && isShowingCollect) {
-            boolean canClaim = true;
-            for (Reward reward : this.quest.rewards) {
-                if (!reward.hasRewarded() && reward instanceof org.infernalstudios.questlog.core.quests.rewards.ChoiceReward choiceReward && !choiceReward.canClaim()) {
-                    canClaim = false;
-                    break;
-                }
-            }
+            boolean canClaim = !this.hasIncompleteChoiceRewards();
             this.backButton.active = canClaim;
-            Component expectedText = canClaim ? this.getDisplay().getCollectButtonText() : Component.translatable("questlog.reward.make_choices");
+            Component expectedText = canClaim
+                    ? this.getDisplay().getCollectButtonText()
+                    : Component.translatable("questlog.reward.make_choices");
             if (!this.backButton.getMessage().equals(expectedText)) {
                 this.backButton.setMessage(expectedText);
-                int rightBoundary = this.panel1X + this.getDisplay().getLeftPanelWidth() + (showDetails ? this.getDisplay().getRightPanelWidth() : 0);
-                this.updateButtonLayout(rightBoundary);
+                this.updateButtonLayout(this.getPrimaryRightBoundary());
             }
         }
 
@@ -466,7 +524,7 @@ public class QuestDetails extends Screen implements NarrationSupplier {
 
     @Override
     public void removed() {
-        if (this.changedCursor) {
+        if (this.minecraft != null && this.changedCursor) {
             long window = this.minecraft.getWindow().getWindow();
             GLFW.glfwSetCursor(window, 0L);
             this.changedCursor = false;
