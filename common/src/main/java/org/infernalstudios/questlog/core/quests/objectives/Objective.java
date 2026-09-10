@@ -128,7 +128,18 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         return tag;
     }
 
+    /**
+     * Read objectives can be nested inside logic objectives. Propagating this
+     * capability through the objective tree lets the existing details-screen
+     * read action remain reachable for nested read requirements as well as for a
+     * top-level ReadObjective.
+     */
     public boolean isReadObjective() {
+        for (Objective child : this.getChildren()) {
+            if (child.isReadObjective()) {
+                return true;
+            }
+        }
         return false;
     }
 
