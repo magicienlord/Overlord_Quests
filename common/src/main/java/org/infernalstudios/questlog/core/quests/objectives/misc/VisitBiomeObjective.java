@@ -25,11 +25,18 @@ public class VisitBiomeObjective extends Objective {
     }
 
     private void onPlayerMove(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
-            if (player.serverLevel().getBiome(player.blockPosition()).unwrapKey().orElseThrow().location().equals(this.biome)) {
-                this.setUnits(this.getUnits() + 1);
-            }
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
+            player.serverLevel().getBiome(player.blockPosition()).unwrapKey().ifPresent(key -> {
+                if (key.location().equals(this.biome)) {
+                    this.setUnits(this.getUnits() + 1);
+                }
+            });
             ticksUntilCheck = 20;
         }
     }
