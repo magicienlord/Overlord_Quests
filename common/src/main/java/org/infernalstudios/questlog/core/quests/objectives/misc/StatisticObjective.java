@@ -37,11 +37,14 @@ public class StatisticObjective extends Objective {
     }
 
     private void onPlayerTick(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
 
-        if (event.player instanceof ServerPlayer player && player == this.getParent().manager.player && --ticksUntilCheck <= 0) {
+        if (--ticksUntilCheck <= 0) {
             int currentStatValue = this.getStatValue();
-
             int progress = this.retroactive ? currentStatValue : Math.max(0, currentStatValue - this.statAtStart);
 
             if (progress > this.getUnits()) {
@@ -80,8 +83,8 @@ public class StatisticObjective extends Objective {
     @Override
     public void deserialize(CompoundTag data) {
         super.deserialize(data);
-        if (!this.retroactive) {
-            this.statAtStart = data.getInt("statAtStart");
+        if (!this.retroactive && data.contains("statAtStart")) {
+            this.statAtStart = Math.max(0, data.getInt("statAtStart"));
         }
     }
 }
