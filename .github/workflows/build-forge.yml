@@ -47,6 +47,9 @@ jobs:
       - name: Validate definition cache authority
         run: python3 tools/validate_definition_cache_authority.py
 
+      - name: Validate event bus lifecycle ownership
+        run: python3 tools/validate_event_bus_lifecycle.py
+
       - name: Validate Gnarl popup asset
         run: |
           set -o pipefail
