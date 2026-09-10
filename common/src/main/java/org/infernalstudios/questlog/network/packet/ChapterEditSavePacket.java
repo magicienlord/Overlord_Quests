@@ -14,6 +14,7 @@ import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.platform.Services;
 import org.infernalstudios.questlog.util.AtomicJsonFileUtil;
+import org.infernalstudios.questlog.util.DefinitionLimits;
 import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
 import java.io.IOException;
@@ -23,8 +24,15 @@ public record ChapterEditSavePacket(ResourceLocation id, String json) {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
+    public ChapterEditSavePacket {
+        DefinitionLimits.requireWireSafe(json, "Chapter editor definition " + id);
+    }
+
     public static ChapterEditSavePacket decode(FriendlyByteBuf buf) {
-        return new ChapterEditSavePacket(buf.readResourceLocation(), buf.readUtf());
+        return new ChapterEditSavePacket(
+                buf.readResourceLocation(),
+                buf.readUtf(DefinitionLimits.MAX_SYNCED_JSON_CHARS)
+        );
     }
 
     public static void handle(ChapterEditSavePacket packet, IPacketContext ctx) {
@@ -52,6 +60,8 @@ public record ChapterEditSavePacket(ResourceLocation id, String json) {
         }
 
         try {
+            DefinitionLimits.requireWireSafe(definition, "Chapter editor definition " + packet.id);
+
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path chapterDir = configDir.resolve("chapters");
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
@@ -68,14 +78,15 @@ public record ChapterEditSavePacket(ResourceLocation id, String json) {
                 }
             }
         } catch (IllegalArgumentException e) {
-            Questlog.LOGGER.warn("Rejected unsafe chapter definition path for {}: {}", packet.id, e.getMessage());
+            Questlog.LOGGER.warn("Rejected chapter editor save for {}: {}", packet.id, e.getMessage());
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to save chapter definition", e);
         }
     }
 
     public void encode(FriendlyByteBuf buf) {
+        DefinitionLimits.requireWireSafe(this.json, "Chapter editor definition " + this.id);
         buf.writeResourceLocation(this.id);
-        buf.writeUtf(this.json);
+        buf.writeUtf(this.json, DefinitionLimits.MAX_SYNCED_JSON_CHARS);
     }
 }
