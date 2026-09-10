@@ -52,7 +52,25 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         return this.units;
     }
 
+    /**
+     * Returns whether this objective still belongs to the quest instance currently
+     * installed in its manager.
+     *
+     * Questlog recreates Quest objects when definitions are reloaded. The Triggers
+     * 1.0.1 event bus exposes only addListener and removeAllListeners, not removal
+     * of one listener. Old objective listeners can therefore remain registered
+     * after an editor/config reload. They must be inert so stale quest instances
+     * cannot generate redundant syncs or other state transitions.
+     */
+    protected boolean isActiveQuestInstance() {
+        return this.parent == null || this.parent.manager.getQuest(this.parent.getId()) == this.parent;
+    }
+
     public void setUnits(int units) {
+        if (!this.isActiveQuestInstance()) {
+            return;
+        }
+
         if (this.getParent() != null && !this.getParent().isTriggered() && !this.isPartOfPrerequisites) {
             return;
         }
@@ -102,6 +120,9 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     }
 
     public void forceSetUnits(int units) {
+        if (!this.isActiveQuestInstance()) {
+            return;
+        }
         this.units = Math.min(units, this.requiredAmount);
         if (this.getParent() != null) {
             this.getParent().markForUpdate();
