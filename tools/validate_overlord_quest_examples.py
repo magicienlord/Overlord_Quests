@@ -365,7 +365,14 @@ def validate_objective_list(data: dict[str, Any], key: str, path: Path, errors: 
         validate_objective_entry(entry, f"{key}[{index}]", path, errors)
 
 
-def validate_reward_entry(entry: Any, field: str, path: Path, errors: list[str]) -> None:
+def validate_reward_entry(
+    entry: Any,
+    field: str,
+    path: Path,
+    errors: list[str],
+    *,
+    inside_choice: bool = False,
+) -> None:
     if not isinstance(entry, dict):
         fail(path, f"'{field}' must be an object", errors)
         return
@@ -426,6 +433,15 @@ def validate_reward_entry(entry: Any, field: str, path: Path, errors: list[str])
             validate_resource_id(entry["loot_table"], f"{field}.loot_table", path, errors)
 
     elif type_value == "questlog:choice":
+        if inside_choice:
+            fail(
+                path,
+                f"'{field}' is a nested choice reward, which the current claim protocol cannot represent",
+                errors,
+            )
+        if entry.get("auto_claim") is True:
+            fail(path, f"'{field}.auto_claim' cannot be true for a choice reward", errors)
+
         choices = entry.get("choices")
         if not isinstance(choices, list):
             fail(path, f"'{field}.choices' must be a list", errors)
@@ -436,7 +452,13 @@ def validate_reward_entry(entry: Any, field: str, path: Path, errors: list[str])
         elif pick_count > len(choices):
             fail(path, f"'{field}.pick_count' cannot exceed the number of choices", errors)
         for index, choice in enumerate(choices):
-            validate_reward_entry(choice, f"{field}.choices[{index}]", path, errors)
+            validate_reward_entry(
+                choice,
+                f"{field}.choices[{index}]",
+                path,
+                errors,
+                inside_choice=True,
+            )
 
 
 def validate_reward_list(data: dict[str, Any], path: Path, errors: list[str]) -> None:
