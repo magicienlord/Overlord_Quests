@@ -23,9 +23,14 @@ public class EntityApproachObjective extends AbstractEntityObjective {
     }
 
     private void onPlayerMove(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
-            if (!event.player.level().getEntities((Entity) null, event.player.getBoundingBox().inflate(this.range), this::test).isEmpty()) {
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
+            if (!player.level().getEntities((Entity) null, player.getBoundingBox().inflate(this.range), this::test).isEmpty()) {
                 this.setUnits(this.getUnits() + 1);
             }
             ticksUntilCheck = 20;
