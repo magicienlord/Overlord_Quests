@@ -4,6 +4,9 @@ plugins {
 }
 
 configurations {
+    commonJava {
+        canBeResolved = true
+    }
     commonResources {
         canBeResolved = true
     }
@@ -15,29 +18,13 @@ dependencies {
             requireCapability "$group:$mod_id"
         }
     }
+    commonJava project(path: ':common', configuration: 'commonJava')
     commonResources project(path: ':common', configuration: 'commonResources')
 }
 
-/*
- * The upstream multiloader build recompiles the common Java source set inside
- * every loader project. With Forge 47.4.10 this exposes a mapping/compiler edge
- * case in Minecraft's AbstractButton constructor metadata: anonymous subclasses
- * from Questlog's editor screens receive duplicate synthetic parameter names.
- *
- * The common project already compiles and reobfuscates successfully on the same
- * Java 17/Parchment baseline. Compile the Forge adapter against that project
- * output, then package the already-compiled common classes into the Forge jar so
- * the complete mod is still reobfuscated as one loader artifact. This preserves
- * the upstream editor implementation instead of rewriting nine otherwise-valid
- * anonymous button classes solely for a loader build quirk.
- */
 tasks.named('compileJava', JavaCompile) {
-    dependsOn project(':common').tasks.named('compileJava')
-}
-
-jar {
-    dependsOn project(':common').tasks.named('classes')
-    from(project(':common').sourceSets.main.output.classesDirs)
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
 }
 
 processResources {
