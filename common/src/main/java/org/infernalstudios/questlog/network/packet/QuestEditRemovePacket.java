@@ -35,9 +35,12 @@ public class QuestEditRemovePacket {
     }
 
     public static void handle(QuestEditRemovePacket packet, IPacketContext ctx) {
-        ServerPlayer player = (ServerPlayer) ctx.getSender();
-        if (player == null || !player.hasPermissions(2)) {
-            Questlog.LOGGER.warn("Player {} tried to remove quest without permissions", player != null ? player.getGameProfile().getName() : "null");
+        if (!(ctx.getSender() instanceof ServerPlayer player) || !player.hasPermissions(2)) {
+            Questlog.LOGGER.warn("Rejected quest editor remove request without a permitted server player sender");
+            return;
+        }
+        if (!Questlog.MODID.equals(packet.id.getNamespace())) {
+            Questlog.LOGGER.warn("Rejected quest editor remove for unsupported namespace: {}", packet.id);
             return;
         }
 
