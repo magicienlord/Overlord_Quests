@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Foundation B Handoff
 
-Status: ACTIVE IMPLEMENTATION MILESTONE
+Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL ASSET/BUILD GATE COMPLETE - MANUAL IN-GAME ACCEPTANCE PENDING
 
 This handoff is repository-local development state, not OVERLORD REIGN world or story canon.
 
@@ -26,7 +26,25 @@ The popup Gnarl character baseline is approved for this milestone:
 - preserve the sly/non-angry expression;
 - do not merge in WIP in-game-model traits automatically.
 
-The approved portrait generated during the design pass is the intended replacement for `assets/questlog/textures/gui/overlord/gnarl_popup.png`. Repository asset integration remains mechanical Foundation B work before manual acceptance.
+The approved portrait is now integrated at:
+
+`common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
+
+The repository preserves the exact approved 1254 x 1254 RGBA source rather than creating an unreviewed resampled derivative. Questlog displays that source in the development fixture's 160 x 160 GUI overlay rectangle.
+
+Mechanical asset validation on the accepted binary reports:
+
+```text
+bytes: 1154559
+sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
+dimensions: 1254 x 1254
+bit depth: 8
+PNG color type: 6
+fully transparent pixels: 713423
+partially transparent pixels: 858065
+```
+
+This mechanical report proves PNG integrity and usable alpha. It does not substitute for visual acceptance in Minecraft.
 
 ## Runtime scope: DECIDED
 
@@ -93,14 +111,31 @@ Foundation B source review found and repaired two upstream presentation defects 
 
 Both corrections have passed the Forge build pipeline. The Foundation B manual protocol contains regression checks for them.
 
-## Test artifact
+## Green technical gate
 
-The standard build workflow publishes:
+The approved portrait and current Foundation B implementation passed the authoritative GitHub Actions run:
 
-- `overlord-quests-forge-1.20.1`
-- `overlord-quests-gnarl-popup-test-kit`
+```text
+run: 34528438059
+commit: 51319a85fde584e4b44c95b43c6a55b1e3f444c5
+workflow: Build Forge 1.20.1
+result: SUCCESS
+```
 
-The test kit is prepared as an instance-shaped directory with the mod under `mods/`, the development quest under `config/questlog/quests/`, documentation, static reports, build metadata, and checksums.
+The run passed quest-definition validation, Gnarl PNG integrity/alpha validation, static layout reporting, Java 17 setup, Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload.
+
+The assembled runtime JAR was:
+
+`overlord-quests-forge-1.20.1-0.1.0-alpha.1.jar`
+
+## Test artifacts
+
+The green run publishes:
+
+- `overlord-quests-forge-1.20.1`, artifact ID `10172530649`;
+- `overlord-quests-gnarl-popup-test-kit`, artifact ID `10172531627`.
+
+The test kit is prepared as an instance-shaped directory with the mod under `mods/`, the development quest under `config/questlog/quests/`, documentation, static reports, build metadata, checksums, and the exact portrait used by the build.
 
 ## Canon boundary
 
@@ -110,9 +145,12 @@ The bundled production definition manifest remains intentionally empty.
 
 ## Remaining Foundation B gate
 
-Before Foundation B can close:
+The technical asset/build gate is complete. Foundation B remains open only for direct presentation acceptance:
 
-1. integrate the approved final portrait into the repository asset path;
-2. obtain a green CI build containing that exact asset;
-3. run the direct unpublished-single-player acceptance protocol;
-4. review the resulting screenshots/logs and decide the final popup composition.
+1. install the green Foundation B test kit in an OVERLORD REIGN test instance;
+2. run the unpublished-local-single-player acceptance protocol;
+3. retain the required screenshots and any relevant log evidence;
+4. review portrait placement, clipping, transparency, text readability, GUI-scale behavior, exactly-once unlock audio, and deferred-popup reliability;
+5. accept the data-driven native overlay composition or revise only the observed failing presentation values.
+
+Do not introduce a dedicated Gnarl renderer unless direct in-game evidence shows that Questlog's native overlay controls cannot satisfy the presentation requirements.
