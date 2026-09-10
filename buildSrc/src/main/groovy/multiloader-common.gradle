@@ -13,6 +13,7 @@ java {
 
 repositories {
     mavenCentral()
+
     exclusiveContent {
         forRepository {
             maven {
@@ -22,55 +23,63 @@ repositories {
         }
         filter { includeGroupAndSubgroups('org.spongepowered') }
     }
+
     exclusiveContent {
-        forRepositories(
-                maven {
-                    name = 'ParchmentMC'
-                    url = 'https://maven.parchmentmc.org/'
-                },
-                maven {
-                    name = "NeoForge"
-                    url = 'https://maven.neoforged.net/releases'
-                }
-        )
+        forRepository {
+            maven {
+                name = 'ParchmentMC'
+                url = 'https://maven.parchmentmc.org/'
+            }
+        }
         filter { includeGroup('org.parchmentmc.data') }
     }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'NeoForge'
+                url = 'https://maven.neoforged.net/releases'
+            }
+        }
+        filter { includeGroupAndSubgroups('net.neoforged') }
+    }
+
     maven {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
+
     exclusiveContent {
         forRepository {
             maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
             }
         }
         filter {
-            includeGroup "maven.modrinth"
+            includeGroup 'maven.modrinth'
         }
     }
+
     exclusiveContent {
         forRepository {
             maven {
-                url "https://cursemaven.com"
+                url 'https://cursemaven.com'
             }
         }
         filter {
-            includeGroup "curse.maven"
+            includeGroup 'curse.maven'
         }
     }
+
     maven {
-        name = "TerraformersMC"
-        url = "https://maven.terraformersmc.com/"
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/'
     }
+
     maven {
-        name = "ClothConfig"
-        url "https://maven.shedaniel.me/"
-    }
-    maven {
-        name = 'Infernal Studios Maven'
-        url = 'https://maven.infernalstudios.org/releases'
+        name = 'ClothConfig'
+        url 'https://maven.shedaniel.me/'
     }
 }
 
@@ -84,7 +93,6 @@ repositories {
         suppressPomMetadataWarningsFor(variant)
     }
 }
-
 
 jar {
     from(rootProject.file('LICENSE')) {
@@ -117,13 +125,13 @@ processResources {
             'mod_id'                    : mod_id,
             'license'                   : license,
             'description'               : project.description,
-            "forge_version"             : forge_version,
-            "forge_loader_version_range": forge_loader_version_range,
+            'forge_version'             : forge_version,
+            'forge_loader_version_range': forge_loader_version_range,
             'credits'                   : credits,
             'java_version'              : java_version
     ]
 
-    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/mods.toml', '*.mixins.json']) {
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', '*.mixins.json']) {
         expand expandProps
     }
     inputs.properties(expandProps)
