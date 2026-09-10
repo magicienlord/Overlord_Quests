@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Adaptation Contract
 
-Status: IMPLEMENTATION FOUNDATION
+Status: FOUNDATION A COMPLETE / FOUNDATION B ACTIVE
 
 This file records engineering decisions for the Gnarl quest system. It is not a source of new OVERLORD REIGN world or story canon.
 
@@ -42,19 +42,48 @@ The following Questlog 3.3.3 systems are retained unless a concrete OVERLORD REI
 
 ## OVERLORD adaptation targets
 
-The first custom work is deliberately narrow:
+The initial targets are:
 
-1. Establish a green Forge 47.4.10 build from the exact 3.3.3 baseline.
-2. Create the Gnarl visual presentation layer without disturbing quest mechanics.
-3. Make OVERLORD REIGN quest content distributable with the project rather than relying on manual user setup alone, while retaining config overrides for development.
-4. Add modpack-specific objective and reward bridges only when required by approved quest design.
-5. Keep world-specific assumptions out of generic engine code so unfinished systems such as the final Dark Tower world and ongoing personal-mod backports do not block development.
+1. Establish a green Forge 47.4.10 build from the exact 3.3.3 baseline. **COMPLETE.**
+2. Create and validate the Gnarl visual presentation layer without disturbing quest mechanics. **ACTIVE.**
+3. Make OVERLORD REIGN quest content distributable with the project rather than relying on manual user setup alone, while retaining config overrides for development. **ENGINE COMPLETE, CONTENT MANIFEST INTENTIONALLY EMPTY.**
+4. Add modpack-specific objective and reward bridges only when required by approved quest design. **NOT STARTED.**
+5. Keep world-specific assumptions out of generic engine code so unfinished systems such as the final Dark Tower world and ongoing personal-mod backports do not block development. **ONGOING RULE.**
 
-## Gnarl presentation
+## Foundation A result
 
-The supplied `Gnarl_Popup_VisualTest.png` is the current visual reference for the first popup prototype.
+Foundation A is complete.
 
-Questlog 3.3.3 already supports the relevant presentation primitives on individual quests, including `show_popup_on_unlock`, custom background and peripheral textures, arbitrary panel dimensions and offsets, and an unrestricted overlay texture positioned relative to the left panel. The first visual vertical slice should exploit those native controls before changing rendering code.
+The validated Forge pipeline now:
+
+- compiles on Java 17 against Forge 47.4.10;
+- retains the narrow editor-button compatibility correction required by the current mapped Forge compiler path;
+- runs the Forge reobfuscation stage successfully;
+- verifies required common and Forge classes in the assembled JAR;
+- verifies the Gnarl presentation asset and `META-INF/mods.toml` are packaged;
+- uploads the resulting Forge artifact through GitHub Actions;
+- retains the original Questlog license/provenance and reference JAR;
+- does not ship unapproved OVERLORD REIGN story content.
+
+The earlier compile-common-once experiment was rejected because it prevented the Forge Mixin refmap mapping file from being generated for `reobfJar`. The final solution keeps the normal loader source aggregation and applies the narrow concrete-button compatibility fix instead.
+
+## Bundled definitions
+
+`DefinitionUtil` now loads approved definitions bundled under `assets/questlog/overlord/definitions/` before reading external config definitions.
+
+The bundled `index.json` explicitly lists packaged quests and chapters. External definitions in `config/questlog/` load afterward and therefore remain higher-priority overrides for development and pack maintenance.
+
+The repository validator checks the bundled manifest and prevents development fixtures from being promoted through that path. The manifest currently contains no story quests or chapters.
+
+## Foundation B: Gnarl presentation
+
+The active milestone is direct in-game validation of Gnarl's quest popup.
+
+Questlog 3.3.3 already supports the relevant presentation primitives on individual quests, including `show_popup_on_unlock`, custom background and peripheral textures, arbitrary panel dimensions and offsets, and an unrestricted overlay texture positioned relative to the left panel. The first visual vertical slice continues to exploit those native controls before changing rendering code.
+
+The approved popup-character baseline keeps the established portrait design. The approved face correction is square pupils that look toward the player while respecting each eye's perspective. Gnarl's existing snout geometry and non-angry expression are invariants and must not be altered by that correction.
+
+The separate in-game Gnarl model remains work in progress and is not a source for automatic popup redesign. Full cross-alignment is deferred until the model reaches the review gate defined in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
 If the native overlay path cannot achieve a stable readable Gnarl layout at normal GUI scales, only then should the renderer receive a dedicated speaker/portrait field.
 
@@ -64,12 +93,15 @@ Bootstrap code must not invent quest chronology, named settlements, final coordi
 
 The engine may provide test-only definitions for validation, but they must be unmistakably development content and must not be treated as canonical quests.
 
-## Build acceptance for Foundation A
+## Foundation B acceptance
 
-Foundation A is complete when:
+Foundation B is complete only when direct in-game review confirms:
 
-- `:forge:build` succeeds on Java 17 against Forge 47.4.10;
-- the produced artifact is clearly named as OVERLORD QUESTS;
-- upstream license/provenance remain present;
-- the upstream reference JAR remains available for comparison;
-- no story or progression content is silently promoted into the build.
+- the approved Gnarl portrait renders with clean transparency;
+- the portrait is not clipped when extending outside the parchment;
+- quest title and body text remain readable;
+- popup-on-unlock works from an actual locked-to-unlocked transition;
+- the composition remains usable across the agreed GUI scales/window sizes;
+- the native Questlog overlay path is either accepted or rejected based on observed behavior rather than assumption.
+
+Parchment placement, portrait scale, and final UI composition remain implementation-test values until that review is complete.
