@@ -44,10 +44,14 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
         Map<ResourceLocation, V> map = new HashMap<>(Math.min(size, 16_384));
         for (int i = 0; i < size; i++) {
             ResourceLocation key = buf.readResourceLocation();
-            V value = valueReader.apply(buf);
-            if (map.put(key, value) != null) {
+            if (map.containsKey(key)) {
                 throw new IllegalArgumentException("Duplicate " + label + " key in quest sync: " + key);
             }
+            V value = valueReader.apply(buf);
+            if (value == null) {
+                throw new IllegalArgumentException("Null value for " + label + " key in quest sync: " + key);
+            }
+            map.put(key, value);
         }
         return map;
     }
@@ -60,6 +64,9 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
         requireBoundedCount(map.size(), maxEntries, label);
         buf.writeVarInt(map.size());
         for (Map.Entry<ResourceLocation, V> entry : map.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                throw new IllegalArgumentException("Quest sync " + label + " cannot contain null keys or values");
+            }
             buf.writeResourceLocation(entry.getKey());
             valueWriter.accept(buf, entry.getValue());
         }
@@ -78,6 +85,9 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
         requireBoundedCount(list.size(), maxEntries, label);
         buf.writeVarInt(list.size());
         for (ResourceLocation rl : list) {
+            if (rl == null) {
+                throw new IllegalArgumentException("Quest sync " + label + " cannot contain null entries");
+            }
             buf.writeResourceLocation(rl);
         }
     }
