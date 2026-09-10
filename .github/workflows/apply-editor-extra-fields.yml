@@ -1,0 +1,131 @@
+name: Apply objective extra-field editor migration
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+    paths:
+      - .github/workflows/apply-editor-extra-fields.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-editor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: gnarl-bootstrap
+          fetch-depth: 0
+
+      - name: Patch specialized objective editor fields
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          editor_path = Path('common/src/main/java/org/infernalstudios/questlog/client/gui/screen/QuestEditorScreen.java')
+          panel_path = Path('common/src/main/java/org/infernalstudios/questlog/client/gui/screen/EditEntryPanelScrollable.java')
+          editor = editor_path.read_text()
+          panel = panel_path.read_text()
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one match, found {count}')
+              return text.replace(old, new, 1)
+
+          editor = replace_once(
+              editor,
+              '    NoShadowEditBox entryTargetBox;\n    NoShadowEditBox entryNbtBox;',
+              '    NoShadowEditBox entryTargetBox;\n    NoShadowEditBox entryAuxBox;\n    NoShadowEditBox entryNbtBox;',
+              'entryAuxBox declaration'
+          )
+
+          old_null = '            this.entryTargetBox = null;\n            this.entryNbtBox = null;'
+          count = editor.count(old_null)
+          if count != 2:
+              raise SystemExit(f'logical/choice aux reset: expected two matches, found {count}')
+          editor = editor.replace(
+              old_null,
+              '            this.entryTargetBox = null;\n            this.entryAuxBox = null;\n            this.entryNbtBox = null;'
+          )
+
+          editor = replace_once(
+              editor,
+              '''            } else {\n                this.entryTargetBox = null;\n            }\n\n            if (supportsNbtField(this.editingType)) {''',
+              '''            } else {\n                this.entryTargetBox = null;\n            }\n\n            String auxiliaryKey = getAuxiliaryFieldKey();\n            if (auxiliaryKey != null) {\n                this.entryAuxBox = new NoShadowEditBox(this.font, 0, 0, 125, 14, Component.empty());\n                this.entryAuxBox.setMaxLength(128);\n                if (isAuxiliaryFieldNumeric()) {\n                    this.entryAuxBox.setFilter(s -> s.isEmpty() || s.matches("\\\\d*"));\n                }\n                this.entryAuxBox.setValue(getAuxiliaryFieldValue());\n                this.entryAuxBox.setTooltip(Tooltip.create(Component.literal(getAuxiliaryFieldLabel())));\n            } else {\n                this.entryAuxBox = null;\n            }\n\n            if (supportsNbtField(this.editingType)) {''',
+              'aux field widget creation'
+          )
+
+          editor = replace_once(
+              editor,
+              '''    String getTargetFieldLabel() {\n        EditorMetadata meta = getMetadata(this.editingType);\n        if (meta != null && meta.targetFieldLabel() != null) {\n            return meta.targetFieldLabel();\n        }\n        return "Target Key:";\n    }\n\n    private String getTargetFieldValue() {''',
+              '''    String getTargetFieldLabel() {\n        EditorMetadata meta = getMetadata(this.editingType);\n        if (meta != null && meta.targetFieldLabel() != null) {\n            return meta.targetFieldLabel();\n        }\n        return "Target Key:";\n    }\n\n    private String getAuxiliaryFieldKey() {\n        String type = this.editingType == null ? "" : this.editingType.replace("questlog:", "");\n        return switch (type) {\n            case "item_equip" -> "slot";\n            case "entity_approach" -> "range";\n            case "visit_position" -> "dimension";\n            default -> null;\n        };\n    }\n\n    String getAuxiliaryFieldLabel() {\n        String key = getAuxiliaryFieldKey();\n        if ("slot".equals(key)) return "Equipment Slot:";\n        if ("range".equals(key)) return "Range:";\n        if ("dimension".equals(key)) return "Dimension (Optional):";\n        return "Extra Value:";\n    }\n\n    private boolean isAuxiliaryFieldNumeric() {\n        return "range".equals(getAuxiliaryFieldKey());\n    }\n\n    private String getAuxiliaryFieldValue() {\n        String key = getAuxiliaryFieldKey();\n        if (key == null) return "";\n        if (this.editingEntry != null && this.editingEntry.has(key)) {\n            JsonElement value = this.editingEntry.get(key);\n            return value.isJsonPrimitive() ? value.getAsString() : value.toString();\n        }\n        if ("slot".equals(key)) return "mainhand";\n        if ("range".equals(key)) return "1";\n        return "";\n    }\n\n    private String getTargetFieldValue() {''',
+              'aux field helper methods'
+          )
+
+          editor = replace_once(
+              editor,
+              '        String target = this.entryTargetBox != null ? this.entryTargetBox.getValue() : "";\n        String nbt = this.entryNbtBox != null ? this.entryNbtBox.getValue().trim() : "";',
+              '        String target = this.entryTargetBox != null ? this.entryTargetBox.getValue() : "";\n        String auxiliary = this.entryAuxBox != null ? this.entryAuxBox.getValue().trim() : "";\n        String nbt = this.entryNbtBox != null ? this.entryNbtBox.getValue().trim() : "";',
+              'aux value capture'
+          )
+
+          editor = replace_once(
+              editor,
+              '''                "advancement", "stat", "quest", "enchantment", "effect", "command", "loot_table", "bounds",\n                "required_amount", "count", "experience", "levels", "pick_count"''',
+              '''                "advancement", "stat", "quest", "enchantment", "effect", "command", "loot_table", "bounds",\n                "range", "slot", "required_amount", "count", "experience", "levels", "pick_count"''',
+              'aux cleanup keys'
+          )
+
+          editor = replace_once(
+              editor,
+              '''        List<JsonObject> list = getActiveList();\n        if (this.selectedEntryIndex == -1) {''',
+              '''        String auxiliaryKey = getAuxiliaryFieldKey();\n        if (auxiliaryKey != null && !auxiliary.isEmpty()) {\n            if (isAuxiliaryFieldNumeric()) {\n                try {\n                    int parsed = Integer.parseInt(auxiliary);\n                    if (parsed >= 1) {\n                        this.editingEntry.addProperty(auxiliaryKey, parsed);\n                    }\n                } catch (NumberFormatException ignored) {\n                }\n            } else {\n                this.editingEntry.addProperty(auxiliaryKey, auxiliary);\n            }\n        }\n\n        List<JsonObject> list = getActiveList();\n        if (this.selectedEntryIndex == -1) {''',
+              'aux serialization'
+          )
+
+          editor = replace_once(
+              editor,
+              '''        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryTargetBox != null && this.entryTargetBox.isFocused()) {\n            activeBox = this.entryTargetBox;\n            suggestionProvider = () -> getSuggestions(this.entryTargetBox.getValue());\n        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryNbtBox != null && this.entryNbtBox.isFocused()) {''',
+              '''        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryTargetBox != null && this.entryTargetBox.isFocused()) {\n            activeBox = this.entryTargetBox;\n            suggestionProvider = () -> getSuggestions(this.entryTargetBox.getValue());\n        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryAuxBox != null && this.entryAuxBox.isFocused()) {\n            activeBox = this.entryAuxBox;\n            suggestionProvider = this::getAuxiliarySuggestions;\n        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryNbtBox != null && this.entryNbtBox.isFocused()) {''',
+              'aux autocomplete focus'
+          )
+
+          editor = replace_once(
+              editor,
+              '''    private List<String> getSuggestions(String query) {\n        List<String> result = new ArrayList<>();''',
+              '''    private List<String> getAuxiliarySuggestions() {\n        if (this.entryAuxBox == null) return Collections.emptyList();\n        String query = this.entryAuxBox.getValue().toLowerCase();\n        String key = getAuxiliaryFieldKey();\n        List<String> candidates;\n        if ("slot".equals(key)) {\n            candidates = List.of("mainhand", "offhand", "feet", "legs", "chest", "head");\n        } else if ("dimension".equals(key)) {\n            candidates = List.of("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end");\n        } else {\n            return Collections.emptyList();\n        }\n        return candidates.stream().filter(value -> query.isEmpty() || value.contains(query)).limit(5).toList();\n    }\n\n    private List<String> getSuggestions(String query) {\n        List<String> result = new ArrayList<>();''',
+              'aux suggestions'
+          )
+
+          panel = replace_once(
+              panel,
+              '        if (screen.entryTargetBox != null) height += 28;\n        if (screen.entryNbtBox != null) height += 28;',
+              '        if (screen.entryTargetBox != null) height += 28;\n        if (screen.entryAuxBox != null) height += 28;\n        if (screen.entryNbtBox != null) height += 28;',
+              'panel aux height'
+          )
+
+          panel = replace_once(
+              panel,
+              '''        if (screen.entryTargetBox != null) {\n            rows.add(new EntryRow(Component.literal(screen.getTargetFieldLabel()), screen.entryTargetBox));\n        }\n        if (screen.entryNbtBox != null) {''',
+              '''        if (screen.entryTargetBox != null) {\n            rows.add(new EntryRow(Component.literal(screen.getTargetFieldLabel()), screen.entryTargetBox));\n        }\n        if (screen.entryAuxBox != null) {\n            rows.add(new EntryRow(Component.literal(screen.getAuxiliaryFieldLabel()), screen.entryAuxBox));\n        }\n        if (screen.entryNbtBox != null) {''',
+              'panel aux row'
+          )
+
+          editor_path.write_text(editor)
+          panel_path.write_text(panel)
+          PY
+
+      - name: Commit migration
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/apply-editor-extra-fields.yml
+          git add common/src/main/java/org/infernalstudios/questlog/client/gui/screen/QuestEditorScreen.java
+          git add common/src/main/java/org/infernalstudios/questlog/client/gui/screen/EditEntryPanelScrollable.java
+          git commit -m 'Expose specialized objective fields in quest editor'
+          git push origin HEAD:gnarl-bootstrap
