@@ -5,6 +5,7 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestAddedToast;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestCompletedToast;
@@ -15,7 +16,9 @@ import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.ClientPacketHandler;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 public class QuestlogClientEvents {
@@ -70,8 +73,9 @@ public class QuestlogClientEvents {
         mostRecentNotificationQuest = event.quest;
         if (event.quest.getDisplay().shouldShowPopupOnUnlock() && isLocalSingleplayerPopupSession()) {
             QuestToastState.resetCheckDelay();
-            if (QuestToastState.queuedPopups.stream().noneMatch(quest -> quest.getId().equals(event.quest.getId()))) {
-                QuestToastState.queuedPopups.add(event.quest);
+            ResourceLocation questId = event.quest.getId();
+            if (!QuestToastState.queuedPopups.contains(questId)) {
+                QuestToastState.queuedPopups.addLast(questId);
             }
         } else if (event.quest.getDisplay().shouldToastOnUnlock()) {
             QuestToastState.resetCheckDelay();
@@ -131,13 +135,16 @@ public class QuestlogClientEvents {
             return;
         }
 
-        // Re-check the runtime scope at consumption time. A popup queued in a
-        // private integrated-server session must not later open after that world
-        // has been published to LAN.
+        // The queue stores IDs rather than Quest objects. Definitions can be
+        // replaced while a popup waits, so every consumption path must resolve
+        // the current quest instance and current display data from the manager.
         if (!isLocalSingleplayerPopupSession()) {
-            for (Quest queuedQuest : QuestToastState.queuedPopups) {
-                if (queuedQuest.getDisplay().shouldToastOnUnlock()) {
-                    QuestToastState.addedToasts.add(new QuestAddedToast(queuedQuest.getDisplay()));
+            for (ResourceLocation queuedQuestId : QuestToastState.queuedPopups) {
+                Quest currentQuest = QuestlogClient.getLocal().getQuest(queuedQuestId);
+                if (currentQuest != null
+                        && currentQuest.isTriggered()
+                        && currentQuest.getDisplay().shouldToastOnUnlock()) {
+                    QuestToastState.addedToasts.add(new QuestAddedToast(currentQuest.getDisplay()));
                 }
             }
             QuestToastState.queuedPopups.clear();
@@ -155,11 +162,14 @@ public class QuestlogClientEvents {
             return;
         }
 
-        Quest queuedQuest = QuestToastState.queuedPopups.remove(0);
-        Quest currentQuest = QuestlogClient.getLocal().getQuest(queuedQuest.getId());
+        ResourceLocation queuedQuestId = QuestToastState.queuedPopups.pollFirst();
+        if (queuedQuestId == null) {
+            return;
+        }
+        Quest currentQuest = QuestlogClient.getLocal().getQuest(queuedQuestId);
         if (currentQuest == null || !currentQuest.isTriggered()) {
             // Definitions and progress can be reloaded while a popup is waiting.
-            // Never open a stale or reset quest instance from the queue.
+            // Never open a removed or reset quest from an obsolete queue entry.
             QuestToastState.resetCheckDelay();
             return;
         }
@@ -198,7 +208,7 @@ public class QuestlogClientEvents {
         public static int tickDelayForCheck = -1;
         public static List<QuestAddedToast> addedToasts = new ArrayList<>();
         public static List<QuestCompletedToast> completedToasts = new ArrayList<>();
-        public static List<Quest> queuedPopups = new ArrayList<>();
+        public static Deque<ResourceLocation> queuedPopups = new ArrayDeque<>();
 
         public static void resetCheckDelay() {
             QuestToastState.tickDelayForCheck = 10;
