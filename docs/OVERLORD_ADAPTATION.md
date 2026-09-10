@@ -16,6 +16,8 @@ Forge 47.4.10
 Java 17
 ```
 
+OVERLORD REIGN itself is a single-player project. Automatic full-screen quest popups target an unpublished local integrated-server session only. LAN-published and dedicated multiplayer sessions are outside the project acceptance scope.
+
 ## Compatibility rule
 
 During the initial adaptation phase the technical mod id remains `questlog`.
@@ -85,6 +87,10 @@ The approved popup-character baseline keeps the established portrait design. The
 
 The separate in-game Gnarl model remains work in progress and is not a source for automatic popup redesign. Full cross-alignment is deferred until the model reaches the review gate defined in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
+Automatic full-screen popup behavior remains single-player only by explicit project decision. The client code keeps a named local-singleplayer gate around the popup queue rather than expanding the feature to multiplayer.
+
+Foundation B has also repaired two popup-delivery defects found during source review: a queued popup can no longer become permanently stranded merely because the player was carrying a stack when the retry fired, and the quest trigger sound is no longer replayed when the delayed popup screen opens.
+
 If the native overlay path cannot achieve a stable readable Gnarl layout at normal GUI scales, only then should the renderer receive a dedicated speaker/portrait field.
 
 ## Canon boundary
@@ -98,9 +104,11 @@ The engine may provide test-only definitions for validation, but they must be un
 Foundation B is complete only when direct in-game review confirms:
 
 - the approved Gnarl portrait renders with clean transparency;
-- the portrait is not clipped when extending outside the parchment;
+- the portrait is not clipped when extending outside the parchment at the accepted target GUI configuration;
 - quest title and body text remain readable;
-- popup-on-unlock works from an actual locked-to-unlocked transition;
+- popup-on-unlock works from an actual locked-to-unlocked transition in unpublished local single-player;
+- the trigger cue occurs once rather than being replayed when the popup appears;
+- a temporarily blocked queued popup resumes rather than becoming stranded;
 - the composition remains usable across the agreed GUI scales/window sizes;
 - the native Questlog overlay path is either accepted or rejected based on observed behavior rather than assumption.
 

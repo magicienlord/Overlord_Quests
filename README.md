@@ -8,7 +8,9 @@ The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and
 
 **Foundation A is complete. Foundation B, Gnarl presentation validation, is in progress on `gnarl-bootstrap`.**
 
-The Forge project now builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition validator, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads a usable Forge artifact through GitHub Actions.
+The Forge project builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition validator, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads a usable Forge artifact through GitHub Actions.
+
+OVERLORD REIGN is a single-player project. Automatic full-screen quest popups are intentionally scoped to unpublished local single-player worlds; LAN-published and dedicated multiplayer sessions are outside the target runtime for this presentation layer.
 
 The imported upstream baseline is pinned exactly to Questlog commit `72edfa8cc2a411265ad20a916ce0282ec7be56c0`. The original Apache 2.0 license and credits are retained. The supplied upstream Forge JAR is preserved under `reference/` for binary comparison.
 
@@ -20,6 +22,7 @@ The imported upstream baseline is pinned exactly to Questlog commit `72edfa8cc2a
 - Upstream engine: Questlog 3.3.3
 - Technical mod id during the initial compatibility phase: `questlog`
 - Artifact prefix: `overlord-quests`
+- Intended gameplay runtime: single-player
 
 Keeping the `questlog` technical id initially is deliberate. It avoids needless breakage of config paths, commands, JSON IDs, packet channels, saved quest state, and existing integrations while the visual and content systems are adapted.
 
@@ -31,7 +34,7 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions validates OVERLORD quest examples, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the result.
+GitHub Actions validates OVERLORD quest examples, checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads both the normal Forge artifact and a Foundation B test kit.
 
 ## Adaptation strategy
 
@@ -41,4 +44,4 @@ Bundled definition support is already implemented: approved quest and chapter de
 
 Story text, quest progression, rewards, and world-specific objectives are not being invented by the bootstrap. Those will be added only from approved OVERLORD REIGN design and canon decisions.
 
-See `docs/OVERLORD_ADAPTATION.md` for the current engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the active presentation test, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, and `UPSTREAM_BASELINE.md` for provenance.
+See `docs/OVERLORD_ADAPTATION.md` for the current engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the active presentation test, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the manual acceptance procedure, and `UPSTREAM_BASELINE.md` for provenance.

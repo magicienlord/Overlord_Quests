@@ -12,13 +12,21 @@ Use the current `gnarl-bootstrap` Forge artifact and the development quest:
 
 The development quest is deliberately not bundled into the normal mod manifest.
 
+## Runtime scope
+
+Foundation B targets an unpublished local single-player world only.
+
+Do not use Open to LAN during acceptance testing. Dedicated multiplayer and LAN-published worlds are outside the OVERLORD REIGN runtime scope for automatic full-screen Gnarl popups.
+
 ## Installation
 
 1. Back up the test instance.
 2. Remove any separate upstream Questlog JAR so there is exactly one implementation of the `questlog` technical mod id.
 3. Install the current OVERLORD QUESTS Forge JAR.
 4. Copy `overlord_gnarl_popup_dev.json` into `config/questlog/quests/`.
-5. Launch a disposable test world with commands available.
+5. Launch a disposable local single-player world with commands available and keep it unpublished.
+
+The CI test-kit artifact is arranged with `mods/` and `config/` directories so these test files can be inspected or overlaid without manually reconstructing their target paths.
 
 ## Deterministic trigger preparation
 
@@ -49,6 +57,22 @@ On receipt of the debug stick:
 4. Gnarl's transparent overlay must render above the parchment background without a rectangular image backdrop.
 5. The overlay must not suppress title, description, buttons, or input handling.
 6. The read objective must remain usable so the development screen can be acknowledged normally.
+7. The development `minecraft:entity.experience_orb.pickup` trigger cue must be heard exactly once. A second identical cue when the popup opens is a regression.
+
+The experience-orb sound is a test signal only. It is not approved production audio for Gnarl.
+
+## Deferred-popup regression check
+
+Foundation B repaired a queue-stall case involving carried inventory stacks. Validate it separately after the normal trigger works:
+
+1. Reset the development quest and remove the debug stick.
+2. Open a container or inventory screen.
+3. Pick up an item stack so it is attached to the cursor.
+4. Cause the debug-stick prerequisite to become satisfied while the carried stack remains on the cursor.
+5. Keep the carried stack briefly, then return it to a slot.
+6. Confirm the Gnarl popup still opens after the carried stack is released rather than disappearing permanently.
+
+This is a reliability regression check. If arranging the trigger while a stack is carried proves impractical with the current test setup, retain that as a test limitation rather than changing quest behavior just to manufacture the case.
 
 ## Approved character baseline
 
@@ -77,9 +101,14 @@ overlay x offset: -140
 overlay y offset: +18
 ```
 
-With the right details panel closed, this creates a 20-pixel horizontal portrait/parchment overlap. The total horizontal composition is 440 scaled GUI pixels wide. It is centered at a scaled GUI width of 440 or greater; narrower scaled widths necessarily clip some of the current test composition.
+Static analysis currently predicts:
 
-This 440-pixel threshold is an implementation fact of the present prototype, not an approved minimum-screen requirement. Whether Foundation B must support narrower scaled GUI widths is a later design/compatibility decision if actual testing demonstrates that it matters for the intended instance.
+- 20 px horizontal portrait/parchment overlap;
+- 440 scaled GUI px minimum width for full horizontal visibility;
+- 229 scaled GUI px minimum height for the panel, overlay, and primary button;
+- a 2 x 122 px geometric portrait/description intersection before alpha is considered.
+
+The description intersection is not automatically a failure. The test must determine whether visible portrait pixels actually obscure glyphs or reduce readability.
 
 ## GUI-scale matrix
 
@@ -88,9 +117,10 @@ At minimum, review the popup in:
 - the normal GUI scale used by the OVERLORD REIGN instance;
 - one scale step smaller;
 - one scale step larger when Minecraft permits it;
-- a windowed configuration narrow enough to approach the current 440-scaled-pixel threshold.
+- a windowed configuration narrow enough to approach the current 440-scaled-pixel threshold;
+- a vertically constrained configuration approaching the current 229-scaled-pixel threshold if practical.
 
-The static helper `tools/check_gnarl_popup_layout.py` reports expected horizontal clipping for representative scaled GUI widths. It does not replace in-game review.
+The static helper `tools/check_gnarl_popup_layout.py` reports expected clipping and geometric intersections. It does not replace in-game review.
 
 ## Evidence to retain
 
@@ -99,9 +129,10 @@ For the acceptance pass, retain screenshots of:
 1. the initial automatic popup immediately after the debug-stick objective triggers;
 2. the same popup at the normal instance GUI scale;
 3. the narrowest tested configuration that remains acceptable;
-4. any configuration that visibly clips or overlaps text.
+4. any configuration that visibly clips or overlaps text;
+5. the deferred-popup regression case if it can be reproduced cleanly.
 
-Also retain `latest.log` if the test reveals GUI errors, missing texture messages, quest-loading exceptions, or packet/state anomalies.
+Also retain `latest.log` if the test reveals GUI errors, missing texture messages, quest-loading exceptions, packet/state anomalies, or unexpected repeated trigger events.
 
 ## Acceptance decision
 

@@ -26,10 +26,6 @@ BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 
 
-class ValidationError(Exception):
-    pass
-
-
 def fail(path: Path, message: str, errors: list[str]) -> None:
     errors.append(f"{path.relative_to(ROOT)}: {message}")
 
@@ -48,6 +44,48 @@ def require_list(data: dict[str, Any], key: str, path: Path, errors: list[str]) 
 def validate_resource_id(value: Any, field: str, path: Path, errors: list[str]) -> None:
     if not isinstance(value, str) or not RESOURCE_ID.fullmatch(value):
         fail(path, f"'{field}' must be a namespaced resource id, got {value!r}", errors)
+
+
+def validate_boolean_fields(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    for key in (
+        "show_popup_on_unlock",
+        "toast_on_unlock",
+        "toast_on_complete",
+        "disable_details_button",
+        "details_open_by_default",
+        "include_in_main",
+        "hidden",
+        "hide_when_completed",
+        "repeatable",
+        "global",
+    ):
+        if key in data and not isinstance(data[key], bool):
+            fail(path, f"'{key}' must be a boolean", errors)
+
+
+def validate_panel_geometry(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    for key in ("left_panel_width", "right_panel_width", "panel_height"):
+        if key in data:
+            value = data[key]
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                fail(path, f"'{key}' must be a positive integer", errors)
+
+    for key in (
+        "left_panel_x_offset",
+        "left_panel_y_offset",
+        "right_panel_x_offset",
+        "right_panel_y_offset",
+    ):
+        if key in data:
+            value = data[key]
+            if not isinstance(value, int) or isinstance(value, bool):
+                fail(path, f"'{key}' must be an integer", errors)
+
+
+def validate_sounds(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    for key in ("triggered_sound", "completed_sound"):
+        if key in data:
+            validate_resource_id(data[key], key, path, errors)
 
 
 def validate_overlay(data: dict[str, Any], path: Path, errors: list[str]) -> None:
@@ -146,8 +184,12 @@ def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) 
         elif "item" in icon:
             validate_resource_id(icon["item"], "icon.item", path, errors)
 
+    validate_boolean_fields(data, path, errors)
+    validate_panel_geometry(data, path, errors)
+    validate_sounds(data, path, errors)
     validate_objective_list(data, "prerequisites", path, errors)
     validate_objective_list(data, "objectives", path, errors)
+    validate_objective_list(data, "failures", path, errors)
     validate_overlay(data, path, errors)
 
     if development_fixture:

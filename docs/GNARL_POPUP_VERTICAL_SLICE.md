@@ -20,7 +20,7 @@ The complete manual procedure is recorded in `docs/FOUNDATION_B_TEST_PROTOCOL.md
 
 ## Current design decision
 
-The popup Gnarl character design is now approved for this milestone.
+The popup Gnarl character design is approved for this milestone.
 
 The approved baseline preserves the established portrait and changes only the pupil treatment:
 
@@ -34,6 +34,12 @@ Do not otherwise blend the popup portrait with the current WIP in-game Gnarl mod
 
 This approval locks the popup character design for Foundation B. It does not lock parchment placement, portrait scale, or screen composition. Those remain subject to the in-game vertical-slice test below.
 
+## Runtime scope
+
+Automatic Gnarl popups are an unpublished local single-player feature for OVERLORD REIGN.
+
+LAN-published worlds and dedicated multiplayer are not part of the target runtime and are not Foundation B acceptance cases.
+
 ## What this pass validates
 
 The prototype is intended to answer only presentation and implementation questions:
@@ -42,7 +48,9 @@ The prototype is intended to answer only presentation and implementation questio
 2. Does the transparent Gnarl overlay render outside the parchment without clipping or corrupting the panel texture?
 3. Is the left-page text still readable when the portrait overlaps the parchment edge?
 4. Does the composition remain usable across relevant GUI scales and window sizes?
-5. Is Questlog's native overlay system sufficient, or does OVERLORD QUESTS need a dedicated speaker/portrait rendering field?
+5. Does the unlock cue play exactly once for the automatic popup?
+6. Does a temporarily blocked popup remain queued until it can safely open?
+7. Is Questlog's native overlay system sufficient, or does OVERLORD QUESTS need a dedicated speaker/portrait rendering field?
 
 ## Trigger
 
@@ -60,6 +68,8 @@ A debug stick is used instead of a common survival item so an ordinary inventory
 
 The quest uses a `questlog:read` objective so the details screen remains interactive after the popup appears. Rewards and all story-facing progression are intentionally absent.
 
+A vanilla experience-orb pickup sound is attached only as a development cue. It exists to prove that the trigger sound fires exactly once. It is not a proposed Gnarl production sound.
+
 ## Initial layout
 
 The first baseline places Gnarl on the left side of a single parchment panel. These values are test coordinates, not a locked visual design:
@@ -73,28 +83,35 @@ overlay x offset: -140
 overlay y offset: +18
 ```
 
-The panel is shifted right while the overlay is shifted back left, leaving most of the portrait outside the text area with a 20-pixel horizontal overlap at the parchment edge.
+Static analysis of the current `QuestDetails` placement gives:
 
-With the details panel closed, the current composition is 440 scaled GUI pixels wide. It therefore fits horizontally without clipping only when the scaled GUI width is at least 440 pixels. This is a property of the test coordinates, not yet a minimum-resolution requirement for the final mod.
+- 20 px horizontal portrait/parchment overlap;
+- 440 scaled GUI px minimum width for complete horizontal visibility;
+- 229 scaled GUI px minimum height for the panel, portrait, and primary button to remain fully visible;
+- a 2 x 122 px geometric portrait/description intersection before portrait transparency is considered.
+
+The last value is deliberately treated as a warning only. The portrait's transparent pixels may make the actual visual overlap harmless, and title/body readability must be judged from the Minecraft render.
 
 No conclusion should be drawn from the left-side placement until an in-game comparison has been reviewed.
 
 ## Test installation
 
-The GitHub Actions build publishes a dedicated `overlord-quests-gnarl-popup-test-kit` artifact containing the Forge build, development quest, and relevant test documentation.
+The GitHub Actions build publishes a dedicated `overlord-quests-gnarl-popup-test-kit` artifact prepared in an instance-shaped layout.
 
-For a manual vertical-slice test, install the OVERLORD QUESTS JAR, ensure a separate upstream Questlog JAR is not present, and copy the development quest JSON into the active instance's `config/questlog/quests/` directory. The portrait asset itself is packaged by OVERLORD QUESTS and does not need to be copied separately once the mod JAR is installed.
+Install the OVERLORD QUESTS JAR, ensure a separate upstream Questlog JAR is not present, place the development quest under `config/questlog/quests/`, and launch an unpublished local single-player test world. Do not use Open to LAN for the acceptance pass.
 
 Use a disposable test world or reset quest state before repeating the unlock test. Remove the debug stick before resetting so the inventory objective cannot immediately retrigger.
 
-## Static layout aid
+## Static validation aids
 
-`tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` horizontal placement formula and reports clipping at representative scaled GUI widths. Its output is included in the test kit when produced by CI.
+`tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` placement constants and reports horizontal/vertical clipping plus the description-rectangle intersection.
 
-Static geometry is not acceptance evidence. Minecraft still needs to render the popup directly.
+`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha capability, size, and SHA-256. It does not assess whether the picture matches the approved character design.
+
+Static checks are not acceptance evidence. Minecraft still needs to render the popup directly.
 
 ## Acceptance
 
-This vertical slice is accepted only after direct in-game review. A successful build or static layout report alone does not lock the composition.
+This vertical slice is accepted only after direct in-game review. A successful build or static report alone does not lock the composition.
 
 If native overlay controls remain stable and readable, the renderer should stay unchanged and the presentation can remain data-driven. If clipping, scaling, anchoring, layering, or interaction problems cannot be corrected through the existing fields, the next implementation pass may introduce a dedicated Gnarl speaker/portrait primitive.

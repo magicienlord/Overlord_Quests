@@ -26,8 +26,11 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Validate Overlord quest examples
+      - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
+
+      - name: Validate Gnarl popup asset
+        run: python3 tools/check_gnarl_popup_asset.py | tee gnarl_popup_asset_report.txt
 
       - name: Report Gnarl popup static layout
         run: python3 tools/check_gnarl_popup_layout.py | tee gnarl_popup_layout_report.txt
@@ -40,6 +43,7 @@ jobs:
 
       - name: Verify assembled Forge jar
         run: |
+          set -euo pipefail
           JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
           if [ -z "$JAR" ]; then
             echo "No Forge runtime jar was produced."
@@ -49,7 +53,71 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/Questlog.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/textures/gui/overlord/gnarl_popup.png'
+          jar tf "$JAR" | grep -Fxq 'assets/questlog/overlord/definitions/index.json'
           jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
+
+          if jar tf "$JAR" | grep -Eq '^assets/questlog/overlord/definitions/(quests|chapters)/.*_dev\.json$'; then
+            echo "Development quest/chapter content was bundled into the runtime JAR."
+            exit 1
+          fi
+
+      - name: Prepare Foundation B test kit
+        run: |
+          set -euo pipefail
+          KIT='build/gnarl-popup-test-kit'
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p \
+            "$KIT/mods" \
+            "$KIT/config/questlog/quests" \
+            "$KIT/docs" \
+            "$KIT/reference"
+
+          cp "$JAR" "$KIT/mods/"
+          cp examples/questlog/quests/overlord_gnarl_popup_dev.json "$KIT/config/questlog/quests/"
+          cp docs/GNARL_POPUP_VERTICAL_SLICE.md "$KIT/docs/"
+          cp docs/GNARL_VISUAL_ALIGNMENT.md "$KIT/docs/"
+          cp docs/FOUNDATION_B_TEST_PROTOCOL.md "$KIT/docs/"
+          cp docs/FOUNDATION_B_HANDOFF.md "$KIT/docs/"
+          cp gnarl_popup_layout_report.txt "$KIT/docs/"
+          cp gnarl_popup_asset_report.txt "$KIT/docs/"
+          cp common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png "$KIT/reference/gnarl_popup.png"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - GNARL POPUP FOUNDATION B TEST KIT
+
+          1. Back up the test instance.
+          2. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          3. Copy the contents of this kit's mods/ directory into the instance mods/ directory.
+          4. Copy the contents of this kit's config/ directory into the instance config/ directory.
+          5. Launch an unpublished local single-player test world with commands available. Do not Open to LAN.
+          6. Follow docs/FOUNDATION_B_TEST_PROTOCOL.md exactly.
+
+          This kit contains development quest content. It is not a production quest package and establishes no OVERLORD REIGN story canon.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS Foundation B test kit
+          commit=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          runtime_scope=unpublished_local_singleplayer
+          development_quest=config/questlog/quests/overlord_gnarl_popup_dev.json
+          portrait_reference=reference/gnarl_popup.png
+          EOF
+
+          (
+            cd "$KIT"
+            sha256sum mods/* reference/gnarl_popup.png config/questlog/quests/overlord_gnarl_popup_dev.json > SHA256SUMS.txt
+          )
 
       - name: Upload Forge artifact
         uses: actions/upload-artifact@v4
@@ -62,11 +130,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: overlord-quests-gnarl-popup-test-kit
-          path: |
-            forge/build/libs/*.jar
-            examples/questlog/quests/overlord_gnarl_popup_dev.json
-            docs/GNARL_POPUP_VERTICAL_SLICE.md
-            docs/GNARL_VISUAL_ALIGNMENT.md
-            docs/FOUNDATION_B_TEST_PROTOCOL.md
-            gnarl_popup_layout_report.txt
+          path: build/gnarl-popup-test-kit/
           if-no-files-found: error
