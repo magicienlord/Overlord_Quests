@@ -50,6 +50,9 @@ jobs:
       - name: Validate event bus lifecycle ownership
         run: python3 tools/validate_event_bus_lifecycle.py
 
+      - name: Validate definition wire size
+        run: python3 tools/validate_definition_wire_limits.py
+
       - name: Validate Gnarl popup asset
         run: |
           set -o pipefail
