@@ -17,7 +17,6 @@ import java.util.List;
 
 public class QuestRewardCollectPacket {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
-    private static final int MAX_SELECTIONS = 256;
 
     private final ResourceLocation id;
     private final int rewardIndex;
@@ -41,7 +40,7 @@ public class QuestRewardCollectPacket {
         ResourceLocation id = buf.readResourceLocation();
         int rewardIndex = buf.readInt();
         int selectionCount = buf.readVarInt();
-        if (selectionCount < 0 || selectionCount > MAX_SELECTIONS) {
+        if (selectionCount < 0 || selectionCount > ChoiceReward.MAX_SELECTIONS) {
             throw new IllegalArgumentException("Invalid quest reward selection count: " + selectionCount);
         }
         List<Integer> selections = new ArrayList<>(selectionCount);
@@ -115,6 +114,9 @@ public class QuestRewardCollectPacket {
     }
 
     public void encode(FriendlyByteBuf buf) {
+        if (this.selections.size() > ChoiceReward.MAX_SELECTIONS) {
+            throw new IllegalArgumentException("Quest reward selection count exceeds protocol maximum: " + this.selections.size());
+        }
         buf.writeResourceLocation(this.id);
         buf.writeInt(this.rewardIndex);
         buf.writeVarInt(this.selections.size());
