@@ -46,10 +46,12 @@ public class QuestEditSavePacket {
     }
 
     public static void handle(QuestEditSavePacket packet, IPacketContext ctx) {
-        if (!(ctx.getSender() instanceof ServerPlayer player) || !player.hasPermissions(2)) {
-            Questlog.LOGGER.warn("Rejected quest editor save request without a permitted server player sender");
+        EditorPacketGuard.AuthorizedEditor authorization = EditorPacketGuard.requireAuthorized(ctx, "quest editor save request");
+        if (authorization == null) {
             return;
         }
+        ServerPlayer player = authorization.player();
+
         if (!Questlog.MODID.equals(packet.id.getNamespace())) {
             Questlog.LOGGER.warn("Rejected quest editor save for unsupported namespace: {}", packet.id);
             return;
