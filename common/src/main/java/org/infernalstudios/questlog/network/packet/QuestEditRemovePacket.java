@@ -45,6 +45,14 @@ public class QuestEditRemovePacket {
             Questlog.LOGGER.warn("Rejected quest editor remove for unsupported namespace: {}", packet.id);
             return;
         }
+        if (DefinitionUtil.isBundledQuest(packet.id)) {
+            // Production definitions bundled in OVERLORD QUESTS are immutable
+            // content. Saving the same ID may deliberately create a config override,
+            // but Delete must not ambiguously mean "remove override and reveal the
+            // bundled base". Keep deletion restricted to config-owned quests.
+            Questlog.LOGGER.warn("Rejected editor deletion of bundled quest {}", packet.id);
+            return;
+        }
 
         try {
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
@@ -54,6 +62,7 @@ public class QuestEditRemovePacket {
                 Questlog.LOGGER.info("Deleted quest definition file for {}", packet.id);
             } else {
                 Questlog.LOGGER.warn("Tried to delete quest definition file {} but it did not exist", filePath);
+                return;
             }
 
             DefinitionUtil.loadFromConfig();
