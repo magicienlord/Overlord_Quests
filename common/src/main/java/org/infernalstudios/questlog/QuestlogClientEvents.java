@@ -11,7 +11,6 @@ import org.infernalstudios.questlog.client.gui.components.toasts.QuestAddedToast
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestCompletedToast;
 import org.infernalstudios.questlog.client.gui.screen.QuestDetails;
 import org.infernalstudios.questlog.client.gui.screen.QuestlogScreen;
-import org.infernalstudios.questlog.core.DefinitionUtil;
 import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
@@ -57,7 +56,10 @@ public class QuestlogClientEvents {
         QuestlogClient.isEditModeActive = false;
         ClientPacketHandler.clearDeferredState();
         QuestlogClient.destroyLocal();
-        DefinitionUtil.clearClientCaches();
+        // DefinitionUtil's caches are static and shared with the integrated server
+        // in single-player. Do not clear them from the client logout hook because
+        // server shutdown can still be in progress on the same JVM. The next full
+        // sync replaces them before client quest state is rebuilt.
         QuestlogClient.ALL_ADVANCEMENTS = new ArrayList<>();
         Questlog.EVENTS.removeAllListeners();
         QuestToastState.addedToasts.clear();
