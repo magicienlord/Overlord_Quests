@@ -223,7 +223,7 @@ public class ClientPacketHandler {
                 JsonObject def = GSON.fromJson(entry.getValue(), JsonObject.class);
                 if (def != null) {
                     if (!sharesDefinitionCacheWithIntegratedServer) {
-                        DefinitionUtil.putCachedChapter(entry.getKey(), def);
+                        DefinitionUtil.putClientMirrorChapter(entry.getKey(), def);
                     }
                 } else {
                     Questlog.LOGGER.warn("Ignoring JSON-null synced chapter {}", entry.getKey());
@@ -242,7 +242,7 @@ public class ClientPacketHandler {
                     throw new IllegalArgumentException("Synced quest definition is JSON null");
                 }
                 if (!sharesDefinitionCacheWithIntegratedServer) {
-                    DefinitionUtil.putCachedQuest(entry.getKey(), def);
+                    DefinitionUtil.putClientMirrorQuest(entry.getKey(), def);
                 }
                 Quest quest = Quest.create(def, entry.getKey(), manager);
                 manager.addQuest(quest);
