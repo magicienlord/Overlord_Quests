@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -52,4 +53,15 @@ jobs:
         with:
           name: overlord-quests-forge-1.20.1
           path: forge/build/libs/*.jar
+          if-no-files-found: error
+
+      - name: Upload Gnarl popup test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-gnarl-popup-test-kit
+          path: |
+            forge/build/libs/*.jar
+            examples/questlog/quests/overlord_gnarl_popup_dev.json
+            docs/GNARL_POPUP_VERTICAL_SLICE.md
+            docs/GNARL_VISUAL_ALIGNMENT.md
           if-no-files-found: error
