@@ -6,22 +6,22 @@ This document controls visual consistency between the quest-popup Gnarl and the 
 
 ## Current design decision
 
-The popup Gnarl character design is locked for Foundation B.
+The popup Gnarl **design target** is locked for Foundation B. This is not the same as approving the current repository PNG as the final corrected binary.
 
-The approved portrait keeps the established popup design and applies the following pupil correction:
+The locked target preserves the established popup design and changes only the pupil treatment:
 
 - pupils are square;
 - the pupils look toward the player;
 - each square remains perspective-aligned to the eye surface rather than reading as a flat screen-facing decal.
 
-The final approved correction also preserves two face invariants that were explicitly reviewed during the asset pass:
+Two face invariants are explicitly locked:
 
-- Gnarl's original snout geometry must remain unchanged;
-- Gnarl's expression must remain sly/non-angry rather than being converted into a scowl.
+- Gnarl's original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship must remain unchanged;
+- Gnarl's original sly, amused, non-angry expression must remain unchanged. Brows, eyelids, grin, facial proportions, and other expression-bearing features are not to be redrawn merely to obtain direct eye contact.
 
 Do not otherwise redesign the popup portrait to match the current in-game model while that model remains work in progress.
 
-This approval does not authorize changes to eye size, eye placement, brow shape, head silhouette, coloration, clothing, lantern, pose, or parchment composition.
+The current repository test asset must not be promoted to final visual approval merely because it passes PNG integrity or Forge build checks. Final binary approval requires a reviewed image that actually satisfies the locked pupil/gaze target without changing the snout or expression.
 
 ## Current in-game model reference
 
@@ -64,12 +64,14 @@ Compare:
 - pupil perspective within each eye;
 - eye separation;
 - brow-to-eye spacing;
-- muzzle width, projection, and silhouette;
+- muzzle width, projection, volume, and silhouette;
+- nostril and nose placement;
+- mouth/jaw relationship;
 - jaw/chin width;
 - cheek silhouette;
 - beard/whisker placement when present in the finalized model.
 
-The popup's approved square pupil treatment and preserved snout are the current face reference for cross-alignment. A later model pass may be compared to those traits, but it does not automatically supersede them.
+The locked popup target is the current face reference for cross-alignment. A later model pass may be compared to those traits, but it does not automatically supersede them.
 
 ### Tier 3: costume and equipment
 
@@ -101,10 +103,10 @@ The 2D popup is allowed to use stronger painted contrast than the Minecraft enti
 
 Unless explicitly revised by the Overlord, preserve these while aligning against the final model:
 
-- the approved popup illustration remains the primary 2D design baseline;
+- the established popup illustration remains the primary 2D design baseline;
 - square pupils remain player-directed and perspective-aligned;
-- the approved snout geometry remains unchanged;
-- the approved expression remains sly/non-angry;
+- the original snout/muzzle geometry remains unchanged;
+- the original sly/non-angry expression remains unchanged;
 - the portrait should read clearly at quest-popup scale before close-detail fidelity is considered;
 - transparency around Gnarl must remain clean so the portrait can overlap parchment without a rectangular backdrop;
 - the portrait must not be forced into the geometric stiffness of the Minecraft model;
@@ -143,11 +145,13 @@ No discrepancy should be resolved by silently averaging both versions together.
 
 ## Current status
 
-POPUP CHARACTER DESIGN: APPROVED FOR FOUNDATION B.
+POPUP CHARACTER DESIGN TARGET: LOCKED FOR FOUNDATION B.
 
-SQUARE PUPILS / PLAYER-DIRECTED GAZE: APPROVED.
+SQUARE PUPILS / PLAYER-DIRECTED GAZE / EYE-PLANE PERSPECTIVE: LOCKED TARGET.
 
-SNOUT GEOMETRY / NON-ANGRY EXPRESSION: LOCKED AS POPUP INVARIANTS.
+SNOUT GEOMETRY / NON-ANGRY EXPRESSION: LOCKED INVARIANTS.
+
+CURRENT REPOSITORY PNG: TECHNICAL TEST ASSET, NOT FINAL BINARY APPROVAL.
 
 POPUP UI COMPOSITION: IMPLEMENTATION TEST, NOT YET LOCKED.
 
