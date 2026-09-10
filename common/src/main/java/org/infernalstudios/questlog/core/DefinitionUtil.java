@@ -60,18 +60,43 @@ public class DefinitionUtil {
         return keys;
     }
 
+    /**
+     * Returns an isolated definition snapshot. Callers, especially client editor
+     * screens in an integrated server, must never receive the mutable JsonObject
+     * stored in the shared authoritative cache.
+     */
     public static synchronized JsonObject getCachedQuest(ResourceLocation path) {
-        if (!QUEST_DEFINITION_CACHE.containsKey(path)) {
+        JsonObject definition = QUEST_DEFINITION_CACHE.get(path);
+        if (definition == null) {
             throw new NullPointerException("Quest not found: " + path);
         }
-        return QUEST_DEFINITION_CACHE.get(path);
+        return definition.deepCopy();
     }
 
+    /**
+     * Legacy editor compatibility sink. Client editor screens inherited from
+     * Questlog used this method for optimistic cache mutation before sending the
+     * authoritative save packet. In integrated single-player that mutates the
+     * server's static cache from the client thread, so direct mutation is ignored.
+     * The server save/reload path and subsequent full sync are authoritative.
+     */
+    @Deprecated
     public static synchronized void putCachedQuest(ResourceLocation path, JsonObject definition) {
         if (path == null || definition == null) {
             throw new IllegalArgumentException("Quest cache id and definition must be non-null");
         }
-        QUEST_DEFINITION_CACHE.put(path, definition);
+    }
+
+    /**
+     * Replaces one definition in a remote client's mirror cache. This is reserved
+     * for authoritative server sync handling. Integrated single-player never calls
+     * it because client and server already share the server-owned static cache.
+     */
+    public static synchronized void putClientMirrorQuest(ResourceLocation path, JsonObject definition) {
+        if (path == null || definition == null) {
+            throw new IllegalArgumentException("Quest cache id and definition must be non-null");
+        }
+        QUEST_DEFINITION_CACHE.put(path, definition.deepCopy());
     }
 
     public static synchronized void clearClientCaches() {
@@ -100,15 +125,26 @@ public class DefinitionUtil {
         return keys;
     }
 
+    /** Returns an isolated chapter snapshot rather than the mutable cache value. */
     public static synchronized JsonObject getCachedChapter(ResourceLocation path) {
-        return CHAPTER_DEFINITION_CACHE.get(path);
+        JsonObject definition = CHAPTER_DEFINITION_CACHE.get(path);
+        return definition == null ? null : definition.deepCopy();
     }
 
+    /** See {@link #putCachedQuest(ResourceLocation, JsonObject)}. */
+    @Deprecated
     public static synchronized void putCachedChapter(ResourceLocation path, JsonObject definition) {
         if (path == null || definition == null) {
             throw new IllegalArgumentException("Chapter cache id and definition must be non-null");
         }
-        CHAPTER_DEFINITION_CACHE.put(path, definition);
+    }
+
+    /** Authoritative remote-client mirror update; see {@link #putClientMirrorQuest(ResourceLocation, JsonObject)}. */
+    public static synchronized void putClientMirrorChapter(ResourceLocation path, JsonObject definition) {
+        if (path == null || definition == null) {
+            throw new IllegalArgumentException("Chapter cache id and definition must be non-null");
+        }
+        CHAPTER_DEFINITION_CACHE.put(path, definition.deepCopy());
     }
 
     public static synchronized void loadFromConfig() {
