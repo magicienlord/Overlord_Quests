@@ -10,8 +10,6 @@ import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.IPacketContext;
 
-import java.util.Objects;
-
 public record QuestReadPacket(ResourceLocation id) {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
 
@@ -20,7 +18,10 @@ public record QuestReadPacket(ResourceLocation id) {
     }
 
     public static void handle(QuestReadPacket packet, IPacketContext ctx) {
-        ServerPlayer sender = Objects.requireNonNull(ctx.getSender());
+        if (!(ctx.getSender() instanceof ServerPlayer sender)) {
+            Questlog.LOGGER.warn("Ignoring quest read request because no server player sender is available");
+            return;
+        }
         if (ServerPlayerManager.INSTANCE == null) {
             Questlog.LOGGER.warn("Ignoring read request for {} because the server quest manager is unavailable", packet.id);
             return;
