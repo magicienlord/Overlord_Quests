@@ -14,8 +14,15 @@ public class CommandReward extends Reward {
 
     public CommandReward(JsonObject definition) {
         super(definition);
-        this.command = JsonUtils.getString(definition, "command");
+        this.command = JsonUtils.getString(definition, "command").trim();
+        if (this.command.isEmpty()) {
+            throw new IllegalArgumentException("Command reward command must not be empty");
+        }
+
         this.permissionLevel = JsonUtils.getOrDefault(definition, "permission_level", 2);
+        if (this.permissionLevel < 0 || this.permissionLevel > 4) {
+            throw new IllegalArgumentException("Command reward permission_level must be between 0 and 4");
+        }
     }
 
     @Override
