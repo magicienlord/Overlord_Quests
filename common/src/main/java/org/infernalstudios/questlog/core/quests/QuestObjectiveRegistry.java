@@ -69,8 +69,11 @@ public class QuestObjectiveRegistry {
         // Misc
         register(new ResourceLocation("questlog", "stat"), StatisticObjective::new,
                 new EditorMetadata("stat", "Stat ID:", "required_amount", EditorMetadata.SuggestionType.CUSTOM_STAT));
+        // TrampleObjective listens specifically for the farmland-trample event and
+        // does not consume a block predicate. Do not expose a block field that the
+        // runtime would silently ignore.
         register(new ResourceLocation("questlog", "trample"), TrampleObjective::new,
-                new EditorMetadata("block", "Block ID:", "required_amount", EditorMetadata.SuggestionType.BLOCK));
+                new EditorMetadata(null, null, "required_amount"));
         register(new ResourceLocation("questlog", "enchant"), EnchantObjective::new,
                 new EditorMetadata("enchantment", "Enchantment ID:", "required_amount", EditorMetadata.SuggestionType.ENCHANTMENT));
         register(new ResourceLocation("questlog", "effect_added"), EffectAddedObjective::new,
