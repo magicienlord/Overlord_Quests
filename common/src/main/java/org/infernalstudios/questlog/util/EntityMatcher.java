@@ -100,9 +100,13 @@ public class EntityMatcher {
         }
         if (this.predicateJson != null && !this.predicateJson.isJsonNull()) {
             EntityPredicate predicate = getEntityPredicate();
-            if (predicate != null && entity.level() instanceof ServerLevel serverLevel) {
-                return predicate.matches(serverLevel, entity.position(), entity);
+            // Configured predicate failures must not degrade into an unrestricted
+            // entity match. Objective progression is server-authoritative, so an
+            // invalid predicate remains unsatisfied until its definition is fixed.
+            if (predicate == null || !(entity.level() instanceof ServerLevel serverLevel)) {
+                return false;
             }
+            return predicate.matches(serverLevel, entity.position(), entity);
         }
         return true;
     }
