@@ -144,6 +144,7 @@ public class QuestEditorScreen extends Screen {
     NoShadowEditBox chapterBox;
     NoShadowEditBox orderBox;
     NoShadowEditBox entryTargetBox;
+    NoShadowEditBox entryAuxBox;
     NoShadowEditBox entryNbtBox;
     NoShadowEditBox entryIconBox;
     private List<JsonObject> currentNestedList = null;
@@ -721,6 +722,7 @@ public class QuestEditorScreen extends Screen {
             }).bounds(panel2X + 15, panel2Y + 62, 130, 16).build());
 
             this.entryTargetBox = null;
+            this.entryAuxBox = null;
             this.entryNbtBox = null;
             this.entryAmountBox = null;
         } else if (isChoice) {
@@ -746,6 +748,7 @@ public class QuestEditorScreen extends Screen {
             }).bounds(panel2X + 15, panel2Y + 62, 130, 16).build());
 
             this.entryTargetBox = null;
+            this.entryAuxBox = null;
             this.entryNbtBox = null;
 
             if (meta == null || meta.amountFieldKey() != null) {
@@ -768,6 +771,19 @@ public class QuestEditorScreen extends Screen {
                 this.entryTargetBox.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
             } else {
                 this.entryTargetBox = null;
+            }
+
+            String auxiliaryKey = getAuxiliaryFieldKey();
+            if (auxiliaryKey != null) {
+                this.entryAuxBox = new NoShadowEditBox(this.font, 0, 0, 125, 14, Component.empty());
+                this.entryAuxBox.setMaxLength(128);
+                if (isAuxiliaryFieldNumeric()) {
+                    this.entryAuxBox.setFilter(s -> s.isEmpty() || s.matches("\\d*"));
+                }
+                this.entryAuxBox.setValue(getAuxiliaryFieldValue());
+                this.entryAuxBox.setTooltip(Tooltip.create(Component.literal(getAuxiliaryFieldLabel())));
+            } else {
+                this.entryAuxBox = null;
             }
 
             if (supportsNbtField(this.editingType)) {
@@ -872,6 +888,40 @@ public class QuestEditorScreen extends Screen {
             return meta.targetFieldLabel();
         }
         return "Target Key:";
+    }
+
+    private String getAuxiliaryFieldKey() {
+        String type = this.editingType == null ? "" : this.editingType.replace("questlog:", "");
+        return switch (type) {
+            case "item_equip" -> "slot";
+            case "entity_approach" -> "range";
+            case "visit_position" -> "dimension";
+            default -> null;
+        };
+    }
+
+    String getAuxiliaryFieldLabel() {
+        String key = getAuxiliaryFieldKey();
+        if ("slot".equals(key)) return "Equipment Slot:";
+        if ("range".equals(key)) return "Range:";
+        if ("dimension".equals(key)) return "Dimension (Optional):";
+        return "Extra Value:";
+    }
+
+    private boolean isAuxiliaryFieldNumeric() {
+        return "range".equals(getAuxiliaryFieldKey());
+    }
+
+    private String getAuxiliaryFieldValue() {
+        String key = getAuxiliaryFieldKey();
+        if (key == null) return "";
+        if (this.editingEntry != null && this.editingEntry.has(key)) {
+            JsonElement value = this.editingEntry.get(key);
+            return value.isJsonPrimitive() ? value.getAsString() : value.toString();
+        }
+        if ("slot".equals(key)) return "mainhand";
+        if ("range".equals(key)) return "1";
+        return "";
     }
 
     private String getTargetFieldValue() {
@@ -993,6 +1043,7 @@ public class QuestEditorScreen extends Screen {
 
         String name = this.entryNameBox != null ? this.entryNameBox.getValue() : "";
         String target = this.entryTargetBox != null ? this.entryTargetBox.getValue() : "";
+        String auxiliary = this.entryAuxBox != null ? this.entryAuxBox.getValue().trim() : "";
         String nbt = this.entryNbtBox != null ? this.entryNbtBox.getValue().trim() : "";
         String icon = this.entryIconBox != null ? this.entryIconBox.getValue().trim() : "";
         int amount = 1;
@@ -1059,7 +1110,7 @@ public class QuestEditorScreen extends Screen {
         String[] allKeys = new String[]{
                 "block", "item", "entity", "biome", "dimension", "structure",
                 "advancement", "stat", "quest", "enchantment", "effect", "command", "loot_table", "bounds",
-                "required_amount", "count", "experience", "levels", "pick_count"
+                "range", "slot", "required_amount", "count", "experience", "levels", "pick_count"
         };
         for (String k : allKeys) {
             this.editingEntry.remove(k);
@@ -1088,6 +1139,21 @@ public class QuestEditorScreen extends Screen {
         } else {
             if (this.activeTab == ActiveTab.OBJECTIVES || this.activeTab == ActiveTab.PREREQUISITES) {
                 this.editingEntry.addProperty("required_amount", amount);
+            }
+        }
+
+        String auxiliaryKey = getAuxiliaryFieldKey();
+        if (auxiliaryKey != null && !auxiliary.isEmpty()) {
+            if (isAuxiliaryFieldNumeric()) {
+                try {
+                    int parsed = Integer.parseInt(auxiliary);
+                    if (parsed >= 1) {
+                        this.editingEntry.addProperty(auxiliaryKey, parsed);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            } else {
+                this.editingEntry.addProperty(auxiliaryKey, auxiliary);
             }
         }
 
@@ -1333,6 +1399,21 @@ public class QuestEditorScreen extends Screen {
                 }
         );
     }
+    private List<String> getAuxiliarySuggestions() {
+        if (this.entryAuxBox == null) return Collections.emptyList();
+        String query = this.entryAuxBox.getValue().toLowerCase();
+        String key = getAuxiliaryFieldKey();
+        List<String> candidates;
+        if ("slot".equals(key)) {
+            candidates = List.of("mainhand", "offhand", "feet", "legs", "chest", "head");
+        } else if ("dimension".equals(key)) {
+            candidates = List.of("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end");
+        } else {
+            return Collections.emptyList();
+        }
+        return candidates.stream().filter(value -> query.isEmpty() || value.contains(query)).limit(5).toList();
+    }
+
     private List<String> getSuggestions(String query) {
         List<String> result = new ArrayList<>();
         if (query.length() < 2) return result;
@@ -1584,6 +1665,9 @@ public class QuestEditorScreen extends Screen {
         } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryTargetBox != null && this.entryTargetBox.isFocused()) {
             activeBox = this.entryTargetBox;
             suggestionProvider = () -> getSuggestions(this.entryTargetBox.getValue());
+        } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryAuxBox != null && this.entryAuxBox.isFocused()) {
+            activeBox = this.entryAuxBox;
+            suggestionProvider = this::getAuxiliarySuggestions;
         } else if (this.rightPageState == RightPageState.EDIT_ENTRY && this.entryNbtBox != null && this.entryNbtBox.isFocused()) {
             activeBox = this.entryNbtBox;
             suggestionProvider = () -> getSuggestions(this.entryNbtBox.getValue());
