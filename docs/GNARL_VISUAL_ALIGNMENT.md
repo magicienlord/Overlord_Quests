@@ -6,15 +6,22 @@ This document controls visual consistency between the quest-popup Gnarl and the 
 
 ## Current design decision
 
-The existing popup Gnarl remains the visual baseline for OVERLORD QUESTS.
+The popup Gnarl character design is locked for Foundation B.
 
-The only approved change to that baseline at this stage is:
+The approved portrait keeps the established popup design and applies the following pupil correction:
 
-- replace the current pupils with square pupils.
+- pupils are square;
+- the pupils look toward the player;
+- each square remains perspective-aligned to the eye surface rather than reading as a flat screen-facing decal.
+
+The final approved correction also preserves two face invariants that were explicitly reviewed during the asset pass:
+
+- Gnarl's original snout geometry must remain unchanged;
+- Gnarl's expression must remain sly/non-angry rather than being converted into a scowl.
 
 Do not otherwise redesign the popup portrait to match the current in-game model while that model remains work in progress.
 
-The square-pupil edit is a visual correction only. It does not authorize changes to eye size, eye placement, brow shape, head silhouette, coloration, clothing, lantern, pose, or parchment composition.
+This approval does not authorize changes to eye size, eye placement, brow shape, head silhouette, coloration, clothing, lantern, pose, or parchment composition.
 
 ## Current in-game model reference
 
@@ -52,15 +59,17 @@ If a future in-game model revision materially changes one of these traits, do no
 
 Compare:
 
-- pupil shape and apparent scale;
+- square pupil shape and apparent scale;
+- gaze direction toward the player;
+- pupil perspective within each eye;
 - eye separation;
 - brow-to-eye spacing;
-- muzzle width and projection;
+- muzzle width, projection, and silhouette;
 - jaw/chin width;
 - cheek silhouette;
 - beard/whisker placement when present in the finalized model.
 
-Square pupils are already approved for the popup and should become the common pupil-shape target unless a later explicit design decision replaces that choice.
+The popup's approved square pupil treatment and preserved snout are the current face reference for cross-alignment. A later model pass may be compared to those traits, but it does not automatically supersede them.
 
 ### Tier 3: costume and equipment
 
@@ -92,8 +101,10 @@ The 2D popup is allowed to use stronger painted contrast than the Minecraft enti
 
 Unless explicitly revised by the Overlord, preserve these while aligning against the final model:
 
-- the current popup illustration remains the primary 2D design baseline;
-- only the pupils are presently scheduled for redesign;
+- the approved popup illustration remains the primary 2D design baseline;
+- square pupils remain player-directed and perspective-aligned;
+- the approved snout geometry remains unchanged;
+- the approved expression remains sly/non-angry;
 - the portrait should read clearly at quest-popup scale before close-detail fidelity is considered;
 - transparency around Gnarl must remain clean so the portrait can overlap parchment without a rectangular backdrop;
 - the portrait must not be forced into the geometric stiffness of the Minecraft model;
@@ -132,8 +143,12 @@ No discrepancy should be resolved by silently averaging both versions together.
 
 ## Current status
 
-POPUP BASELINE: PLANNED / retained.
+POPUP CHARACTER DESIGN: APPROVED FOR FOUNDATION B.
 
-SQUARE PUPILS: PLANNED / approved design change, asset edit pending.
+SQUARE PUPILS / PLAYER-DIRECTED GAZE: APPROVED.
+
+SNOUT GEOMETRY / NON-ANGRY EXPRESSION: LOCKED AS POPUP INVARIANTS.
+
+POPUP UI COMPOSITION: IMPLEMENTATION TEST, NOT YET LOCKED.
 
 FULL POPUP / MODEL MIX: NOT APPROVED YET. Defer until the in-game model reaches the cross-alignment review gate.
