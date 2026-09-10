@@ -26,6 +26,7 @@ public class QuestlogClient {
      */
     public static QuestManager getLocal() {
         if (QUEST_MANAGER_INSTANCE != null && QUEST_MANAGER_INSTANCE.player == null) {
+            QUEST_MANAGER_INSTANCE.deactivate();
             QUEST_MANAGER_INSTANCE = null;
         }
 
@@ -35,6 +36,9 @@ public class QuestlogClient {
                 throw new NullPointerException("QuestManager cannot be initialized, player is null\n");
             }
 
+            if (QUEST_MANAGER_INSTANCE != null) {
+                QUEST_MANAGER_INSTANCE.deactivate();
+            }
             QUEST_MANAGER_INSTANCE = new QuestManager(mcPlayer);
         } else if (QUEST_MANAGER_INSTANCE.player != mcPlayer) {
             QUEST_MANAGER_INSTANCE.player = mcPlayer;
@@ -48,6 +52,9 @@ public class QuestlogClient {
     }
 
     public static void destroyLocal() {
-        QUEST_MANAGER_INSTANCE = null;
+        if (QUEST_MANAGER_INSTANCE != null) {
+            QUEST_MANAGER_INSTANCE.deactivate();
+            QUEST_MANAGER_INSTANCE = null;
+        }
     }
 }
