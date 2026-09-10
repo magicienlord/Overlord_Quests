@@ -25,23 +25,17 @@ repositories {
     }
 
     exclusiveContent {
-        forRepository {
-            maven {
-                name = 'ParchmentMC'
-                url = 'https://maven.parchmentmc.org/'
-            }
-        }
+        forRepositories(
+                maven {
+                    name = 'ParchmentMC'
+                    url = 'https://maven.parchmentmc.org/'
+                },
+                maven {
+                    name = 'NeoForge Parchment Mirror'
+                    url = 'https://maven.neoforged.net/releases'
+                }
+        )
         filter { includeGroup('org.parchmentmc.data') }
-    }
-
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'NeoForge'
-                url = 'https://maven.neoforged.net/releases'
-            }
-        }
-        filter { includeGroupAndSubgroups('net.neoforged') }
     }
 
     maven {
