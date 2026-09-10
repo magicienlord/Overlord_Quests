@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Validate objective fields that are mandatory at runtime.
+"""Validate fields that are mandatory or bounded by runtime contracts.
 
-This is a narrow companion to validate_overlord_quest_examples.py. It exists so
-runtime constructor contracts stay enforced even when an inherited editor does
-not expose every specialized field yet. It validates only OVERLORD development
-fixtures and definitions explicitly listed by the bundled manifest.
+This is a narrow companion to validate_overlord_quest_examples.py. It keeps
+constructor/runtime invariants enforced for OVERLORD development fixtures and
+approved bundled definitions, including specialized fields that the inherited
+Questlog schema did not consistently validate.
 """
 
 from __future__ import annotations
@@ -89,6 +89,27 @@ def validate_objective(entry: Any, location: str, errors: list[str]) -> None:
         validate_objective(entry.get("objective"), f"{location}.objective", errors)
 
 
+def validate_reward(entry: Any, location: str, errors: list[str]) -> None:
+    if not isinstance(entry, dict):
+        return
+
+    reward_type = normalize_type(entry.get("type"))
+
+    if reward_type == "questlog:command":
+        command = entry.get("command")
+        if not isinstance(command, str) or not command.strip():
+            errors.append(f"{location}: command reward requires a non-empty command")
+        permission_level = entry.get("permission_level", 2)
+        if isinstance(permission_level, bool) or not isinstance(permission_level, int) or not 0 <= permission_level <= 4:
+            errors.append(f"{location}: command reward permission_level must be an integer from 0 through 4")
+
+    if reward_type == "questlog:choice":
+        choices = entry.get("choices", [])
+        if isinstance(choices, list):
+            for index, child in enumerate(choices):
+                validate_reward(child, f"{location}.choices[{index}]", errors)
+
+
 def validate_file(path: Path, errors: list[str]) -> None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -105,6 +126,11 @@ def validate_file(path: Path, errors: list[str]) -> None:
             continue
         for index, entry in enumerate(entries):
             validate_objective(entry, f"{path.relative_to(ROOT)}:{key}[{index}]", errors)
+
+    rewards = data.get("rewards", [])
+    if isinstance(rewards, list):
+        for index, entry in enumerate(rewards):
+            validate_reward(entry, f"{path.relative_to(ROOT)}:rewards[{index}]", errors)
 
 
 def main() -> int:
@@ -124,12 +150,12 @@ def main() -> int:
         validate_file(path, errors)
 
     if errors:
-        print("Runtime-required objective field validation failed:", file=sys.stderr)
+        print("Runtime quest-contract validation failed:", file=sys.stderr)
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
 
-    print(f"Runtime-required objective fields valid across {len(seen)} OVERLORD quest definition(s).")
+    print(f"Runtime quest contracts valid across {len(seen)} OVERLORD quest definition(s).")
     return 0
 
 
