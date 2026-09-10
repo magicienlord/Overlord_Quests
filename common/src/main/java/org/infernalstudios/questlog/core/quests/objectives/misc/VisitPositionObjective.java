@@ -41,13 +41,15 @@ public class VisitPositionObjective extends Objective {
     }
 
     private void onPlayerMove(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player
-                && this.getParent().manager.player != null
-                && this.getParent().manager.player.getUUID().equals(player.getUUID())
-                && --ticksUntilCheck <= 0) {
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
             if ((this.dimension == null || player.level().dimension().location().equals(this.dimension))
-                    && this.bounds.isInside(event.player.blockPosition())) {
+                    && this.bounds.isInside(player.blockPosition())) {
                 this.setUnits(this.getUnits() + 1);
             }
             ticksUntilCheck = 20;
