@@ -33,10 +33,13 @@ OVERLORD QUESTS must not call that global clear during a quest reload. Triggers 
 
 For Triggers-backed objectives, old callbacks can therefore remain reachable after a hot reload. The active-manager and exact-quest-instance checks make those callbacks inert before they can mutate objective state or synchronize stale quest data.
 
-This leaves a bounded correctness distinction:
+The Triggers-backed event handlers now use a shared `isActiveForPlayer` fast path before objective-specific work. A retained callback therefore rejects the wrong player, an obsolete manager generation, or a superseded quest instance before inventory scans, nearby-entity scans, registry/predicate matching, structure queries, statistic reads, advancement lookups, or other specialized work. Player ownership is compared by UUID so the guard remains correct if Forge replaces the concrete `ServerPlayer` object for the same session identity.
+
+This leaves a bounded lifecycle distinction:
 
 - stale Triggers callbacks cannot change current quest state;
-- repeated hot reloads can still accumulate retained callback objects and dispatch overhead until the Triggers bus itself is cleared by its lifecycle.
+- stale Triggers callbacks now return before expensive objective-specific work;
+- repeated hot reloads can still accumulate retained callback objects and the small dispatch/guard cost until the Triggers bus itself is cleared by its own lifecycle.
 
 That retention is a technical watch item. It is not justification for clearing a shared event bus unsafely.
 
@@ -44,4 +47,6 @@ That retention is a technical watch item. It is not justification for clearing a
 
 Quest replacement serializes compatible progress first, disposes the old Quest listener tree, creates the current definition, and then restores progress by quest ID. Listener lifetime and persisted progress are therefore separate concerns.
 
-This hardening changes lifecycle safety only. It does not define OVERLORD REIGN quest content, progression, chronology, locations, rewards, or canon.
+Quest-state files are written through a same-directory temporary file and then replaced, using an atomic move where the filesystem supports it. A failed write therefore does not intentionally overwrite the previous complete quest-state file with a partially written compressed NBT stream.
+
+This hardening changes lifecycle and persistence safety only. It does not define OVERLORD REIGN quest content, progression, chronology, locations, rewards, or canon.
