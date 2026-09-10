@@ -13,6 +13,7 @@ import java.util.function.BiPredicate;
 public class CachedRegistryPredicate<T> {
 
     private final boolean isTag;
+    private final boolean validEntry;
 
     private final CachedValue<T> entry;
     private final CachedValue<TagKey<T>> tag;
@@ -29,6 +30,10 @@ public class CachedRegistryPredicate<T> {
         }
 
         ResourceLocation key = new ResourceLocation(location);
+        // Defaulted vanilla registries can return their default entry for an
+        // unknown key (for example AIR for an invalid item ID). Remember whether
+        // the exact key really exists so a typo never turns into a valid match.
+        this.validEntry = this.isTag || registry.containsKey(key);
 
         this.entry = new CachedValue<>(() -> registry.get(key));
         this.tag = new CachedValue<>(() -> TagKey.create(registry.key(), key));
@@ -48,8 +53,7 @@ public class CachedRegistryPredicate<T> {
     public boolean test(T value) {
         if (this.isTag) {
             return this.tagTest.test(this.tag.get(), value);
-        } else {
-            return this.test.test(this.entry.get(), value);
         }
+        return this.validEntry && this.test.test(this.entry.get(), value);
     }
 }
