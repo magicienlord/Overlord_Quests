@@ -9,9 +9,9 @@
   "prerequisites": [
     {
       "type": "questlog:item_obtain",
-      "item": "minecraft:stick",
+      "item": "minecraft:debug_stick",
       "required_amount": 1,
-      "name": "[DEV] Obtain one stick to trigger the popup"
+      "name": "[DEV] Obtain one debug stick to trigger the popup"
     }
   ],
   "objectives": [
