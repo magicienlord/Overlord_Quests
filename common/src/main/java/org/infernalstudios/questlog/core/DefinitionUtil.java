@@ -2,6 +2,8 @@ package org.infernalstudios.questlog.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -11,6 +13,8 @@ import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,6 +28,10 @@ public class DefinitionUtil {
     private static final Map<ResourceLocation, JsonObject> QUEST_DEFINITION_CACHE = new Object2ObjectOpenHashMap<>();
     private static final Map<ResourceLocation, JsonObject> CHAPTER_DEFINITION_CACHE = new Object2ObjectOpenHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+
+    private static final String BUNDLED_INDEX = "assets/questlog/overlord/definitions/index.json";
+    private static final String BUNDLED_QUEST_ROOT = "assets/questlog/overlord/definitions/quests/";
+    private static final String BUNDLED_CHAPTER_ROOT = "assets/questlog/overlord/definitions/chapters/";
 
     public static List<ResourceLocation> getCachedQuestKeys() {
         List<ResourceLocation> keys = new ArrayList<>(QUEST_DEFINITION_CACHE.keySet());
@@ -95,6 +103,11 @@ public class DefinitionUtil {
         QUEST_DEFINITION_CACHE.clear();
         CHAPTER_DEFINITION_CACHE.clear();
 
+        // OVERLORD QUESTS ships approved definitions in the mod jar. Load those
+        // first, then layer config/questlog definitions on top so pack authors can
+        // override any bundled definition without modifying the jar.
+        loadBundledDefinitions();
+
         Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
         Path questDir = configDir.resolve("quests");
         Path chapterDir = configDir.resolve("chapters");
@@ -103,7 +116,8 @@ public class DefinitionUtil {
         createDirIfNotExists(chapterDir);
 
         Path defaultMainChapter = chapterDir.resolve("main.json");
-        if (!Files.exists(defaultMainChapter)) {
+        ResourceLocation mainChapterId = new ResourceLocation(Questlog.MODID, "main");
+        if (!Files.exists(defaultMainChapter) && !CHAPTER_DEFINITION_CACHE.containsKey(mainChapterId)) {
             try {
                 JsonObject mainChapter = new JsonObject();
                 JsonObject iconObj = new JsonObject();
@@ -121,7 +135,77 @@ public class DefinitionUtil {
         loadFiles(questDir, QUEST_DEFINITION_CACHE);
         loadFiles(chapterDir, CHAPTER_DEFINITION_CACHE);
 
-        Questlog.LOGGER.info("Loaded {} quests and {} chapters from config.", QUEST_DEFINITION_CACHE.size(), CHAPTER_DEFINITION_CACHE.size());
+        Questlog.LOGGER.info("Loaded {} quests and {} chapters after bundled definitions and config overrides.", QUEST_DEFINITION_CACHE.size(), CHAPTER_DEFINITION_CACHE.size());
+    }
+
+    private static void loadBundledDefinitions() {
+        ClassLoader loader = DefinitionUtil.class.getClassLoader();
+        try (InputStream indexStream = loader.getResourceAsStream(BUNDLED_INDEX)) {
+            if (indexStream == null) {
+                Questlog.LOGGER.debug("No bundled OVERLORD QUESTS definition index found at {}.", BUNDLED_INDEX);
+                return;
+            }
+
+            JsonObject index;
+            try (Reader reader = new InputStreamReader(indexStream, StandardCharsets.UTF_8)) {
+                index = GSON.fromJson(reader, JsonObject.class);
+            }
+
+            if (index == null) {
+                Questlog.LOGGER.error("Bundled OVERLORD QUESTS definition index is empty: {}", BUNDLED_INDEX);
+                return;
+            }
+
+            loadBundledCategory(loader, index, "quests", BUNDLED_QUEST_ROOT, QUEST_DEFINITION_CACHE);
+            loadBundledCategory(loader, index, "chapters", BUNDLED_CHAPTER_ROOT, CHAPTER_DEFINITION_CACHE);
+        } catch (Exception e) {
+            Questlog.LOGGER.error("Failed to load bundled OVERLORD QUESTS definition index: {}", BUNDLED_INDEX, e);
+        }
+    }
+
+    private static void loadBundledCategory(ClassLoader loader, JsonObject index, String key, String root,
+                                            Map<ResourceLocation, JsonObject> cache) {
+        JsonArray entries = index.has(key) && index.get(key).isJsonArray() ? index.getAsJsonArray(key) : new JsonArray();
+        for (JsonElement element : entries) {
+            if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
+                Questlog.LOGGER.error("Invalid bundled {} definition entry in {}: {}", key, BUNDLED_INDEX, element);
+                continue;
+            }
+
+            String relativePath = element.getAsString().replace('\\', '/');
+            if (!relativePath.endsWith(".json") || relativePath.startsWith("/") || relativePath.contains("..")) {
+                Questlog.LOGGER.error("Rejected unsafe bundled {} definition path: {}", key, relativePath);
+                continue;
+            }
+
+            String idPath = relativePath.substring(0, relativePath.length() - ".json".length());
+            ResourceLocation id;
+            try {
+                id = new ResourceLocation(Questlog.MODID, idPath);
+            } catch (Exception e) {
+                Questlog.LOGGER.error("Invalid bundled {} definition id derived from path: {}", key, relativePath, e);
+                continue;
+            }
+
+            String resourcePath = root + relativePath;
+            try (InputStream stream = loader.getResourceAsStream(resourcePath)) {
+                if (stream == null) {
+                    Questlog.LOGGER.error("Bundled {} definition listed in index is missing: {}", key, resourcePath);
+                    continue;
+                }
+
+                try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                    JsonObject json = GSON.fromJson(reader, JsonObject.class);
+                    if (json == null) {
+                        Questlog.LOGGER.error("Bundled {} definition is empty: {}", key, resourcePath);
+                        continue;
+                    }
+                    cache.put(id, json);
+                }
+            } catch (Exception e) {
+                Questlog.LOGGER.error("Failed to parse bundled {} definition: {}", key, resourcePath, e);
+            }
+        }
     }
 
     private static void createDirIfNotExists(Path dir) {
@@ -151,7 +235,7 @@ public class DefinitionUtil {
                                 String chapterVal = "main";
                                 try {
                                     String content = Files.readString(path, StandardCharsets.UTF_8);
-                                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"chapter\"\\s*:\\s*\"([^\"]+)\"").matcher(content);
+                                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\\"chapter\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(content);
                                     if (m.find()) {
                                         chapterVal = m.group(1);
                                     }
