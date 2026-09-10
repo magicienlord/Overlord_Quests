@@ -14,6 +14,7 @@ import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.platform.Services;
 import org.infernalstudios.questlog.util.AtomicJsonFileUtil;
+import org.infernalstudios.questlog.util.DefinitionLimits;
 import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class QuestEditSavePacket {
     private final String json;
 
     public QuestEditSavePacket(ResourceLocation id, String json) {
+        DefinitionLimits.requireWireSafe(json, "Quest editor definition " + id);
         this.id = id;
         this.json = json;
     }
@@ -35,12 +37,16 @@ public class QuestEditSavePacket {
     public String json() { return this.json; }
 
     public static QuestEditSavePacket decode(FriendlyByteBuf buf) {
-        return new QuestEditSavePacket(buf.readResourceLocation(), buf.readUtf());
+        return new QuestEditSavePacket(
+                buf.readResourceLocation(),
+                buf.readUtf(DefinitionLimits.MAX_SYNCED_JSON_CHARS)
+        );
     }
 
     public void encode(FriendlyByteBuf buf) {
+        DefinitionLimits.requireWireSafe(this.json, "Quest editor definition " + this.id);
         buf.writeResourceLocation(this.id);
-        buf.writeUtf(this.json);
+        buf.writeUtf(this.json, DefinitionLimits.MAX_SYNCED_JSON_CHARS);
     }
 
     public static void handle(QuestEditSavePacket packet, IPacketContext ctx) {
@@ -68,6 +74,11 @@ public class QuestEditSavePacket {
         }
 
         try {
+            // Validate the normalized JSON that will later be synchronized. This
+            // mirrors the packet bound even if a future caller supplies unusually
+            // formatted input whose raw string length differs from Gson output.
+            DefinitionLimits.requireWireSafe(definition, "Quest editor definition " + packet.id);
+
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path questDir = configDir.resolve("quests");
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(questDir, packet.id);
@@ -84,7 +95,7 @@ public class QuestEditSavePacket {
                 }
             }
         } catch (IllegalArgumentException e) {
-            Questlog.LOGGER.warn("Rejected unsafe quest definition path for {}: {}", packet.id, e.getMessage());
+            Questlog.LOGGER.warn("Rejected quest editor save for {}: {}", packet.id, e.getMessage());
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to save quest definition", e);
         }
