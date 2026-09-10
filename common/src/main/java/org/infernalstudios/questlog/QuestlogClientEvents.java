@@ -57,14 +57,22 @@ public class QuestlogClientEvents {
         QuestToastState.addedToasts.clear();
         QuestToastState.completedToasts.clear();
         QuestToastState.queuedPopups.clear();
+        QuestToastState.tickDelayForCheck = -1;
         mostRecentNotificationQuest = null;
     }
 
     public static void onQuestTriggered(QuestEvent.Triggered event) {
+        if (event.quest == null) {
+            Questlog.LOGGER.warn("Ignoring quest trigger notification with no quest instance");
+            return;
+        }
+
         mostRecentNotificationQuest = event.quest;
         if (event.quest.getDisplay().shouldShowPopupOnUnlock() && isLocalSingleplayerPopupSession()) {
             QuestToastState.resetCheckDelay();
-            QuestToastState.queuedPopups.add(event.quest);
+            if (QuestToastState.queuedPopups.stream().noneMatch(quest -> quest.getId().equals(event.quest.getId()))) {
+                QuestToastState.queuedPopups.add(event.quest);
+            }
         } else if (event.quest.getDisplay().shouldToastOnUnlock()) {
             QuestToastState.resetCheckDelay();
             QuestToastState.addedToasts.add(new QuestAddedToast(event.quest.getDisplay()));
@@ -83,7 +91,7 @@ public class QuestlogClientEvents {
      * OVERLORD REIGN is a single-player project. Automatic full-screen quest
      * popups are therefore intentionally limited to the local unpublished
      * integrated server. LAN-published and dedicated multiplayer sessions do not
-     * enter the popup queue.
+     * enter or consume the popup queue.
      */
     private static boolean isLocalSingleplayerPopupSession() {
         Minecraft minecraft = Minecraft.getInstance();
@@ -92,6 +100,11 @@ public class QuestlogClientEvents {
     }
 
     public static void onQuestCompleted(QuestEvent.Completed event) {
+        if (event.quest == null) {
+            Questlog.LOGGER.warn("Ignoring quest completion notification with no quest instance");
+            return;
+        }
+
         mostRecentNotificationQuest = event.quest;
         if (event.quest.getDisplay().shouldToastOnComplete()) {
             QuestToastState.resetCheckDelay();
@@ -118,22 +131,45 @@ public class QuestlogClientEvents {
             return;
         }
 
-        if (Minecraft.getInstance().screen instanceof QuestDetails) {
+        // Re-check the runtime scope at consumption time. A popup queued in a
+        // private integrated-server session must not later open after that world
+        // has been published to LAN.
+        if (!isLocalSingleplayerPopupSession()) {
+            for (Quest queuedQuest : QuestToastState.queuedPopups) {
+                if (queuedQuest.getDisplay().shouldToastOnUnlock()) {
+                    QuestToastState.addedToasts.add(new QuestAddedToast(queuedQuest.getDisplay()));
+                }
+            }
+            QuestToastState.queuedPopups.clear();
             QuestToastState.resetCheckDelay();
             return;
         }
 
-        if (Minecraft.getInstance().screen instanceof MenuAccess<?> screen && !screen.getMenu().getCarried().isEmpty()) {
-            // Do not let the 10-tick retry window expire while the player is
-            // carrying an inventory stack. Without resetting the delay here the
-            // popup remains queued but is never revisited after this frame.
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen instanceof QuestDetails) {
             QuestToastState.resetCheckDelay();
             return;
         }
 
-        Quest quest = QuestToastState.queuedPopups.get(0);
-        QuestToastState.queuedPopups.remove(quest);
-        Minecraft.getInstance().setScreen(new QuestDetails(Minecraft.getInstance().screen, quest));
+        if (minecraft.screen instanceof MenuAccess<?>) {
+            // Opening a full-screen popup over a live container closes the
+            // server-side menu. Returning to the old screen afterward can leave
+            // a stale client menu, even when the cursor is not carrying a stack.
+            // Wait until the container screen is closed instead.
+            QuestToastState.resetCheckDelay();
+            return;
+        }
+
+        Quest queuedQuest = QuestToastState.queuedPopups.remove(0);
+        Quest currentQuest = QuestlogClient.getLocal().getQuest(queuedQuest.getId());
+        if (currentQuest == null || !currentQuest.isTriggered()) {
+            // Definitions and progress can be reloaded while a popup is waiting.
+            // Never open a stale or reset quest instance from the queue.
+            QuestToastState.resetCheckDelay();
+            return;
+        }
+
+        minecraft.setScreen(new QuestDetails(minecraft.screen, currentQuest));
         QuestToastState.resetCheckDelay();
     }
 
