@@ -35,6 +35,9 @@ jobs:
       - name: Validate runtime-required objective fields
         run: python3 tools/validate_required_objective_fields.py
 
+      - name: Validate quest completion dependency graph
+        run: python3 tools/validate_quest_dependency_cycles.py
+
       - name: Validate Gnarl popup asset
         run: |
           set -o pipefail
