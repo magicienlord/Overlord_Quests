@@ -26,6 +26,9 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Self-test quest definition validator
+        run: python3 tools/test_validate_overlord_quest_examples.py
+
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
 
