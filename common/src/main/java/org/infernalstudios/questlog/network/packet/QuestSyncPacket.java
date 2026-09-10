@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.network.ClientPacketHandler;
 import org.infernalstudios.questlog.network.IPacketContext;
+import org.infernalstudios.questlog.util.DefinitionLimits;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +30,18 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
     private static final int MAX_ADVANCEMENTS = 131_072;
 
     public static QuestSyncPacket decode(FriendlyByteBuf buf) {
-        Map<ResourceLocation, String> defs = readMap(buf, FriendlyByteBuf::readUtf, MAX_QUEST_DEFINITIONS, "quest definitions");
-        Map<ResourceLocation, String> chapters = readMap(buf, FriendlyByteBuf::readUtf, MAX_CHAPTER_DEFINITIONS, "chapter definitions");
+        Map<ResourceLocation, String> defs = readMap(
+                buf,
+                in -> in.readUtf(DefinitionLimits.MAX_SYNCED_JSON_CHARS),
+                MAX_QUEST_DEFINITIONS,
+                "quest definitions"
+        );
+        Map<ResourceLocation, String> chapters = readMap(
+                buf,
+                in -> in.readUtf(DefinitionLimits.MAX_SYNCED_JSON_CHARS),
+                MAX_CHAPTER_DEFINITIONS,
+                "chapter definitions"
+        );
         Map<ResourceLocation, CompoundTag> data = readMap(buf, FriendlyByteBuf::readNbt, MAX_QUEST_DATA_ENTRIES, "quest data");
         List<ResourceLocation> advancements = readList(buf, MAX_ADVANCEMENTS, "advancements");
         return new QuestSyncPacket(defs, chapters, data, advancements);
@@ -72,6 +83,22 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
         }
     }
 
+    private static void writeDefinitionMap(FriendlyByteBuf buf,
+                                           Map<ResourceLocation, String> map,
+                                           int maxEntries,
+                                           String label) {
+        writeMap(
+                buf,
+                map,
+                (out, json) -> {
+                    DefinitionLimits.requireWireSafe(json, "Quest sync " + label + " entry");
+                    out.writeUtf(json, DefinitionLimits.MAX_SYNCED_JSON_CHARS);
+                },
+                maxEntries,
+                label
+        );
+    }
+
     private static List<ResourceLocation> readList(FriendlyByteBuf buf, int maxEntries, String label) {
         int size = readBoundedCount(buf, maxEntries, label);
         List<ResourceLocation> list = new ArrayList<>(size);
@@ -111,8 +138,8 @@ public record QuestSyncPacket(Map<ResourceLocation, String> definitions,
     }
 
     public void encode(FriendlyByteBuf buf) {
-        writeMap(buf, this.definitions, FriendlyByteBuf::writeUtf, MAX_QUEST_DEFINITIONS, "quest definitions");
-        writeMap(buf, this.chapterDefinitions, FriendlyByteBuf::writeUtf, MAX_CHAPTER_DEFINITIONS, "chapter definitions");
+        writeDefinitionMap(buf, this.definitions, MAX_QUEST_DEFINITIONS, "quest definitions");
+        writeDefinitionMap(buf, this.chapterDefinitions, MAX_CHAPTER_DEFINITIONS, "chapter definitions");
         writeMap(buf, this.data, FriendlyByteBuf::writeNbt, MAX_QUEST_DATA_ENTRIES, "quest data");
         writeList(buf, this.advancements, MAX_ADVANCEMENTS, "advancements");
     }
