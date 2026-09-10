@@ -15,6 +15,14 @@ import java.util.Set;
 
 public class ChoiceReward extends Reward {
 
+    /**
+     * The claim packet transfers one int per selected choice and deliberately caps
+     * that selection list before allocation. A definition requiring more picks
+     * than the packet can represent would be permanently unclaimable, so keep the
+     * definition/runtime contract on the same boundary as the wire contract.
+     */
+    public static final int MAX_SELECTIONS = 256;
+
     private final List<Reward> choices;
     private final int pickCount;
     private final List<Integer> selectedIndices = new ArrayList<>();
@@ -47,6 +55,11 @@ public class ChoiceReward extends Reward {
                     "Choice reward pick_count must be between 1 and the number of choices (" + this.choices.size() + ")"
             );
         }
+        if (this.pickCount > MAX_SELECTIONS) {
+            throw new IllegalArgumentException(
+                    "Choice reward pick_count cannot exceed the claim protocol maximum of " + MAX_SELECTIONS
+            );
+        }
         if (this.isAutoClaim()) {
             throw new IllegalArgumentException("Choice rewards cannot use auto_claim because they require player selection");
         }
@@ -70,7 +83,7 @@ public class ChoiceReward extends Reward {
      * the authoritative server selection state before it is rejected.
      */
     public boolean isValidSelection(List<Integer> indices) {
-        if (indices == null || indices.size() != this.pickCount) {
+        if (indices == null || indices.size() != this.pickCount || indices.size() > MAX_SELECTIONS) {
             return false;
         }
 
@@ -87,6 +100,9 @@ public class ChoiceReward extends Reward {
         this.selectedIndices.clear();
         if (indices != null) {
             for (Integer index : indices) {
+                if (this.selectedIndices.size() >= MAX_SELECTIONS) {
+                    break;
+                }
                 if (index != null && index >= 0 && index < this.choices.size() && !this.selectedIndices.contains(index)) {
                     this.selectedIndices.add(index);
                 }
