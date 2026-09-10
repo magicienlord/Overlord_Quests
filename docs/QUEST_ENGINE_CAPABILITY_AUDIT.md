@@ -118,7 +118,7 @@ It additionally validates:
 
 Custom non-`questlog` namespaces remain extension points. The validator applies the common structural contract to them but does not invent schemas for future compatibility objectives.
 
-A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI.
+A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The first authoritative run containing the self-test stage, run `34530724069`, passed the full Forge pipeline.
 
 ## 5. Position objective dimensional safety
 
@@ -136,15 +136,13 @@ If `dimension` is absent, original Questlog behavior is preserved. If it is pres
 
 This is an engine capability only. No Dark Tower, settlement, quest, or other canonical location has been assigned coordinates by this change.
 
-## 6. Source/editor mismatch: trample
+## 6. Trample editor metadata correction
 
-`QuestObjectiveRegistry` currently advertises a `block` editor field for `questlog:trample`. The actual `TrampleObjective` implementation does not read a block field and listens specifically for the farmland-trample event.
+The inherited `QuestObjectiveRegistry` advertised a `block` editor field for `questlog:trample`, but `TrampleObjective` does not read a block predicate. It listens specifically for the farmland-trample event.
 
-Status: CONFIRMED TECHNICAL MISMATCH, NOT YET MODIFIED.
+Status: FIXED.
 
-Effect: the editor can imply a block filter that the runtime objective ignores.
-
-Recommended implementation disposition: remove the misleading block field from editor metadata unless a future requirement justifies implementing an actual block predicate. No story design depends on this decision.
+The misleading block field has been removed from the editor metadata. `questlog:trample` now exposes only `required_amount`, matching the actual runtime objective contract. This does not change trample gameplay behavior or establish any OVERLORD REIGN quest design.
 
 ## 7. Origins compatibility
 
@@ -162,7 +160,17 @@ The build emits a warning that jar-in-jar packaging could conflict if another mo
 
 Status: WATCH ONLY.
 
-## 9. Foundation B boundary
+## 9. Persistence and reload review
+
+Quest state is stored per player in `<uuid>.questlog.dat` under the world's playerdata directory. A manager reload serializes current in-memory quest state, recreates quests from the current definitions, then restores compatible state by quest ID. Disk load subsequently overlays the player's persisted state. This allows definitions to change without blindly discarding progress for IDs that still exist.
+
+`Quest.serialize()` persists objective, prerequisite, failure, reward, repeatable/global, and sent-trigger/completion state. Deserialization limits list restoration to the shorter of the saved and current lists, preventing an index failure when a definition changes objective counts.
+
+This behavior is adequate for the current bootstrap. However, objective state remains position-based within each list. Reordering objectives in a live production quest can therefore associate existing saved units with a different objective. Production authoring should treat objective/prerequisite/failure ordering as save-compatible data once released, unless an explicit migration is implemented.
+
+Status: AUTHORING COMPATIBILITY RULE.
+
+## 10. Foundation B boundary
 
 None of this preparatory hardening closes Foundation B.
 
@@ -178,8 +186,10 @@ Foundation B still requires direct unpublished-local-single-player review of the
 
 Until that review is complete, portrait scale, parchment placement, and popup composition remain implementation-test values.
 
-## 10. Current authoring policy
+## 11. Current authoring policy
 
 Future quest content should use the narrowest native objective that accurately expresses the approved design. New custom objectives or reward bridges should be added only when an approved quest cannot be represented reliably with the existing engine.
+
+Once a production quest has persistent player progress, changing the order or semantic meaning of entries in its prerequisite, objective, failure, or reward lists should be treated as a save migration concern rather than a harmless JSON edit.
 
 Engine capability must not be mistaken for story authorization. In particular, the presence of visit-position, command-reward, structure, dimension, Origins, or other technical primitives does not establish that OVERLORD REIGN uses them in any specific quest.
