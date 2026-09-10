@@ -9,7 +9,9 @@ import org.infernalstudios.questlog.core.quests.QuestRewardRegistry;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ChoiceReward extends Reward {
 
@@ -21,12 +23,32 @@ public class ChoiceReward extends Reward {
         super(definition);
         this.pickCount = JsonUtils.getOrDefault(definition, "pick_count", 1);
         this.choices = new ArrayList<>();
-        for (JsonElement element : JsonUtils.getOrDefault(definition, "choices", new JsonArray())) {
-            if (element.isJsonObject()) {
-                Reward choice = QuestRewardRegistry.create(element.getAsJsonObject());
-                choice.setContainer(this);
-                this.choices.add(choice);
+
+        JsonArray choiceDefinitions = JsonUtils.getOrDefault(definition, "choices", new JsonArray());
+        for (JsonElement element : choiceDefinitions) {
+            if (!element.isJsonObject()) {
+                throw new IllegalArgumentException("Choice reward entries must be JSON objects");
             }
+            Reward choice = QuestRewardRegistry.create(element.getAsJsonObject());
+            if (choice instanceof ChoiceReward) {
+                // The current claim packet transfers the selected indices of each
+                // top-level choice reward only. A nested ChoiceReward would have
+                // client-side selections that are never transmitted to the server
+                // and could therefore be marked collected without granting its
+                // intended child reward.
+                throw new IllegalArgumentException("Nested choice rewards are not supported by the current claim protocol");
+            }
+            choice.setContainer(this);
+            this.choices.add(choice);
+        }
+
+        if (this.pickCount < 1 || this.pickCount > this.choices.size()) {
+            throw new IllegalArgumentException(
+                    "Choice reward pick_count must be between 1 and the number of choices (" + this.choices.size() + ")"
+            );
+        }
+        if (this.isAutoClaim()) {
+            throw new IllegalArgumentException("Choice rewards cannot use auto_claim because they require player selection");
         }
     }
 
@@ -39,15 +61,34 @@ public class ChoiceReward extends Reward {
     }
 
     public List<Integer> getSelectedIndicesList() {
-        return this.selectedIndices;
+        return List.copyOf(this.selectedIndices);
+    }
+
+    /**
+     * Returns true only when the supplied selection can be claimed as-is.
+     * Validation is deliberately pure so a malformed client packet cannot mutate
+     * the authoritative server selection state before it is rejected.
+     */
+    public boolean isValidSelection(List<Integer> indices) {
+        if (indices == null || indices.size() != this.pickCount) {
+            return false;
+        }
+
+        Set<Integer> unique = new HashSet<>();
+        for (Integer index : indices) {
+            if (index == null || index < 0 || index >= this.choices.size() || !unique.add(index)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void setSelectedIndices(List<Integer> indices) {
         this.selectedIndices.clear();
         if (indices != null) {
-            for (int idx : indices) {
-                if (idx >= 0 && idx < this.choices.size() && !this.selectedIndices.contains(idx)) {
-                    this.selectedIndices.add(idx);
+            for (Integer index : indices) {
+                if (index != null && index >= 0 && index < this.choices.size() && !this.selectedIndices.contains(index)) {
+                    this.selectedIndices.add(index);
                 }
             }
         }
@@ -76,22 +117,19 @@ public class ChoiceReward extends Reward {
     }
 
     public boolean canClaim() {
-        return this.selectedIndices.size() == this.pickCount;
+        return this.isValidSelection(this.selectedIndices);
     }
 
     @Override
     public void applyReward(ServerPlayer player) {
-        // The server-side packet handler verifies canClaim() before invoking a
-        // top-level choice reward. Keep a second guard here so future call sites
-        // cannot accidentally mark an incomplete choice reward as claimed.
-        if (this.getContainer() == null && !this.canClaim()) {
+        // The server-side packet handler verifies the exact selection before
+        // invoking this reward. Keep a second guard here for future call sites.
+        if (!this.canClaim()) {
             return;
         }
 
         for (int index : this.selectedIndices) {
-            if (index >= 0 && index < this.choices.size()) {
-                this.choices.get(index).applyReward(player);
-            }
+            this.choices.get(index).applyReward(player);
         }
         for (Reward choice : this.choices) {
             choice.setRewarded(true);
@@ -129,13 +167,15 @@ public class ChoiceReward extends Reward {
         }
         this.setSelectedIndices(persistedSelections);
 
-        if (this.hasRewarded()) {
-            for (Reward choice : this.choices) {
-                choice.setRewarded(false);
-            }
-            for (int index : this.selectedIndices) {
-                this.choices.get(index).setRewarded(true);
-            }
+        // If an old save claims a choice reward but its persisted selection no
+        // longer satisfies the current definition, reopen the reward instead of
+        // preserving a claimed state that cannot describe what was granted.
+        if (this.hasRewarded() && !this.canClaim()) {
+            this.setRewarded(false);
+        }
+
+        for (Reward choice : this.choices) {
+            choice.setRewarded(this.hasRewarded());
         }
     }
 }
