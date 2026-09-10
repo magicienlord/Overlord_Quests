@@ -24,10 +24,75 @@ RESOURCE_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets"
 BUNDLED_ROOT = RESOURCE_ROOT / "questlog" / "overlord" / "definitions"
 BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
+REGISTRY_PREDICATE = re.compile(r"^#?[a-z0-9_.-]+:[a-z0-9_./-]+$")
+
+KNOWN_QUESTLOG_OBJECTIVES = {
+    "questlog:block_mine",
+    "questlog:block_place",
+    "questlog:block_interact",
+    "questlog:entity_breed",
+    "questlog:entity_death",
+    "questlog:entity_kill",
+    "questlog:entity_approach",
+    "questlog:entity_tame",
+    "questlog:and",
+    "questlog:or",
+    "questlog:not",
+    "questlog:item_craft",
+    "questlog:item_drop",
+    "questlog:item_equip",
+    "questlog:item_obtain",
+    "questlog:item_use",
+    "questlog:stat",
+    "questlog:trample",
+    "questlog:enchant",
+    "questlog:effect_added",
+    "questlog:visit_biome",
+    "questlog:visit_dimension",
+    "questlog:visit_position",
+    "questlog:visit_structure",
+    "questlog:quest_complete",
+    "questlog:read",
+    "questlog:advancement",
+    "questlog:unobtainable",
+    "questlog:origin",
+}
+
+KNOWN_QUESTLOG_REWARDS = {
+    "questlog:item",
+    "questlog:command",
+    "questlog:experience",
+    "questlog:loot_table",
+    "questlog:choice",
+}
+
+BLOCK_OBJECTIVES = {
+    "questlog:block_mine",
+    "questlog:block_place",
+    "questlog:block_interact",
+}
+ITEM_OBJECTIVES = {
+    "questlog:item_craft",
+    "questlog:item_drop",
+    "questlog:item_equip",
+    "questlog:item_obtain",
+    "questlog:item_use",
+}
+ENTITY_OBJECTIVES = {
+    "questlog:entity_breed",
+    "questlog:entity_death",
+    "questlog:entity_kill",
+    "questlog:entity_approach",
+    "questlog:entity_tame",
+}
 
 
 def fail(path: Path, message: str, errors: list[str]) -> None:
-    errors.append(f"{path.relative_to(ROOT)}: {message}")
+    try:
+        display_path = path.relative_to(ROOT)
+    except ValueError:
+        display_path = path
+    errors.append(f"{display_path}: {message}")
 
 
 def require_string(data: dict[str, Any], key: str, path: Path, errors: list[str]) -> None:
@@ -41,9 +106,23 @@ def require_list(data: dict[str, Any], key: str, path: Path, errors: list[str]) 
         fail(path, f"'{key}' must be a list", errors)
 
 
+def is_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 def validate_resource_id(value: Any, field: str, path: Path, errors: list[str]) -> None:
     if not isinstance(value, str) or not RESOURCE_ID.fullmatch(value):
         fail(path, f"'{field}' must be a namespaced resource id, got {value!r}", errors)
+
+
+def validate_registry_predicate(value: Any, field: str, path: Path, errors: list[str]) -> None:
+    """Validate the exact-id or #tag syntax used by CachedRegistryPredicate."""
+    if not isinstance(value, str) or not REGISTRY_PREDICATE.fullmatch(value):
+        fail(
+            path,
+            f"'{field}' must be a namespaced registry id or #tag predicate, got {value!r}",
+            errors,
+        )
 
 
 def validate_boolean_fields(data: dict[str, Any], path: Path, errors: list[str]) -> None:
@@ -67,7 +146,7 @@ def validate_panel_geometry(data: dict[str, Any], path: Path, errors: list[str])
     for key in ("left_panel_width", "right_panel_width", "panel_height"):
         if key in data:
             value = data[key]
-            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            if not is_int(value) or value <= 0:
                 fail(path, f"'{key}' must be a positive integer", errors)
 
     for key in (
@@ -78,7 +157,7 @@ def validate_panel_geometry(data: dict[str, Any], path: Path, errors: list[str])
     ):
         if key in data:
             value = data[key]
-            if not isinstance(value, int) or isinstance(value, bool):
+            if not is_int(value):
                 fail(path, f"'{key}' must be an integer", errors)
 
 
@@ -104,35 +183,268 @@ def validate_overlay(data: dict[str, Any], path: Path, errors: list[str]) -> Non
 
     for dimension in ("overlay_width", "overlay_height"):
         value = data.get(dimension)
-        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        if not is_int(value) or value <= 0:
             fail(path, f"'{dimension}' must be a positive integer when an overlay is used", errors)
 
     for offset in ("overlay_x_offset", "overlay_y_offset"):
         value = data.get(offset)
-        if value is not None and (not isinstance(value, int) or isinstance(value, bool)):
+        if value is not None and not is_int(value):
             fail(path, f"'{offset}' must be an integer", errors)
+
+
+def validate_item_matcher(value: Any, field: str, path: Path, errors: list[str]) -> None:
+    if value is None:
+        return
+    if isinstance(value, str):
+        validate_registry_predicate(value, field, path, errors)
+        return
+    if isinstance(value, dict):
+        key = "id" if "id" in value else "item" if "item" in value else None
+        if key is not None:
+            validate_registry_predicate(value[key], f"{field}.{key}", path, errors)
+        # ItemMatcher deliberately permits an object with only NBT and therefore
+        # no exact item predicate. Keep that wildcard behavior source-faithful.
+        return
+    fail(path, f"'{field}' must be a registry id/#tag string or item matcher object", errors)
+
+
+def validate_entity_matcher(value: Any, field: str, path: Path, errors: list[str]) -> None:
+    if value is None:
+        return
+    if isinstance(value, str):
+        validate_registry_predicate(value, field, path, errors)
+        return
+    if isinstance(value, dict):
+        key = "id" if "id" in value else "type" if "type" in value else None
+        if key is None:
+            fail(path, f"'{field}' object must contain 'id' or 'type'", errors)
+        else:
+            validate_registry_predicate(value[key], f"{field}.{key}", path, errors)
+        return
+    fail(path, f"'{field}' must be a registry id/#tag string or entity matcher object", errors)
+
+
+def validate_bounds(value: Any, field: str, path: Path, errors: list[str]) -> None:
+    # Util.bbFromJson accepts coordinate strings, arrays containing at least three
+    # coordinates, or objects using x/y/z and min/max aliases. Reject only shapes
+    # that are guaranteed to collapse to the silent 0,0,0 fallback.
+    if isinstance(value, str):
+        if not value.strip():
+            fail(path, f"'{field}' coordinate string must not be empty", errors)
+        return
+    if isinstance(value, list):
+        if len(value) not in (3, 6):
+            fail(path, f"'{field}' coordinate array must contain exactly 3 or 6 integers", errors)
+            return
+        if any(not is_int(v) for v in value):
+            fail(path, f"'{field}' coordinate array must contain integers only", errors)
+        return
+    if isinstance(value, dict):
+        first_axes = (
+            ("x", "x1", "minX", "min_x"),
+            ("y", "y1", "minY", "min_y"),
+            ("z", "z1", "minZ", "min_z"),
+        )
+        if not all(any(key in value for key in aliases) for aliases in first_axes):
+            fail(path, f"'{field}' object must define x, y, and z minimum/point coordinates", errors)
+            return
+        for key, coordinate in value.items():
+            if key in {
+                "x", "y", "z", "x1", "y1", "z1", "x2", "y2", "z2",
+                "minX", "minY", "minZ", "maxX", "maxY", "maxZ",
+                "min_x", "min_y", "min_z", "max_x", "max_y", "max_z",
+            } and not is_int(coordinate):
+                fail(path, f"'{field}.{key}' must be an integer", errors)
+        return
+    fail(path, f"'{field}' must be a coordinate string, 3/6 integer array, or coordinate object", errors)
+
+
+def validate_objective_entry(
+    entry: Any,
+    field: str,
+    path: Path,
+    errors: list[str],
+) -> None:
+    if not isinstance(entry, dict):
+        fail(path, f"'{field}' must be an object", errors)
+        return
+
+    type_value = entry.get("type")
+    if type_value is None:
+        fail(path, f"'{field}' is missing objective type", errors)
+        return
+
+    validate_resource_id(type_value, f"{field}.type", path, errors)
+    if not isinstance(type_value, str) or not RESOURCE_ID.fullmatch(type_value):
+        return
+
+    if type_value.startswith("questlog:") and type_value not in KNOWN_QUESTLOG_OBJECTIVES:
+        fail(path, f"'{field}.type' is not a registered Questlog objective: {type_value}", errors)
+        return
+
+    required_amount = entry.get("required_amount")
+    if required_amount is not None and (not is_int(required_amount) or required_amount < 1):
+        fail(path, f"'{field}.required_amount' must be an integer >= 1", errors)
+
+    # Custom namespaces are extension points. Their payload schemas are not known
+    # to this repository validator, so only the common Objective contract applies.
+    if not type_value.startswith("questlog:"):
+        return
+
+    if type_value in BLOCK_OBJECTIVES:
+        if "block" not in entry:
+            fail(path, f"'{field}.block' is required by {type_value}", errors)
+        else:
+            validate_registry_predicate(entry["block"], f"{field}.block", path, errors)
+
+    if type_value in ITEM_OBJECTIVES:
+        validate_item_matcher(entry.get("item"), f"{field}.item", path, errors)
+
+    if type_value in ENTITY_OBJECTIVES:
+        validate_entity_matcher(entry.get("entity"), f"{field}.entity", path, errors)
+        if type_value == "questlog:entity_approach":
+            range_value = entry.get("range")
+            if not is_int(range_value) or range_value < 1:
+                fail(path, f"'{field}.range' must be an integer >= 1", errors)
+
+    if type_value in {"questlog:and", "questlog:or"}:
+        children = entry.get("objectives")
+        if not isinstance(children, list):
+            fail(path, f"'{field}.objectives' must be a list", errors)
+        else:
+            for index, child in enumerate(children):
+                validate_objective_entry(child, f"{field}.objectives[{index}]", path, errors)
+
+    if type_value == "questlog:not":
+        child = entry.get("objective")
+        if not isinstance(child, dict):
+            fail(path, f"'{field}.objective' must be an objective object", errors)
+        else:
+            validate_objective_entry(child, f"{field}.objective", path, errors)
+
+    resource_fields = {
+        "questlog:stat": "stat",
+        "questlog:effect_added": "effect",
+        "questlog:visit_biome": "biome",
+        "questlog:visit_dimension": "dimension",
+        "questlog:visit_structure": "structure",
+        "questlog:quest_complete": "quest",
+        "questlog:advancement": "advancement",
+        "questlog:origin": "origin",
+    }
+    resource_field = resource_fields.get(type_value)
+    if resource_field is not None:
+        if resource_field not in entry:
+            fail(path, f"'{field}.{resource_field}' is required by {type_value}", errors)
+        else:
+            validate_resource_id(entry[resource_field], f"{field}.{resource_field}", path, errors)
+
+    if type_value == "questlog:stat" and "retroactive" in entry and not isinstance(entry["retroactive"], bool):
+        fail(path, f"'{field}.retroactive' must be a boolean", errors)
+
+    if type_value == "questlog:enchant":
+        if "enchantment" in entry:
+            validate_resource_id(entry["enchantment"], f"{field}.enchantment", path, errors)
+        if "item" in entry:
+            validate_resource_id(entry["item"], f"{field}.item", path, errors)
+        if "level" in entry and (not is_int(entry["level"]) or entry["level"] < 1):
+            fail(path, f"'{field}.level' must be an integer >= 1", errors)
+
+    if type_value == "questlog:visit_position":
+        if "bounds" not in entry:
+            fail(path, f"'{field}.bounds' is required by {type_value}", errors)
+        else:
+            validate_bounds(entry["bounds"], f"{field}.bounds", path, errors)
 
 
 def validate_objective_list(data: dict[str, Any], key: str, path: Path, errors: list[str]) -> None:
     values = data.get(key, [])
     if not isinstance(values, list):
         return
-
     for index, entry in enumerate(values):
-        if not isinstance(entry, dict):
-            fail(path, f"'{key}[{index}]' must be an object", errors)
-            continue
-        if "type" not in entry:
-            fail(path, f"'{key}[{index}]' is missing objective type", errors)
+        validate_objective_entry(entry, f"{key}[{index}]", path, errors)
+
+
+def validate_reward_entry(entry: Any, field: str, path: Path, errors: list[str]) -> None:
+    if not isinstance(entry, dict):
+        fail(path, f"'{field}' must be an object", errors)
+        return
+
+    type_value = entry.get("type")
+    if type_value is None:
+        fail(path, f"'{field}' is missing reward type", errors)
+        return
+
+    validate_resource_id(type_value, f"{field}.type", path, errors)
+    if not isinstance(type_value, str) or not RESOURCE_ID.fullmatch(type_value):
+        return
+
+    if type_value.startswith("questlog:") and type_value not in KNOWN_QUESTLOG_REWARDS:
+        fail(path, f"'{field}.type' is not a registered Questlog reward: {type_value}", errors)
+        return
+
+    if "auto_claim" in entry and not isinstance(entry["auto_claim"], bool):
+        fail(path, f"'{field}.auto_claim' must be a boolean", errors)
+
+    if not type_value.startswith("questlog:"):
+        return
+
+    if type_value == "questlog:item":
+        if "item" not in entry:
+            fail(path, f"'{field}.item' is required by {type_value}", errors)
         else:
-            validate_resource_id(entry["type"], f"{key}[{index}].type", path, errors)
-        required_amount = entry.get("required_amount")
-        if required_amount is not None and (
-            not isinstance(required_amount, int)
-            or isinstance(required_amount, bool)
-            or required_amount < 1
-        ):
-            fail(path, f"'{key}[{index}].required_amount' must be an integer >= 1", errors)
+            value = entry["item"]
+            if isinstance(value, str):
+                validate_resource_id(value, f"{field}.item", path, errors)
+            elif isinstance(value, dict):
+                candidate = value.get("id", value.get("item"))
+                if candidate is not None:
+                    validate_resource_id(candidate, f"{field}.item.id", path, errors)
+            else:
+                fail(path, f"'{field}.item' must be a resource id or ItemStack object", errors)
+        if "count" in entry and (not is_int(entry["count"]) or entry["count"] < 1):
+            fail(path, f"'{field}.count' must be an integer >= 1", errors)
+
+    elif type_value == "questlog:command":
+        command = entry.get("command")
+        if not isinstance(command, str) or not command.strip():
+            fail(path, f"'{field}.command' must be a non-empty string", errors)
+        if "permission_level" in entry and not is_int(entry["permission_level"]):
+            fail(path, f"'{field}.permission_level' must be an integer", errors)
+
+    elif type_value == "questlog:experience":
+        experience = entry.get("experience")
+        if not is_int(experience):
+            fail(path, f"'{field}.experience' must be an integer", errors)
+        if "levels" in entry and not isinstance(entry["levels"], bool):
+            fail(path, f"'{field}.levels' must be a boolean", errors)
+
+    elif type_value == "questlog:loot_table":
+        if "loot_table" not in entry:
+            fail(path, f"'{field}.loot_table' is required by {type_value}", errors)
+        else:
+            validate_resource_id(entry["loot_table"], f"{field}.loot_table", path, errors)
+
+    elif type_value == "questlog:choice":
+        choices = entry.get("choices")
+        if not isinstance(choices, list):
+            fail(path, f"'{field}.choices' must be a list", errors)
+            return
+        pick_count = entry.get("pick_count", 1)
+        if not is_int(pick_count) or pick_count < 1:
+            fail(path, f"'{field}.pick_count' must be an integer >= 1", errors)
+        elif pick_count > len(choices):
+            fail(path, f"'{field}.pick_count' cannot exceed the number of choices", errors)
+        for index, choice in enumerate(choices):
+            validate_reward_entry(choice, f"{field}.choices[{index}]", path, errors)
+
+
+def validate_reward_list(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    values = data.get("rewards", [])
+    if not isinstance(values, list):
+        return
+    for index, entry in enumerate(values):
+        validate_reward_entry(entry, f"rewards[{index}]", path, errors)
 
 
 def validate_dev_boundary(data: dict[str, Any], path: Path, errors: list[str]) -> None:
@@ -190,6 +502,7 @@ def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) 
     validate_objective_list(data, "prerequisites", path, errors)
     validate_objective_list(data, "objectives", path, errors)
     validate_objective_list(data, "failures", path, errors)
+    validate_reward_list(data, path, errors)
     validate_overlay(data, path, errors)
 
     if development_fixture:
