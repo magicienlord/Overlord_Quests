@@ -20,13 +20,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class DefinitionUtil {
     private static final Map<ResourceLocation, JsonObject> QUEST_DEFINITION_CACHE = new Object2ObjectOpenHashMap<>();
     private static final Map<ResourceLocation, JsonObject> CHAPTER_DEFINITION_CACHE = new Object2ObjectOpenHashMap<>();
+    private static final Set<ResourceLocation> BUNDLED_QUEST_IDS = new HashSet<>();
+    private static final Set<ResourceLocation> BUNDLED_CHAPTER_IDS = new HashSet<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private static final String BUNDLED_INDEX = "assets/questlog/overlord/definitions/index.json";
@@ -73,6 +77,10 @@ public class DefinitionUtil {
         return definition.deepCopy();
     }
 
+    public static synchronized boolean isBundledQuest(ResourceLocation id) {
+        return BUNDLED_QUEST_IDS.contains(id);
+    }
+
     /**
      * Legacy editor compatibility sink. Client editor screens inherited from
      * Questlog used this method for optimistic cache mutation before sending the
@@ -102,6 +110,8 @@ public class DefinitionUtil {
     public static synchronized void clearClientCaches() {
         QUEST_DEFINITION_CACHE.clear();
         CHAPTER_DEFINITION_CACHE.clear();
+        BUNDLED_QUEST_IDS.clear();
+        BUNDLED_CHAPTER_IDS.clear();
     }
 
     public static synchronized List<ResourceLocation> getCachedChapterKeys() {
@@ -131,6 +141,10 @@ public class DefinitionUtil {
         return definition == null ? null : definition.deepCopy();
     }
 
+    public static synchronized boolean isBundledChapter(ResourceLocation id) {
+        return BUNDLED_CHAPTER_IDS.contains(id);
+    }
+
     /** See {@link #putCachedQuest(ResourceLocation, JsonObject)}. */
     @Deprecated
     public static synchronized void putCachedChapter(ResourceLocation path, JsonObject definition) {
@@ -150,6 +164,8 @@ public class DefinitionUtil {
     public static synchronized void loadFromConfig() {
         QUEST_DEFINITION_CACHE.clear();
         CHAPTER_DEFINITION_CACHE.clear();
+        BUNDLED_QUEST_IDS.clear();
+        BUNDLED_CHAPTER_IDS.clear();
 
         // OVERLORD QUESTS ships approved definitions in the mod jar. Load those
         // first, then layer config/questlog definitions on top so pack authors can
@@ -183,7 +199,13 @@ public class DefinitionUtil {
         loadFiles(questDir, QUEST_DEFINITION_CACHE);
         loadFiles(chapterDir, CHAPTER_DEFINITION_CACHE);
 
-        Questlog.LOGGER.info("Loaded {} quests and {} chapters after bundled definitions and config overrides.", QUEST_DEFINITION_CACHE.size(), CHAPTER_DEFINITION_CACHE.size());
+        Questlog.LOGGER.info(
+                "Loaded {} quests and {} chapters after bundled definitions and config overrides ({} bundled quests, {} bundled chapters).",
+                QUEST_DEFINITION_CACHE.size(),
+                CHAPTER_DEFINITION_CACHE.size(),
+                BUNDLED_QUEST_IDS.size(),
+                BUNDLED_CHAPTER_IDS.size()
+        );
     }
 
     private static void loadBundledDefinitions() {
@@ -204,15 +226,16 @@ public class DefinitionUtil {
                 return;
             }
 
-            loadBundledCategory(loader, index, "quests", BUNDLED_QUEST_ROOT, QUEST_DEFINITION_CACHE);
-            loadBundledCategory(loader, index, "chapters", BUNDLED_CHAPTER_ROOT, CHAPTER_DEFINITION_CACHE);
+            loadBundledCategory(loader, index, "quests", BUNDLED_QUEST_ROOT, QUEST_DEFINITION_CACHE, BUNDLED_QUEST_IDS);
+            loadBundledCategory(loader, index, "chapters", BUNDLED_CHAPTER_ROOT, CHAPTER_DEFINITION_CACHE, BUNDLED_CHAPTER_IDS);
         } catch (Exception e) {
             Questlog.LOGGER.error("Failed to load bundled OVERLORD QUESTS definition index: {}", BUNDLED_INDEX, e);
         }
     }
 
     private static void loadBundledCategory(ClassLoader loader, JsonObject index, String key, String root,
-                                            Map<ResourceLocation, JsonObject> cache) {
+                                            Map<ResourceLocation, JsonObject> cache,
+                                            Set<ResourceLocation> bundledIds) {
         JsonArray entries = index.has(key) && index.get(key).isJsonArray() ? index.getAsJsonArray(key) : new JsonArray();
         for (JsonElement element : entries) {
             if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
@@ -249,6 +272,7 @@ public class DefinitionUtil {
                         continue;
                     }
                     cache.put(id, json);
+                    bundledIds.add(id);
                 }
             } catch (Exception e) {
                 Questlog.LOGGER.error("Failed to parse bundled {} definition: {}", key, resourcePath, e);
