@@ -27,3 +27,13 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+# Questlog's config implementation directly links AutoConfig/Cloth Config classes.
+# The library was already a compile/runtime dependency upstream but was not declared
+# in mods.toml, allowing a missing library to fail later during class loading.
+[[dependencies.${mod_id}]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "${cloth_config_version_range}"
+ordering = "NONE"
+side = "BOTH"
