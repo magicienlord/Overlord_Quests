@@ -55,6 +55,21 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
         boolean diskMayHaveChanged = false;
 
         try {
+            Path chapterPath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
+            if (!Files.exists(chapterPath)) {
+                // A definition can exist only in the bundled JAR and therefore
+                // have no removable config file. Do not create quest overrides or
+                // report a successful delete for immutable bundled content. A pack
+                // author can override bundled content explicitly in config, but
+                // deleting that override merely reveals the bundled base again.
+                Questlog.LOGGER.warn(
+                        "Rejected chapter deletion for {} because no removable config override exists at {}",
+                        packet.id,
+                        chapterPath
+                );
+                return;
+            }
+
             // Chapter membership is server-authoritative. Upstream made the client
             // send one QuestEditSavePacket per member before deleting the chapter,
             // causing N full definition reloads/syncs and trusting a potentially
@@ -96,12 +111,14 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
                 Questlog.LOGGER.info("Reassigned quest {} to main before deleting chapter {}", rewrite.id(), packet.id);
             }
 
-            Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
-            if (Files.deleteIfExists(filePath)) {
+            if (Files.deleteIfExists(chapterPath)) {
                 diskMayHaveChanged = true;
                 Questlog.LOGGER.info("Deleted chapter definition file for {}", packet.id);
             } else {
-                Questlog.LOGGER.warn("Tried to delete chapter definition file {} but it did not exist", filePath);
+                // The existence preflight succeeded but the file disappeared before
+                // deletion. Reload if member rewrites happened, otherwise leave the
+                // current authoritative state untouched.
+                Questlog.LOGGER.warn("Chapter definition file {} disappeared before deletion", chapterPath);
             }
         } catch (IllegalArgumentException e) {
             Questlog.LOGGER.warn("Rejected unsafe chapter definition operation for {}: {}", packet.id, e.getMessage());
