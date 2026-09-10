@@ -28,7 +28,7 @@ public class EnchantObjective extends Objective {
     public EnchantObjective(JsonObject definition) {
         super(definition);
         this.enchantment = definition.has("enchantment") ? new ResourceLocation(JsonUtils.getString(definition, "enchantment")) : null;
-        this.level = JsonUtils.getOrDefault(definition, "level", 1);
+        this.level = Math.max(1, JsonUtils.getOrDefault(definition, "level", 1));
         this.item = definition.has("item") ? new ResourceLocation(JsonUtils.getString(definition, "item")) : null;
     }
 
@@ -47,17 +47,17 @@ public class EnchantObjective extends Objective {
     }
 
     private void onItemEnchanted(TriggerPlayerEvent.Enchant event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (
-                event.player instanceof ServerPlayer player &&
-                        player.equals(this.getParent().manager.player) &&
-                        areItemsEqual(event.item.getItem())
-        ) {
-            for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.getEnchantments(event.item).entrySet()) {
-                if (enchantment.getValue() >= this.level && areEnchantmentsEqual(enchantment.getKey())) {
-                    this.setUnits(this.getUnits() + 1);
-                    return;
-                }
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()
+                || !areItemsEqual(event.item.getItem())) {
+            return;
+        }
+
+        for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.getEnchantments(event.item).entrySet()) {
+            if (enchantment.getValue() >= this.level && areEnchantmentsEqual(enchantment.getKey())) {
+                this.setUnits(this.getUnits() + 1);
+                return;
             }
         }
     }
