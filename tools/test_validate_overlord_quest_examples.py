@@ -105,7 +105,7 @@ def main() -> int:
     )
 
     expect_valid(
-        "nested choice reward",
+        "top-level choice reward",
         reward_errors({
             "type": "questlog:choice",
             "pick_count": 1,
@@ -129,6 +129,34 @@ def main() -> int:
     )
 
     expect_invalid(
+        "auto-claim choice reward",
+        reward_errors({
+            "type": "questlog:choice",
+            "auto_claim": True,
+            "choices": [
+                {"type": "questlog:item", "item": "minecraft:gold_ingot"}
+            ],
+        }),
+        "auto_claim' cannot be true for a choice reward",
+    )
+
+    expect_invalid(
+        "nested choice reward",
+        reward_errors({
+            "type": "questlog:choice",
+            "choices": [
+                {
+                    "type": "questlog:choice",
+                    "choices": [
+                        {"type": "questlog:item", "item": "minecraft:gold_ingot"}
+                    ],
+                }
+            ],
+        }),
+        "nested choice reward",
+    )
+
+    expect_invalid(
         "missing command reward command",
         reward_errors({"type": "questlog:command"}),
         ".command' must be a non-empty string",
@@ -140,7 +168,7 @@ def main() -> int:
         "not a registered Questlog reward",
     )
 
-    print("OVERLORD QUESTS validator self-tests: PASS (12 cases)")
+    print("OVERLORD QUESTS validator self-tests: PASS (14 cases)")
     return 0
 
 
