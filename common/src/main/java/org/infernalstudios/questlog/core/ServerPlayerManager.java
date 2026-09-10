@@ -15,7 +15,10 @@ import org.infernalstudios.questlog.platform.Services;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class ServerPlayerManager {
@@ -94,9 +97,9 @@ public class ServerPlayerManager {
         File playerDataFile = this.getPlayerDataFile(questManager.player);
 
         try {
-            NbtIo.writeCompressed(data, playerDataFile);
+            writeCompressedAtomically(data, playerDataFile);
         } catch (IOException e) {
-            Questlog.LOGGER.error("Failed to save player data for {}", questManager.player.getGameProfile().getName());
+            Questlog.LOGGER.error("Failed to save player data for {}", questManager.player.getGameProfile().getName(), e);
         }
     }
 
@@ -128,9 +131,9 @@ public class ServerPlayerManager {
 
         if (!playerDataFile.exists()) {
             try {
-                NbtIo.writeCompressed(new CompoundTag(), playerDataFile);
+                writeCompressedAtomically(new CompoundTag(), playerDataFile);
             } catch (IOException e) {
-                Questlog.LOGGER.error("Failed to create player data for {}", questManager.player.getGameProfile().getName());
+                Questlog.LOGGER.error("Failed to create player data for {}", questManager.player.getGameProfile().getName(), e);
                 return;
             }
         }
@@ -139,8 +142,7 @@ public class ServerPlayerManager {
         try {
             data = NbtIo.readCompressed(playerDataFile);
         } catch (IOException e) {
-            Questlog.LOGGER.error("Failed to load player data for {}", questManager.player.getGameProfile().getName());
-            Questlog.LOGGER.error(e);
+            Questlog.LOGGER.error("Failed to load player data for {}", questManager.player.getGameProfile().getName(), e);
             return;
         }
 
@@ -195,9 +197,35 @@ public class ServerPlayerManager {
     private void saveGlobalData(CompoundTag tag) {
         File file = getGlobalDataFile();
         try {
-            NbtIo.writeCompressed(tag, file);
+            writeCompressedAtomically(tag, file);
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to save global quest data", e);
+        }
+    }
+
+    /**
+     * Writes compressed NBT to a sibling temporary file and then replaces the
+     * target. On filesystems that support it the final move is atomic, preventing
+     * a crash or interrupted write from leaving a partially-written quest file.
+     */
+    private static void writeCompressedAtomically(CompoundTag tag, File target) throws IOException {
+        Path targetPath = target.toPath();
+        Path parent = targetPath.getParent();
+        if (parent == null) {
+            throw new IOException("Quest data path has no parent directory: " + targetPath);
+        }
+        Files.createDirectories(parent);
+
+        Path temp = Files.createTempFile(parent, target.getName() + ".", ".tmp");
+        try {
+            NbtIo.writeCompressed(tag, temp.toFile());
+            try {
+                Files.move(temp, targetPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temp, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temp);
         }
     }
 
