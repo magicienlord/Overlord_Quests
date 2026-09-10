@@ -33,6 +33,18 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     public void registerEventListeners() {
     }
 
+    /**
+     * Releases listeners owned by this objective from Questlog's private event
+     * bus. Logic objectives inherit recursive cleanup for their child tree.
+     * External Triggers callbacks cannot currently be removed individually, so
+     * those are made inert by the manager/quest lifecycle checks instead.
+     */
+    public void unregisterEventListeners() {
+        for (Objective child : this.getChildren()) {
+            child.unregisterEventListeners();
+        }
+    }
+
     public void markAsPrerequisite() {
         this.isPartOfPrerequisites = true;
     }
