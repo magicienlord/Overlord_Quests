@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Validate repository-controlled quest/chapter definitions against the 1.20.1 UTF wire cap."""
+"""Validate repository definitions and the runtime definition wire-size contract."""
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -12,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_QUESTS = ROOT / "examples" / "questlog" / "quests"
 BUNDLED_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets" / "questlog" / "overlord" / "definitions"
 BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
+DEFINITION_LIMITS = ROOT / "common" / "src" / "main" / "java" / "org" / "infernalstudios" / "questlog" / "util" / "DefinitionLimits.java"
+DEFINITION_UTIL = ROOT / "common" / "src" / "main" / "java" / "org" / "infernalstudios" / "questlog" / "core" / "DefinitionUtil.java"
 MAX_SYNCED_JSON_CHARS = 32_767
 
 
@@ -68,14 +71,43 @@ def validate_path(path: Path) -> str | None:
     return None
 
 
+def validate_runtime_contract() -> list[str]:
+    errors: list[str] = []
+    limits_source = DEFINITION_LIMITS.read_text(encoding="utf-8")
+    util_source = DEFINITION_UTIL.read_text(encoding="utf-8")
+
+    match = re.search(r"MAX_SYNCED_JSON_CHARS\s*=\s*([0-9_]+)", limits_source)
+    if match is None:
+        errors.append("DefinitionLimits.java does not declare MAX_SYNCED_JSON_CHARS")
+    else:
+        java_limit = int(match.group(1).replace("_", ""))
+        if java_limit != MAX_SYNCED_JSON_CHARS:
+            errors.append(
+                f"Python/Java definition wire limits differ: validator={MAX_SYNCED_JSON_CHARS}, Java={java_limit}"
+            )
+
+    required_runtime_guards = (
+        'DefinitionLimits.requireWireSafe(json, "Config definition " + id)',
+        'DefinitionLimits.requireWireSafe(json, "Bundled " + key + " definition " + id)',
+        'DefinitionLimits.requireWireSafe(definition, "Synced quest definition " + path)',
+        'DefinitionLimits.requireWireSafe(definition, "Synced chapter definition " + path)',
+    )
+    for guard in required_runtime_guards:
+        if guard not in util_source:
+            errors.append(f"DefinitionUtil runtime wire guard missing: {guard}")
+
+    return errors
+
+
 def main() -> int:
     try:
         paths = list(dict.fromkeys(path.resolve() for path in iter_controlled_definitions()))
+        errors = validate_runtime_contract()
     except Exception as exc:
         print(f"Definition wire-size validation failed: {exc}", file=sys.stderr)
         return 1
 
-    errors = [error for path in paths if (error := validate_path(path)) is not None]
+    errors.extend(error for path in paths if (error := validate_path(path)) is not None)
     if errors:
         print("Definition wire-size validation failed:", file=sys.stderr)
         for error in errors:
@@ -84,7 +116,7 @@ def main() -> int:
 
     print(
         f"Definition wire-size contract valid across {len(paths)} repository-controlled definition(s); "
-        f"maximum {MAX_SYNCED_JSON_CHARS} Java UTF-16 characters each."
+        f"maximum {MAX_SYNCED_JSON_CHARS} Java UTF-16 characters each, runtime loader guards present."
     )
     return 0
 
