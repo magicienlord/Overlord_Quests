@@ -62,10 +62,7 @@ public class QuestlogClientEvents {
 
     public static void onQuestTriggered(QuestEvent.Triggered event) {
         mostRecentNotificationQuest = event.quest;
-        if (event.quest.getDisplay().shouldShowPopupOnUnlock() &&
-                Minecraft.getInstance().hasSingleplayerServer() &&
-                !Minecraft.getInstance().getSingleplayerServer().isPublished()
-        ) {
+        if (event.quest.getDisplay().shouldShowPopupOnUnlock() && isLocalSingleplayerPopupSession()) {
             QuestToastState.resetCheckDelay();
             QuestToastState.queuedPopups.add(event.quest);
         } else if (event.quest.getDisplay().shouldToastOnUnlock()) {
@@ -80,6 +77,18 @@ public class QuestlogClientEvents {
         if (triggeredSound != null) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(triggeredSound, 1, 1));
         }
+    }
+
+    /**
+     * OVERLORD REIGN is a single-player project. Automatic full-screen quest
+     * popups are therefore intentionally limited to the local unpublished
+     * integrated server. LAN-published and dedicated multiplayer sessions do not
+     * enter the popup queue.
+     */
+    private static boolean isLocalSingleplayerPopupSession() {
+        Minecraft minecraft = Minecraft.getInstance();
+        var server = minecraft.getSingleplayerServer();
+        return minecraft.hasSingleplayerServer() && server != null && !server.isPublished();
     }
 
     public static void onQuestCompleted(QuestEvent.Completed event) {
