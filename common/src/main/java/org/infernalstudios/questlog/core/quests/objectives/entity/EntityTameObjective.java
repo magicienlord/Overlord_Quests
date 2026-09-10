@@ -18,12 +18,12 @@ public class EntityTameObjective extends AbstractEntityObjective {
     }
 
     private void onAnimalTame(TriggerEntityEvent.TameAnimal event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (
-                event.causedByPlayer instanceof ServerPlayer player &&
-                        this.getParent().manager.player.equals(player) &&
-                        (this.test(event.entity))
-        ) {
+        if (!(event.causedByPlayer instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+        if (this.test(event.entity)) {
             this.setUnits(this.getUnits() + 1);
         }
     }
