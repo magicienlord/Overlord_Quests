@@ -17,9 +17,23 @@ import org.infernalstudios.questlog.util.NbtSaveable;
 import org.infernalstudios.questlog.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
+
+    /**
+     * `quest_complete` objectives can form self-references or multi-quest cycles
+     * in external config. Their source-faithful dynamic completion fallback calls
+     * the target Quest's isCompleted(), so an unguarded A -> B -> A dependency
+     * recurses until StackOverflowError. Track the active completion call graph by
+     * Quest object identity and treat a cycle as incomplete.
+     */
+    private static final ThreadLocal<Set<Quest>> COMPLETION_EVALUATION = ThreadLocal.withInitial(
+            () -> Collections.newSetFromMap(new IdentityHashMap<>())
+    );
 
     public final List<Objective> prerequisites;
     public final List<Objective> objectives;
@@ -184,17 +198,32 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public boolean isCompleted() {
-        // A quest with prerequisites but no objectives must not be considered
-        // complete while it is still locked. Once its prerequisites trigger, an
-        // empty objective list can legitimately complete immediately.
-        if (this.disposed || !this.manager.isActive() || !this.isTriggered() || this.isFailed()) return false;
+        if (this.disposed || !this.manager.isActive()) return false;
 
-        for (Objective objective : this.objectives) {
-            if (!objective.isCompleted()) {
-                return false;
+        Set<Quest> evaluating = COMPLETION_EVALUATION.get();
+        if (!evaluating.add(this)) {
+            Questlog.LOGGER.warn("Detected cyclic quest_complete dependency while evaluating {}", this.id);
+            return false;
+        }
+
+        try {
+            // A quest with prerequisites but no objectives must not be considered
+            // complete while it is still locked. Once its prerequisites trigger, an
+            // empty objective list can legitimately complete immediately.
+            if (!this.isTriggered() || this.isFailed()) return false;
+
+            for (Objective objective : this.objectives) {
+                if (!objective.isCompleted()) {
+                    return false;
+                }
+            }
+            return true;
+        } finally {
+            evaluating.remove(this);
+            if (evaluating.isEmpty()) {
+                COMPLETION_EVALUATION.remove();
             }
         }
-        return true;
     }
 
     public boolean isRewarded() {
