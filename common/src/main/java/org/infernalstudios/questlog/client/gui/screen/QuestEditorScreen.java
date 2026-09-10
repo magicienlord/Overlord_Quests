@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.QuestlogClient;
 import org.infernalstudios.questlog.client.gui.*;
+import org.infernalstudios.questlog.client.gui.components.FunctionalButton;
 import org.infernalstudios.questlog.client.gui.components.NoShadowEditBox;
 import org.infernalstudios.questlog.client.gui.components.ScrollableComponent;
 import org.infernalstudios.questlog.compat.origins.OriginsClientHelper;
@@ -525,52 +526,46 @@ public class QuestEditorScreen extends Screen {
                     case REWARDS -> Component.translatable("questlog.editor.rewards");
                     default -> Component.translatable("questlog.editor.settings");
                 };
-                AbstractButton tabButton = new AbstractButton(startX + i * tabBtnSpacing, panel2Y + 8, tabBtnSize, tabBtnSize, tabTooltip) {
-                    @Override
-                    public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                        boolean hovered = this.isHoveredOrFocused();
-                        ResourceLocation drawTex;
-                        if (isCurrentTab) {
-                            drawTex = switch (t) {
-                                case OBJECTIVES -> TAB_OBJECTIVES_SELECTED;
-                                case PREREQUISITES -> TAB_PREREQUISITES_SELECTED;
-                                case REWARDS -> TAB_REWARDS_SELECTED;
-                                default -> TAB_SETTINGS_SELECTED;
-                            };
-                        } else if (hovered) {
-                            drawTex = switch (t) {
-                                case OBJECTIVES -> TAB_OBJECTIVES_HIGHLIGHTED;
-                                case PREREQUISITES -> TAB_PREREQUISITES_HIGHLIGHTED;
-                                case REWARDS -> TAB_REWARDS_HIGHLIGHTED;
-                                default -> TAB_SETTINGS_HIGHLIGHTED;
-                            };
-                        } else {
-                            drawTex = switch (t) {
-                                case OBJECTIVES -> TAB_OBJECTIVES_TEXTURE;
-                                case PREREQUISITES -> TAB_PREREQUISITES_TEXTURE;
-                                case REWARDS -> TAB_REWARDS_TEXTURE;
-                                default -> TAB_SETTINGS_TEXTURE;
-                            };
+                AbstractButton tabButton = new FunctionalButton(
+                        startX + i * tabBtnSpacing, panel2Y + 8, tabBtnSize, tabBtnSize, tabTooltip,
+                        () -> {
+                            if (!isCurrentTab) {
+                                QuestEditorScreen.this.saveTemporaryState();
+                                QuestEditorScreen.this.nestingStack.clear();
+                                QuestEditorScreen.this.currentNestedList = null;
+                                QuestEditorScreen.this.activeTab = t;
+                                QuestEditorScreen.this.listPage = 0;
+                                QuestEditorScreen.this.rebuildWidgets();
+                            }
+                        },
+                        (button, ps, mouseX, mouseY, partialTicks) -> {
+                            boolean hovered = button.isHoveredOrFocused();
+                            ResourceLocation drawTex;
+                            if (isCurrentTab) {
+                                drawTex = switch (t) {
+                                    case OBJECTIVES -> TAB_OBJECTIVES_SELECTED;
+                                    case PREREQUISITES -> TAB_PREREQUISITES_SELECTED;
+                                    case REWARDS -> TAB_REWARDS_SELECTED;
+                                    default -> TAB_SETTINGS_SELECTED;
+                                };
+                            } else if (hovered) {
+                                drawTex = switch (t) {
+                                    case OBJECTIVES -> TAB_OBJECTIVES_HIGHLIGHTED;
+                                    case PREREQUISITES -> TAB_PREREQUISITES_HIGHLIGHTED;
+                                    case REWARDS -> TAB_REWARDS_HIGHLIGHTED;
+                                    default -> TAB_SETTINGS_HIGHLIGHTED;
+                                };
+                            } else {
+                                drawTex = switch (t) {
+                                    case OBJECTIVES -> TAB_OBJECTIVES_TEXTURE;
+                                    case PREREQUISITES -> TAB_PREREQUISITES_TEXTURE;
+                                    case REWARDS -> TAB_REWARDS_TEXTURE;
+                                    default -> TAB_SETTINGS_TEXTURE;
+                                };
+                            }
+                            ps.blit(drawTex, button.getX() + 2, button.getY() + 2, 0, 0, 16, 16, 16, 16);
                         }
-                        ps.blit(drawTex, this.getX() + 2, this.getY() + 2, 0, 0, 16, 16, 16, 16);
-                    }
-
-                    @Override
-                    public void onPress() {
-                        if (!isCurrentTab) {
-                            QuestEditorScreen.this.saveTemporaryState();
-                            QuestEditorScreen.this.nestingStack.clear();
-                            QuestEditorScreen.this.currentNestedList = null;
-                            QuestEditorScreen.this.activeTab = t;
-                            QuestEditorScreen.this.listPage = 0;
-                            QuestEditorScreen.this.rebuildWidgets();
-                        }
-                    }
-
-                    @Override
-                    protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-                    }
-                };
+                );
 
                 tabButton.setTooltip(Tooltip.create(tabTooltip));
                 this.addRenderableWidget(tabButton);
@@ -1328,25 +1323,16 @@ public class QuestEditorScreen extends Screen {
     }
 
     private AbstractButton createImageButton(int x, int y, ResourceLocation texture, ResourceLocation highlightedTexture, Runnable onPress) {
-        return new AbstractButton(x, y, 16, 16, Component.empty()) {
-            @Override
-            public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                boolean hovered = this.isHoveredOrFocused();
-                ResourceLocation tex = hovered ? highlightedTexture : texture;
-                ps.blit(tex, this.getX(), this.getY(), 0, 0, 16, 16, 16, 16);
-            }
-
-            @Override
-            public void onPress() {
-                onPress.run();
-            }
-
-            @Override
-            protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-            }
-        };
+        return new FunctionalButton(
+                x, y, 16, 16, Component.empty(),
+                onPress,
+                (button, ps, mouseX, mouseY, partialTicks) -> {
+                    boolean hovered = button.isHoveredOrFocused();
+                    ResourceLocation tex = hovered ? highlightedTexture : texture;
+                    ps.blit(tex, button.getX(), button.getY(), 0, 0, 16, 16, 16, 16);
+                }
+        );
     }
-
     private List<String> getSuggestions(String query) {
         List<String> result = new ArrayList<>();
         if (query.length() < 2) return result;

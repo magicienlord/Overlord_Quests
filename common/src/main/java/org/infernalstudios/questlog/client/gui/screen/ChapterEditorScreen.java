@@ -14,6 +14,7 @@ import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.client.gui.AutocompleteHelper;
 import org.infernalstudios.questlog.client.gui.EditorUtils;
 import org.infernalstudios.questlog.client.gui.QuestlogGuiSet;
+import org.infernalstudios.questlog.client.gui.components.FunctionalButton;
 import org.infernalstudios.questlog.client.gui.components.NoShadowEditBox;
 import org.infernalstudios.questlog.core.DefinitionUtil;
 import org.infernalstudios.questlog.network.packet.ChapterEditSavePacket;
@@ -183,44 +184,38 @@ public class ChapterEditorScreen extends Screen {
             ResourceLocation iconHighlight = inThisChapter ? CROSS_HIGHLIGHTED : PLUS_HIGHLIGHTED;
             Component tooltip = Component.literal(inThisChapter ? "Remove" : "Add");
 
-            AbstractButton actionButton = new AbstractButton(panel2X + 125, rowY + 1, 16, 16, Component.empty()) {
-                @Override
-                public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                    boolean hovered = this.isHoveredOrFocused();
-                    ResourceLocation tex = hovered ? iconHighlight : icon;
-                    ps.blit(tex, this.getX(), this.getY(), 0, 0, 16, 16, 16, 16);
-                }
-
-                @Override
-                public void onPress() {
-                    ChapterEditorScreen.this.saveTemporaryState();
-                    if (inThisChapter) {
-                        qJson.addProperty("chapter", currentChapPath.equals("main") ? "" : "main");
-                    } else {
-                        if (!currentChapPath.isEmpty()) {
-                            qJson.addProperty("chapter", currentChapPath);
+            AbstractButton actionButton = new FunctionalButton(
+                    panel2X + 125, rowY + 1, 16, 16, Component.empty(),
+                    () -> {
+                        ChapterEditorScreen.this.saveTemporaryState();
+                        if (inThisChapter) {
+                            qJson.addProperty("chapter", currentChapPath.equals("main") ? "" : "main");
                         } else {
-                            String futureId = ChapterEditorScreen.this.idBox.getValue().trim();
-                            try {
-                                ResourceLocation futureRl = futureId.contains(":") ?
-                                        ResourceLocation.tryParse(futureId) :
-                                        new ResourceLocation(Questlog.MODID, futureId);
-                                if (futureRl != null) {
-                                    qJson.addProperty("chapter", futureRl.getPath());
+                            if (!currentChapPath.isEmpty()) {
+                                qJson.addProperty("chapter", currentChapPath);
+                            } else {
+                                String futureId = ChapterEditorScreen.this.idBox.getValue().trim();
+                                try {
+                                    ResourceLocation futureRl = futureId.contains(":") ?
+                                            ResourceLocation.tryParse(futureId) :
+                                            new ResourceLocation(Questlog.MODID, futureId);
+                                    if (futureRl != null) {
+                                        qJson.addProperty("chapter", futureRl.getPath());
+                                    }
+                                } catch (Exception ignored) {
                                 }
-                            } catch (Exception ignored) {
                             }
                         }
+                        DefinitionUtil.putCachedQuest(qKey, qJson);
+                        Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(qKey, qJson.toString()));
+                        ChapterEditorScreen.this.rebuildWidgets();
+                    },
+                    (button, ps, mouseX, mouseY, partialTicks) -> {
+                        boolean hovered = button.isHoveredOrFocused();
+                        ResourceLocation tex = hovered ? iconHighlight : icon;
+                        ps.blit(tex, button.getX(), button.getY(), 0, 0, 16, 16, 16, 16);
                     }
-                    DefinitionUtil.putCachedQuest(qKey, qJson);
-                    Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(qKey, qJson.toString()));
-                    ChapterEditorScreen.this.rebuildWidgets();
-                }
-
-                @Override
-                protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-                }
-            };
+            );
 
             actionButton.setTooltip(Tooltip.create(tooltip));
 

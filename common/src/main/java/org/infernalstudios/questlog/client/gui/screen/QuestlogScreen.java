@@ -130,83 +130,65 @@ public class QuestlogScreen extends Screen {
     }
 
     private @NotNull AbstractButton getAddChapBtn(int x, int y) {
-        AbstractButton addChapBtn = new AbstractButton(x, y, 20, 20, Component.translatable("questlog.editor.add_chapter")) {
-            @Override
-            public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                boolean hovered = this.isHoveredOrFocused();
-                ps.blit(EDITOR_CHAPTER_PLUS_TEXTURE, this.getX() + 2, this.getY() + 2, 0, 0, 16, 16, 16, 16);
-                if (hovered) {
-                    ps.fill(this.getX(), this.getY(), this.getX() + 20, this.getY() + 20, 0x40FFFFFF);
+        FunctionalButton addChapBtn = new FunctionalButton(
+                x, y, 20, 20,
+                Component.translatable("questlog.editor.add_chapter"),
+                () -> {
+                    if (minecraft != null) {
+                        minecraft.setScreen(new ChapterEditorScreen(QuestlogScreen.this, null));
+                    }
+                },
+                (button, ps, mouseX, mouseY, partialTicks) -> {
+                    boolean hovered = button.isHoveredOrFocused();
+                    ps.blit(EDITOR_CHAPTER_PLUS_TEXTURE, button.getX() + 2, button.getY() + 2, 0, 0, 16, 16, 16, 16);
+                    if (hovered) {
+                        ps.fill(button.getX(), button.getY(), button.getX() + 20, button.getY() + 20, 0x40FFFFFF);
+                    }
                 }
-            }
-
-            @Override
-            public void onPress() {
-                if (minecraft != null) {
-                    minecraft.setScreen(new ChapterEditorScreen(QuestlogScreen.this, null));
-                }
-            }
-
-            @Override
-            protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-            }
-        };
+        );
         addChapBtn.setTooltip(Tooltip.create(Component.translatable("questlog.editor.add_chapter")));
         return addChapBtn;
     }
-
     private @NotNull AbstractButton getEditChapBtn(int x, int y) {
-        AbstractButton editChapBtn = new AbstractButton(x, y, 20, 20, Component.translatable("questlog.editor.edit_chapter")) {
-            @Override
-            public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                boolean hovered = this.isHoveredOrFocused();
-                ps.blit(EDITOR_CHAPTER_GEAR_TEXTURE, this.getX() + 2, this.getY() + 2, 0, 0, 16, 16, 16, 16);
-                if (hovered) {
-                    ps.fill(this.getX(), this.getY(), this.getX() + 20, this.getY() + 20, 0x40FFFFFF);
+        FunctionalButton editChapBtn = new FunctionalButton(
+                x, y, 20, 20,
+                Component.translatable("questlog.editor.edit_chapter"),
+                () -> {
+                    if (minecraft != null) {
+                        minecraft.setScreen(new ChapterEditorScreen(QuestlogScreen.this, currentChapter));
+                    }
+                },
+                (button, ps, mouseX, mouseY, partialTicks) -> {
+                    boolean hovered = button.isHoveredOrFocused();
+                    ps.blit(EDITOR_CHAPTER_GEAR_TEXTURE, button.getX() + 2, button.getY() + 2, 0, 0, 16, 16, 16, 16);
+                    if (hovered) {
+                        ps.fill(button.getX(), button.getY(), button.getX() + 20, button.getY() + 20, 0x40FFFFFF);
+                    }
                 }
-            }
-
-            @Override
-            public void onPress() {
-                if (minecraft != null) {
-                    minecraft.setScreen(new ChapterEditorScreen(QuestlogScreen.this, currentChapter));
-                }
-            }
-
-            @Override
-            protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-            }
-        };
+        );
         editChapBtn.setTooltip(Tooltip.create(Component.translatable("questlog.editor.edit_chapter")));
         return editChapBtn;
     }
-
     private @NotNull AbstractButton getAddQuestBtn(int x, int y) {
-        AbstractButton addQuestBtn = new AbstractButton(x, y, 20, 20, Component.translatable("questlog.editor.add_quest")) {
-            @Override
-            public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                boolean hovered = this.isHoveredOrFocused();
-                ps.blit(EDITOR_QUEST_PLUS_TEXTURE, this.getX() + 2, this.getY() + 2, 0, 0, 16, 16, 16, 16);
-                if (hovered) {
-                    ps.fill(this.getX(), this.getY(), this.getX() + 20, this.getY() + 20, 0x40FFFFFF);
+        FunctionalButton addQuestBtn = new FunctionalButton(
+                x, y, 20, 20,
+                Component.translatable("questlog.editor.add_quest"),
+                () -> {
+                    if (minecraft != null) {
+                        minecraft.setScreen(new QuestEditorScreen(QuestlogScreen.this));
+                    }
+                },
+                (button, ps, mouseX, mouseY, partialTicks) -> {
+                    boolean hovered = button.isHoveredOrFocused();
+                    ps.blit(EDITOR_QUEST_PLUS_TEXTURE, button.getX() + 2, button.getY() + 2, 0, 0, 16, 16, 16, 16);
+                    if (hovered) {
+                        ps.fill(button.getX(), button.getY(), button.getX() + 20, button.getY() + 20, 0x40FFFFFF);
+                    }
                 }
-            }
-
-            @Override
-            public void onPress() {
-                if (minecraft != null) {
-                    minecraft.setScreen(new QuestEditorScreen(QuestlogScreen.this));
-                }
-            }
-
-            @Override
-            protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-            }
-        };
+        );
         addQuestBtn.setTooltip(Tooltip.create(Component.translatable("questlog.editor.add_quest")));
         return addQuestBtn;
     }
-
     private void refreshQuestListOnly() {
         if (this.questList != null) {
             this.removeWidget(this.questList);
@@ -228,44 +210,37 @@ public class QuestlogScreen extends Screen {
         int searchWidth = this.searchExpanded ? 193 : 28;
         int searchX = listX + listWidth - searchWidth + 12 + Questlog.getConfig().gui.searchBarX;
 
-        this.addRenderableWidget(new AbstractButton(searchX, searchY, searchWidth, 18, Component.empty()) {
-            @Override
-            public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                boolean hoverToggle = isMouseOver(mouseX, mouseY) && (!searchExpanded || mouseX >= getX() + width - 28);
-                if (searchExpanded) {
-                    (hoverToggle ? QuestlogGuiSet.DEFAULT.searchTabExpandedHovered : QuestlogGuiSet.DEFAULT.searchTabExpanded)
-                            .blit(ps, getX() - 30, getY() - 19);
-                } else {
-                    (hoverToggle ? QuestlogGuiSet.DEFAULT.searchTabMinimizedHovered : QuestlogGuiSet.DEFAULT.searchTabMinimized)
-                            .blit(ps, getX() - 15, getY() - 19);
-                }
-            }
-
-            @Override
-            public void onPress() {
-                searchExpanded = !searchExpanded;
-                if (!searchExpanded) {
-                    searchQuery = "";
-                }
-                refreshList();
-            }
-
-            @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (isMouseOver(mouseX, mouseY) && button == GLFW.GLFW_MOUSE_BUTTON_1) {
-                    if (searchExpanded && mouseX < getX() + width - 28) {
-                        return false;
+        this.addRenderableWidget(new FunctionalButton(
+                searchX, searchY, searchWidth, 18, Component.empty(),
+                () -> {
+                    QuestlogScreen.this.searchExpanded = !QuestlogScreen.this.searchExpanded;
+                    if (!QuestlogScreen.this.searchExpanded) {
+                        QuestlogScreen.this.searchQuery = "";
                     }
-                    onPress();
-                    return true;
+                    QuestlogScreen.this.refreshList();
+                },
+                (button, ps, mouseX, mouseY, partialTicks) -> {
+                    boolean hoverToggle = button.isMouseOver(mouseX, mouseY)
+                            && (!QuestlogScreen.this.searchExpanded || mouseX >= button.getX() + button.getWidth() - 28);
+                    if (QuestlogScreen.this.searchExpanded) {
+                        (hoverToggle ? QuestlogGuiSet.DEFAULT.searchTabExpandedHovered : QuestlogGuiSet.DEFAULT.searchTabExpanded)
+                                .blit(ps, button.getX() - 30, button.getY() - 19);
+                    } else {
+                        (hoverToggle ? QuestlogGuiSet.DEFAULT.searchTabMinimizedHovered : QuestlogGuiSet.DEFAULT.searchTabMinimized)
+                                .blit(ps, button.getX() - 15, button.getY() - 19);
+                    }
+                },
+                (button, mouseX, mouseY, mouseButton) -> {
+                    if (button.isMouseOver(mouseX, mouseY) && mouseButton == GLFW.GLFW_MOUSE_BUTTON_1) {
+                        if (QuestlogScreen.this.searchExpanded && mouseX < button.getX() + button.getWidth() - 28) {
+                            return false;
+                        }
+                        button.onPress();
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-
-            @Override
-            protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-            }
-        });
+        ));
 
         if (this.searchExpanded) {
             this.searchBox = new NoShadowEditBox(this.font, searchX + 86, searchY + 7, searchWidth - 36, 16, Component.translatable("itemGroup.search"));
@@ -279,58 +254,45 @@ public class QuestlogScreen extends Screen {
             });
             this.addRenderableWidget(this.searchBox);
 
-            this.addRenderableWidget(new AbstractButton(searchX - 36, searchY + 2, 14, 14, Component.empty()) {
-                @Override
-                public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                    boolean hovered = isMouseOver(mouseX, mouseY);
-                    if (hideCompleted) {
-                        (hovered ? QuestlogGuiSet.DEFAULT.hiddenButtonHovered : QuestlogGuiSet.DEFAULT.hiddenButton)
-                                .blit(ps, getX() - 6, getY() - 6);
-                    } else {
-                        (hovered ? QuestlogGuiSet.DEFAULT.visibleButtonHovered : QuestlogGuiSet.DEFAULT.visibleButton)
-                                .blit(ps, getX() - 6, getY() - 6);
+            this.addRenderableWidget(new FunctionalButton(
+                    searchX - 36, searchY + 2, 14, 14, Component.empty(),
+                    () -> {
+                        QuestlogScreen.this.hideCompleted = !QuestlogScreen.this.hideCompleted;
+                        QuestlogScreen.this.refreshList();
+                    },
+                    (button, ps, mouseX, mouseY, partialTicks) -> {
+                        boolean hovered = button.isMouseOver(mouseX, mouseY);
+                        if (QuestlogScreen.this.hideCompleted) {
+                            (hovered ? QuestlogGuiSet.DEFAULT.hiddenButtonHovered : QuestlogGuiSet.DEFAULT.hiddenButton)
+                                    .blit(ps, button.getX() - 6, button.getY() - 6);
+                        } else {
+                            (hovered ? QuestlogGuiSet.DEFAULT.visibleButtonHovered : QuestlogGuiSet.DEFAULT.visibleButton)
+                                    .blit(ps, button.getX() - 6, button.getY() - 6);
+                        }
                     }
-                }
+            ));
 
-                @Override
-                public void onPress() {
-                    hideCompleted = !hideCompleted;
-                    refreshList();
-                }
-
-                @Override
-                protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-                }
-            });
-
-            this.addRenderableWidget(new AbstractButton(searchX - 18, searchY + 2, 14, 14, Component.empty()) {
-                @Override
-                public void renderWidget(@NotNull GuiGraphics ps, int mouseX, int mouseY, float partialTicks) {
-                    boolean hovered = isMouseOver(mouseX, mouseY);
-                    if (descriptionsCondensed) {
-                        (hovered ? QuestlogGuiSet.DEFAULT.expandButtonHovered : QuestlogGuiSet.DEFAULT.expandButton)
-                                .blit(ps, getX() - 6, getY() - 6);
-                    } else {
-                        (hovered ? QuestlogGuiSet.DEFAULT.condenseButtonHovered : QuestlogGuiSet.DEFAULT.condenseButton)
-                                .blit(ps, getX() - 6, getY() - 6);
+            this.addRenderableWidget(new FunctionalButton(
+                    searchX - 18, searchY + 2, 14, 14, Component.empty(),
+                    () -> {
+                        QuestlogScreen.this.descriptionsCondensed = !QuestlogScreen.this.descriptionsCondensed;
+                        QuestlogScreen.this.refreshList();
+                    },
+                    (button, ps, mouseX, mouseY, partialTicks) -> {
+                        boolean hovered = button.isMouseOver(mouseX, mouseY);
+                        if (QuestlogScreen.this.descriptionsCondensed) {
+                            (hovered ? QuestlogGuiSet.DEFAULT.expandButtonHovered : QuestlogGuiSet.DEFAULT.expandButton)
+                                    .blit(ps, button.getX() - 6, button.getY() - 6);
+                        } else {
+                            (hovered ? QuestlogGuiSet.DEFAULT.condenseButtonHovered : QuestlogGuiSet.DEFAULT.condenseButton)
+                                    .blit(ps, button.getX() - 6, button.getY() - 6);
+                        }
                     }
-                }
-
-                @Override
-                public void onPress() {
-                    descriptionsCondensed = !descriptionsCondensed;
-                    refreshList();
-                }
-
-                @Override
-                protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-                }
-            });
+            ));
         } else {
             this.searchBox = null;
         }
     }
-
     private void buildTabs() {
         List<ResourceLocation> chapterKeys = new ArrayList<>();
         for (Map.Entry<ResourceLocation, ChapterInfo> entry : this.availableChapters.entrySet()) {
