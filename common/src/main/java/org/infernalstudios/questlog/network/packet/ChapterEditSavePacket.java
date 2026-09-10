@@ -13,12 +13,10 @@ import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.platform.Services;
+import org.infernalstudios.questlog.util.AtomicJsonFileUtil;
 import org.infernalstudios.questlog.util.DefinitionPathUtil;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public record ChapterEditSavePacket(ResourceLocation id, String json) {
@@ -57,10 +55,7 @@ public record ChapterEditSavePacket(ResourceLocation id, String json) {
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path chapterDir = configDir.resolve("chapters");
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
-            Files.createDirectories(filePath.getParent());
-            try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
-                GSON.toJson(definition, writer);
-            }
+            AtomicJsonFileUtil.write(filePath, GSON, definition);
             Questlog.LOGGER.info("Saved chapter definition for {} to {}", packet.id, filePath);
 
             DefinitionUtil.loadFromConfig();
