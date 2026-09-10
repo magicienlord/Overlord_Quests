@@ -3,7 +3,6 @@ package org.infernalstudios.questlog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
-import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvent;
@@ -146,16 +145,11 @@ public class QuestlogClientEvents {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof QuestDetails) {
-            QuestToastState.resetCheckDelay();
-            return;
-        }
-
-        if (minecraft.screen instanceof MenuAccess<?>) {
-            // Opening a full-screen popup over a live container closes the
-            // server-side menu. Returning to the old screen afterward can leave
-            // a stale client menu, even when the cursor is not carrying a stack.
-            // Wait until the container screen is closed instead.
+        if (minecraft.screen != null) {
+            // Automatic full-screen presentation must not replace an inventory,
+            // container, chat, editor, or other active screen. Replacing live
+            // screens can close server menus, discard typed input, or leave a
+            // stale previous-screen reference. Retry after normal gameplay resumes.
             QuestToastState.resetCheckDelay();
             return;
         }
@@ -169,7 +163,7 @@ public class QuestlogClientEvents {
             return;
         }
 
-        minecraft.setScreen(new QuestDetails(minecraft.screen, currentQuest));
+        minecraft.setScreen(new QuestDetails(null, currentQuest));
         QuestToastState.resetCheckDelay();
     }
 
