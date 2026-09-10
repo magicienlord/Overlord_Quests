@@ -18,9 +18,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ASSET = ROOT / "common" / "src" / "main" / "resources" / "assets" / "questlog" / "textures" / "gui" / "overlord" / "gnarl_popup.png"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-EXPECTED_WIDTH = 320
-EXPECTED_HEIGHT = 320
-MAX_BYTES = 512 * 1024
+
+# The approved Foundation B portrait is the exact 1254 x 1254 PNG uploaded to
+# repository main. Keep the full-resolution approved source in the mod rather
+# than introducing an unreviewed resampling step. Questlog renders it into the
+# data-defined 160 x 160 GUI rectangle.
+EXPECTED_WIDTH = 1254
+EXPECTED_HEIGHT = 1254
+MAX_BYTES = 2 * 1024 * 1024
 
 
 def scanline_bytes(width: int, bit_depth: int, color_type: int) -> int | None:
@@ -28,6 +33,123 @@ def scanline_bytes(width: int, bit_depth: int, color_type: int) -> int | None:
     if channels is None:
         return None
     return 1 + math.ceil(width * channels * bit_depth / 8)
+
+
+def bytes_per_pixel(bit_depth: int, color_type: int) -> int | None:
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}.get(color_type)
+    if channels is None or bit_depth != 8:
+        return None
+    return channels
+
+
+def paeth(a: int, b: int, c: int) -> int:
+    p = a + b - c
+    pa = abs(p - a)
+    pb = abs(p - b)
+    pc = abs(p - c)
+    if pa <= pb and pa <= pc:
+        return a
+    if pb <= pc:
+        return b
+    return c
+
+
+def reconstruct_noninterlaced_scanlines(
+    decompressed: bytes,
+    width: int,
+    height: int,
+    bit_depth: int,
+    color_type: int,
+) -> list[bytes] | None:
+    """Reconstruct filtered PNG rows for 8-bit non-interlaced images."""
+    bpp = bytes_per_pixel(bit_depth, color_type)
+    row_with_filter = scanline_bytes(width, bit_depth, color_type)
+    if bpp is None or row_with_filter is None:
+        return None
+
+    row_bytes = row_with_filter - 1
+    if len(decompressed) != row_with_filter * height:
+        return None
+
+    rows: list[bytes] = []
+    previous = bytearray(row_bytes)
+    pos = 0
+
+    for _ in range(height):
+        filter_type = decompressed[pos]
+        pos += 1
+        scan = bytearray(decompressed[pos:pos + row_bytes])
+        pos += row_bytes
+
+        if filter_type == 0:
+            pass
+        elif filter_type == 1:
+            for i in range(row_bytes):
+                left = scan[i - bpp] if i >= bpp else 0
+                scan[i] = (scan[i] + left) & 0xFF
+        elif filter_type == 2:
+            for i in range(row_bytes):
+                scan[i] = (scan[i] + previous[i]) & 0xFF
+        elif filter_type == 3:
+            for i in range(row_bytes):
+                left = scan[i - bpp] if i >= bpp else 0
+                up = previous[i]
+                scan[i] = (scan[i] + ((left + up) // 2)) & 0xFF
+        elif filter_type == 4:
+            for i in range(row_bytes):
+                left = scan[i - bpp] if i >= bpp else 0
+                up = previous[i]
+                up_left = previous[i - bpp] if i >= bpp else 0
+                scan[i] = (scan[i] + paeth(left, up, up_left)) & 0xFF
+        else:
+            return None
+
+        rows.append(bytes(scan))
+        previous = scan
+
+    return rows
+
+
+def alpha_diagnostics(
+    rows: list[bytes] | None,
+    color_type: int,
+    diagnostics: list[str],
+    errors: list[str],
+) -> None:
+    if rows is None or color_type not in (4, 6):
+        return
+
+    stride = 2 if color_type == 4 else 4
+    alpha_index = 1 if color_type == 4 else 3
+
+    total = 0
+    transparent = 0
+    fully_transparent = 0
+    partial = 0
+    min_alpha = 255
+    max_alpha = 0
+
+    for row in rows:
+        alphas = row[alpha_index::stride]
+        total += len(alphas)
+        for alpha in alphas:
+            min_alpha = min(min_alpha, alpha)
+            max_alpha = max(max_alpha, alpha)
+            if alpha < 255:
+                transparent += 1
+            if alpha == 0:
+                fully_transparent += 1
+            elif alpha < 255:
+                partial += 1
+
+    diagnostics.append(
+        "alpha diagnostic: "
+        f"pixels={total}, min={min_alpha}, max={max_alpha}, "
+        f"alpha<255={transparent}, alpha=0={fully_transparent}, partial={partial}"
+    )
+
+    if total and transparent == 0:
+        errors.append("RGBA/GA image contains no transparent pixels; popup would render as a rectangular backdrop")
 
 
 def add_partial_idat_diagnostics(
@@ -190,6 +312,11 @@ def main() -> int:
                     errors.append(
                         f"decompressed pixel stream is {len(decompressed)} bytes, expected {expected} for a non-interlaced image"
                     )
+                else:
+                    rows = reconstruct_noninterlaced_scanlines(
+                        decompressed, width, height, bit_depth, color_type
+                    )
+                    alpha_diagnostics(rows, color_type, diagnostics, errors)
         except zlib.error as exc:
             errors.append(f"IDAT zlib stream is invalid: {exc}")
 
