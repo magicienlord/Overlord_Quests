@@ -14,7 +14,6 @@ import org.infernalstudios.questlog.network.IPacketContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class QuestRewardCollectPacket {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
@@ -53,7 +52,10 @@ public class QuestRewardCollectPacket {
     }
 
     public static void handle(QuestRewardCollectPacket packet, IPacketContext ctx) {
-        ServerPlayer sender = Objects.requireNonNull(ctx.getSender());
+        if (!(ctx.getSender() instanceof ServerPlayer sender)) {
+            Questlog.LOGGER.warn("Ignoring reward collection request because no server player sender is available");
+            return;
+        }
         if (ServerPlayerManager.INSTANCE == null) {
             Questlog.LOGGER.warn("Ignoring reward collection for {} because the server quest manager is unavailable", packet.id);
             return;
