@@ -112,6 +112,10 @@ public class QuestlogClientEvents {
         }
 
         if (Minecraft.getInstance().screen instanceof MenuAccess<?> screen && !screen.getMenu().getCarried().isEmpty()) {
+            // Do not let the 10-tick retry window expire while the player is
+            // carrying an inventory stack. Without resetting the delay here the
+            // popup remains queued but is never revisited after this frame.
+            QuestToastState.resetCheckDelay();
             return;
         }
 
