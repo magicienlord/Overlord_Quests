@@ -25,14 +25,29 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Validate Overlord quest examples
+        run: python3 tools/validate_overlord_quest_examples.py
+
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
       - name: Build Forge artifact
         run: ./gradlew :forge:build --stacktrace
 
+      - name: Verify assembled Forge jar
+        run: |
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+          echo "Inspecting $JAR"
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/Questlog.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
+          jar tf "$JAR" | grep -Fxq 'assets/questlog/textures/gui/overlord/gnarl_popup.png'
+          jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
+
       - name: Upload Forge artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: overlord-quests-forge-1.20.1
