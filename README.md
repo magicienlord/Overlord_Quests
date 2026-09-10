@@ -1,43 +1,40 @@
-![](https://i.imgur.com/5x0Iuii.png)
+# OVERLORD QUESTS
 
-**Questlog** is a mod designed to add... Well, _quests_ to your game!
+OVERLORD QUESTS is the quest and narrative presentation layer being built for **OVERLORD REIGN**, targeting Minecraft Java 1.20.1 on Forge 47.4.10.
 
-_This mod is entirely datapack-driven. You will _**need**_ to learn how to write JSON files to use it._ (There _is_ an
-online tool to write Quests, but having a fundamental understanding of what is being generated is needed to use them
-properly.)
+The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and preserves its proven JSON quest engine while adapting the presentation around Gnarl and the Overlord setting.
 
-The biggest question on your mind is probably something like: "How _does_ this differ from FTB Quests?"
+## Current status
 
-Well! Unlike FTB Quests, which presents its quests in sprawling spreadsheets, _this_ mod's quests are presented in a
-little book/checklist-style format, and are directly accessible from the inventory! This was inspired by Elder Scrolls:
-Oblivion's quest system.
+Implementation foundation is in progress on the `gnarl-bootstrap` branch.
 
-The mod was conceptualised and is designed around the principle of **conveyance.** Creators can write quests so that
-when they trigger (or are completed!), they display either their own toast panels, **or** they outright _pop-up_ in your
-face directly, so you can never miss an important piece of info.
+The imported upstream baseline is pinned exactly to Questlog commit `72edfa8cc2a411265ad20a916ce0282ec7be56c0`. The original Apache 2.0 license and credits are retained. The supplied upstream Forge JAR is preserved under `reference/` for binary comparison.
 
-Every art asset of the mod has been scrupulously designed so as to be majorly alterable via resource packs, so you can
-include Questlog in all manner of modpacks without it feeling out of place.
+## Technical baseline
 
-By default, the mod has no content. You have to add your own!
+- Minecraft Java 1.20.1
+- Forge 47.4.10
+- Java 17
+- Upstream engine: Questlog 3.3.3
+- Technical mod id during the initial compatibility phase: `questlog`
+- Planned artifact prefix: `overlord-quests`
 
-Check out the wiki for info on how to use Questlog:
-[https://moddedmc.wiki/en/project/questlog/latest/docs](https://moddedmc.wiki/en/project/questlog/latest/docs)
+Keeping the `questlog` technical id initially is deliberate. It avoids needless breakage of config paths, commands, JSON IDs, packet channels, saved quest state, and existing integrations while the visual and content systems are adapted.
 
-After examining that, check out the Questlog generator to more easily create your own
-quests: [https://infernalstudios.org/questlog](https://infernalstudios.org/questlog)
+## Build
 
-Check out the mod in action, which you may use as a template to help write your own quests: **Resurvival, on versions
-B.8.0** [here](https://www.curseforge.com/minecraft/modpacks/resurvival/files/6266222)
+The Forge development artifact is built with:
 
-Although designed to fill in the gaps I feel are present in FTB Quests, I could easily see this mod being used in
-conjunction with it, as it fulfils different niches than that mod, even if they're similar.
+```text
+./gradlew :forge:build
+```
 
-Hope this helps you make better modpacks! :D
+GitHub Actions also performs a Forge build on the active adaptation branch.
 
-Got a feature suggestion or an issue? Let us know on our
-GitHub! [https://github.com/infernalstudios/Questlog/issues](https://github.com/infernalstudios/Questlog/issues)
+## Adaptation strategy
 
-Video Showcase:
+The first implementation phase keeps Questlog's underlying quest state machine, objectives, rewards, synchronization, editor, and JSON format intact. Work is concentrated on the OVERLORD REIGN presentation layer, Gnarl-facing quest delivery, packaged project content, and modpack-specific integrations.
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/C2XfcEVSu6U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+Story text, quest progression, rewards, and world-specific objectives are not being invented by the bootstrap. Those will be added only from approved OVERLORD REIGN design and canon decisions.
+
+See `docs/OVERLORD_ADAPTATION.md` for the current engineering contract and `UPSTREAM_BASELINE.md` for provenance.
