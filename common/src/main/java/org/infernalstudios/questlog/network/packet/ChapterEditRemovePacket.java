@@ -48,6 +48,15 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
             Questlog.LOGGER.warn("Rejected attempt to delete the main Questlog chapter");
             return;
         }
+        if (DefinitionUtil.isBundledChapter(packet.id)) {
+            // Bundled definitions are approved JAR content. A config override may
+            // shadow them, but an editor action labelled Delete must not remove
+            // that override and silently reveal the bundled base while also
+            // reassigning member quests. A future explicit Reset Override action
+            // can provide that distinct behavior if it is needed.
+            Questlog.LOGGER.warn("Rejected editor deletion of bundled chapter {}", packet.id);
+            return;
+        }
 
         Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
         Path chapterDir = configDir.resolve("chapters");
@@ -57,13 +66,8 @@ public record ChapterEditRemovePacket(ResourceLocation id) {
         try {
             Path chapterPath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
             if (!Files.exists(chapterPath)) {
-                // A definition can exist only in the bundled JAR and therefore
-                // have no removable config file. Do not create quest overrides or
-                // report a successful delete for immutable bundled content. A pack
-                // author can override bundled content explicitly in config, but
-                // deleting that override merely reveals the bundled base again.
                 Questlog.LOGGER.warn(
-                        "Rejected chapter deletion for {} because no removable config override exists at {}",
+                        "Rejected chapter deletion for {} because no removable config definition exists at {}",
                         packet.id,
                         chapterPath
                 );
