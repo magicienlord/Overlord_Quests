@@ -3,6 +3,7 @@ package org.infernalstudios.questlog.network.packet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,19 +30,28 @@ public record ChapterEditSavePacket(ResourceLocation id, String json) {
     }
 
     public static void handle(ChapterEditSavePacket packet, IPacketContext ctx) {
-        ServerPlayer player = (ServerPlayer) ctx.getSender();
-        if (player == null || !player.hasPermissions(2)) {
-            Questlog.LOGGER.warn("Player {} tried to edit chapter without permissions", player != null ? player.getGameProfile().getName() : "null");
+        if (!(ctx.getSender() instanceof ServerPlayer player) || !player.hasPermissions(2)) {
+            Questlog.LOGGER.warn("Rejected chapter editor save request without a permitted server player sender");
+            return;
+        }
+        if (!Questlog.MODID.equals(packet.id.getNamespace())) {
+            Questlog.LOGGER.warn("Rejected chapter editor save for unsupported namespace: {}", packet.id);
+            return;
+        }
+
+        final JsonObject definition;
+        try {
+            definition = GSON.fromJson(packet.json, JsonObject.class);
+        } catch (JsonParseException e) {
+            Questlog.LOGGER.warn("Rejected malformed chapter definition for {}: {}", packet.id, e.getMessage());
+            return;
+        }
+        if (definition == null) {
+            Questlog.LOGGER.warn("Rejected empty chapter definition for {}", packet.id);
             return;
         }
 
         try {
-            JsonObject definition = GSON.fromJson(packet.json, JsonObject.class);
-            if (definition == null) {
-                Questlog.LOGGER.warn("Rejected empty chapter definition for {}", packet.id);
-                return;
-            }
-
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path chapterDir = configDir.resolve("chapters");
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(chapterDir, packet.id);
