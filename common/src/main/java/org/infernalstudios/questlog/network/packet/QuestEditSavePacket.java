@@ -2,6 +2,7 @@ package org.infernalstudios.questlog.network.packet;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -45,19 +46,28 @@ public class QuestEditSavePacket {
     }
 
     public static void handle(QuestEditSavePacket packet, IPacketContext ctx) {
-        ServerPlayer player = (ServerPlayer) ctx.getSender();
-        if (player == null || !player.hasPermissions(2)) {
-            Questlog.LOGGER.warn("Player {} tried to edit quest without permissions", player != null ? player.getGameProfile().getName() : "null");
+        if (!(ctx.getSender() instanceof ServerPlayer player) || !player.hasPermissions(2)) {
+            Questlog.LOGGER.warn("Rejected quest editor save request without a permitted server player sender");
+            return;
+        }
+        if (!Questlog.MODID.equals(packet.id.getNamespace())) {
+            Questlog.LOGGER.warn("Rejected quest editor save for unsupported namespace: {}", packet.id);
+            return;
+        }
+
+        final JsonObject definition;
+        try {
+            definition = GSON.fromJson(packet.json, JsonObject.class);
+        } catch (JsonParseException e) {
+            Questlog.LOGGER.warn("Rejected malformed quest definition for {}: {}", packet.id, e.getMessage());
+            return;
+        }
+        if (definition == null) {
+            Questlog.LOGGER.warn("Rejected empty quest definition for {}", packet.id);
             return;
         }
 
         try {
-            JsonObject definition = GSON.fromJson(packet.json, JsonObject.class);
-            if (definition == null) {
-                Questlog.LOGGER.warn("Rejected empty quest definition for {}", packet.id);
-                return;
-            }
-
             Path configDir = Services.PLATFORM.getConfigDirectory().resolve("questlog");
             Path questDir = configDir.resolve("quests");
             Path filePath = DefinitionPathUtil.resolveJsonDefinition(questDir, packet.id);
