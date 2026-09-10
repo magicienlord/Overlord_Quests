@@ -30,7 +30,7 @@ public class QuestRewardCollectPacket {
     public QuestRewardCollectPacket(ResourceLocation id, int rewardIndex, List<Integer> selections) {
         this.id = id;
         this.rewardIndex = rewardIndex;
-        this.selections = selections;
+        this.selections = selections == null ? Collections.emptyList() : List.copyOf(selections);
     }
 
     public ResourceLocation id() { return this.id; }
@@ -91,17 +91,24 @@ public class QuestRewardCollectPacket {
         }
 
         if (reward instanceof ChoiceReward choiceReward) {
-            choiceReward.setSelectedIndices(packet.selections());
-            if (!choiceReward.canClaim()) {
+            if (!choiceReward.isValidSelection(packet.selections())) {
                 Questlog.LOGGER.warn(
-                        "Ignoring incomplete choice reward selection for quest {} reward {}: expected {} unique valid selection(s), got {}",
+                        "Ignoring invalid choice reward selection for quest {} reward {}: expected {} unique valid selection(s), got {}",
                         packet.id,
                         packet.rewardIndex,
                         choiceReward.getPickCount(),
-                        choiceReward.getSelectedIndicesList().size()
+                        packet.selections().size()
                 );
                 return;
             }
+            choiceReward.setSelectedIndices(packet.selections());
+        } else if (!packet.selections().isEmpty()) {
+            Questlog.LOGGER.warn(
+                    "Ignoring unexpected choice selections for non-choice reward {} in quest {}",
+                    packet.rewardIndex,
+                    packet.id
+            );
+            return;
         }
 
         reward.applyReward(sender);
