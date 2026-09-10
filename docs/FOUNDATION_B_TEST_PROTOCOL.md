@@ -12,13 +12,15 @@ Use the current `gnarl-bootstrap` Forge artifact and the development quest:
 
 The development quest is deliberately not bundled into the normal mod manifest.
 
+The repository currently contains a mechanically valid Gnarl test portrait. The locked character-design target is defined below, but the exact final corrected portrait binary is still pending explicit visual approval. Do not interpret a green asset-integrity or Forge build check as portrait approval.
+
 ## Runtime scope
 
 Foundation B targets an unpublished local single-player world only.
 
-Do not use Open to LAN during acceptance testing. Dedicated multiplayer and LAN-published worlds are outside the OVERLORD REIGN runtime scope for automatic full-screen Gnarl popups.
+Do not use Open to LAN during the primary acceptance test. Dedicated multiplayer and LAN-published worlds are outside the OVERLORD REIGN runtime scope for automatic full-screen Gnarl popups.
 
-Automatic popups now wait until normal screenless gameplay before opening. They must not replace an inventory, container, chat screen, Questlog editor, or other active GUI. This is intentional: interrupting a live GUI can close server menus, discard typed input, or leave stale screen state.
+Automatic popups wait until normal screenless gameplay before opening. They must not replace an inventory, container, chat screen, Questlog editor, or other active GUI. This is intentional: interrupting a live GUI can close server menus, discard typed input, or leave stale screen state.
 
 ## Installation
 
@@ -65,7 +67,7 @@ The experience-orb sound is a test signal only. It is not approved production au
 
 ## Deferred-popup regression check
 
-Foundation B now deliberately defers automatic full-screen presentation while any GUI is open. The queue must survive that deferral and open the current quest instance after the GUI closes.
+Foundation B deliberately defers automatic full-screen presentation while any GUI is open. The queue must survive that deferral and open the current quest instance after the GUI closes.
 
 A deterministic way to exercise this path is:
 
@@ -99,23 +101,26 @@ The following are defensive behavior checks and do not change story behavior:
 - Triggering the same quest twice before its popup is consumed must not enqueue duplicate popups for that quest ID.
 - Logging out clears queued popups and resets their retry timer.
 - If a queued quest is removed or reset before display, the stale popup must be discarded.
+- If a definition is reloaded while the popup waits, the eventual popup must use the current quest instance and current display definition rather than retained stale data.
 - If the integrated server is published to LAN after a popup is queued but before it is consumed, automatic full-screen presentation must be cancelled. A normal unlock toast may be used only when that quest already permits unlock toasts.
 
 The development Gnarl fixture disables unlock toasts, so the LAN-published cancellation case is expected to clear its queued popup without substituting a toast.
 
-## Approved character baseline
+## Locked character target
 
-For the portrait itself, the approved Foundation B character baseline is:
+The Foundation B portrait target is:
 
-- the established popup Gnarl design;
+- preserve the established popup Gnarl design;
 - square pupils;
 - pupils directed toward the player;
-- each square pupil remains perspective-aligned to its eye rather than being pasted as a flat screen-facing square;
-- the restored original snout geometry;
-- the established non-angry, sly expression;
+- each square pupil remains perspective-aligned to its own eye rather than being pasted as a flat screen-facing square;
+- preserve the original snout geometry, muzzle volume, nostrils, nose, and mouth/jaw relationship unchanged;
+- preserve the established sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
 - no automatic blending with the WIP in-game model.
 
-Character design is therefore not part of the remaining composition experiment except where a rendering defect changes how that approved asset appears.
+These are locked design constraints. The current repository PNG is a technical test asset and is not the final approved corrected binary until the Overlord explicitly accepts that exact image.
+
+Character redesign is therefore outside the composition experiment. A replacement portrait may change only what is necessary to satisfy the locked pupil/gaze requirement while preserving every other face and character invariant.
 
 ## Current composition geometry
 
@@ -163,10 +168,15 @@ For the acceptance pass, retain screenshots of:
 
 Also retain `latest.log` if the test reveals GUI errors, missing texture messages, quest-loading exceptions, packet/state anomalies, or unexpected repeated trigger events.
 
+The screenshot evidence validates runtime composition only. Final portrait-binary approval remains a separate visual decision if the installed test kit still contains the interim raster.
+
 ## Acceptance decision
 
-Foundation B can accept the native Questlog overlay path only if the direct test confirms that it is stable, readable, and sufficiently adaptable through data fields alone.
+Foundation B can close only when both conditions are satisfied:
 
-If the only failure is narrow-screen clipping, evaluate data-driven layout adjustments before creating a new renderer primitive.
+1. an exact Gnarl portrait binary has been explicitly accepted against the locked character target;
+2. the direct unpublished-local-single-player test confirms that the native overlay presentation is stable, readable, and sufficiently adaptable through data fields alone.
+
+If the only runtime failure is narrow-screen clipping, evaluate data-driven layout adjustments before creating a new renderer primitive.
 
 A dedicated Gnarl speaker/portrait renderer becomes justified only if native overlay controls cannot solve an observed anchoring, clipping, scaling, layering, or interaction problem without compromising ordinary Questlog behavior.
