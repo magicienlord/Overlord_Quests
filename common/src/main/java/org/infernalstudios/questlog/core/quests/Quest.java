@@ -32,6 +32,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     public boolean hasSentTrigger = false;
     private boolean repeatable = false;
     private boolean global = false;
+    private boolean disposed = false;
 
     public Quest(
             QuestDisplayData display,
@@ -120,6 +121,24 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         return new Quest(display, prerequisites, objectives, failureConditions, rewards, id, manager, repeatable, global);
     }
 
+    /**
+     * Releases listeners owned by this quest from Questlog's private event bus.
+     * The method is idempotent because managers can be cleared as part of both a
+     * reload path and a later lifecycle shutdown.
+     */
+    public void dispose() {
+        if (this.disposed) return;
+        this.disposed = true;
+
+        this.prerequisites.forEach(Objective::unregisterEventListeners);
+        this.objectives.forEach(Objective::unregisterEventListeners);
+        this.failureConditions.forEach(Objective::unregisterEventListeners);
+    }
+
+    public boolean isDisposed() {
+        return this.disposed;
+    }
+
     public ResourceLocation getId() {
         return this.id;
     }
@@ -133,6 +152,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public void resetProgress() {
+        if (this.disposed || !this.manager.isActive()) return;
         this.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
         this.objectives.forEach(obj -> obj.forceSetUnits(0));
         this.failureConditions.forEach(obj -> obj.forceSetUnits(0));
@@ -148,6 +168,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public boolean isTriggered() {
+        if (this.disposed || !this.manager.isActive()) return false;
         for (Objective req : this.prerequisites) {
             if (!req.isCompleted()) {
                 return false;
@@ -157,14 +178,16 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public boolean isFailed() {
-        return !this.failureConditions.isEmpty() && this.failureConditions.stream().anyMatch(Objective::isCompleted);
+        return !this.disposed && this.manager.isActive()
+                && !this.failureConditions.isEmpty()
+                && this.failureConditions.stream().anyMatch(Objective::isCompleted);
     }
 
     public boolean isCompleted() {
         // A quest with prerequisites but no objectives must not be considered
         // complete while it is still locked. Once its prerequisites trigger, an
         // empty objective list can legitimately complete immediately.
-        if (!this.isTriggered() || this.isFailed()) return false;
+        if (this.disposed || !this.manager.isActive() || !this.isTriggered() || this.isFailed()) return false;
 
         for (Objective objective : this.objectives) {
             if (!objective.isCompleted()) {
@@ -175,6 +198,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public boolean isRewarded() {
+        if (this.disposed || !this.manager.isActive()) return false;
         for (Reward reward : this.rewards) {
             if (!reward.hasRewarded()) {
                 return false;
@@ -184,7 +208,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public void markForUpdate() {
-        this.manager.sync(this.id);
+        if (!this.disposed && this.manager.isActive()) {
+            this.manager.sync(this.id);
+        }
     }
 
     @Override
@@ -233,6 +259,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
     @Override
     public void deserialize(CompoundTag data) {
+        if (this.disposed) return;
         this.hasSentCompletion = data.getBoolean("completed");
         this.hasSentTrigger = data.getBoolean("triggered");
         if (data.contains("repeatable")) {
