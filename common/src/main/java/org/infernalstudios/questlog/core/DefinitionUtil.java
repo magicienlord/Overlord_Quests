@@ -33,7 +33,13 @@ public class DefinitionUtil {
     private static final String BUNDLED_QUEST_ROOT = "assets/questlog/overlord/definitions/quests/";
     private static final String BUNDLED_CHAPTER_ROOT = "assets/questlog/overlord/definitions/chapters/";
 
-    public static List<ResourceLocation> getCachedQuestKeys() {
+    /**
+     * Definition caches are static and therefore shared by the logical client and
+     * integrated server in single-player. Keep readers on the same class monitor
+     * as load/put/clear operations so a client GUI cannot iterate a fastutil map
+     * while the server thread is rebuilding it after a definition reload.
+     */
+    public static synchronized List<ResourceLocation> getCachedQuestKeys() {
         List<ResourceLocation> keys = new ArrayList<>(QUEST_DEFINITION_CACHE.keySet());
         keys.sort((a, b) -> {
             JsonObject jsonA = QUEST_DEFINITION_CACHE.get(a);
@@ -54,7 +60,7 @@ public class DefinitionUtil {
         return keys;
     }
 
-    public static JsonObject getCachedQuest(ResourceLocation path) {
+    public static synchronized JsonObject getCachedQuest(ResourceLocation path) {
         if (!QUEST_DEFINITION_CACHE.containsKey(path)) {
             throw new NullPointerException("Quest not found: " + path);
         }
@@ -73,7 +79,7 @@ public class DefinitionUtil {
         CHAPTER_DEFINITION_CACHE.clear();
     }
 
-    public static List<ResourceLocation> getCachedChapterKeys() {
+    public static synchronized List<ResourceLocation> getCachedChapterKeys() {
         List<ResourceLocation> keys = new ArrayList<>(CHAPTER_DEFINITION_CACHE.keySet());
         keys.sort((a, b) -> {
             boolean aMain = a.getNamespace().equals(Questlog.MODID) && a.getPath().equals("main");
