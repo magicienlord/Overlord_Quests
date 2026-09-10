@@ -73,6 +73,9 @@ public class QuestlogClientEvents {
             QuestToastState.addedToasts.add(new QuestAddedToast(event.quest.getDisplay()));
         }
 
+        // Unlock audio belongs to the trigger event itself. The popup may be
+        // displayed several ticks later, so replaying the same sound when the
+        // screen opens would produce a duplicate cue for popup quests.
         SoundEvent triggeredSound = event.quest.getDisplay().getTriggeredSound();
         if (triggeredSound != null) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(triggeredSound, 1, 1));
@@ -121,14 +124,7 @@ public class QuestlogClientEvents {
 
         Quest quest = QuestToastState.queuedPopups.get(0);
         QuestToastState.queuedPopups.remove(quest);
-
         Minecraft.getInstance().setScreen(new QuestDetails(Minecraft.getInstance().screen, quest));
-
-        SoundEvent sound = quest.getDisplay().getTriggeredSound();
-        if (sound != null) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1, 1));
-        }
-
         QuestToastState.resetCheckDelay();
     }
 
