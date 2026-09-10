@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class QuestManager {
     private final Map<ResourceLocation, Quest> quests = new LinkedHashMap<>();
+    private final QuestManagerLifecycle lifecycle = new QuestManagerLifecycle();
     public Player player;
     private boolean editMode = false;
 
@@ -33,6 +34,22 @@ public class QuestManager {
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+    }
+
+    /**
+     * Returns whether this manager still belongs to the active client/server
+     * lifecycle. Objective listeners use this in addition to quest identity so
+     * callbacks retained by Triggers cannot mutate a superseded manager.
+     */
+    public boolean isActive() {
+        return this.lifecycle.isActive();
+    }
+
+    /**
+     * Permanently invalidates this manager generation.
+     */
+    public void deactivate() {
+        this.lifecycle.deactivate();
     }
 
     public void addQuest(Quest quest) {
