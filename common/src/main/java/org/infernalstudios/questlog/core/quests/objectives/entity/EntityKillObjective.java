@@ -18,12 +18,12 @@ public class EntityKillObjective extends AbstractEntityObjective {
     }
 
     private void onEntityDeath(TriggerEntityEvent.Death event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (
-                event.damageSource.getEntity() instanceof ServerPlayer player &&
-                        this.getParent().manager.player.equals(player) &&
-                        this.test(event.entity)
-        ) {
+        if (!(event.damageSource.getEntity() instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+        if (this.test(event.entity)) {
             this.setUnits(this.getUnits() + 1);
         }
     }
