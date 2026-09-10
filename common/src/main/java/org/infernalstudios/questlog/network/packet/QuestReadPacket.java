@@ -2,9 +2,11 @@ package org.infernalstudios.questlog.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
+import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.IPacketContext;
 
@@ -18,8 +20,20 @@ public record QuestReadPacket(ResourceLocation id) {
     }
 
     public static void handle(QuestReadPacket packet, IPacketContext ctx) {
-        QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(Objects.requireNonNull(ctx.getSender()));
-        Questlog.EVENTS.post(new QuestEvent.Read(manager.player, manager.getQuest(packet.id), true));
+        ServerPlayer sender = Objects.requireNonNull(ctx.getSender());
+        if (ServerPlayerManager.INSTANCE == null) {
+            Questlog.LOGGER.warn("Ignoring read request for {} because the server quest manager is unavailable", packet.id);
+            return;
+        }
+
+        QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(sender);
+        Quest quest = manager.getQuest(packet.id);
+        if (quest == null) {
+            Questlog.LOGGER.warn("Ignoring read request for unknown quest {}", packet.id);
+            return;
+        }
+
+        Questlog.EVENTS.post(new QuestEvent.Read(manager.player, quest, true));
     }
 
     public void encode(FriendlyByteBuf buf) {
