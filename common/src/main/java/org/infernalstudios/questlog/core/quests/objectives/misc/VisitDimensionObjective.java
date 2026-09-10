@@ -25,8 +25,13 @@ public class VisitDimensionObjective extends Objective {
     }
 
     private void onPlayerMove(TriggerPlayerEvent.Tick event) {
-        if (this.isCompleted() || this.getParent() == null) return;
-        if (event.player instanceof ServerPlayer player && this.getParent().manager.player.equals(player) && --ticksUntilCheck <= 0) {
+        if (!(event.player instanceof ServerPlayer player)
+                || !this.isActiveForPlayer(player)
+                || this.isCompleted()) {
+            return;
+        }
+
+        if (--ticksUntilCheck <= 0) {
             if (player.level().dimension().location().equals(this.dimension)) {
                 this.setUnits(this.getUnits() + 1);
             }
