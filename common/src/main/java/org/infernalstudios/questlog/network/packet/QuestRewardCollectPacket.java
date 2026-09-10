@@ -7,6 +7,7 @@ import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.core.quests.Quest;
+import org.infernalstudios.questlog.core.quests.rewards.ChoiceReward;
 import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.network.IPacketContext;
 
@@ -17,6 +18,7 @@ import java.util.Objects;
 
 public class QuestRewardCollectPacket {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.CLIENT_TO_SERVER;
+    private static final int MAX_SELECTIONS = 256;
 
     private final ResourceLocation id;
     private final int rewardIndex;
@@ -40,6 +42,9 @@ public class QuestRewardCollectPacket {
         ResourceLocation id = buf.readResourceLocation();
         int rewardIndex = buf.readInt();
         int selectionCount = buf.readVarInt();
+        if (selectionCount < 0 || selectionCount > MAX_SELECTIONS) {
+            throw new IllegalArgumentException("Invalid quest reward selection count: " + selectionCount);
+        }
         List<Integer> selections = new ArrayList<>(selectionCount);
         for (int i = 0; i < selectionCount; i++) {
             selections.add(buf.readInt());
@@ -48,23 +53,56 @@ public class QuestRewardCollectPacket {
     }
 
     public static void handle(QuestRewardCollectPacket packet, IPacketContext ctx) {
-        QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(Objects.requireNonNull(ctx.getSender()));
+        ServerPlayer sender = Objects.requireNonNull(ctx.getSender());
+        if (ServerPlayerManager.INSTANCE == null) {
+            Questlog.LOGGER.warn("Ignoring reward collection for {} because the server quest manager is unavailable", packet.id);
+            return;
+        }
+
+        QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(sender);
         Quest quest = manager.getQuest(packet.id);
         if (quest == null) {
             Questlog.LOGGER.warn("Quest {} not found", packet.id);
             return;
         }
-        Reward reward = quest.rewards.get(packet.rewardIndex);
-        if (reward == null) {
-            Questlog.LOGGER.warn("Reward {} not found in quest {}", packet.rewardIndex, packet.id);
+
+        // Reward eligibility is authoritative on the server. A client packet must
+        // never be able to claim a reward before its quest is actually complete.
+        if (!quest.isCompleted()) {
+            Questlog.LOGGER.warn("Ignoring early reward collection request for incomplete quest {}", packet.id);
             return;
         }
-        if (!reward.hasRewarded()) {
-            if (reward instanceof org.infernalstudios.questlog.core.quests.rewards.ChoiceReward choiceReward) {
-                choiceReward.setSelectedIndices(packet.selections());
-            }
-            reward.applyReward((ServerPlayer) manager.player);
+
+        if (packet.rewardIndex < 0 || packet.rewardIndex >= quest.rewards.size()) {
+            Questlog.LOGGER.warn(
+                    "Ignoring invalid reward index {} for quest {} with {} reward(s)",
+                    packet.rewardIndex,
+                    packet.id,
+                    quest.rewards.size()
+            );
+            return;
         }
+
+        Reward reward = quest.rewards.get(packet.rewardIndex);
+        if (reward.hasRewarded()) {
+            return;
+        }
+
+        if (reward instanceof ChoiceReward choiceReward) {
+            choiceReward.setSelectedIndices(packet.selections());
+            if (!choiceReward.canClaim()) {
+                Questlog.LOGGER.warn(
+                        "Ignoring incomplete choice reward selection for quest {} reward {}: expected {} unique valid selection(s), got {}",
+                        packet.id,
+                        packet.rewardIndex,
+                        choiceReward.getPickCount(),
+                        choiceReward.getSelectedIndicesList().size()
+                );
+                return;
+            }
+        }
+
+        reward.applyReward(sender);
     }
 
     public void encode(FriendlyByteBuf buf) {
