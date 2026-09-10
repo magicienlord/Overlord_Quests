@@ -14,6 +14,9 @@ public class EntityApproachObjective extends AbstractEntityObjective {
     public EntityApproachObjective(JsonObject definition) {
         super(definition);
         this.range = JsonUtils.getInt(definition, "range");
+        if (this.range < 1) {
+            throw new IllegalArgumentException("Entity approach range must be at least 1");
+        }
     }
 
     @Override
