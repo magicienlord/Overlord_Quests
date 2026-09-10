@@ -12,11 +12,19 @@ import org.infernalstudios.questlog.network.IPacketContext;
 import org.infernalstudios.questlog.network.QuestlogPackets;
 
 public class QuestlogPacketsForge {
+    /**
+     * The OVERLORD QUESTS fork has extended several packet payloads and tightened
+     * server-side semantics beyond the upstream Questlog 3.3.3 wire contract.
+     * Requiring an exact protocol prevents a mismatched client from being admitted
+     * merely because both sides happen to use the technical `questlog` mod id.
+     */
+    private static final String PROTOCOL_VERSION = "overlord-quests-1";
+
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(Questlog.MODID, "messages"))
-            .networkProtocolVersion(() -> "1.0")
-            .clientAcceptedVersions(s -> true)
-            .serverAcceptedVersions(s -> true)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
             .simpleChannel();
 
     public static synchronized void register() {
