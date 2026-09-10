@@ -53,6 +53,7 @@ public class QuestManager {
     }
 
     public void addQuest(Quest quest) {
+        if (!this.isActive()) return;
         this.quests.put(quest.getId(), quest);
     }
 
@@ -61,6 +62,8 @@ public class QuestManager {
     }
 
     public void reload() {
+        if (!this.isActive()) return;
+
         CompoundTag savedData = new CompoundTag();
         for (Quest quest : this.quests.values()) {
             savedData.put(quest.getId().toString(), quest.serialize());
@@ -104,6 +107,8 @@ public class QuestManager {
      * If not, it fetches the quest definition from the cache, creates a new quest instance and adds it to the player's quest list.
      */
     public void createAllQuests() {
+        if (!this.isActive()) return;
+
         List<ResourceLocation> ids = DefinitionUtil.getCachedQuestKeys();
 
         for (ResourceLocation id : ids) {
@@ -149,6 +154,7 @@ public class QuestManager {
      * It iterates over all quests in the player's quest list and calls the sync method for each quest.
      */
     public void sync() {
+        if (!this.isActive()) return;
         for (ResourceLocation id : this.quests.keySet()) {
             this.sync(id);
         }
@@ -163,6 +169,8 @@ public class QuestManager {
      * @param id The ID of the quest to be synced.
      */
     public void sync(ResourceLocation id) {
+        if (!this.isActive()) return;
+
         if (!this.isClient() && this.player instanceof ServerPlayer) {
             Questlog.LOGGER.trace("Syncing quest data for {} to client", id);
             Quest quest = this.quests.get(id);
