@@ -37,6 +37,10 @@ public class QuestlogCommands {
             return Suggestions.empty();
         }
 
+        if (ServerPlayerManager.INSTANCE == null) {
+            return Suggestions.empty();
+        }
+
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
         if (manager == null) {
             return Suggestions.empty();
@@ -167,6 +171,11 @@ public class QuestlogCommands {
         int questCount = DefinitionUtil.getCachedQuestKeys().size();
         int chapterCount = DefinitionUtil.getCachedChapterKeys().size();
 
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
+
         for (ServerPlayer player : players) {
             QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
             manager.clearQuests();
@@ -185,13 +194,11 @@ public class QuestlogCommands {
             ServerPlayerManager.INSTANCE.syncPlayer(manager);
         }
 
-        if (ServerPlayerManager.INSTANCE != null) {
-            for (ServerPlayer player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
-                if (!players.contains(player)) {
-                    QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
-                    manager.reload();
-                    ServerPlayerManager.INSTANCE.syncPlayer(manager);
-                }
+        for (ServerPlayer player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
+            if (!players.contains(player)) {
+                QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
+                manager.reload();
+                ServerPlayerManager.INSTANCE.syncPlayer(manager);
             }
         }
 
@@ -208,6 +215,10 @@ public class QuestlogCommands {
     }
 
     private static int setEditMode(CommandContext<CommandSourceStack> ctx, boolean enabled, ServerPlayer target) throws CommandSyntaxException {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         ServerPlayer player = target != null ? target : ctx.getSource().getPlayerOrException();
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
         manager.setEditMode(enabled);
@@ -218,12 +229,20 @@ public class QuestlogCommands {
     }
 
     private static int toggleEditMode(CommandContext<CommandSourceStack> ctx, ServerPlayer target) throws CommandSyntaxException {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         ServerPlayer player = target != null ? target : ctx.getSource().getPlayerOrException();
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
         return setEditMode(ctx, !manager.isEditMode(), player);
     }
 
     private static int trigger(CommandContext<CommandSourceStack> ctx, String target, Collection<ServerPlayer> players) {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         int count = 0;
         for (ServerPlayer player : players) {
             QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
@@ -250,6 +269,10 @@ public class QuestlogCommands {
     }
 
     private static int modifyProgress(CommandContext<CommandSourceStack> ctx, String target, boolean complete, Collection<ServerPlayer> players) {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         int modified = 0;
 
         for (ServerPlayer player : players) {
@@ -286,6 +309,10 @@ public class QuestlogCommands {
     }
 
     private static int resetAllProgress(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> players) {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         for (ServerPlayer player : players) {
             QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
             for (Quest quest : manager.getAllQuests()) {
@@ -305,6 +332,10 @@ public class QuestlogCommands {
     }
 
     private static int completeAllProgress(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> players) {
+        if (ServerPlayerManager.INSTANCE == null) {
+            ctx.getSource().sendFailure(Component.literal("Quest manager is not available."));
+            return 0;
+        }
         for (ServerPlayer player : players) {
             QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
             for (Quest quest : manager.getAllQuests()) {
@@ -331,12 +362,28 @@ public class QuestlogCommands {
             }
         }
 
+        ResourceLocation targetChapter = normalizeChapterId(target);
+        if (targetChapter == null) {
+            return quests;
+        }
+
         for (Quest quest : manager.getAllQuests()) {
-            if (target.equalsIgnoreCase(quest.getDisplay().getChapter())) {
+            ResourceLocation questChapter = normalizeChapterId(quest.getDisplay().getChapter());
+            if (targetChapter.equals(questChapter)) {
                 quests.add(quest);
             }
         }
 
         return quests;
+    }
+
+    private static ResourceLocation normalizeChapterId(String chapter) {
+        if (chapter == null || chapter.isBlank()) {
+            return null;
+        }
+        if (chapter.contains(":")) {
+            return ResourceLocation.tryParse(chapter);
+        }
+        return ResourceLocation.tryParse(Questlog.MODID + ":" + chapter);
     }
 }
