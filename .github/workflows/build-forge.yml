@@ -32,6 +32,9 @@ jobs:
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
 
+      - name: Self-test runtime quest contracts
+        run: python3 tools/test_validate_required_objective_fields.py
+
       - name: Validate runtime-required objective fields
         run: python3 tools/validate_required_objective_fields.py
 
