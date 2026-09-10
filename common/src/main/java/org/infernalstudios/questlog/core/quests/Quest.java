@@ -161,7 +161,10 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     }
 
     public boolean isCompleted() {
-        if (this.isFailed()) return false;
+        // A quest with prerequisites but no objectives must not be considered
+        // complete while it is still locked. Once its prerequisites trigger, an
+        // empty objective list can legitimately complete immediately.
+        if (!this.isTriggered() || this.isFailed()) return false;
 
         for (Objective objective : this.objectives) {
             if (!objective.isCompleted()) {
