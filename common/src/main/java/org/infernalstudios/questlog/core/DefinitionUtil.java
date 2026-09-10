@@ -62,6 +62,9 @@ public class DefinitionUtil {
     }
 
     public static synchronized void putCachedQuest(ResourceLocation path, JsonObject definition) {
+        if (path == null || definition == null) {
+            throw new IllegalArgumentException("Quest cache id and definition must be non-null");
+        }
         QUEST_DEFINITION_CACHE.put(path, definition);
     }
 
@@ -95,7 +98,10 @@ public class DefinitionUtil {
         return CHAPTER_DEFINITION_CACHE.get(path);
     }
 
-    public static void putCachedChapter(ResourceLocation path, JsonObject definition) {
+    public static synchronized void putCachedChapter(ResourceLocation path, JsonObject definition) {
+        if (path == null || definition == null) {
+            throw new IllegalArgumentException("Chapter cache id and definition must be non-null");
+        }
         CHAPTER_DEFINITION_CACHE.put(path, definition);
     }
 
@@ -221,41 +227,70 @@ public class DefinitionUtil {
     private static void loadFiles(Path dir, Map<ResourceLocation, JsonObject> cache) {
         try (Stream<Path> paths = Files.walk(dir)) {
             paths.filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".json"))
-                    .forEach(path -> {
-                        Path relative = dir.relativize(path);
-                        String resourcePath = relative.toString().replace(File.separatorChar, '/').replace(".json", "");
-                        ResourceLocation id = new ResourceLocation(Questlog.MODID, resourcePath);
-                        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-                            JsonObject json = GSON.fromJson(reader, JsonObject.class);
-                            cache.put(id, json);
-                        } catch (Exception e) {
-                            Questlog.LOGGER.error("Failed to parse file: {}", path, e);
-                            if (cache == QUEST_DEFINITION_CACHE) {
-                                String chapterVal = "main";
-                                try {
-                                    String content = Files.readString(path, StandardCharsets.UTF_8);
-                                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\\"chapter\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(content);
-                                    if (m.find()) {
-                                        chapterVal = m.group(1);
-                                    }
-                                } catch (Exception ignored) {
-                                }
-
-                                String errorMsg = e.getMessage() != null ? e.getMessage() : e.toString();
-                                if (e.getCause() != null) {
-                                    errorMsg += "\nCaused by: " + e.getCause().getMessage();
-                                }
-                                JsonObject fallback = new JsonObject();
-                                fallback.addProperty("title", "Broken Quest (" + id.getPath() + ")");
-                                fallback.addProperty("description", "This quest failed to load properly. Edit it to fix errors.\n\nError details:\n" + errorMsg);
-                                fallback.addProperty("chapter", chapterVal);
-                                cache.put(id, fallback);
-                            }
-                        }
-                    });
+                    .filter(path -> path.getFileName().toString().endsWith(".json"))
+                    .sorted()
+                    .forEach(path -> loadDefinitionFile(dir, path, cache));
         } catch (IOException e) {
             Questlog.LOGGER.error("Failed to read files from directory: {}", dir, e);
         }
+    }
+
+    private static void loadDefinitionFile(Path root, Path path, Map<ResourceLocation, JsonObject> cache) {
+        Path relative = root.relativize(path);
+        String relativePath = relative.toString().replace(File.separatorChar, '/');
+        if (!relativePath.endsWith(".json")) {
+            return;
+        }
+
+        String resourcePath = relativePath.substring(0, relativePath.length() - ".json".length());
+        final ResourceLocation id;
+        try {
+            id = new ResourceLocation(Questlog.MODID, resourcePath);
+        } catch (Exception e) {
+            // A malformed filename must not abort the entire directory walk.
+            Questlog.LOGGER.error("Skipping definition with invalid resource id derived from path: {}", path, e);
+            return;
+        }
+
+        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            JsonObject json = GSON.fromJson(reader, JsonObject.class);
+            if (json == null) {
+                throw new IllegalArgumentException("Definition root is JSON null");
+            }
+            cache.put(id, json);
+        } catch (Exception e) {
+            Questlog.LOGGER.error("Failed to parse file: {}", path, e);
+            if (cache == QUEST_DEFINITION_CACHE) {
+                cache.put(id, createBrokenQuestFallback(path, id, e));
+            }
+        }
+    }
+
+    private static JsonObject createBrokenQuestFallback(Path path, ResourceLocation id, Exception error) {
+        String chapterVal = "main";
+        try {
+            String content = Files.readString(path, StandardCharsets.UTF_8);
+            java.util.regex.Matcher matcher = java.util.regex.Pattern
+                    .compile("\\\"chapter\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
+                    .matcher(content);
+            if (matcher.find()) {
+                chapterVal = matcher.group(1);
+            }
+        } catch (Exception ignored) {
+        }
+
+        String errorMsg = error.getMessage() != null ? error.getMessage() : error.toString();
+        if (error.getCause() != null && error.getCause().getMessage() != null) {
+            errorMsg += "\nCaused by: " + error.getCause().getMessage();
+        }
+
+        JsonObject fallback = new JsonObject();
+        fallback.addProperty("title", "Broken Quest (" + id.getPath() + ")");
+        fallback.addProperty(
+                "description",
+                "This quest failed to load properly. Edit it to fix errors.\n\nError details:\n" + errorMsg
+        );
+        fallback.addProperty("chapter", chapterVal);
+        return fallback;
     }
 }
