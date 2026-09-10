@@ -119,19 +119,11 @@ public class EditorUtils {
     }
 
     public static void deleteChapter(ResourceLocation chapterId) {
-        String chapPath = chapterId.getPath();
-        if (!chapPath.equals("main")) {
-            for (ResourceLocation qKey : DefinitionUtil.getCachedQuestKeys()) {
-                try {
-                    JsonObject qJson = DefinitionUtil.getCachedQuest(qKey);
-                    String qChap = qJson.has("chapter") ? qJson.get("chapter").getAsString() : "main";
-                    if (qChap.equals(chapPath)) {
-                        qJson.addProperty("chapter", "main");
-                        Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(qKey, qJson.toString()));
-                    }
-                } catch (Exception ignored) {
-                }
-            }
+        if (!chapterId.getPath().equals("main")) {
+            // The server owns chapter membership and performs the reassignment of
+            // member quests to main before deleting the chapter. Do not derive the
+            // affected quest set from the client's potentially stale cache and do
+            // not emit one full-reload save packet per quest.
             Services.PLATFORM.sendPacketToServer(new ChapterEditRemovePacket(chapterId));
         }
     }
