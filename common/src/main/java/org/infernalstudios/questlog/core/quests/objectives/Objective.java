@@ -2,6 +2,7 @@ package org.infernalstudios.questlog.core.quests.objectives;
 
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.core.quests.display.ObjectiveDisplayData;
 import org.infernalstudios.questlog.core.quests.display.WithDisplayData;
@@ -82,6 +83,21 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
                 this.parent.manager.isActive()
                         && this.parent.manager.getQuest(this.parent.getId()) == this.parent
         );
+    }
+
+    /**
+     * Fast guard for external event callbacks. Retained Triggers listeners still
+     * have to be invoked because that library cannot remove one registration, but
+     * obsolete objectives should return before registry lookups, world scans, stat
+     * reads, or other objective-specific work. UUID comparison also remains valid
+     * if Forge replaces the concrete ServerPlayer instance during the session.
+     */
+    protected boolean isActiveForPlayer(@Nullable Player player) {
+        return player != null
+                && this.parent != null
+                && this.isActiveQuestInstance()
+                && this.parent.manager.player != null
+                && this.parent.manager.player.getUUID().equals(player.getUUID());
     }
 
     private int clampUnits(int units) {
