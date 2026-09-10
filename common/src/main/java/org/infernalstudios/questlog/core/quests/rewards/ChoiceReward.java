@@ -81,6 +81,13 @@ public class ChoiceReward extends Reward {
 
     @Override
     public void applyReward(ServerPlayer player) {
+        // The server-side packet handler verifies canClaim() before invoking a
+        // top-level choice reward. Keep a second guard here so future call sites
+        // cannot accidentally mark an incomplete choice reward as claimed.
+        if (this.getContainer() == null && !this.canClaim()) {
+            return;
+        }
+
         for (int index : this.selectedIndices) {
             if (index >= 0 && index < this.choices.size()) {
                 this.choices.get(index).applyReward(player);
@@ -95,6 +102,7 @@ public class ChoiceReward extends Reward {
     @Override
     public void revokeReward() {
         super.revokeReward();
+        this.selectedIndices.clear();
         for (Reward choice : this.choices) {
             choice.setRewarded(false);
         }
@@ -110,18 +118,23 @@ public class ChoiceReward extends Reward {
     @Override
     public void deserialize(CompoundTag data) {
         super.deserialize(data);
-        this.selectedIndices.clear();
-        for (int i : data.getIntArray("selected_indices")) {
-            this.selectedIndices.add(i);
+
+        // Treat persisted indices as untrusted compatibility data. Definitions
+        // can change between saves, so discard duplicates and indices that no
+        // longer address a choice instead of allowing stale selections to satisfy
+        // pick_count without awarding the intended number of rewards.
+        List<Integer> persistedSelections = new ArrayList<>();
+        for (int index : data.getIntArray("selected_indices")) {
+            persistedSelections.add(index);
         }
+        this.setSelectedIndices(persistedSelections);
+
         if (this.hasRewarded()) {
             for (Reward choice : this.choices) {
                 choice.setRewarded(false);
             }
             for (int index : this.selectedIndices) {
-                if (index >= 0 && index < this.choices.size()) {
-                    this.choices.get(index).setRewarded(true);
-                }
+                this.choices.get(index).setRewarded(true);
             }
         }
     }
