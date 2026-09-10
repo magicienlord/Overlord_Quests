@@ -6,11 +6,11 @@ The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and
 
 ## Current status
 
-**Foundation A is complete. Foundation B, Gnarl presentation validation, is active on `gnarl-bootstrap`. Its technical asset/build gate is green; direct in-game acceptance remains pending.**
+**Foundation A is complete. Foundation B, Gnarl presentation validation, is active on `gnarl-bootstrap`. Its technical build gate is green; direct in-game acceptance and final portrait-binary approval remain pending.**
 
-The approved Gnarl popup portrait is integrated in the runtime resources and has passed PNG integrity, alpha-content, static-layout, Forge compilation, reobfuscation, assembled-JAR, and test-kit packaging checks. The portrait remains subject to direct Minecraft review for placement, clipping, readability, and GUI-scale behavior before Foundation B can close.
+A Gnarl popup test portrait is integrated in the runtime resources and passes PNG integrity, alpha-content, static-layout, Forge compilation, reobfuscation, assembled-JAR, and test-kit packaging checks. The character-design target is locked: square pupils, player-directed gaze, perspective alignment to each eye, unchanged snout geometry, and the established sly/non-angry expression. The repository binary must not be described as the final approved correction until that exact visual result has been reviewed and accepted.
 
-The Forge project builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition validator and validator self-tests, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads a usable Forge artifact through GitHub Actions.
+The Forge project builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition validators and self-tests, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads a usable Forge artifact through GitHub Actions.
 
 OVERLORD REIGN is a single-player project. Automatic full-screen quest popups are intentionally scoped to unpublished local single-player worlds; LAN-published and dedicated multiplayer sessions are outside the target runtime for this presentation layer.
 
@@ -36,15 +36,15 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions self-tests the OVERLORD definition validator, validates OVERLORD quest examples, checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads both the normal Forge artifact and a Foundation B test kit.
+GitHub Actions self-tests the OVERLORD definition validator, validates OVERLORD quest examples and runtime-required fields, checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads both the normal Forge artifact and a Foundation B test kit.
 
 ## Adaptation strategy
 
 The first implementation phase keeps Questlog's underlying quest state machine, objectives, rewards, synchronization, editor, and JSON format intact. Work is concentrated on the OVERLORD REIGN presentation layer, Gnarl-facing quest delivery, packaged project content, and modpack-specific integrations.
 
-Bundled definition support is already implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest is intentionally empty until actual OVERLORD REIGN story content is approved.
+Bundled definition support is implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest is intentionally empty until actual OVERLORD REIGN story content is approved.
 
-The repository validator now checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, and required fields. Preparatory engine hardening is documented separately and does not authorize story content.
+The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, and bundled-content boundaries. Preparatory engine hardening is documented separately and does not authorize story content.
 
 Story text, quest progression, rewards, and world-specific objectives are not being invented by the bootstrap. Those will be added only from approved OVERLORD REIGN design and canon decisions.
 
