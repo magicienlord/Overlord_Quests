@@ -16,6 +16,16 @@ The portrait asset is:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
+## Current design decision
+
+The existing popup Gnarl remains the baseline portrait design.
+
+The only approved character-design change at this stage is to replace the current pupils with square pupils. That edit is pending and will be supplied as an updated portrait asset.
+
+Do not otherwise blend the popup portrait with the current WIP in-game Gnarl model yet. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The controlled comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
+
+This decision does not lock the popup's parchment placement, scale, or screen composition. Those remain subject to the in-game vertical-slice test below.
+
 ## What this pass validates
 
 The prototype is intended to answer only presentation and implementation questions:
