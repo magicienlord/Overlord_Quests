@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Validate OVERLORD QUESTS development/example quest definitions.
+"""Validate OVERLORD QUESTS definitions and development fixtures.
 
-This validator intentionally scopes itself to files named ``overlord_*.json`` under
-``examples/questlog/quests``. Upstream Questlog examples remain upstream fixtures and
-are not silently rewritten to satisfy OVERLORD REIGN conventions.
+The validator keeps inherited Questlog examples outside the OVERLORD REIGN policy
+surface. Files named ``overlord_*.json`` under ``examples/questlog/quests`` are
+validated as development fixtures. Definitions explicitly listed by the bundled
+manifest are validated as distributable mod content.
 
-The checks here are structural and repository-local. They do not claim that a quest
-is valid story canon, balanced gameplay, or a successful in-game presentation.
+These checks are structural and repository-local. They do not establish story
+canon, gameplay balance, or successful in-game presentation.
 """
 
 from __future__ import annotations
@@ -20,6 +21,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 QUEST_DIR = ROOT / "examples" / "questlog" / "quests"
 RESOURCE_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets"
+BUNDLED_ROOT = RESOURCE_ROOT / "questlog" / "overlord" / "definitions"
+BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 
 
@@ -109,15 +112,22 @@ def validate_dev_boundary(data: dict[str, Any], path: Path, errors: list[str]) -
         fail(path, "development quest description must explicitly state that it is not story canon", errors)
 
 
-def validate_quest(path: Path, errors: list[str]) -> None:
+def load_json_object(path: Path, errors: list[str]) -> dict[str, Any] | None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         fail(path, f"invalid JSON: {exc}", errors)
-        return
+        return None
 
     if not isinstance(data, dict):
-        fail(path, "quest root must be a JSON object", errors)
+        fail(path, "root must be a JSON object", errors)
+        return None
+    return data
+
+
+def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) -> None:
+    data = load_json_object(path, errors)
+    if data is None:
         return
 
     require_string(data, "title", path, errors)
@@ -139,14 +149,66 @@ def validate_quest(path: Path, errors: list[str]) -> None:
     validate_objective_list(data, "prerequisites", path, errors)
     validate_objective_list(data, "objectives", path, errors)
     validate_overlay(data, path, errors)
-    validate_dev_boundary(data, path, errors)
 
-    if data.get("show_popup_on_unlock") is True and not data.get("prerequisites"):
-        fail(
-            path,
-            "popup-on-unlock test has no prerequisites; Questlog initializes such quests as already triggered",
-            errors,
-        )
+    if development_fixture:
+        validate_dev_boundary(data, path, errors)
+        if data.get("show_popup_on_unlock") is True and not data.get("prerequisites"):
+            fail(
+                path,
+                "popup-on-unlock development test has no prerequisites; Questlog initializes such quests as already triggered",
+                errors,
+            )
+
+
+def validate_bundled_manifest(errors: list[str]) -> int:
+    index = load_json_object(BUNDLED_INDEX, errors)
+    if index is None:
+        return 0
+
+    count = 0
+    for category in ("quests", "chapters"):
+        entries = index.get(category)
+        if not isinstance(entries, list):
+            fail(BUNDLED_INDEX, f"'{category}' must be a list", errors)
+            continue
+
+        seen: set[str] = set()
+        for position, entry in enumerate(entries):
+            if not isinstance(entry, str) or not entry.strip():
+                fail(BUNDLED_INDEX, f"'{category}[{position}]' must be a non-empty relative JSON path", errors)
+                continue
+
+            relative = entry.replace("\\", "/")
+            parts = Path(relative).parts
+            if (
+                not relative.endswith(".json")
+                or relative.startswith("/")
+                or ".." in parts
+                or ":" in relative
+            ):
+                fail(BUNDLED_INDEX, f"unsafe bundled {category} path: {entry!r}", errors)
+                continue
+
+            if relative in seen:
+                fail(BUNDLED_INDEX, f"duplicate bundled {category} entry: {relative}", errors)
+                continue
+            seen.add(relative)
+
+            target = BUNDLED_ROOT / category / relative
+            if not target.is_file():
+                fail(BUNDLED_INDEX, f"listed bundled {category} definition does not exist: {relative}", errors)
+                continue
+
+            if target.stem.endswith("_dev"):
+                fail(target, "development definitions must never be listed for bundled distribution", errors)
+
+            if category == "quests":
+                validate_quest(target, errors, development_fixture=False)
+            else:
+                load_json_object(target, errors)
+            count += 1
+
+    return count
 
 
 def main() -> int:
@@ -157,7 +219,9 @@ def main() -> int:
 
     errors: list[str] = []
     for quest in quests:
-        validate_quest(quest, errors)
+        validate_quest(quest, errors, development_fixture=True)
+
+    bundled_count = validate_bundled_manifest(errors)
 
     if errors:
         print(f"OVERLORD QUESTS validation failed with {len(errors)} error(s):", file=sys.stderr)
@@ -165,7 +229,10 @@ def main() -> int:
             print(f"  * {error}", file=sys.stderr)
         return 1
 
-    print(f"Validated {len(quests)} OVERLORD QUESTS example quest definition(s).")
+    print(
+        f"Validated {len(quests)} OVERLORD QUESTS development quest definition(s) "
+        f"and {bundled_count} bundled definition(s)."
+    )
     return 0
 
 
