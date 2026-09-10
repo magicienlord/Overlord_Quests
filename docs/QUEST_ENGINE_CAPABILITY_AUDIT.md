@@ -231,14 +231,15 @@ Automatic full-screen popups are deliberately limited to unpublished local singl
 
 The queue follows these invariants:
 
+- the queue stores only quest resource IDs, not Quest object references;
 - a quest ID cannot be queued twice simultaneously;
 - logout clears the popup queue and resets the retry timer;
 - the runtime session scope is checked again immediately before display, so a popup queued before Open to LAN cannot later appear as a full-screen popup in the published session;
-- queued entries resolve the current quest instance by ID before display, so a stale Quest object retained across a definition reload is not opened;
-- removed or reset quests are discarded before display;
+- every queue-consumption path resolves the current quest instance by ID, including the LAN fallback-to-toast path, so a definition reload cannot leave stale display data attached to a queued notification;
+- removed or reset quests are discarded before display or fallback notification;
 - an automatic popup waits while any GUI screen is active and opens only after screenless gameplay resumes.
 
-The all-GUI deferral rule prevents the popup from closing a live container, replacing chat/editor input, or retaining a stale previous-screen reference. The Foundation B test protocol contains a deterministic delayed-item procedure for testing this queue behavior.
+The all-GUI deferral rule prevents the popup from closing a live container, replacing chat/editor input, or retaining a stale previous-screen reference. Storing IDs rather than Quest objects also removes a retained-reference path across hot definition reloads. The Foundation B test protocol contains a deterministic delayed-item procedure for testing this queue behavior.
 
 ## 14. Definition behavior versus saved progress
 
