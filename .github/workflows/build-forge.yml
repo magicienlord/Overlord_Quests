@@ -30,10 +30,14 @@ jobs:
         run: python3 tools/validate_overlord_quest_examples.py
 
       - name: Validate Gnarl popup asset
-        run: python3 tools/check_gnarl_popup_asset.py | tee gnarl_popup_asset_report.txt
+        run: |
+          set -o pipefail
+          python3 tools/check_gnarl_popup_asset.py | tee gnarl_popup_asset_report.txt
 
       - name: Report Gnarl popup static layout
-        run: python3 tools/check_gnarl_popup_layout.py | tee gnarl_popup_layout_report.txt
+        run: |
+          set -o pipefail
+          python3 tools/check_gnarl_popup_layout.py | tee gnarl_popup_layout_report.txt
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew

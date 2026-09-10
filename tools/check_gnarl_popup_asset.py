@@ -9,6 +9,7 @@ acceptance still requires direct review.
 from __future__ import annotations
 
 import hashlib
+import math
 import struct
 import sys
 import zlib
@@ -22,8 +23,16 @@ EXPECTED_HEIGHT = 320
 MAX_BYTES = 512 * 1024
 
 
+def scanline_bytes(width: int, bit_depth: int, color_type: int) -> int | None:
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}.get(color_type)
+    if channels is None:
+        return None
+    return 1 + math.ceil(width * channels * bit_depth / 8)
+
+
 def main() -> int:
     errors: list[str] = []
+    diagnostics: list[str] = []
 
     try:
         raw = ASSET.read_bytes()
@@ -36,7 +45,7 @@ def main() -> int:
 
     if not raw.startswith(PNG_SIGNATURE):
         errors.append("file does not have a valid PNG signature")
-        return finish(raw, None, None, None, False, errors)
+        return finish(raw, None, None, None, False, errors, diagnostics=diagnostics)
 
     pos = len(PNG_SIGNATURE)
     ihdr: tuple[int, int, int, int, int, int, int] | None = None
@@ -44,6 +53,7 @@ def main() -> int:
     trns_has_transparency = False
     saw_iend = False
     chunk_count = 0
+    idat_payload = bytearray()
 
     while pos + 12 <= len(raw):
         length = struct.unpack(">I", raw[pos:pos + 4])[0]
@@ -53,7 +63,28 @@ def main() -> int:
         crc_end = data_end + 4
 
         if crc_end > len(raw):
-            errors.append(f"truncated PNG chunk {chunk_type!r}")
+            available = max(0, len(raw) - data_start)
+            errors.append(
+                f"truncated PNG chunk {chunk_type!r}: declared {length} data bytes but only {available} bytes remain before EOF"
+            )
+            if chunk_type == b"IDAT" and available:
+                partial = raw[data_start:]
+                idat_payload.extend(partial)
+                try:
+                    inflater = zlib.decompressobj()
+                    decompressed = inflater.decompress(bytes(idat_payload))
+                    diagnostics.append(
+                        f"partial IDAT diagnostic: {len(idat_payload)} compressed bytes yield {len(decompressed)} decompressed bytes; zlib_eof={inflater.eof}"
+                    )
+                    if ihdr is not None:
+                        width, height, bit_depth, color_type, *_ = ihdr
+                        row_bytes = scanline_bytes(width, bit_depth, color_type)
+                        if row_bytes:
+                            diagnostics.append(
+                                f"partial scanline diagnostic: row_bytes={row_bytes}, complete_rows={len(decompressed) // row_bytes}/{height}, expected_raw_bytes={row_bytes * height}"
+                            )
+                except zlib.error as exc:
+                    diagnostics.append(f"partial IDAT zlib diagnostic failed: {exc}")
             break
 
         data = raw[data_start:data_end]
@@ -73,6 +104,8 @@ def main() -> int:
         elif chunk_type == b"tRNS":
             has_trns = True
             trns_has_transparency = any(alpha < 255 for alpha in data)
+        elif chunk_type == b"IDAT":
+            idat_payload.extend(data)
         elif chunk_type == b"IEND":
             saw_iend = True
             pos = crc_end
@@ -82,7 +115,7 @@ def main() -> int:
 
     if ihdr is None:
         errors.append("PNG has no valid IHDR chunk")
-        return finish(raw, None, None, None, False, errors)
+        return finish(raw, None, None, None, False, errors, diagnostics=diagnostics)
 
     width, height, bit_depth, color_type, compression, filter_method, interlace = ihdr
 
@@ -110,7 +143,30 @@ def main() -> int:
     elif has_trns and color_type not in (4, 6) and not trns_has_transparency:
         errors.append("tRNS chunk exists but contains no transparent alpha value")
 
-    return finish(raw, width, height, bit_depth, alpha_capable, errors, color_type, chunk_count)
+    if saw_iend and idat_payload:
+        try:
+            decompressed = zlib.decompress(bytes(idat_payload))
+            row_bytes = scanline_bytes(width, bit_depth, color_type)
+            if interlace == 0 and row_bytes is not None:
+                expected = row_bytes * height
+                if len(decompressed) != expected:
+                    errors.append(
+                        f"decompressed pixel stream is {len(decompressed)} bytes, expected {expected} for a non-interlaced image"
+                    )
+        except zlib.error as exc:
+            errors.append(f"IDAT zlib stream is invalid: {exc}")
+
+    return finish(
+        raw,
+        width,
+        height,
+        bit_depth,
+        alpha_capable,
+        errors,
+        diagnostics=diagnostics,
+        color_type=color_type,
+        chunk_count=chunk_count,
+    )
 
 
 def finish(
@@ -120,6 +176,8 @@ def finish(
     bit_depth: int | None,
     alpha_capable: bool,
     errors: list[str],
+    *,
+    diagnostics: list[str],
     color_type: int | None = None,
     chunk_count: int | None = None,
 ) -> int:
@@ -138,7 +196,9 @@ def finish(
         print(f"PNG color type: {color_type}")
     print(f"alpha-capable: {'yes' if alpha_capable else 'no'}")
     if chunk_count is not None:
-        print(f"chunks parsed: {chunk_count}")
+        print(f"complete chunks parsed: {chunk_count}")
+    for diagnostic in diagnostics:
+        print(diagnostic)
 
     if errors:
         print("GNARL POPUP ASSET CHECK FAILED:", file=sys.stderr)
