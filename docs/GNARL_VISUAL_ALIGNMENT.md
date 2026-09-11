@@ -6,9 +6,9 @@ This document controls visual consistency between the quest-popup Gnarl and the 
 
 ## Current design decision
 
-The popup Gnarl **design target** is locked for Foundation B. This is not the same as approving the current repository PNG as the final corrected binary.
+The popup Gnarl design target and exact portrait binary are locked for Foundation B.
 
-The locked target preserves the established popup design and changes only the pupil treatment:
+The approved portrait preserves the established popup design with the required pupil treatment:
 
 - pupils are square;
 - the pupils look toward the player;
@@ -16,12 +16,12 @@ The locked target preserves the established popup design and changes only the pu
 
 Two face invariants are explicitly locked:
 
-- Gnarl's original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship must remain unchanged;
-- Gnarl's original sly, amused, non-angry expression must remain unchanged. Brows, eyelids, grin, facial proportions, and other expression-bearing features are not to be redrawn merely to obtain direct eye contact.
+- Gnarl's original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship remain unchanged;
+- Gnarl's original sly, amused, non-angry expression remains unchanged. Brows, eyelids, grin, facial proportions, and other expression-bearing features are not to be redrawn merely to obtain direct eye contact.
 
 Do not otherwise redesign the popup portrait to match the current in-game model while that model remains work in progress.
 
-The current repository test asset must not be promoted to final visual approval merely because it passes PNG integrity or Forge build checks. Final binary approval requires a reviewed image that actually satisfies the locked pupil/gaze target without changing the snout or expression.
+The exact user-supplied portrait uploaded to `main` is integrated unchanged into `gnarl-bootstrap`. Both locations resolve to Git blob `40c74f6613f0cc23fbf6be0911dedfcfae82865b`. Runtime asset validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`, 1254 x 1254 RGBA dimensions, and valid transparency. Foundation B therefore no longer has a separate portrait-binary approval gate. The remaining visual gate is how that approved portrait actually composes inside Minecraft.
 
 ## Current in-game model reference
 
@@ -71,7 +71,7 @@ Compare:
 - cheek silhouette;
 - beard/whisker placement when present in the finalized model.
 
-The locked popup target is the current face reference for cross-alignment. A later model pass may be compared to those traits, but it does not automatically supersede them.
+The locked popup portrait is the current face reference for cross-alignment. A later model pass may be compared to those traits, but it does not automatically supersede them.
 
 ### Tier 3: costume and equipment
 
@@ -103,7 +103,7 @@ The 2D popup is allowed to use stronger painted contrast than the Minecraft enti
 
 Unless explicitly revised by the Overlord, preserve these while aligning against the final model:
 
-- the established popup illustration remains the primary 2D design baseline;
+- the approved popup illustration remains the primary 2D design baseline;
 - square pupils remain player-directed and perspective-aligned;
 - the original snout/muzzle geometry remains unchanged;
 - the original sly/non-angry expression remains unchanged;
@@ -147,11 +147,11 @@ No discrepancy should be resolved by silently averaging both versions together.
 
 POPUP CHARACTER DESIGN TARGET: LOCKED FOR FOUNDATION B.
 
-SQUARE PUPILS / PLAYER-DIRECTED GAZE / EYE-PLANE PERSPECTIVE: LOCKED TARGET.
+SQUARE PUPILS / PLAYER-DIRECTED GAZE / EYE-PLANE PERSPECTIVE: LOCKED.
 
 SNOUT GEOMETRY / NON-ANGRY EXPRESSION: LOCKED INVARIANTS.
 
-CURRENT REPOSITORY PNG: TECHNICAL TEST ASSET, NOT FINAL BINARY APPROVAL.
+CURRENT REPOSITORY PNG: APPROVED EXACT BINARY INTEGRATED FROM MAIN.
 
 POPUP UI COMPOSITION: IMPLEMENTATION TEST, NOT YET LOCKED.
 
