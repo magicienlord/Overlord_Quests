@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_ROOT = ROOT / "examples" / "questlog" / "quests"
 BUNDLED_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets" / "questlog" / "overlord" / "definitions"
 BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
+QUEST_SOURCE = ROOT / "common" / "src" / "main" / "java" / "org" / "infernalstudios" / "questlog" / "core" / "quests" / "Quest.java"
 
 
 def normalize_type(value: Any) -> str:
@@ -123,7 +124,30 @@ def find_cycle(graph: dict[str, set[str]]) -> list[str] | None:
     return None
 
 
+def validate_runtime_guard() -> list[str]:
+    errors: list[str] = []
+    source = QUEST_SOURCE.read_text(encoding="utf-8")
+    required = {
+        "ThreadLocal<Set<Quest>> COMPLETION_EVALUATION": "identity-based completion recursion guard",
+        "if (!evaluating.add(this))": "cycle detection branch",
+        "REPORTED_COMPLETION_CYCLES = ConcurrentHashMap.newKeySet()": "per-quest warning suppression set",
+        "if (REPORTED_COMPLETION_CYCLES.add(this.id))": "log-once cycle warning gate",
+        "COMPLETION_EVALUATION.remove();": "ThreadLocal cleanup",
+    }
+    for token, label in required.items():
+        if token not in source:
+            errors.append(f"Quest.java is missing {label}")
+    return errors
+
+
 def main() -> int:
+    runtime_errors = validate_runtime_guard()
+    if runtime_errors:
+        print("Quest completion runtime guard validation failed:", file=sys.stderr)
+        for error in runtime_errors:
+            print(f" - {error}", file=sys.stderr)
+        return 1
+
     try:
         definitions = list(iter_definitions())
     except RuntimeError as exc:
@@ -164,7 +188,7 @@ def main() -> int:
     edge_count = sum(len(edges) for edges in graph.values())
     print(
         f"Quest dependency graph valid across {len(graph)} repository-controlled quest(s); "
-        f"{edge_count} quest_complete edge(s), no cycles."
+        f"{edge_count} quest_complete edge(s), no cycles; runtime recursion guard intact."
     )
     return 0
 
