@@ -19,6 +19,10 @@ public class QuestlogConfig implements ConfigData {
     @ConfigEntry.Gui.TransitiveObject
     public Colors colors = new Colors();
 
+    @ConfigEntry.Category("death_screen")
+    @ConfigEntry.Gui.TransitiveObject
+    public DeathScreen deathScreen = new DeathScreen();
+
     public static class Button {
         @ConfigEntry.Gui.Tooltip()
         public boolean enabled = true;
@@ -63,6 +67,20 @@ public class QuestlogConfig implements ConfigData {
 
         @ConfigEntry.Gui.Tooltip()
         public int chapterButtonsY = 0;
+    }
+
+    public static class DeathScreen {
+        @ConfigEntry.Gui.Tooltip()
+        public boolean enabled = true;
+
+        @ConfigEntry.Gui.Tooltip()
+        public int sceneDurationTicks = 120;
+
+        @ConfigEntry.Gui.Tooltip()
+        public boolean autoRespawn = true;
+
+        @ConfigEntry.Gui.Tooltip()
+        public boolean allowSkip = true;
     }
 
     public static class Colors {
