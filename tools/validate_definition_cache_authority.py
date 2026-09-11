@@ -35,6 +35,7 @@ def main() -> int:
     errors: list[str] = []
     definition_source = DEFINITION_UTIL.read_text(encoding="utf-8")
     client_source = CLIENT_HANDLER.read_text(encoding="utf-8")
+    chapter_editor_source = CHAPTER_EDITOR.read_text(encoding="utf-8")
     quest_remove_source = QUEST_REMOVE.read_text(encoding="utf-8")
     chapter_remove_source = CHAPTER_REMOVE.read_text(encoding="utf-8")
 
@@ -76,8 +77,8 @@ def main() -> int:
     if "DefinitionUtil.isBundledChapter(packet.id)" not in chapter_remove_source:
         fail("ChapterEditRemovePacket must reject editor deletion of bundled chapters", errors)
 
-    # Legacy optimistic editor writers are retained only as compatibility sinks.
-    # No new call site may depend on them for authoritative state.
+    # Legacy optimistic cache writers may remain as no-op compatibility methods in
+    # DefinitionUtil, but no external call site may depend on them anymore.
     legacy_calls: dict[str, list[Path]] = {"putCachedQuest": [], "putCachedChapter": []}
     mirror_calls: dict[str, list[Path]] = {"putClientMirrorQuest": [], "putClientMirrorChapter": []}
     for path in JAVA_ROOT.rglob("*.java"):
@@ -92,11 +93,10 @@ def main() -> int:
                 mirror_calls[method].append(path)
 
     for method, paths in legacy_calls.items():
-        unexpected = [path for path in paths if path != CHAPTER_EDITOR]
-        if unexpected:
+        if paths:
             fail(
-                f"{method} is a legacy editor sink but is called from: "
-                + ", ".join(str(path.relative_to(ROOT)) for path in unexpected),
+                f"{method} is a legacy no-op sink but is still called from: "
+                + ", ".join(str(path.relative_to(ROOT)) for path in paths),
                 errors,
             )
 
@@ -108,6 +108,25 @@ def main() -> int:
                 + ", ".join(str(path.relative_to(ROOT)) for path in unexpected),
                 errors,
             )
+
+    # Chapter membership edits must be constructed from an isolated JSON snapshot,
+    # sent to the logical server, and refreshed only from the resulting server sync.
+    for forbidden in (
+        "DefinitionUtil.putCachedQuest(",
+        "DefinitionUtil.putCachedChapter(",
+        "String futureId =",
+    ):
+        if forbidden in chapter_editor_source:
+            fail(f"ChapterEditorScreen still contains forbidden optimistic state path: {forbidden}", errors)
+
+    for required, label in (
+        ("JsonObject updatedQuest = qJson.deepCopy();", "isolated quest membership edit"),
+        ("new QuestEditSavePacket(qKey, updatedQuest.toString())", "server-authoritative quest membership save"),
+        ("if (this.chapterToEdit == null) {\n                actionButton.active = false;", "unsaved chapter membership guard"),
+        ("!Questlog.MODID.equals(rl.getNamespace())", "client-side chapter namespace guard"),
+    ):
+        if required not in chapter_editor_source:
+            fail(f"ChapterEditorScreen is missing {label}", errors)
 
     if errors:
         print("Definition-cache authority validation failed:", file=sys.stderr)
