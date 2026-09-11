@@ -45,7 +45,7 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts, dependency graphs, definition-cache and editor-authority contracts, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus the Gnarl popup and NPC-provider validation kits.
+GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts, dependency graphs, definition-cache and editor-authority contracts, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus dedicated Gnarl popup, NPC-provider, and death-screen runtime validation kits.
 
 ## Adaptation strategy
 
@@ -55,7 +55,7 @@ Bundled definition support is implemented: approved quest and chapter definition
 
 The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, provider/disposition extensions, authored provider dialogue/location fields, and bundled-content boundaries. Definition loading and packet handling also enforce the same synchronization-size contract so an oversized external definition cannot load successfully and fail only when a player sync occurs.
 
-The in-game editor now keeps integrated-server definition authority on the server side for chapter membership changes and can directly author runtime-supported failure-condition objective trees alongside prerequisites, objectives, rewards, and settings. Existing failure conditions are no longer opaque editor-preserved JSON.
+The in-game editor now keeps integrated-server definition authority on the server side for chapter membership changes and can directly author runtime-supported failure-condition objective trees alongside prerequisites, objectives, rewards, and settings. Existing failure conditions are no longer opaque editor-preserved JSON. Quest and chapter IDs are also checked client-side against the retained `questlog` namespace before save, matching the server persistence boundary rather than closing the editor after a save the server will reject.
 
 Generic Questlog redevelopment is not an active project goal. Engine changes are made when an approved OVERLORD REIGN requirement, an active presentation test, or a demonstrated modpack integration requires them. The provider and death-screen work are such explicit integration requirements rather than generic upstream refactoring.
 
@@ -63,4 +63,4 @@ Inherited upstream CurseForge, Modrinth, and external wiki publication tooling h
 
 Story text, quest progression, rewards, canonical disposition states, and world-specific objectives are not invented by the fork. Those are added only from approved OVERLORD REIGN design and canon decisions.
 
-See `docs/OVERLORD_ADAPTATION.md` for the engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the presentation baseline, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the Gnarl regression procedure, `docs/NPC_PROVIDER_SYSTEM.md` and `docs/NPC_PROVIDER_TEST_PROTOCOL.md` for the sidequest-provider scaffold, `docs/EPIC_DEATH_SCREEN_INTEGRATION.md` for the death-screen integration boundary, `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md` for source-derived engine findings, and `UPSTREAM_BASELINE.md` for provenance.
+See `docs/OVERLORD_ADAPTATION.md` for the engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the presentation baseline, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the Gnarl regression procedure, `docs/NPC_PROVIDER_SYSTEM.md` and `docs/NPC_PROVIDER_TEST_PROTOCOL.md` for the sidequest-provider scaffold, `docs/EPIC_DEATH_SCREEN_INTEGRATION.md` and `docs/DEATH_SCREEN_TEST_PROTOCOL.md` for the death-screen integration and runtime acceptance boundary, `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md` for source-derived engine findings, and `UPSTREAM_BASELINE.md` for provenance.
