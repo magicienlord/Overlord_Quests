@@ -1,6 +1,6 @@
 # Gnarl Popup Vertical Slice
 
-Status: FOUNDATION B IMPLEMENTATION TEST - TECHNICAL BUILD GREEN - IN-GAME ACCEPTANCE PENDING
+Status: FOUNDATION B IMPLEMENTATION TEST - APPROVED PORTRAIT INTEGRATED - TECHNICAL BUILD GREEN - IN-GAME ACCEPTANCE PENDING
 
 This document defines the first visual validation pass for Gnarl's quest presentation. It contains no OVERLORD REIGN story canon.
 
@@ -12,7 +12,7 @@ The development definition is:
 
 `examples/questlog/quests/overlord_gnarl_popup_dev.json`
 
-The current test portrait asset is:
+The approved portrait asset is:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
@@ -20,23 +20,29 @@ The complete manual procedure is recorded in `docs/FOUNDATION_B_TEST_PROTOCOL.md
 
 ## Current design decision
 
-The popup Gnarl character-design target is locked for this milestone. The final corrected PNG is not yet approved as a binary.
+The popup Gnarl character design and exact portrait binary are locked for this milestone.
 
-The locked target preserves the established portrait and changes only the pupil treatment:
+The approved portrait preserves:
 
-- pupils are square;
-- pupils look toward the player;
-- each pupil remains perspective-aligned to the eye it sits within;
-- the original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship are preserved unchanged;
-- Gnarl retains the established sly, amused, non-angry expression without brow, eyelid, grin, or facial-proportion drift.
+- square pupils;
+- player-directed gaze;
+- perspective alignment of each pupil to its eye;
+- the original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship;
+- the established sly, amused, non-angry expression without brow, eyelid, grin, or facial-proportion drift.
 
-Do not otherwise blend the popup portrait with the current WIP in-game Gnarl model yet. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The controlled comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
+Do not blend the popup portrait with the current WIP in-game Gnarl model. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
-These decisions lock the target character design for Foundation B. They do not lock the current raster file, parchment placement, portrait scale, or screen composition. The raster file requires explicit visual acceptance once a correction satisfies all locked face invariants.
+These decisions lock the portrait, not the parchment placement, portrait scale, or screen composition. Foundation B is now testing presentation only.
 
-## Current test asset integration
+## Approved asset integration
 
-A 1254 x 1254 RGBA test portrait is physically present at the runtime resource path above. Mechanical validation of that binary reports:
+The exact user-supplied main-branch portrait is physically present at the runtime resource path above. The main upload and runtime resource share Git blob:
+
+```text
+40c74f6613f0cc23fbf6be0911dedfcfae82865b
+```
+
+Mechanical validation records:
 
 ```text
 sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
@@ -46,8 +52,6 @@ PNG color type: RGBA
 fully transparent pixels: 713423
 partially transparent pixels: 858065
 ```
-
-These facts prove PNG integrity and usable alpha only. They do not prove that the image satisfies the final direct-gaze square-pupil correction, and they must not be used as evidence of final portrait approval.
 
 Questlog renders the texture into the fixture's 160 x 160 overlay rectangle. Source texture resolution and on-screen presentation size are therefore separate concerns.
 
@@ -59,7 +63,7 @@ LAN-published worlds and dedicated multiplayer are not part of the target runtim
 
 ## What this pass validates
 
-The prototype is intended to answer only presentation and implementation questions:
+The prototype answers only presentation and implementation questions:
 
 1. Does `show_popup_on_unlock` open the quest details screen reliably when a prerequisite transitions to complete?
 2. Does the transparent Gnarl overlay render outside the parchment without clipping or corrupting the panel texture?
@@ -129,12 +133,12 @@ Use a disposable test world or reset quest state before repeating the unlock tes
 
 `tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` placement constants and reports horizontal/vertical clipping plus the description-rectangle intersection.
 
-`tools/check_gnarl_popup_asset.py` validates the repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256. It does not assess whether the picture matches the locked character-design target.
+`tools/check_gnarl_popup_asset.py` validates the approved repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256.
 
 Static checks are not acceptance evidence. Minecraft still needs to render the popup directly.
 
 ## Acceptance
 
-This vertical slice is accepted only after direct in-game review and final corrected-portrait approval. A successful build or static report alone does not lock the portrait binary or composition.
+This vertical slice is accepted after direct in-game review confirms the approved portrait and current presentation behavior.
 
 If native overlay controls remain stable and readable, the renderer should stay unchanged and the presentation can remain data-driven. If clipping, scaling, anchoring, layering, or interaction problems cannot be corrected through the existing fields, the next implementation pass may introduce a dedicated Gnarl speaker/portrait primitive.
