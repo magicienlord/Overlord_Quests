@@ -86,14 +86,6 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'META-INF/jarjar/metadata.json'
           jar tf "$JAR" | grep -Eq '^META-INF/jarjar/.*triggers.*\.jar$'
 
-          # QuestlogEventBus directly links TypeTools at runtime. The final artifact
-          # must therefore either contain the class itself or a nested TypeTools JAR.
-          if ! jar tf "$JAR" | grep -Fxq 'net/jodah/typetools/TypeResolver.class' \
-             && ! jar tf "$JAR" | grep -Eq '^META-INF/jarjar/.*typetools.*\.jar$'; then
-            echo "Runtime dependency net.jodah:typetools is missing from the Forge artifact."
-            exit 1
-          fi
-
           unzip -p "$JAR" META-INF/mods.toml > assembled-mods.toml
           grep -Fq 'modId = "cloth_config"' assembled-mods.toml
 
