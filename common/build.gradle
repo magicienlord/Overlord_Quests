@@ -24,7 +24,6 @@ dependencies {
     // Triggers
     compileOnly "maven.modrinth:triggers:${triggers_version}-forge"
 
-    implementation 'net.jodah:typetools:0.6.3'
     compileOnly 'org.jetbrains:annotations:26.0.2-1'
     compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
     compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.6'
