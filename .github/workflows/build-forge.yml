@@ -226,6 +226,64 @@ jobs:
             sha256sum mods/* config/questlog/quests/overlord_provider_dev.json config/questlog/quests/overlord_provider_disposition_dev.json > SHA256SUMS.txt
           )
 
+      - name: Prepare death-screen test kit
+        run: |
+          set -euo pipefail
+          KIT='build/death-screen-test-kit'
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p "$KIT/mods" "$KIT/docs"
+
+          cp "$JAR" "$KIT/mods/"
+          cp docs/EPIC_DEATH_SCREEN_INTEGRATION.md "$KIT/docs/"
+          cp docs/DEATH_SCREEN_TEST_PROTOCOL.md "$KIT/docs/"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - DEATH-SCREEN TEST KIT
+
+          1. Back up the test instance.
+          2. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          3. Copy the contents of this kit's mods/ directory into the instance mods/ directory.
+          4. Launch an unpublished local single-player survival test world with commands available.
+          5. Follow docs/DEATH_SCREEN_TEST_PROTOCOL.md exactly.
+
+          This validates neutral mechanical scaffolding only. It does not approve a final OVERLORD REIGN death-screen design.
+          EOF
+
+          cat > "$KIT/TEST_SETTINGS.txt" <<'EOF'
+          Primary manual-control pass:
+          enabled=true
+          sceneDurationTicks=120
+          autoRespawn=false
+          allowSkip=true
+
+          Automatic-respawn pass:
+          autoRespawn=true
+
+          Apply these values through the generated Questlog client configuration/configuration UI.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS death-screen test kit
+          commit=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          visual_status=neutral_scaffold_not_final_design
+          EOF
+
+          (
+            cd "$KIT"
+            sha256sum mods/* > SHA256SUMS.txt
+          )
+
       - name: Upload Forge artifact
         uses: actions/upload-artifact@v4
         with:
@@ -245,4 +303,11 @@ jobs:
         with:
           name: overlord-quests-provider-test-kit
           path: build/provider-test-kit/
+          if-no-files-found: error
+
+      - name: Upload death-screen test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-death-screen-test-kit
+          path: build/death-screen-test-kit/
           if-no-files-found: error
