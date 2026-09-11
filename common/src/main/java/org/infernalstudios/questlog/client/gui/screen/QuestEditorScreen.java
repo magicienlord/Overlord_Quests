@@ -121,6 +121,7 @@ public class QuestEditorScreen extends Screen {
     private final Screen previousScreen;
     private final List<JsonObject> tempObjectives = new ArrayList<>();
     private final List<JsonObject> tempPrerequisites = new ArrayList<>();
+    private final List<JsonObject> tempFailures = new ArrayList<>();
     private final List<JsonObject> tempRewards = new ArrayList<>();
     private final Stack<NestingFrame> nestingStack = new Stack<>();
     private final AutocompleteHelper autocompleteHelper = new AutocompleteHelper();
@@ -237,6 +238,7 @@ public class QuestEditorScreen extends Screen {
             this.tempSortOrder = 0;
             this.tempObjectives.clear();
             this.tempPrerequisites.clear();
+            this.tempFailures.clear();
             this.tempRewards.clear();
             this.originalDefinition = null;
             for (BoolFieldDef def : BOOL_FIELDS) {
@@ -285,7 +287,7 @@ public class QuestEditorScreen extends Screen {
 
         this.loadList(definition.getAsJsonArray("objectives"), this.tempObjectives);
         this.loadList(definition.has("prerequisites") ? definition.getAsJsonArray("prerequisites") : definition.getAsJsonArray("requirements"), this.tempPrerequisites);
-        this.loadList(definition.getAsJsonArray("failures"), null);
+        this.loadList(definition.getAsJsonArray("failures"), this.tempFailures);
         this.loadList(definition.getAsJsonArray("rewards"), this.tempRewards);
     }
 
@@ -515,7 +517,7 @@ public class QuestEditorScreen extends Screen {
             ActiveTab[] tabs = ActiveTab.values();
             int tabBtnSize = 20;
             int tabBtnSpacing = 28;
-            int startX = panel2X + (160 - (4 * tabBtnSize + 3 * (tabBtnSpacing - tabBtnSize))) / 2;
+            int startX = panel2X + (160 - (tabs.length * tabBtnSize + (tabs.length - 1) * (tabBtnSpacing - tabBtnSize))) / 2;
 
             for (int i = 0; i < tabs.length; i++) {
                 ActiveTab t = tabs[i];
@@ -524,6 +526,7 @@ public class QuestEditorScreen extends Screen {
                 final Component tabTooltip = switch (t) {
                     case OBJECTIVES -> Component.translatable("questlog.editor.objectives");
                     case PREREQUISITES -> Component.translatable("questlog.editor.prerequisites");
+                    case FAILURES -> Component.translatable("questlog.editor.failures");
                     case REWARDS -> Component.translatable("questlog.editor.rewards");
                     default -> Component.translatable("questlog.editor.settings");
                 };
@@ -544,21 +547,21 @@ public class QuestEditorScreen extends Screen {
                             ResourceLocation drawTex;
                             if (isCurrentTab) {
                                 drawTex = switch (t) {
-                                    case OBJECTIVES -> TAB_OBJECTIVES_SELECTED;
+                                    case OBJECTIVES, FAILURES -> TAB_OBJECTIVES_SELECTED;
                                     case PREREQUISITES -> TAB_PREREQUISITES_SELECTED;
                                     case REWARDS -> TAB_REWARDS_SELECTED;
                                     default -> TAB_SETTINGS_SELECTED;
                                 };
                             } else if (hovered) {
                                 drawTex = switch (t) {
-                                    case OBJECTIVES -> TAB_OBJECTIVES_HIGHLIGHTED;
+                                    case OBJECTIVES, FAILURES -> TAB_OBJECTIVES_HIGHLIGHTED;
                                     case PREREQUISITES -> TAB_PREREQUISITES_HIGHLIGHTED;
                                     case REWARDS -> TAB_REWARDS_HIGHLIGHTED;
                                     default -> TAB_SETTINGS_HIGHLIGHTED;
                                 };
                             } else {
                                 drawTex = switch (t) {
-                                    case OBJECTIVES -> TAB_OBJECTIVES_TEXTURE;
+                                    case OBJECTIVES, FAILURES -> TAB_OBJECTIVES_TEXTURE;
                                     case PREREQUISITES -> TAB_PREREQUISITES_TEXTURE;
                                     case REWARDS -> TAB_REWARDS_TEXTURE;
                                     default -> TAB_SETTINGS_TEXTURE;
@@ -1137,7 +1140,7 @@ public class QuestEditorScreen extends Screen {
                 this.editingEntry.addProperty("levels", this.entryLevelsToggle);
             }
         } else {
-            if (this.activeTab == ActiveTab.OBJECTIVES || this.activeTab == ActiveTab.PREREQUISITES) {
+            if (this.activeTab == ActiveTab.OBJECTIVES || this.activeTab == ActiveTab.PREREQUISITES || this.activeTab == ActiveTab.FAILURES) {
                 this.editingEntry.addProperty("required_amount", amount);
             }
         }
@@ -1178,6 +1181,8 @@ public class QuestEditorScreen extends Screen {
             return this.tempObjectives;
         } else if (this.activeTab == ActiveTab.PREREQUISITES) {
             return this.tempPrerequisites;
+        } else if (this.activeTab == ActiveTab.FAILURES) {
+            return this.tempFailures;
         } else {
             return this.tempRewards;
         }
@@ -1360,6 +1365,12 @@ public class QuestEditorScreen extends Screen {
         }
         json.add("prerequisites", reqArr);
         json.remove("requirements");
+
+        JsonArray failureArr = new JsonArray();
+        for (JsonObject failure : this.tempFailures) {
+            failureArr.add(failure);
+        }
+        json.add("failures", failureArr);
 
         JsonArray rewArr = new JsonArray();
         for (JsonObject rw : this.tempRewards) {
@@ -1874,6 +1885,7 @@ public class QuestEditorScreen extends Screen {
     enum ActiveTab {
         PREREQUISITES,
         OBJECTIVES,
+        FAILURES,
         REWARDS,
         SETTINGS
     }
