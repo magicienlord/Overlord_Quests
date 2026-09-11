@@ -106,6 +106,26 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
                 if any(not core.is_int(value) for value in coordinates):
                     core.fail(path, f"'provider.location.{key}' must contain integers only", errors)
 
+    if "dialogue" in provider:
+        dialogue = provider["dialogue"]
+        if not isinstance(dialogue, dict):
+            core.fail(path, "'provider.dialogue' must be an object", errors)
+        else:
+            allowed_keys = {"offer", "in_progress", "ready_to_turn_in", "failed"}
+            for key, value in dialogue.items():
+                if key not in allowed_keys:
+                    core.fail(path, f"'provider.dialogue.{key}' is not a supported dialogue phase", errors)
+                    continue
+                if isinstance(value, str):
+                    if not value.strip():
+                        core.fail(path, f"'provider.dialogue.{key}' must not be empty", errors)
+                elif isinstance(value, list) and value:
+                    for index, line in enumerate(value):
+                        if not isinstance(line, str) or not line.strip():
+                            core.fail(path, f"'provider.dialogue.{key}[{index}]' must be a non-empty string", errors)
+                else:
+                    core.fail(path, f"'provider.dialogue.{key}' must be a non-empty string or string list", errors)
+
     if "lock_to_provider" in provider and not isinstance(provider["lock_to_provider"], bool):
         core.fail(path, "'provider.lock_to_provider' must be a boolean", errors)
 
