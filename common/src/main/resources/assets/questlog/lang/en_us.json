@@ -258,6 +258,7 @@
     "questlog.editor.tooltip.chapter_hidden": "If enabled, this chapter tab will be hidden from the questlog.",
     "questlog.editor.tooltip.chapter_membership_requires_save": "Save the chapter before assigning quests to it.",
     "questlog.editor.error.chapter_namespace": "Chapter IDs must use the %s namespace.",
+    "questlog.editor.error.quest_namespace": "Quest IDs must use the %s namespace.",
 
     "questlog.editor.tooltip.duplicate_quest": "Duplicate this quest.",
     "questlog.editor.tooltip.delete_quest": "Permanently delete this quest.",

@@ -1378,9 +1378,23 @@ public class QuestEditorScreen extends Screen {
         }
         json.add("rewards", rewArr);
 
-        ResourceLocation rl = ResourceLocation.tryParse(this.tempId);
-        if (rl == null) {
-            rl = new ResourceLocation(Questlog.MODID, this.tempId.replace(":", "_"));
+        String idStr = this.tempId.trim();
+        if (idStr.isEmpty()) return;
+
+        ResourceLocation rl;
+        try {
+            rl = idStr.contains(":") ? ResourceLocation.tryParse(idStr) : new ResourceLocation(Questlog.MODID, idStr);
+        } catch (Exception e) {
+            return;
+        }
+        if (rl == null || !Questlog.MODID.equals(rl.getNamespace())) {
+            if (this.idBox != null) {
+                this.idBox.setTooltip(Tooltip.create(Component.translatable(
+                        "questlog.editor.error.quest_namespace",
+                        Questlog.MODID
+                )));
+            }
+            return;
         }
 
         Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(rl, json.toString()));
