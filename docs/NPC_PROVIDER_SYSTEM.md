@@ -64,6 +64,8 @@ The optional `dialogue` object is definition-owned content. Each supported phase
 
 The engine does not generate missing dialogue and does not treat the quest journal description as spoken NPC text. If a phase has no authored dialogue, the neutral scaffold simply shows the quest state and controls without inventing speech. This preserves the distinction between provider/source identity and narrative text authored for that provider interaction.
 
+Authored dialogue is wrapped to the temporary detail view. If the wrapped content exceeds the available vertical region, the client now exposes neutral `Up` and `Down` controls and mouse-wheel scrolling instead of silently dropping the remaining lines. Scroll position is presentation-only state. It resets when the player selects a different offer, returns to the provider list, or the selected quest changes server-derived interaction state. Provider eligibility and quest state remain authoritative on the server.
+
 This is not a branching dialogue-tree engine. It is the minimal state-aware presentation surface required by the planned NPC offer, accept/decline, dialogue, and turn-in flow. More elaborate conversation structures should be added only if approved quest design actually requires them.
 
 ## Runtime authority
@@ -110,7 +112,7 @@ The temporary menu supports four server-derived states:
 - `READY_TO_TURN_IN`;
 - `FAILED`.
 
-Provider snapshots are capped at 256 entries. The temporary client presentation paginates seven entries at a time, preserves the current page when the same provider refreshes, clears the pending-action lock after a server refresh, and closes automatically if the provider disappears, dies, changes identity, or moves outside the interaction boundary.
+Provider snapshots are capped at 256 entries. The temporary client presentation paginates seven entries at a time, preserves the current list page when the same provider refreshes, clears the pending-action lock after a server refresh, provides bounded scrolling for overflowing authored dialogue, and closes automatically if the provider disappears, dies, changes identity, or moves outside the interaction boundary.
 
 ## Civilization disposition bridge
 
@@ -154,7 +156,7 @@ Those systems must not be inferred merely because the reference mod contained br
 
 ## Development fixtures
 
-`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, and interaction safety.
+`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, authored dialogue overflow scrolling, and interaction safety. Its deliberately long `[DEV]` offer dialogue ends with a sentinel line used only to prove that overflow content remains reachable.
 
 `examples/questlog/quests/overlord_provider_disposition_dev.json` is an implementation-only fixture gated by the synthetic IDs `questlog:dev_civilization` and `questlog:dev_open`. Those identifiers exist only to validate the disposition bridge and establish no setting canon.
 
