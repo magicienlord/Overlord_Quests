@@ -26,6 +26,7 @@ CHAPTER_EDITOR = QUESTLOG_JAVA / "client" / "gui" / "screen" / "ChapterEditorScr
 QUEST_EDITOR = QUESTLOG_JAVA / "client" / "gui" / "screen" / "QuestEditorScreen.java"
 QUEST_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "QuestEditRemovePacket.java"
 CHAPTER_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "ChapterEditRemovePacket.java"
+LANG_EN_US = ROOT / "common" / "src" / "main" / "resources" / "assets" / "questlog" / "lang" / "en_us.json"
 
 
 def fail(message: str, errors: list[str]) -> None:
@@ -40,6 +41,7 @@ def main() -> int:
     quest_editor_source = QUEST_EDITOR.read_text(encoding="utf-8")
     quest_remove_source = QUEST_REMOVE.read_text(encoding="utf-8")
     chapter_remove_source = CHAPTER_REMOVE.read_text(encoding="utf-8")
+    language_source = LANG_EN_US.read_text(encoding="utf-8")
 
     # Authoritative cache objects must never escape to callers as mutable JSON.
     quest_getter = re.search(
@@ -144,9 +146,22 @@ def main() -> int:
         ("return this.tempFailures;", "failure active-list routing"),
         ('json.add("failures", failureArr);', "failure definition serialization"),
         ("FAILURES,\n        REWARDS,", "failure tab enum entry"),
+        ("!Questlog.MODID.equals(rl.getNamespace())", "client-side quest namespace guard"),
+        ("questlog.editor.error.quest_namespace", "quest namespace validation feedback"),
     ):
         if required not in quest_editor_source:
             fail(f"QuestEditorScreen is missing {label}", errors)
+
+    # Editor feedback must resolve to actual localized text rather than leaking a
+    # translation key into the authoring UI.
+    for key in (
+        '"questlog.editor.failures"',
+        '"questlog.editor.tooltip.chapter_membership_requires_save"',
+        '"questlog.editor.error.chapter_namespace"',
+        '"questlog.editor.error.quest_namespace"',
+    ):
+        if key not in language_source:
+            fail(f"en_us.json is missing editor localization {key}", errors)
 
     if errors:
         print("Definition/editor authority validation failed:", file=sys.stderr)
