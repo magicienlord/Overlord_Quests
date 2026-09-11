@@ -26,42 +26,31 @@ jobs:
 
           java = Path('common/src/main/java/org/infernalstudios/questlog/client/gui/screen/QuestEditorScreen.java')
           text = java.read_text(encoding='utf-8')
-          old = '''        ResourceLocation rl = ResourceLocation.tryParse(this.tempId);
-          if (rl == null) {
-              rl = new ResourceLocation(Questlog.MODID, this.tempId.replace(":", "_"));
-          }
-
-          Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(rl, json.toString()));
-
-          if (this.minecraft != null) {
-              this.minecraft.setScreen(this.previousScreen);
-          }
-'''
-          new = '''        String idStr = this.tempId.trim();
-          if (idStr.isEmpty()) return;
-
-          ResourceLocation rl;
-          try {
-              rl = idStr.contains(":") ? ResourceLocation.tryParse(idStr) : new ResourceLocation(Questlog.MODID, idStr);
-          } catch (Exception e) {
-              return;
-          }
-          if (rl == null || !Questlog.MODID.equals(rl.getNamespace())) {
-              if (this.idBox != null) {
-                  this.idBox.setTooltip(Tooltip.create(Component.translatable(
-                          "questlog.editor.error.quest_namespace",
-                          Questlog.MODID
-                  )));
-              }
-              return;
-          }
-
-          Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(rl, json.toString()));
-
-          if (this.minecraft != null) {
-              this.minecraft.setScreen(this.previousScreen);
-          }
-'''
+          old = (
+              '        ResourceLocation rl = ResourceLocation.tryParse(this.tempId);\n'
+              '        if (rl == null) {\n'
+              '            rl = new ResourceLocation(Questlog.MODID, this.tempId.replace(":", "_"));\n'
+              '        }\n'
+          )
+          new = (
+              '        String idStr = this.tempId.trim();\n'
+              '        if (idStr.isEmpty()) return;\n\n'
+              '        ResourceLocation rl;\n'
+              '        try {\n'
+              '            rl = idStr.contains(":") ? ResourceLocation.tryParse(idStr) : new ResourceLocation(Questlog.MODID, idStr);\n'
+              '        } catch (Exception e) {\n'
+              '            return;\n'
+              '        }\n'
+              '        if (rl == null || !Questlog.MODID.equals(rl.getNamespace())) {\n'
+              '            if (this.idBox != null) {\n'
+              '                this.idBox.setTooltip(Tooltip.create(Component.translatable(\n'
+              '                        "questlog.editor.error.quest_namespace",\n'
+              '                        Questlog.MODID\n'
+              '                )));\n'
+              '            }\n'
+              '            return;\n'
+              '        }\n'
+          )
           if text.count(old) != 1:
               raise SystemExit(f'quest save ID block found {text.count(old)} times')
           java.write_text(text.replace(old, new, 1), encoding='utf-8')
@@ -69,8 +58,10 @@ jobs:
           lang = Path('common/src/main/resources/assets/questlog/lang/en_us.json')
           text = lang.read_text(encoding='utf-8')
           old = '    "questlog.editor.error.chapter_namespace": "Chapter IDs must use the %s namespace.",'
-          new = ('    "questlog.editor.error.chapter_namespace": "Chapter IDs must use the %s namespace.",\n'
-                 '    "questlog.editor.error.quest_namespace": "Quest IDs must use the %s namespace.",')
+          new = (
+              '    "questlog.editor.error.chapter_namespace": "Chapter IDs must use the %s namespace.",\n'
+              '    "questlog.editor.error.quest_namespace": "Quest IDs must use the %s namespace.",'
+          )
           if text.count(old) != 1:
               raise SystemExit('quest namespace localization insertion point not found exactly once')
           lang.write_text(text.replace(old, new, 1), encoding='utf-8')
