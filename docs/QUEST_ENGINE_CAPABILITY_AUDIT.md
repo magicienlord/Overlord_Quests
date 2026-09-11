@@ -4,7 +4,7 @@ Status: TECHNICAL / PREPARATORY - NOT STORY CANON
 
 This document records source-derived quest-engine capabilities and limitations relevant to future OVERLORD REIGN quest authoring. It does not define quest chronology, story text, locations, rewards, faction outcomes, or other world canon.
 
-Foundation B remains the active presentation milestone until the Gnarl popup receives direct in-game acceptance and the exact corrected portrait binary is approved. The work here is preparatory hardening that can proceed without inventing story content.
+Foundation B remains the active presentation milestone until the approved Gnarl portrait receives direct in-game acceptance in the Questlog UI. The portrait binary itself is integrated and approved; the remaining gate is runtime composition and behavior.
 
 ## 1. Objective surface
 
@@ -105,6 +105,8 @@ The bundled manifest remains intentionally empty. Development fixtures are not p
 
 The in-game editor writes only into `config/questlog/quests` and `config/questlog/chapters`. The config loader derives all file IDs in those roots using the technical `questlog` namespace, so editor save/remove packets reject other namespaces rather than accepting an ID that cannot round-trip through the loader.
 
+Quest and chapter definitions that cross the Questlog network have an explicit ceiling of 32,767 Java UTF-16 characters after compact JSON serialization. Repository-controlled definitions are checked by CI; editor packets, bundled definitions, config definitions, and remote mirror insertion enforce the same runtime contract. Oversized external quests enter the normal broken-quest fallback rather than loading successfully and failing later at synchronization.
+
 ## 4. Validation hardening
 
 The repository validator understands the registered Questlog objective and reward type surface rather than checking only generic JSON shape.
@@ -120,11 +122,12 @@ It validates:
 - `#namespace:tag` registry predicates for matching fields;
 - required block/resource/range/bounds fields for source-defined built-in objective types;
 - common reward field types;
-- bundled-manifest safety and the development-content boundary.
+- bundled-manifest safety and the development-content boundary;
+- definition wire-size limits and runtime loader guards.
 
 Custom non-`questlog` namespaces remain extension points. The validator applies the common structural contract to them but does not invent schemas for future compatibility objectives.
 
-A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the Gnarl test portrait mechanically, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
+A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the approved Gnarl portrait mechanically, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
 
 ## 5. Position objective dimensional safety
 
@@ -154,7 +157,7 @@ The misleading block field has been removed from the editor metadata. `questlog:
 
 `questlog:origin` delegates to the platform helper. On Forge, `ForgePlatformHelper.hasOrigin` returns `false` when the `origins` mod is not loaded.
 
-The current captured OVERLORD REIGN 207-JAR baseline does not list Origins. Therefore `questlog:origin` is currently available as inherited engine capability but is not a useful objective for the captured pack state.
+The captured OVERLORD REIGN baseline used during this audit did not list Origins. Therefore `questlog:origin` is available as inherited engine capability but is not assumed to be a useful objective for the current pack state.
 
 No Origins dependency should be added merely to justify retaining this inherited objective.
 
@@ -162,13 +165,15 @@ No Origins dependency should be added merely to justify retaining this inherited
 
 Many inherited Questlog objectives use the Triggers event library. The Forge build embeds `maven.modrinth:triggers:1.0.1-1.20.1-forge` through jar-in-jar packaging.
 
-The build emits a warning that jar-in-jar packaging could conflict if another mod also supplies the same library through a normal Maven/runtime path. The current captured 207-JAR OVERLORD REIGN roster does not list a standalone Triggers JAR, so this is a regression watch rather than a demonstrated current conflict.
+The build emits a warning that jar-in-jar packaging could conflict if another mod also supplies the same library through a normal Maven/runtime path. The captured OVERLORD REIGN roster used during this audit did not list a standalone Triggers JAR, so this is a regression watch rather than a demonstrated current conflict.
 
 Triggers 1.0.1 exposes listener registration and global `removeAllListeners`, but no individual-listener removal. Quest definitions can be hot-reloaded, which recreates Quest and Objective instances. Clearing the entire Triggers bus during a reload would also remove listeners belonging to other consumers of the library, so OVERLORD QUESTS does not do that.
 
 Every Objective therefore checks that its parent Quest is still the exact instance installed in an active QuestManager before mutating units. QuestManager generations are explicitly deactivated on replacement or server/client shutdown. This makes callbacks retained by Triggers inert across both ordinary definition reloads and whole manager-generation replacement.
 
-Questlog's private event bus is different because it is owned by this mod. It now supports precise listener removal. Read and quest-completion objectives retain their exact listener instances and unregister them when a Quest is disposed. Quest replacement, manager reload, quest removal, and manager shutdown dispose the affected listener trees before references are dropped.
+Questlog's private event bus is different because it is owned by this mod. It supports precise listener removal. Read and quest-completion objectives retain their exact listener instances and unregister them when a Quest is disposed. Quest replacement, manager reload, quest removal, and manager shutdown dispose the affected listener trees before references are dropped.
+
+The private event bus now requires explicit event classes for registration rather than using runtime generic inference. This removes the inherited TypeTools runtime dependency and makes owned listener registration/removal deterministic.
 
 The remaining limitation is retention inside the shared Triggers bus itself. Obsolete callbacks can still consume a small amount of memory and dispatch overhead until that shared bus is cleared by its own lifecycle. They cannot mutate current quest state. Calling Triggers' global `removeAllListeners` during a Questlog reload remains prohibited because it could disable listeners belonging to another consumer.
 
@@ -199,7 +204,7 @@ OVERLORD QUESTS treats the server as authoritative for each request:
 - `QuestRewardCollectPacket` requires a server player sender, a live manager, an existing quest, completed quest state, a valid reward index, and an unclaimed reward. Choice selections must contain exactly `pick_count` unique in-range indices and are validated before authoritative state is mutated. Selection data attached to a non-choice reward is rejected.
 - `QuestReadPacket` requires a server player sender, a live manager, an existing quest, triggered and nonfailed state, and at least one incomplete read objective in the objective tree before the server posts the read event. Completed quests cannot be advanced by a forged read packet.
 - `QuestResetPacket` requires a server player sender, a live manager, an existing quest, `repeatable=true`, completed state, and fully rewarded state. A forged packet therefore cannot erase an in-progress repeatable quest or bypass a pending reward/choice.
-- Quest/chapter editor save and remove packets require a permission-level-2 server player, an active manager, and server-side Questlog edit mode. They reject unsupported namespaces. Save packets reject malformed or null JSON. All four editor operations use a normalized filesystem boundary check so an ID path cannot escape its assigned definition root.
+- Quest/chapter editor save and remove packets require a permission-level-2 server player, an active manager, and server-side Questlog edit mode. They reject unsupported namespaces. Save packets reject malformed or null JSON and enforce the definition wire-size ceiling. All four editor operations use a normalized filesystem boundary check so an ID path cannot escape its assigned definition root.
 
 Forge registers packet handlers with `consumerMainThread`, so the above state and filesystem mutation occurs on the logical main thread rather than the Netty networking thread.
 
@@ -218,7 +223,7 @@ This does not expand multiplayer support. Automatic Gnarl full-screen popups rem
 The choice-reward protocol has an explicit supported contract:
 
 - one top-level `questlog:choice` may contain non-choice rewards;
-- `pick_count` must be at least 1 and cannot exceed the number of choices;
+- `pick_count` must be at least 1 and cannot exceed the number of choices or the protocol selection ceiling;
 - the player must supply exactly `pick_count` unique valid indices;
 - `auto_claim` is not supported on choice rewards;
 - nested choice rewards are not supported until the network protocol can carry nested selection state.
@@ -261,7 +266,9 @@ The remaining positional-list limitation means structural edits still need migra
 
 None of this preparatory hardening closes Foundation B.
 
-Foundation B still requires direct unpublished-local-single-player review of the Gnarl popup implementation for:
+The exact approved portrait binary is integrated from the user-supplied `main` upload. The main upload and runtime resource share Git blob `40c74f6613f0cc23fbf6be0911dedfcfae82865b`, and runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`.
+
+Foundation B now requires only direct unpublished-local-single-player review of the Gnarl popup implementation for:
 
 - actual transparency in Minecraft;
 - clipping and anchoring;
@@ -271,9 +278,7 @@ Foundation B still requires direct unpublished-local-single-player review of the
 - queued-popup retry reliability;
 - final decision on whether native Questlog overlay controls are sufficient.
 
-The exact corrected portrait binary also remains pending explicit visual acceptance against the locked square-pupil, direct-gaze, perspective-aligned target while preserving the original snout and sly expression.
-
-Until those reviews are complete, the repository PNG is a technical test asset and portrait scale, parchment placement, and popup composition remain implementation-test values.
+Portrait scale, parchment placement, and popup composition remain implementation-test values until that runtime review is accepted.
 
 ## 16. Current authoring policy
 
@@ -304,7 +309,7 @@ Status: TARGET-RUNTIME RACE HARDENED.
 
 `QuestSyncPacket` carries four potentially large collections: quest definitions, chapter definitions, quest-state NBT, and advancement IDs.
 
-The decoder now validates collection counts before allocation. Current generous ceilings are:
+The decoder validates collection counts before allocation. Current generous ceilings are:
 
 ```text
 quest definitions:   65536
@@ -328,3 +333,17 @@ The inherited chapter-target comparison used raw string equality. As a result, s
 OVERLORD QUESTS normalizes both command targets and quest chapter strings to resource IDs before chapter-scoped progress operations. Bare chapter names are normalized under the retained technical `questlog` namespace. Command paths that require the server QuestManager also fail cleanly when that manager is unavailable rather than dereferencing a null singleton.
 
 This is administrative tooling consistency only. It does not change quest chronology, progression design, or story content.
+
+## 20. Fork closure policy
+
+The source audit is now in closure mode. Generic Questlog refactoring is not an active project goal.
+
+Further engine changes require one of three concrete triggers:
+
+- an approved OVERLORD REIGN quest cannot be represented correctly with the current objective/reward/presentation surface;
+- the Foundation B in-game test exposes a reproducible engine or presentation defect;
+- an actual modpack integration exposes a compatibility failure.
+
+The inherited CurseForge, Modrinth, and external wiki publication targets have been removed from the private fork. Build output is local or GitHub Actions based unless the Overlord explicitly establishes another publication target.
+
+Status: ENGINE HARDENING CLOSED PENDING RUNTIME-FOUND DEFECTS.
