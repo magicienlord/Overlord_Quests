@@ -69,6 +69,27 @@ jobs:
           cd ../../..
           rm -f reference-inspection/cfr.jar
 
+      - name: Print Epic Death Screen exact source inventory and code
+        run: |
+          set -euo pipefail
+          echo '=== EPIC DEATH SCREEN JAVA FILES ==='
+          find reference-inspection/output/epic-src -type f -name '*.java' | sort
+          echo '=== EPIC DEATH SCREEN NON-CLASS ASSETS ==='
+          find reference-inspection/output/epic-assets -type f | sort
+          echo '=== EPIC DEATH SCREEN SOURCE ==='
+          while IFS= read -r file; do
+            echo "===== BEGIN ${file} ====="
+            cat "$file"
+            echo "===== END ${file} ====="
+          done < <(find reference-inspection/output/epic-src -type f -name '*.java' | sort)
+
+      - name: Print relevant Villager Retaliation provider source inventory
+        run: |
+          set -euo pipefail
+          find reference-inspection/output/vr-src -type f -name '*.java' | sort \
+            | grep -E '/quest/(provider|conditions|pool|runtime)/|/quest/QuestExecutionContext.java$|/quest/VillagerQuestSavedData.java$' \
+            || true
+
       - name: Upload inspection corpus
         uses: actions/upload-artifact@v4
         with:
