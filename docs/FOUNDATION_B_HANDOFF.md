@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Foundation B Handoff
 
-Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL BUILD GATE GREEN - MANUAL IN-GAME ACCEPTANCE AND FINAL PORTRAIT-BINARY APPROVAL PENDING
+Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL BUILD GATE GREEN - APPROVED PORTRAIT INTEGRATED - MANUAL IN-GAME ACCEPTANCE PENDING
 
 This handoff records repository-local development state, not OVERLORD REIGN world or story canon.
 
@@ -24,17 +24,18 @@ The following target is decided for this milestone:
 - preserve the original sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
 - do not merge WIP in-game-model traits into the popup automatically.
 
-These are approved design constraints. They do **not** constitute approval of the current repository PNG as the final corrected portrait.
+These are approved design constraints, and the exact approved portrait binary is now integrated.
 
-## Current repository test asset
+## Approved repository portrait
 
-A 1254 x 1254 RGBA Gnarl test portrait is present at:
+The user-supplied portrait uploaded to `main` is present unchanged at:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
-Mechanical validation currently records:
+The main-branch upload and runtime asset resolve to the same Git blob:
 
 ```text
+git blob: 40c74f6613f0cc23fbf6be0911dedfcfae82865b
 bytes: 1154559
 sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
 dimensions: 1254 x 1254
@@ -43,7 +44,7 @@ fully transparent pixels: 713423
 partially transparent pixels: 858065
 ```
 
-This proves file integrity and usable alpha only. It does not prove that the raster satisfies the locked direct-gaze square-pupil correction. The runtime resource must not be labelled final until the Overlord explicitly accepts the corrected visual.
+Mechanical validation proves the file is intact and alpha-capable. Portrait-binary approval is no longer a separate Foundation B blocker. The remaining visual question is whether this approved image composes correctly inside Minecraft at the intended GUI scales.
 
 ## Runtime scope: DECIDED
 
@@ -100,11 +101,14 @@ These are implementation safeguards. They still require runtime validation throu
 
 ## Technical gate
 
-The authoritative Forge pipeline has already reached green state with the current engine-hardening baseline. It covers:
+The authoritative Forge pipeline has reached green state with the current engine-hardening baseline. It covers:
 
 - definition-validator self-tests;
 - OVERLORD quest-definition validation;
 - specialized runtime-required objective/reward field validation;
+- definition wire-size and loader-boundary validation;
+- definition-cache authority validation;
+- private event-bus lifecycle validation;
 - Gnarl PNG integrity and alpha checks;
 - static popup-layout reporting;
 - Java 17 Forge compilation and reobfuscation;
@@ -113,6 +117,16 @@ The authoritative Forge pipeline has already reached green state with the curren
 - Forge artifact and test-kit artifact upload.
 
 Subsequent source and documentation corrections continue through the same workflow. A green workflow is necessary but cannot close Foundation B by itself.
+
+## Fork closure boundary
+
+Generic Questlog refactoring is now out of scope. The fork retains Questlog's underlying quest engine and should receive additional engine changes only when one of the following is true:
+
+- a concrete OVERLORD REIGN quest requirement cannot be represented correctly with the current engine;
+- the Foundation B in-game test exposes a reproducible defect;
+- a modpack integration exposes a concrete compatibility failure.
+
+The fork has also removed inherited CurseForge, Modrinth, and external wiki publication tooling. Builds are private/local or GitHub Actions artifacts unless the Overlord explicitly establishes a publication target.
 
 ## Still under test
 
@@ -125,8 +139,6 @@ The following remain implementation-test values rather than locked design:
 - whether left-side placement is final;
 - whether the native Questlog overlay path is sufficient.
 
-In addition, the exact corrected portrait binary remains pending explicit visual approval even though its design target is locked.
-
 ## Canon boundary
 
 Do not author story quests, chronology, rewards, settlement assumptions, final Dark Tower coordinates/geometry, or faction outcomes during Foundation B unless separately approved.
@@ -135,10 +147,9 @@ The bundled production definition manifest remains intentionally empty.
 
 ## Remaining Foundation B gate
 
-Foundation B remains open for two direct acceptance items:
+Foundation B now has one direct acceptance gate:
 
-1. approve an exact Gnarl portrait binary that satisfies the locked pupil/gaze change without altering the snout or expression;
-2. install a green Foundation B test kit in an OVERLORD REIGN test instance and perform the unpublished-local-single-player presentation protocol, retaining screenshots and relevant logs.
+1. install a green Foundation B test kit in an OVERLORD REIGN test instance and perform the unpublished-local-single-player presentation protocol, retaining screenshots and relevant logs.
 
 The runtime review must cover transparency, clipping, anchoring, text readability, GUI-scale behavior, exactly-once unlock audio, deferred-popup reliability, and current-state resolution after queue deferral.
 
