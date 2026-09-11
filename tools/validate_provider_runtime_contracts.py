@@ -10,6 +10,8 @@ OPEN_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/
 ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/packet/QuestProviderActionPacket.java"
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
+DIALOGUE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderDialogue.java"
+SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/provider/QuestProviderScreen.java"
 
 errors: list[str] = []
 
@@ -38,6 +40,11 @@ require(INTERACTION, "List.copyOf(entries.subList(0, QuestProviderOpenPacket.MAX
 require(RULE, "record LocationBounds", "authored provider location contract")
 require(RULE, "this.location != null && !this.location.contains(entity)", "provider location eligibility check")
 require(RULE, "Questlog.MODID + \":\" + value", "bare provider unlock quest normalization")
+require(RULE, "QuestProviderDialogue.fromProviderDefinition(json)", "definition-owned provider dialogue attachment")
+require(DIALOGUE, "case READY_TO_TURN_IN -> this.readyToTurnIn", "state-specific provider dialogue mapping")
+require(SCREEN, "Component.literal(\"Decline\")", "explicit non-persistent decline action")
+require(SCREEN, "rule.dialogue().linesFor(entry.state())", "authored dialogue rendering")
+require(SCREEN, "this.selectedQuestId = entry.questId()", "offer selection before acceptance")
 
 if errors:
     print(f"Provider runtime contract validation failed with {len(errors)} error(s):", file=sys.stderr)
