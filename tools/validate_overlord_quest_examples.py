@@ -105,6 +105,9 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
                     continue
                 if any(not core.is_int(value) for value in coordinates):
                     core.fail(path, f"'provider.location.{key}' must contain integers only", errors)
+                    continue
+                if any(value < -2147483648 or value > 2147483647 for value in coordinates):
+                    core.fail(path, f"'provider.location.{key}' values must fit signed 32-bit integers", errors)
 
     if "dialogue" in provider:
         dialogue = provider["dialogue"]
