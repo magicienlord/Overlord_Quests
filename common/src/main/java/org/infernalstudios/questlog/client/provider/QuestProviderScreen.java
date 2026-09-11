@@ -16,6 +16,7 @@ import org.infernalstudios.questlog.overlord.provider.QuestProviderRule;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderService;
 import org.infernalstudios.questlog.platform.Services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,10 @@ import java.util.UUID;
  */
 public final class QuestProviderScreen extends Screen {
     private static final int PAGE_SIZE = 7;
+    private static final int DIALOGUE_TOP = 62;
+    private static final int DIALOGUE_LINE_SPACING = 11;
+    private static final int DIALOGUE_PARAGRAPH_SPACING = 4;
+    private static final int DIALOGUE_SCROLL_STEP = 33;
     private static final double MAX_DISTANCE_SQR = QuestProviderService.MAX_INTERACTION_DISTANCE_SQR;
 
     private final int providerEntityId;
@@ -35,6 +40,7 @@ public final class QuestProviderScreen extends Screen {
     private String providerName;
     private List<QuestProviderService.InteractionEntry> entries;
     private int page;
+    private int dialogueScrollPixels;
     private boolean pendingAction;
     private ResourceLocation selectedQuestId;
 
@@ -56,11 +62,19 @@ public final class QuestProviderScreen extends Screen {
         if (!this.matches(packet)) {
             return;
         }
+        QuestProviderService.InteractionEntry previousSelection = this.selectedEntry();
         this.providerName = packet.providerName();
         this.entries = List.copyOf(packet.entries());
         this.pendingAction = false;
-        if (this.selectedQuestId != null && this.selectedEntry() == null) {
+
+        QuestProviderService.InteractionEntry refreshedSelection = this.selectedEntry();
+        if (this.selectedQuestId != null && refreshedSelection == null) {
             this.selectedQuestId = null;
+            this.dialogueScrollPixels = 0;
+        } else if (previousSelection != null
+                && refreshedSelection != null
+                && previousSelection.state() != refreshedSelection.state()) {
+            this.dialogueScrollPixels = 0;
         }
         this.rebuildWidgets();
     }
@@ -87,6 +101,7 @@ public final class QuestProviderScreen extends Screen {
             QuestProviderService.InteractionEntry entry = this.entries.get(i);
             Button button = Button.builder(this.messageFor(entry), ignored -> {
                         this.selectedQuestId = entry.questId();
+                        this.dialogueScrollPixels = 0;
                         this.rebuildWidgets();
                     })
                     .bounds(x, firstY + (i - from) * 24, panelWidth, 20)
@@ -122,7 +137,29 @@ public final class QuestProviderScreen extends Screen {
     }
 
     private void initDialogueControls(QuestProviderService.InteractionEntry entry, int x, int panelWidth) {
-        int y = Math.max(84, this.height - 54);
+        int y = this.dialogueActionY();
+        int maxScroll = this.maxDialogueScroll(entry);
+        this.dialogueScrollPixels = Math.max(0, Math.min(this.dialogueScrollPixels, maxScroll));
+
+        if (maxScroll > 0) {
+            int scrollY = y - 24;
+            int scrollWidth = 70;
+            int gap = 6;
+            int scrollX = x + (panelWidth - (scrollWidth * 2 + gap)) / 2;
+
+            Button up = Button.builder(Component.literal("Up"), ignored -> this.scrollDialogue(entry, -DIALOGUE_SCROLL_STEP))
+                    .bounds(scrollX, scrollY, scrollWidth, 20)
+                    .build();
+            up.active = this.dialogueScrollPixels > 0 && !this.pendingAction;
+            this.addRenderableWidget(up);
+
+            Button down = Button.builder(Component.literal("Down"), ignored -> this.scrollDialogue(entry, DIALOGUE_SCROLL_STEP))
+                    .bounds(scrollX + scrollWidth + gap, scrollY, scrollWidth, 20)
+                    .build();
+            down.active = this.dialogueScrollPixels < maxScroll && !this.pendingAction;
+            this.addRenderableWidget(down);
+        }
+
         boolean actionable = entry.state() == QuestProviderService.InteractionState.AVAILABLE
                 || entry.state() == QuestProviderService.InteractionState.READY_TO_TURN_IN;
 
@@ -153,9 +190,62 @@ public final class QuestProviderScreen extends Screen {
         }
     }
 
+    private int dialogueActionY() {
+        return Math.max(84, this.height - 54);
+    }
+
+    private int dialogueViewportBottom() {
+        return Math.max(DIALOGUE_TOP + this.font.lineHeight, this.dialogueActionY() - 30);
+    }
+
+    private int dialogueWrapWidth() {
+        return Math.min(320, Math.max(180, this.width - 60));
+    }
+
+    private DialogueLayout dialogueLayout(QuestProviderService.InteractionEntry entry) {
+        Quest quest = QuestlogClient.getLocal().getQuest(entry.questId());
+        if (quest == null) return DialogueLayout.EMPTY;
+        QuestProviderRule rule = quest.getProviderRule();
+        if (rule == null) return DialogueLayout.EMPTY;
+
+        List<String> dialogue = rule.dialogue().linesFor(entry.state());
+        if (dialogue.isEmpty()) return DialogueLayout.EMPTY;
+
+        List<DialogueLine> lines = new ArrayList<>();
+        int yOffset = 0;
+        int wrapWidth = this.dialogueWrapWidth();
+        for (int paragraphIndex = 0; paragraphIndex < dialogue.size(); paragraphIndex++) {
+            List<FormattedCharSequence> wrapped = this.font.split(Component.literal(dialogue.get(paragraphIndex)), wrapWidth);
+            for (FormattedCharSequence line : wrapped) {
+                lines.add(new DialogueLine(line, yOffset));
+                yOffset += DIALOGUE_LINE_SPACING;
+            }
+            if (paragraphIndex + 1 < dialogue.size()) {
+                yOffset += DIALOGUE_PARAGRAPH_SPACING;
+            }
+        }
+        return new DialogueLayout(List.copyOf(lines), yOffset);
+    }
+
+    private int maxDialogueScroll(QuestProviderService.InteractionEntry entry) {
+        DialogueLayout layout = this.dialogueLayout(entry);
+        int viewportHeight = Math.max(this.font.lineHeight, this.dialogueViewportBottom() - DIALOGUE_TOP);
+        return Math.max(0, layout.contentHeight() - viewportHeight);
+    }
+
+    private void scrollDialogue(QuestProviderService.InteractionEntry entry, int amount) {
+        if (this.pendingAction || amount == 0) return;
+        int maxScroll = this.maxDialogueScroll(entry);
+        int next = Math.max(0, Math.min(this.dialogueScrollPixels + amount, maxScroll));
+        if (next == this.dialogueScrollPixels) return;
+        this.dialogueScrollPixels = next;
+        this.rebuildWidgets();
+    }
+
     private void returnToList() {
         if (this.pendingAction) return;
         this.selectedQuestId = null;
+        this.dialogueScrollPixels = 0;
         this.rebuildWidgets();
     }
 
@@ -252,29 +342,39 @@ public final class QuestProviderScreen extends Screen {
         Component questTitle = quest == null ? Component.literal(entry.questId().toString()) : quest.getDisplay().getTitle();
         graphics.drawCenteredString(this.font, questTitle, this.width / 2, 40, 0xFFFFFF);
 
-        if (quest == null) return;
-        QuestProviderRule rule = quest.getProviderRule();
-        if (rule == null) return;
+        DialogueLayout layout = this.dialogueLayout(entry);
+        if (layout.lines().isEmpty()) return;
 
-        List<String> dialogue = rule.dialogue().linesFor(entry.state());
-        if (dialogue.isEmpty()) return;
-
-        int wrapWidth = Math.min(320, Math.max(180, this.width - 60));
-        int y = 62;
-        int maxY = Math.max(y, this.height - 72);
-        for (String paragraph : dialogue) {
-            List<FormattedCharSequence> lines = this.font.split(Component.literal(paragraph), wrapWidth);
-            for (FormattedCharSequence line : lines) {
-                if (y > maxY) return;
-                graphics.drawCenteredString(this.font, line, this.width / 2, y, 0xE0E0E0);
-                y += 11;
-            }
-            y += 4;
+        int viewportBottom = this.dialogueViewportBottom();
+        int maxScroll = this.maxDialogueScroll(entry);
+        int scroll = Math.max(0, Math.min(this.dialogueScrollPixels, maxScroll));
+        for (DialogueLine line : layout.lines()) {
+            int y = DIALOGUE_TOP + line.yOffset() - scroll;
+            if (y + this.font.lineHeight < DIALOGUE_TOP) continue;
+            if (y + this.font.lineHeight > viewportBottom) continue;
+            graphics.drawCenteredString(this.font, line.text(), this.width / 2, y, 0xE0E0E0);
         }
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        QuestProviderService.InteractionEntry selected = this.selectedEntry();
+        if (selected != null && this.maxDialogueScroll(selected) > 0 && delta != 0.0D) {
+            this.scrollDialogue(selected, delta > 0.0D ? -DIALOGUE_SCROLL_STEP : DIALOGUE_SCROLL_STEP);
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    private record DialogueLine(FormattedCharSequence text, int yOffset) {
+    }
+
+    private record DialogueLayout(List<DialogueLine> lines, int contentHeight) {
+        private static final DialogueLayout EMPTY = new DialogueLayout(List.of(), 0);
     }
 }
