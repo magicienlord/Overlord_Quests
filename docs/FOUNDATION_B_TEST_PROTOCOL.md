@@ -1,6 +1,6 @@
 # Foundation B: Gnarl Popup Test Protocol
 
-Status: IMPLEMENTATION TEST PROCEDURE
+Status: IMPLEMENTATION TEST PROCEDURE - APPROVED PORTRAIT INTEGRATED
 
 This protocol validates presentation behavior only. It does not establish OVERLORD REIGN story canon, quest chronology, rewards, or progression.
 
@@ -12,7 +12,7 @@ Use the current `gnarl-bootstrap` Forge artifact and the development quest:
 
 The development quest is deliberately not bundled into the normal mod manifest.
 
-The repository currently contains a mechanically valid Gnarl test portrait. The locked character-design target is defined below, but the exact final corrected portrait binary is still pending explicit visual approval. Do not interpret a green asset-integrity or Forge build check as portrait approval.
+The exact approved Gnarl portrait is integrated in the runtime resources. The user-supplied main-branch file and the runtime asset are the same Git blob, `40c74f6613f0cc23fbf6be0911dedfcfae82865b`. Runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`. Foundation B now evaluates how that approved portrait behaves inside the Questlog UI rather than re-opening portrait design.
 
 ## Runtime scope
 
@@ -108,19 +108,17 @@ The development Gnarl fixture disables unlock toasts, so the LAN-published cance
 
 ## Locked character target
 
-The Foundation B portrait target is:
+The approved Foundation B portrait preserves:
 
-- preserve the established popup Gnarl design;
+- the established popup Gnarl design;
 - square pupils;
 - pupils directed toward the player;
-- each square pupil remains perspective-aligned to its own eye rather than being pasted as a flat screen-facing square;
-- preserve the original snout geometry, muzzle volume, nostrils, nose, and mouth/jaw relationship unchanged;
-- preserve the established sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
-- no automatic blending with the WIP in-game model.
+- each square pupil perspective-aligned to its own eye rather than pasted as a flat screen-facing square;
+- the original snout geometry, muzzle volume, nostrils, nose, and mouth/jaw relationship;
+- the established sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
+- separation from the WIP in-game model until that model reaches its own review gate.
 
-These are locked design constraints. The current repository PNG is a technical test asset and is not the final approved corrected binary until the Overlord explicitly accepts that exact image.
-
-Character redesign is therefore outside the composition experiment. A replacement portrait may change only what is necessary to satisfy the locked pupil/gaze requirement while preserving every other face and character invariant.
+These are locked design constraints. Foundation B must not use composition testing as an excuse to redraw the approved portrait.
 
 ## Current composition geometry
 
@@ -168,14 +166,9 @@ For the acceptance pass, retain screenshots of:
 
 Also retain `latest.log` if the test reveals GUI errors, missing texture messages, quest-loading exceptions, packet/state anomalies, or unexpected repeated trigger events.
 
-The screenshot evidence validates runtime composition only. Final portrait-binary approval remains a separate visual decision if the installed test kit still contains the interim raster.
-
 ## Acceptance decision
 
-Foundation B can close only when both conditions are satisfied:
-
-1. an exact Gnarl portrait binary has been explicitly accepted against the locked character target;
-2. the direct unpublished-local-single-player test confirms that the native overlay presentation is stable, readable, and sufficiently adaptable through data fields alone.
+Foundation B can close when the direct unpublished-local-single-player test confirms that the approved portrait and native overlay presentation are stable, readable, and sufficiently adaptable through data fields alone.
 
 If the only runtime failure is narrow-screen clipping, evaluate data-driven layout adjustments before creating a new renderer primitive.
 
