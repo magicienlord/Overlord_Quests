@@ -89,6 +89,23 @@ def main():
             "max": [8, 72, 8],
         },
     }), "location.min")
+    expect_valid("provider dialogue", provider({
+        "entity_types": ["minecraft:villager"],
+        "dialogue": {
+            "offer": ["[DEV] Offer line one.", "[DEV] Offer line two."],
+            "in_progress": "[DEV] Still working.",
+            "ready_to_turn_in": "[DEV] Ready.",
+            "failed": "[DEV] Failed.",
+        },
+    }))
+    expect_invalid("provider dialogue unknown phase", provider({
+        "entity_types": ["minecraft:villager"],
+        "dialogue": {"victory": "[DEV] Unsupported."},
+    }), "not a supported dialogue phase")
+    expect_invalid("provider dialogue empty line", provider({
+        "entity_types": ["minecraft:villager"],
+        "dialogue": {"offer": [""]},
+    }), "non-empty string")
     expect_invalid("missing provider selector", provider({}), "requires at least one")
     expect_invalid("bad provider turn-in", provider({
         "entity_types": ["minecraft:villager"],
@@ -99,7 +116,7 @@ def main():
         "required_dispositions": {"overlord_reign:test_civilization": []},
     }), "non-empty list")
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (12 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (15 cases)")
     return 0
 
 
