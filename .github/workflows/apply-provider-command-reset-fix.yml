@@ -1,0 +1,102 @@
+name: Apply provider command reset correction
+
+on:
+  push:
+    branches: [gnarl-bootstrap]
+    paths:
+      - '.github/workflows/apply-provider-command-reset-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: gnarl-bootstrap
+          fetch-depth: 0
+
+      - name: Make command resets provider-aware
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('common/src/main/java/org/infernalstudios/questlog/commands/QuestlogCommands.java')
+          text = path.read_text()
+
+          manual_loop = '''            for (Quest quest : manager.getAllQuests()) {
+                quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
+                quest.objectives.forEach(obj -> obj.forceSetUnits(0));
+                quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
+                quest.rewards.forEach(Reward::revokeReward);
+                quest.hasSentTrigger = quest.prerequisites.isEmpty();
+                quest.hasSentCompletion = false;
+            }
+'''
+          replacement_loop = '''            for (Quest quest : manager.getAllQuests()) {
+                quest.resetProgress();
+            }
+'''
+          count = text.count(manual_loop)
+          if count != 2:
+              raise SystemExit(f'expected exactly 2 full manual reset loops, found {count}')
+          text = text.replace(manual_loop, replacement_loop)
+
+          manual_branch = '''                } else {
+                    quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
+                    quest.objectives.forEach(obj -> obj.forceSetUnits(0));
+                    quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
+                    quest.rewards.forEach(Reward::revokeReward);
+                    quest.hasSentTrigger = quest.prerequisites.isEmpty();
+                    quest.hasSentCompletion = false;
+                }
+'''
+          replacement_branch = '''                } else {
+                    quest.resetProgress();
+                }
+'''
+          if text.count(manual_branch) != 1:
+              raise SystemExit('expected exactly one targeted modifyProgress reset branch')
+          text = text.replace(manual_branch, replacement_branch, 1)
+
+          trigger_block = '''            for (Quest quest : affectedQuests) {
+                if (!quest.isTriggered()) {
+                    quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(trigger.getRequiredAmount()));
+                    count++;
+                }
+            }
+'''
+          guarded_trigger = '''            for (Quest quest : affectedQuests) {
+                if (quest.getProviderRule() != null && quest.getProviderBinding() == null) {
+                    continue;
+                }
+                if (!quest.isTriggered()) {
+                    quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(trigger.getRequiredAmount()));
+                    count++;
+                }
+            }
+'''
+          if text.count(trigger_block) != 1:
+              raise SystemExit('expected exactly one trigger loop')
+          text = text.replace(trigger_block, guarded_trigger, 1)
+
+          if 'quest.hasSentTrigger = quest.prerequisites.isEmpty();' in text:
+              raise SystemExit('provider-unsafe hasSentTrigger assignment remains in command resets')
+          if text.count('quest.resetProgress();') < 3:
+              raise SystemExit('provider-aware resetProgress calls were not installed in all reset paths')
+
+          path.write_text(text)
+          PY
+
+      - name: Remove migration workflow and commit
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-provider-command-reset-fix.yml
+          git config user.name 'magicienlord'
+          git config user.email '126299567+magicienlord@users.noreply.github.com'
+          git add common/src/main/java/org/infernalstudios/questlog/commands/QuestlogCommands.java
+          git commit -m 'Make quest reset commands provider-aware'
+          git push origin HEAD:gnarl-bootstrap
