@@ -50,6 +50,8 @@ Accepting a quest records a durable provider binding containing the provider UUI
 
 Provider turn-in is also server-authoritative. `same_provider` requires the exact stored UUID. `any_eligible` requires a currently eligible provider entity matching the provider rule. `none` means the provider does not gate final quest completion after the objectives are complete.
 
+Quest reset commands delegate to the provider-aware `Quest.resetProgress()` contract. This clears provider binding and turn-in state along with ordinary objectives, prerequisites, failures, and rewards. The administrative `/questlog trigger` command deliberately refuses to bypass an unaccepted provider binding.
+
 ## Interaction protocol
 
 The current temporary Forge interaction is intentionally non-invasive:
@@ -83,6 +85,16 @@ The engine currently exposes:
 
 The actual civilization IDs and legal state IDs are authored content. The engine does not define canonical states beyond its technical unresolved fallback.
 
+Permission-gated development/admin commands expose the stored world fact directly:
+
+```text
+/questlog narrative disposition get <civilization>
+/questlog narrative disposition set <civilization> <state>
+/questlog narrative disposition clear <civilization>
+```
+
+`set` and `clear` immediately re-synchronize active quest state so disposition objectives and provider eligibility do not wait for an unrelated quest event. These commands are technical authoring/validation tools. They do not define which civilizations or states are canon.
+
 This permits future quest branches to settle a civilization into authored outcomes such as hostility, neutrality, or a domination/gift-giving state without requiring a continuously varying reputation score. Those concrete outcomes remain content decisions rather than generic engine constants.
 
 ## Deliberately excluded systems
@@ -101,10 +113,12 @@ The provider layer does not currently implement:
 
 Those systems must not be inferred merely because the reference mod contained broader quest-provider or reputation behavior.
 
-## Development fixture
+## Development fixtures
 
-`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exists solely to exercise provider acceptance, persistence, same-provider turn-in, refresh behavior, and interaction safety.
+`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, and interaction safety.
 
-It is not bundled as production quest content and establishes no OVERLORD REIGN story canon.
+`examples/questlog/quests/overlord_provider_disposition_dev.json` is an implementation-only fixture gated by the synthetic IDs `questlog:dev_civilization` and `questlog:dev_open`. Those identifiers exist only to validate the disposition bridge and establish no setting canon.
+
+Neither fixture is bundled as production quest content.
 
 Manual validation is defined in `docs/NPC_PROVIDER_TEST_PROTOCOL.md`.

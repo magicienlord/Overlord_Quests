@@ -16,6 +16,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
+import org.infernalstudios.questlog.commands.OverlordNarrativeCommands;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
 
 public class QuestlogForgeEventForwarder {
@@ -46,6 +47,7 @@ public class QuestlogForgeEventForwarder {
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         QuestlogEvents.registerCommands(event.getDispatcher());
+        OverlordNarrativeCommands.register(event.getDispatcher());
     }
 
     /**

@@ -32,6 +32,9 @@ jobs:
       - name: Self-test narrative and provider extensions
         run: python3 tools/test_validate_overlord_narrative_extensions.py
 
+      - name: Validate provider runtime contracts
+        run: python3 tools/validate_provider_runtime_contracts.py
+
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
 
@@ -88,6 +91,7 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreen.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreens.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/commands/OverlordNarrativeCommands.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.class'
@@ -186,6 +190,7 @@ jobs:
 
           cp "$JAR" "$KIT/mods/"
           cp examples/questlog/quests/overlord_provider_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_provider_disposition_dev.json "$KIT/config/questlog/quests/"
           cp docs/NPC_PROVIDER_SYSTEM.md "$KIT/docs/"
           cp docs/NPC_PROVIDER_TEST_PROTOCOL.md "$KIT/docs/"
 
@@ -211,13 +216,14 @@ jobs:
           forge=47.4.10
           java=17
           development_quest=config/questlog/quests/overlord_provider_dev.json
+          disposition_development_quest=config/questlog/quests/overlord_provider_disposition_dev.json
           interaction_scaffold=sneak_main_hand_entity_interact
           provider_authority=server
           EOF
 
           (
             cd "$KIT"
-            sha256sum mods/* config/questlog/quests/overlord_provider_dev.json > SHA256SUMS.txt
+            sha256sum mods/* config/questlog/quests/overlord_provider_dev.json config/questlog/quests/overlord_provider_disposition_dev.json > SHA256SUMS.txt
           )
 
       - name: Upload Forge artifact

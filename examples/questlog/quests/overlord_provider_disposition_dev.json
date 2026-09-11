@@ -1,0 +1,34 @@
+{
+  "title": "[DEV] Disposition-Gated Provider Prototype",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate authored civilization disposition gating for NPC sidequests. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:paper"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "provider": {
+    "entity_types": [
+      "minecraft:villager"
+    ],
+    "required_dispositions": {
+      "questlog:dev_civilization": [
+        "questlog:dev_open"
+      ]
+    },
+    "lock_to_provider": false,
+    "turn_in": "none"
+  },
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one debug stick after accepting the disposition-gated quest"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
