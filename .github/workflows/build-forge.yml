@@ -29,8 +29,14 @@ jobs:
       - name: Self-test quest definition validator
         run: python3 tools/test_validate_overlord_quest_examples.py
 
+      - name: Self-test narrative and provider extensions
+        run: python3 tools/test_validate_overlord_narrative_extensions.py
+
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
+
+      - name: Validate Overlord death-screen theme boundary
+        run: python3 tools/validate_overlord_death_screen.py
 
       - name: Self-test runtime quest contracts
         run: python3 tools/test_validate_required_objective_fields.py
@@ -80,6 +86,10 @@ jobs:
           echo "Inspecting $JAR"
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/Questlog.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreen.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreens.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/textures/gui/overlord/gnarl_popup.png'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/overlord/definitions/index.json'
           jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
@@ -117,6 +127,7 @@ jobs:
           cp docs/GNARL_VISUAL_ALIGNMENT.md "$KIT/docs/"
           cp docs/FOUNDATION_B_TEST_PROTOCOL.md "$KIT/docs/"
           cp docs/FOUNDATION_B_HANDOFF.md "$KIT/docs/"
+          cp docs/EPIC_DEATH_SCREEN_INTEGRATION.md "$KIT/docs/"
           cp gnarl_popup_layout_report.txt "$KIT/docs/"
           cp gnarl_popup_asset_report.txt "$KIT/docs/"
           cp common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png "$KIT/reference/gnarl_popup.png"
@@ -145,6 +156,7 @@ jobs:
           runtime_scope=unpublished_local_singleplayer
           development_quest=config/questlog/quests/overlord_gnarl_popup_dev.json
           portrait_reference=reference/gnarl_popup.png
+          death_screen_scaffold=integrated_without_vhs_or_epic_soundscape
           EOF
 
           (
