@@ -21,6 +21,7 @@ Supported fields currently include:
 - `scoreboard_tags`: additional required entity scoreboard tags;
 - `role`: optional logical role, matched through an `overlord_role:<role>` entity scoreboard tag;
 - `dimensions`: optional dimension allow-list;
+- `location`: optional inclusive block-coordinate bounds using `min` and `max` three-integer arrays;
 - `unlock_quests`: quest IDs that must already be complete before this sidequest may be accepted;
 - `required_dispositions`: map of civilization IDs to one or more allowed authored disposition-state IDs;
 - `civilization`: optional provider/civilization metadata stored in the provider binding;
@@ -29,6 +30,19 @@ Supported fields currently include:
 - `turn_in`: `none`, `same_provider`, or `any_eligible`.
 
 At least one `entity_types` or `entity_type_tags` selector is required.
+
+Location bounds are purely authoring data. They do not establish any canonical settlement coordinates. A rule such as the following means only that an eligible provider entity must currently stand inside that inclusive box:
+
+```json
+"location": {
+  "min": [-32, 48, -32],
+  "max": [32, 128, 32]
+}
+```
+
+The runtime normalizes reversed coordinate pairs, so `min` and `max` describe the two opposite corners rather than requiring authors to pre-sort every axis. `dimensions` remains a separate selector and should be used with `location` when the same coordinate box must not match another dimension.
+
+`unlock_quests` is definition gating, not quest auto-start. Repository-controlled definitions should use explicit namespaced quest IDs. External definitions with a bare unlock quest ID are normalized into the retained `questlog` namespace rather than accidentally becoming `minecraft:<id>`.
 
 `pool` is currently parsed and retained as definition metadata only. There is no random, weighted, rotating, daily, cooldown, or limited-capacity pool scheduler yet. Production quest design must not assume those behaviors until they are explicitly implemented.
 
@@ -40,6 +54,9 @@ Acceptance checks:
 
 - active server QuestManager;
 - matching provider entity selector;
+- allowed dimension, if defined;
+- authored location bounds, if defined;
+- required scoreboard tags and logical role, if defined;
 - completed ordinary prerequisites;
 - completed `unlock_quests` markers;
 - required authored civilization dispositions;
