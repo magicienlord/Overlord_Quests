@@ -75,6 +75,20 @@ def main():
         "entity_type_tags": ["forge:villagers"],
         "turn_in": "any_eligible",
     }))
+    expect_valid("provider location bounds", provider({
+        "entity_types": ["minecraft:villager"],
+        "location": {
+            "min": [-32, 48, -32],
+            "max": [32, 128, 32],
+        },
+    }))
+    expect_invalid("provider location shape", provider({
+        "entity_types": ["minecraft:villager"],
+        "location": {
+            "min": [0, 64],
+            "max": [8, 72, 8],
+        },
+    }), "location.min")
     expect_invalid("missing provider selector", provider({}), "requires at least one")
     expect_invalid("bad provider turn-in", provider({
         "entity_types": ["minecraft:villager"],
@@ -85,7 +99,7 @@ def main():
         "required_dispositions": {"overlord_reign:test_civilization": []},
     }), "non-empty list")
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (10 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (12 cases)")
     return 0
 
 
