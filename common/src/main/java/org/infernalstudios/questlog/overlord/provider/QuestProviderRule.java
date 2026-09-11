@@ -79,6 +79,7 @@ public final class QuestProviderRule {
     private final Set<String> scoreboardTags;
     private final Set<ResourceLocation> dimensions;
     @Nullable private final LocationBounds location;
+    private final QuestProviderDialogue dialogue;
     private final Set<ResourceLocation> unlockQuests;
     private final Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions;
     private final boolean lockToProvider;
@@ -93,6 +94,7 @@ public final class QuestProviderRule {
             Set<String> scoreboardTags,
             Set<ResourceLocation> dimensions,
             @Nullable LocationBounds location,
+            QuestProviderDialogue dialogue,
             Set<ResourceLocation> unlockQuests,
             Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions,
             boolean lockToProvider,
@@ -106,6 +108,7 @@ public final class QuestProviderRule {
         this.scoreboardTags = Set.copyOf(scoreboardTags);
         this.dimensions = Set.copyOf(dimensions);
         this.location = location;
+        this.dialogue = dialogue == null ? QuestProviderDialogue.EMPTY : dialogue;
         this.unlockQuests = Set.copyOf(unlockQuests);
         Map<ResourceLocation, Set<ResourceLocation>> copy = new LinkedHashMap<>();
         requiredDispositions.forEach((key, value) -> copy.put(key, Set.copyOf(value)));
@@ -132,6 +135,7 @@ public final class QuestProviderRule {
         Set<String> scoreboardTags = stringSet(json, "scoreboard_tags");
         Set<ResourceLocation> dimensions = idSet(json, "dimensions");
         LocationBounds location = locationBounds(json);
+        QuestProviderDialogue dialogue = QuestProviderDialogue.fromProviderDefinition(json);
         Set<ResourceLocation> unlockQuests = questIdSet(json, "unlock_quests");
         Map<ResourceLocation, Set<ResourceLocation>> dispositions = dispositionMap(json);
         boolean lockToProvider = optionalBoolean(json, "lock_to_provider", true);
@@ -143,7 +147,7 @@ public final class QuestProviderRule {
 
         return new QuestProviderRule(
                 pool, civilization, role, entityTypes, entityTypeTags, scoreboardTags,
-                dimensions, location, unlockQuests, dispositions, lockToProvider, turnInMode
+                dimensions, location, dialogue, unlockQuests, dispositions, lockToProvider, turnInMode
         );
     }
 
@@ -179,6 +183,7 @@ public final class QuestProviderRule {
     @Nullable public ResourceLocation civilization() { return this.civilization; }
     public String role() { return this.role; }
     @Nullable public LocationBounds location() { return this.location; }
+    public QuestProviderDialogue dialogue() { return this.dialogue; }
     public Set<ResourceLocation> unlockQuests() { return this.unlockQuests; }
     public Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions() { return this.requiredDispositions; }
     public boolean lockToProvider() { return this.lockToProvider; }
