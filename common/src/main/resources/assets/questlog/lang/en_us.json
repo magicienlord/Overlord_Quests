@@ -181,6 +181,7 @@
     "questlog.editor.details_disabled": "Disable Details Button",
     "questlog.editor.objectives": "Objectives",
     "questlog.editor.prerequisites": "Prerequisites",
+    "questlog.editor.failures": "Failures",
     "questlog.editor.rewards": "Rewards",
     "questlog.editor.settings": "Settings",
 
