@@ -1,6 +1,8 @@
 package org.infernalstudios.questlog;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -8,11 +10,13 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
+import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
 
 public class QuestlogForgeEventForwarder {
     @SubscribeEvent
@@ -42,6 +46,25 @@ public class QuestlogForgeEventForwarder {
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         QuestlogEvents.registerCommands(event.getDispatcher());
+    }
+
+    /**
+     * Temporary non-invasive provider interaction scaffold. Sneak + main-hand
+     * interaction avoids stealing ordinary villager trading or another mod's
+     * entity interaction while the final quest-provider presentation is pending.
+     */
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || event.getHand() != InteractionHand.MAIN_HAND
+                || !player.isShiftKeyDown()) {
+            return;
+        }
+
+        if (QuestProviderInteraction.sendMenu(player, event.getTarget(), false)) {
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
