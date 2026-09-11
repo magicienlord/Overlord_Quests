@@ -90,6 +90,10 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreens.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/provider/QuestProviderScreen.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/network/packet/QuestProviderOpenPacket.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/network/packet/QuestProviderActionPacket.class'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/textures/gui/overlord/gnarl_popup.png'
           jar tf "$JAR" | grep -Fxq 'assets/questlog/overlord/definitions/index.json'
           jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
@@ -164,6 +168,58 @@ jobs:
             sha256sum mods/* reference/gnarl_popup.png config/questlog/quests/overlord_gnarl_popup_dev.json > SHA256SUMS.txt
           )
 
+      - name: Prepare NPC provider test kit
+        run: |
+          set -euo pipefail
+          KIT='build/provider-test-kit'
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p \
+            "$KIT/mods" \
+            "$KIT/config/questlog/quests" \
+            "$KIT/docs"
+
+          cp "$JAR" "$KIT/mods/"
+          cp examples/questlog/quests/overlord_provider_dev.json "$KIT/config/questlog/quests/"
+          cp docs/NPC_PROVIDER_SYSTEM.md "$KIT/docs/"
+          cp docs/NPC_PROVIDER_TEST_PROTOCOL.md "$KIT/docs/"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - NPC PROVIDER TEST KIT
+
+          1. Back up the test instance.
+          2. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          3. Copy the contents of this kit's mods/ directory into the instance mods/ directory.
+          4. Copy the contents of this kit's config/ directory into the instance config/ directory.
+          5. Launch an unpublished local single-player test world with commands available.
+          6. Follow docs/NPC_PROVIDER_TEST_PROTOCOL.md exactly.
+
+          This kit contains development-only provider quest content. It establishes no OVERLORD REIGN story canon.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS NPC provider test kit
+          commit=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          development_quest=config/questlog/quests/overlord_provider_dev.json
+          interaction_scaffold=sneak_main_hand_entity_interact
+          provider_authority=server
+          EOF
+
+          (
+            cd "$KIT"
+            sha256sum mods/* config/questlog/quests/overlord_provider_dev.json > SHA256SUMS.txt
+          )
+
       - name: Upload Forge artifact
         uses: actions/upload-artifact@v4
         with:
@@ -176,4 +232,11 @@ jobs:
         with:
           name: overlord-quests-gnarl-popup-test-kit
           path: build/gnarl-popup-test-kit/
+          if-no-files-found: error
+
+      - name: Upload NPC provider test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-provider-test-kit
+          path: build/provider-test-kit/
           if-no-files-found: error

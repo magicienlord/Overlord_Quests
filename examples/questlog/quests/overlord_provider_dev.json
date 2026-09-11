@@ -1,0 +1,29 @@
+{
+  "title": "[DEV] NPC Provider Prototype",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate server-authoritative NPC sidequest acceptance, provider binding persistence, same-provider turn-in, menu refresh, and interaction safety. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:emerald"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "provider": {
+    "entity_types": [
+      "minecraft:villager"
+    ],
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one debug stick after accepting the provider quest"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}

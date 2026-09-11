@@ -1,6 +1,6 @@
 # Epic Death Screen integration
 
-Status: PLANNED / TECHNICAL
+Status: MECHANICAL SCAFFOLD IMPLEMENTED / OVERLORD VISUAL PASS PLANNED
 
 This document records the approved integration boundary for the Epic Death Screen mechanics inside OVERLORD QUESTS. It does not establish OVERLORD REIGN story canon.
 
@@ -10,23 +10,25 @@ The reference implementation is `epicdeathscreen-forge-1.20.1-1.1.0-beta.2.jar`,
 
 The inspected reference code is MIT licensed, Copyright (c) 2026 Litewer. Its original license is preserved separately as `reference/EPIC_DEATH_SCREEN_MIT_LICENSE.txt`.
 
-## Approved mechanics to preserve
+## Implemented mechanical boundary
 
-The integrated death flow should preserve the useful mechanical behavior of the reference implementation:
+The current OVERLORD QUESTS death flow preserves the useful mechanical behavior of the reference implementation while keeping presentation neutral:
 
 - replace the exact vanilla death screen without indiscriminately replacing another mod's custom death UI;
-- a bounded cinematic delay before respawn controls become available;
+- bounded cinematic delay before respawn controls become available;
 - optional automatic respawn after the delay in non-hardcore play;
 - manual skip support for the delay;
 - hardcore-safe behavior;
-- robust screen lifecycle handling if the world/player changes or revival mechanics recover the player;
+- screen lifecycle handling if the world/player changes or revival mechanics recover the player;
 - compatibility blockers for revival systems so the custom screen fails closed rather than interfering with a revive/knockout flow;
-- responsive cause-of-death text and controls;
+- actual Minecraft cause-of-death text;
 - configuration through OVERLORD QUESTS rather than a second standalone mod/config surface.
+
+The mechanical scaffold is integrated in the Forge runtime and covered by normal build/JAR validation. This does not approve the current neutral visual composition as the final OVERLORD REIGN death screen.
 
 ## Explicitly rejected presentation from the reference
 
-The Epic Death Screen visual/audio theme is not the OVERLORD REIGN presentation target. The integration must not carry forward its VHS identity.
+The Epic Death Screen visual/audio theme is not the OVERLORD REIGN presentation target. The integration does not carry forward its VHS identity.
 
 Do not integrate as production presentation:
 
@@ -39,13 +41,15 @@ Do not integrate as production presentation:
 - cassette/tape audio cues;
 - the reference mod's stock humorous death phrases as OVERLORD narrative text.
 
-No Epic Death Screen audio assets are required for the OVERLORD QUESTS implementation at this stage.
+No Epic Death Screen audio assets are required for the OVERLORD QUESTS implementation at this stage. CI contains a theme-boundary validator specifically to prevent the rejected VHS/cassette treatment from being reintroduced accidentally.
 
 ## Current visual boundary
 
-IMPLEMENTATION may use a deliberately neutral temporary scaffold while the mechanics are stabilized: dark background, actual Minecraft cause-of-death text, and ordinary controls. That scaffold is not a final design.
+IMPLEMENTATION currently uses a deliberately neutral scaffold while the mechanics are stabilized: dark background, actual Minecraft cause-of-death text, and ordinary controls. That scaffold is not a final design.
 
-The final death screen visual language remains PLANNED and requires a dedicated OVERLORD visual pass. Until that pass is explicitly approved, temporary visuals must not invent lore, faction imagery, quotations, Gnarl dialogue, or other story content.
+The final death-screen visual language remains PLANNED and requires a dedicated OVERLORD visual pass. Until that pass is explicitly approved, temporary visuals must not invent lore, faction imagery, quotations, Gnarl dialogue, or other story content.
+
+The visual pass may replace the neutral scaffold without changing the proven timing, skip, respawn, hardcore, compatibility, and lifecycle mechanics underneath it.
 
 ## Regression requirement
 
