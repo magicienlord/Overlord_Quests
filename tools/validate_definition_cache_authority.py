@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the integrated-server definition-cache and bundled-content authority boundary.
+"""Guard definition-cache authority and editor-owned definition integrity.
 
 DefinitionUtil uses static maps, so an integrated client and server share the same
 objects. Client editor code may construct and send modified JSON, but only the
@@ -23,6 +23,7 @@ QUESTLOG_JAVA = JAVA_ROOT / "org" / "infernalstudios" / "questlog"
 DEFINITION_UTIL = QUESTLOG_JAVA / "core" / "DefinitionUtil.java"
 CLIENT_HANDLER = QUESTLOG_JAVA / "network" / "ClientPacketHandler.java"
 CHAPTER_EDITOR = QUESTLOG_JAVA / "client" / "gui" / "screen" / "ChapterEditorScreen.java"
+QUEST_EDITOR = QUESTLOG_JAVA / "client" / "gui" / "screen" / "QuestEditorScreen.java"
 QUEST_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "QuestEditRemovePacket.java"
 CHAPTER_REMOVE = QUESTLOG_JAVA / "network" / "packet" / "ChapterEditRemovePacket.java"
 
@@ -36,6 +37,7 @@ def main() -> int:
     definition_source = DEFINITION_UTIL.read_text(encoding="utf-8")
     client_source = CLIENT_HANDLER.read_text(encoding="utf-8")
     chapter_editor_source = CHAPTER_EDITOR.read_text(encoding="utf-8")
+    quest_editor_source = QUEST_EDITOR.read_text(encoding="utf-8")
     quest_remove_source = QUEST_REMOVE.read_text(encoding="utf-8")
     chapter_remove_source = CHAPTER_REMOVE.read_text(encoding="utf-8")
 
@@ -128,13 +130,31 @@ def main() -> int:
         if required not in chapter_editor_source:
             fail(f"ChapterEditorScreen is missing {label}", errors)
 
+    # Runtime supports failure conditions as ordinary Objective trees. The editor
+    # must therefore round-trip and author them rather than silently preserving an
+    # opaque original JSON field with no editable state.
+    if 'loadList(definition.getAsJsonArray("failures"), null)' in quest_editor_source:
+        fail("QuestEditorScreen still discards failure conditions from editable state", errors)
+
+    for required, label in (
+        ("private final List<JsonObject> tempFailures = new ArrayList<>();", "editable failure list"),
+        ('loadList(definition.getAsJsonArray("failures"), this.tempFailures);', "failure definition loading"),
+        ("case FAILURES -> Component.translatable(\"questlog.editor.failures\")", "failure tab label"),
+        ("this.activeTab == ActiveTab.FAILURES", "failure tab objective editing path"),
+        ("return this.tempFailures;", "failure active-list routing"),
+        ('json.add("failures", failureArr);', "failure definition serialization"),
+        ("FAILURES,\n        REWARDS,", "failure tab enum entry"),
+    ):
+        if required not in quest_editor_source:
+            fail(f"QuestEditorScreen is missing {label}", errors)
+
     if errors:
-        print("Definition-cache authority validation failed:", file=sys.stderr)
+        print("Definition/editor authority validation failed:", file=sys.stderr)
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
 
-    print("Definition-cache and bundled-content authority boundaries are intact.")
+    print("Definition-cache authority and editor definition contracts are intact.")
     return 0
 
 
