@@ -8,6 +8,7 @@ import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.overlord.narrative.OverlordNarrativeState;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,7 @@ public final class QuestProviderService {
                 result.add(quest);
             }
         }
+        result.sort(questOrder());
         return result;
     }
 
@@ -85,6 +87,13 @@ public final class QuestProviderService {
                     quest.isFailed() ? InteractionState.FAILED : InteractionState.IN_PROGRESS
             ));
         }
+
+        // Definition-cache map iteration is not an authoring order contract. Keep
+        // provider menus stable by using the same quest sort_order semantics as the
+        // journal, with quest id as a deterministic tie-breaker.
+        result.sort(Comparator
+                .comparingInt((InteractionEntry entry) -> questSortOrder(manager, entry.questId()))
+                .thenComparing(entry -> entry.questId().toString()));
         return result;
     }
 
@@ -140,5 +149,16 @@ public final class QuestProviderService {
                 && provider != null
                 && player.level() == provider.level()
                 && player.distanceToSqr(provider) <= MAX_INTERACTION_DISTANCE_SQR;
+    }
+
+    private static Comparator<Quest> questOrder() {
+        return Comparator
+                .comparingInt((Quest quest) -> quest.getDisplay().getSortOrder())
+                .thenComparing(quest -> quest.getId().toString());
+    }
+
+    private static int questSortOrder(QuestManager manager, ResourceLocation questId) {
+        Quest quest = manager.getQuest(questId);
+        return quest == null ? Integer.MAX_VALUE : quest.getDisplay().getSortOrder();
     }
 }
