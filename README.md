@@ -45,7 +45,7 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts, dependency graphs, definition-cache authority, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus the Gnarl popup and NPC-provider validation kits.
+GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts, dependency graphs, definition-cache and editor-authority contracts, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus the Gnarl popup and NPC-provider validation kits.
 
 ## Adaptation strategy
 
@@ -54,6 +54,8 @@ The fork keeps Questlog's underlying quest state machine, objectives, rewards, s
 Bundled definition support is implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest is intentionally empty until actual OVERLORD REIGN story content is approved.
 
 The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, provider/disposition extensions, authored provider dialogue/location fields, and bundled-content boundaries. Definition loading and packet handling also enforce the same synchronization-size contract so an oversized external definition cannot load successfully and fail only when a player sync occurs.
+
+The in-game editor now keeps integrated-server definition authority on the server side for chapter membership changes and can directly author runtime-supported failure-condition objective trees alongside prerequisites, objectives, rewards, and settings. Existing failure conditions are no longer opaque editor-preserved JSON.
 
 Generic Questlog redevelopment is not an active project goal. Engine changes are made when an approved OVERLORD REIGN requirement, an active presentation test, or a demonstrated modpack integration requires them. The provider and death-screen work are such explicit integration requirements rather than generic upstream refactoring.
 
