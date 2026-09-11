@@ -1,6 +1,6 @@
 {
   "title": "[DEV] NPC Provider Prototype",
-  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate server-authoritative NPC sidequest acceptance, provider binding persistence, same-provider turn-in, menu refresh, and interaction safety. It is not an OVERLORD REIGN story quest.",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate server-authoritative NPC sidequest acceptance, provider binding persistence, same-provider turn-in, menu refresh, dialogue-state presentation, explicit decline, and interaction safety. It is not an OVERLORD REIGN story quest.",
   "icon": {
     "item": "minecraft:emerald"
   },
@@ -10,6 +10,15 @@
     "entity_types": [
       "minecraft:villager"
     ],
+    "dialogue": {
+      "offer": [
+        "[DEV] This line validates authored provider offer dialogue.",
+        "[DEV] Declining this offer must not alter quest state."
+      ],
+      "in_progress": "[DEV] This line validates the in-progress provider response.",
+      "ready_to_turn_in": "[DEV] This line validates the ready-to-turn-in provider response.",
+      "failed": "[DEV] This line is reserved for failure-state presentation validation."
+    },
     "lock_to_provider": true,
     "turn_in": "same_provider"
   },
