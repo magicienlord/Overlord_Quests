@@ -5,11 +5,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.Entity;
 import org.infernalstudios.questlog.QuestlogClient;
 import org.infernalstudios.questlog.core.quests.Quest;
 import org.infernalstudios.questlog.network.packet.QuestProviderActionPacket;
 import org.infernalstudios.questlog.network.packet.QuestProviderOpenPacket;
+import org.infernalstudios.questlog.overlord.provider.QuestProviderRule;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderService;
 import org.infernalstudios.questlog.platform.Services;
 
@@ -20,7 +23,8 @@ import java.util.UUID;
  * Temporary neutral provider interaction scaffold.
  *
  * The final NPC sidequest presentation remains a dedicated design pass. This
- * screen intentionally contains no invented civilization art, dialogue, or lore.
+ * screen intentionally contains no invented civilization art or story dialogue.
+ * Any dialogue rendered here comes directly from the authored quest definition.
  */
 public final class QuestProviderScreen extends Screen {
     private static final int PAGE_SIZE = 7;
@@ -32,9 +36,10 @@ public final class QuestProviderScreen extends Screen {
     private List<QuestProviderService.InteractionEntry> entries;
     private int page;
     private boolean pendingAction;
+    private ResourceLocation selectedQuestId;
 
     public QuestProviderScreen(QuestProviderOpenPacket packet) {
-        super(Component.translatable("questlog.provider.screen_title"));
+        super(Component.literal("Quests"));
         this.providerEntityId = packet.providerEntityId();
         this.providerId = packet.providerId();
         this.providerName = packet.providerName();
@@ -54,6 +59,9 @@ public final class QuestProviderScreen extends Screen {
         this.providerName = packet.providerName();
         this.entries = List.copyOf(packet.entries());
         this.pendingAction = false;
+        if (this.selectedQuestId != null && this.selectedEntry() == null) {
+            this.selectedQuestId = null;
+        }
         this.rebuildWidgets();
     }
 
@@ -63,6 +71,12 @@ public final class QuestProviderScreen extends Screen {
 
         int panelWidth = Math.min(340, Math.max(220, this.width - 40));
         int x = (this.width - panelWidth) / 2;
+        QuestProviderService.InteractionEntry selected = this.selectedEntry();
+        if (selected != null) {
+            this.initDialogueControls(selected, x, panelWidth);
+            return;
+        }
+
         int firstY = Math.max(52, (this.height - (PAGE_SIZE * 24 + 78)) / 2 + 44);
         int maxPage = Math.max(0, (this.entries.size() - 1) / PAGE_SIZE);
         this.page = Math.max(0, Math.min(this.page, maxPage));
@@ -71,12 +85,13 @@ public final class QuestProviderScreen extends Screen {
         int to = Math.min(this.entries.size(), from + PAGE_SIZE);
         for (int i = from; i < to; i++) {
             QuestProviderService.InteractionEntry entry = this.entries.get(i);
-            Button button = Button.builder(this.messageFor(entry), ignored -> this.perform(entry))
+            Button button = Button.builder(this.messageFor(entry), ignored -> {
+                        this.selectedQuestId = entry.questId();
+                        this.rebuildWidgets();
+                    })
                     .bounds(x, firstY + (i - from) * 24, panelWidth, 20)
                     .build();
-            button.active = !this.pendingAction
-                    && (entry.state() == QuestProviderService.InteractionState.AVAILABLE
-                    || entry.state() == QuestProviderService.InteractionState.READY_TO_TURN_IN);
+            button.active = !this.pendingAction;
             this.addRenderableWidget(button);
         }
 
@@ -106,14 +121,62 @@ public final class QuestProviderScreen extends Screen {
                 .build());
     }
 
+    private void initDialogueControls(QuestProviderService.InteractionEntry entry, int x, int panelWidth) {
+        int y = Math.max(84, this.height - 54);
+        boolean actionable = entry.state() == QuestProviderService.InteractionState.AVAILABLE
+                || entry.state() == QuestProviderService.InteractionState.READY_TO_TURN_IN;
+
+        if (actionable) {
+            Component actionText = entry.state() == QuestProviderService.InteractionState.AVAILABLE
+                    ? Component.literal("Accept")
+                    : Component.literal("Turn In");
+            Button action = Button.builder(actionText, ignored -> this.perform(entry))
+                    .bounds(x, y, (panelWidth - 6) / 2, 20)
+                    .build();
+            action.active = !this.pendingAction;
+            this.addRenderableWidget(action);
+
+            Component returnText = entry.state() == QuestProviderService.InteractionState.AVAILABLE
+                    ? Component.literal("Decline")
+                    : Component.literal("Back");
+            Button back = Button.builder(returnText, ignored -> this.returnToList())
+                    .bounds(x + (panelWidth + 6) / 2, y, (panelWidth - 6) / 2, 20)
+                    .build();
+            back.active = !this.pendingAction;
+            this.addRenderableWidget(back);
+        } else {
+            Button back = Button.builder(Component.literal("Back"), ignored -> this.returnToList())
+                    .bounds(x + (panelWidth - 120) / 2, y, 120, 20)
+                    .build();
+            back.active = !this.pendingAction;
+            this.addRenderableWidget(back);
+        }
+    }
+
+    private void returnToList() {
+        if (this.pendingAction) return;
+        this.selectedQuestId = null;
+        this.rebuildWidgets();
+    }
+
+    private QuestProviderService.InteractionEntry selectedEntry() {
+        if (this.selectedQuestId == null) return null;
+        for (QuestProviderService.InteractionEntry entry : this.entries) {
+            if (this.selectedQuestId.equals(entry.questId())) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
     private Component messageFor(QuestProviderService.InteractionEntry entry) {
         Quest quest = QuestlogClient.getLocal().getQuest(entry.questId());
         Component title = quest == null ? Component.literal(entry.questId().toString()) : quest.getDisplay().getTitle();
         return switch (entry.state()) {
-            case AVAILABLE -> Component.translatable("questlog.provider.accept", title);
-            case IN_PROGRESS -> Component.translatable("questlog.provider.in_progress", title);
-            case READY_TO_TURN_IN -> Component.translatable("questlog.provider.turn_in", title);
-            case FAILED -> Component.translatable("questlog.provider.failed", title);
+            case AVAILABLE -> Component.literal("Available: ").append(title.copy());
+            case IN_PROGRESS -> Component.literal("In Progress: ").append(title.copy());
+            case READY_TO_TURN_IN -> Component.literal("Ready: ").append(title.copy());
+            case FAILED -> Component.literal("Failed: ").append(title.copy());
         };
     }
 
@@ -165,18 +228,49 @@ public final class QuestProviderScreen extends Screen {
                 22,
                 0xFFFFFF
         );
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, 36, 0xB8B8B8);
 
-        if (this.entries.isEmpty()) {
-            graphics.drawCenteredString(
-                    this.font,
-                    Component.translatable("questlog.provider.none"),
-                    this.width / 2,
-                    this.height / 2,
-                    0xB8B8B8
-            );
+        QuestProviderService.InteractionEntry selected = this.selectedEntry();
+        if (selected == null) {
+            graphics.drawCenteredString(this.font, this.title, this.width / 2, 36, 0xB8B8B8);
+            if (this.entries.isEmpty()) {
+                graphics.drawCenteredString(
+                        this.font,
+                        Component.literal("No quests available."),
+                        this.width / 2,
+                        this.height / 2,
+                        0xB8B8B8
+                );
+            }
+        } else {
+            this.renderDialogue(graphics, selected);
         }
         super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void renderDialogue(GuiGraphics graphics, QuestProviderService.InteractionEntry entry) {
+        Quest quest = QuestlogClient.getLocal().getQuest(entry.questId());
+        Component questTitle = quest == null ? Component.literal(entry.questId().toString()) : quest.getDisplay().getTitle();
+        graphics.drawCenteredString(this.font, questTitle, this.width / 2, 40, 0xFFFFFF);
+
+        if (quest == null) return;
+        QuestProviderRule rule = quest.getProviderRule();
+        if (rule == null) return;
+
+        List<String> dialogue = rule.dialogue().linesFor(entry.state());
+        if (dialogue.isEmpty()) return;
+
+        int wrapWidth = Math.min(320, Math.max(180, this.width - 60));
+        int y = 62;
+        int maxY = Math.max(y, this.height - 72);
+        for (String paragraph : dialogue) {
+            List<FormattedCharSequence> lines = this.font.split(Component.literal(paragraph), wrapWidth);
+            for (FormattedCharSequence line : lines) {
+                if (y > maxY) return;
+                graphics.drawCenteredString(this.font, line, this.width / 2, y, 0xE0E0E0);
+                y += 11;
+            }
+            y += 4;
+        }
     }
 
     @Override
