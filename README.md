@@ -2,15 +2,15 @@
 
 OVERLORD QUESTS is the quest and narrative presentation layer being built for **OVERLORD REIGN**, targeting Minecraft Java 1.20.1 on Forge 47.4.10.
 
-The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and preserves its proven JSON quest engine while adapting the presentation around Gnarl and the Overlord setting.
+The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and preserves its JSON-driven quest engine while adapting the presentation around Gnarl and the Overlord setting.
 
 ## Current status
 
-**Foundation A is complete. Foundation B, Gnarl presentation validation, is active on `gnarl-bootstrap`. Its technical build gate is green; direct in-game acceptance and final portrait-binary approval remain pending.**
+**Foundation A is complete. Foundation B, Gnarl presentation validation, is active on `gnarl-bootstrap`. The approved Gnarl portrait is integrated and the automated technical gate is green; direct in-game acceptance remains pending.**
 
-A Gnarl popup test portrait is integrated in the runtime resources and passes PNG integrity, alpha-content, static-layout, Forge compilation, reobfuscation, assembled-JAR, and test-kit packaging checks. The character-design target is locked: square pupils, player-directed gaze, perspective alignment to each eye, unchanged snout geometry, and the established sly/non-angry expression. The repository binary must not be described as the final approved correction until that exact visual result has been reviewed and accepted.
+The exact user-supplied Gnarl portrait uploaded to `main` is integrated unchanged in the runtime resources. The main upload and runtime asset share Git blob `40c74f6613f0cc23fbf6be0911dedfcfae82865b`; runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`. The locked character target is square pupils, player-directed gaze, perspective alignment to each eye, unchanged snout geometry, and the established sly/non-angry expression.
 
-The Forge project builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition validators and self-tests, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads a usable Forge artifact through GitHub Actions.
+The Forge project builds successfully on Java 17 against Forge 47.4.10, passes the repository quest-definition and runtime-contract validators, survives the reobfuscation stage, passes assembled-JAR smoke checks, and uploads both the Forge artifact and the Foundation B test kit through GitHub Actions.
 
 OVERLORD REIGN is a single-player project. Automatic full-screen quest popups are intentionally scoped to unpublished local single-player worlds; LAN-published and dedicated multiplayer sessions are outside the target runtime for this presentation layer.
 
@@ -22,11 +22,11 @@ The imported upstream baseline is pinned exactly to Questlog commit `72edfa8cc2a
 - Forge 47.4.10
 - Java 17
 - Upstream engine: Questlog 3.3.3
-- Technical mod id during the initial compatibility phase: `questlog`
+- Technical mod id during the compatibility phase: `questlog`
 - Artifact prefix: `overlord-quests`
 - Intended gameplay runtime: single-player
 
-Keeping the `questlog` technical id initially is deliberate. It avoids needless breakage of config paths, commands, JSON IDs, packet channels, saved quest state, and existing integrations while the visual and content systems are adapted.
+Keeping the `questlog` technical id is deliberate. It avoids needless breakage of config paths, commands, JSON IDs, packet channels, saved quest state, and existing integrations while the presentation and content systems are adapted.
 
 ## Build
 
@@ -36,16 +36,20 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions self-tests the OVERLORD definition validator, validates OVERLORD quest examples and runtime-required fields, checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads both the normal Forge artifact and a Foundation B test kit.
+GitHub Actions self-tests the OVERLORD definition validator, validates runtime-required fields, dependency graphs, definition-cache authority, event-listener lifecycle, and definition wire-size limits, checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads both the normal Forge artifact and a Foundation B test kit.
 
 ## Adaptation strategy
 
-The first implementation phase keeps Questlog's underlying quest state machine, objectives, rewards, synchronization, editor, and JSON format intact. Work is concentrated on the OVERLORD REIGN presentation layer, Gnarl-facing quest delivery, packaged project content, and modpack-specific integrations.
+The fork keeps Questlog's underlying quest state machine, objectives, rewards, synchronization, editor, and JSON format. Work is concentrated on OVERLORD REIGN presentation, Gnarl-facing quest delivery, packaged project content, and modpack-specific integrations.
 
 Bundled definition support is implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest is intentionally empty until actual OVERLORD REIGN story content is approved.
 
-The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, and bundled-content boundaries. Preparatory engine hardening is documented separately and does not authorize story content.
+The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, and bundled-content boundaries. Definition loading and packet handling also enforce the same synchronization-size contract so an oversized external definition cannot load successfully and fail only when a player sync occurs.
 
-Story text, quest progression, rewards, and world-specific objectives are not being invented by the bootstrap. Those will be added only from approved OVERLORD REIGN design and canon decisions.
+Generic Questlog redevelopment is now frozen. Additional engine changes should be made only when an approved OVERLORD REIGN quest cannot be represented correctly, the Foundation B in-game test exposes a reproducible defect, or an actual modpack compatibility problem is demonstrated.
 
-See `docs/OVERLORD_ADAPTATION.md` for the engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the active presentation test, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the manual acceptance procedure, `docs/FOUNDATION_B_HANDOFF.md` for the current milestone state, `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md` for preparatory engine capability findings, and `UPSTREAM_BASELINE.md` for provenance.
+Inherited upstream CurseForge, Modrinth, and external wiki publication tooling has been removed. This fork produces private/local and GitHub Actions artifacts unless the Overlord explicitly establishes another publication target.
+
+Story text, quest progression, rewards, and world-specific objectives are not invented by the fork. Those are added only from approved OVERLORD REIGN design and canon decisions.
+
+See `docs/OVERLORD_ADAPTATION.md` for the engineering contract, `docs/GNARL_POPUP_VERTICAL_SLICE.md` for the active presentation test, `docs/GNARL_VISUAL_ALIGNMENT.md` for Gnarl asset-alignment rules, `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the manual acceptance procedure, `docs/FOUNDATION_B_HANDOFF.md` for the current milestone state, `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md` for source-derived engine findings, and `UPSTREAM_BASELINE.md` for provenance.
