@@ -1,0 +1,55 @@
+{
+  "project": "OVERLORD QUESTS",
+  "repository": "magicienlord/Overlord_Quests",
+  "handoff_date": "2026-09-11",
+  "resume_branch": "gnarl-bootstrap",
+  "packaging_branch": "conversation-handoff-2026-09-11-run285",
+  "validated_source_head": "35f776889d753cae4b9cc9bdcdca7a0f4f49cb6d",
+  "previous_comparison_head": "b43dfb449c2720869c2d845c2695e52700524bf9",
+  "source_delta_commits": 24,
+  "workflow": {
+    "name": "Build Forge 1.20.1",
+    "run_id": 34559561281,
+    "run_number": 285,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "artifacts": [
+    {
+      "name": "overlord-quests-forge-1.20.1",
+      "artifact_id": 10183837180,
+      "sha256": "a264ece8b2c7ce2e224ce32ef613609ac599d951c0f3e278232134b973a1635c"
+    },
+    {
+      "name": "overlord-quests-gnarl-popup-test-kit",
+      "artifact_id": 10183837748,
+      "sha256": "7180eddbbfe752e0d25281056099f0f585b0ffa6223eed3f6d3513023a8c72ef"
+    },
+    {
+      "name": "overlord-quests-provider-test-kit",
+      "artifact_id": 10183838240,
+      "sha256": "4b73b93dc6522817bfc74a8f3027259602744fc32edcb1d3b1324785c3a46340"
+    },
+    {
+      "name": "overlord-quests-death-screen-test-kit",
+      "artifact_id": 10183838792,
+      "sha256": "f90c46b5d0ff248f4434b398128848d75ee3351d9a43d3eed66b6a02c03e3db0"
+    }
+  ],
+  "handoff_files": [
+    "NEXT_CONVERSATION_HANDOFF.md",
+    "RESTART_POINT.txt",
+    "RECENT_COMMIT_LEDGER.md",
+    "HANDOFF_MANIFEST.json"
+  ],
+  "resume_notes": {
+    "main_must_not_be_modified": true,
+    "dedicated_fork_architecture_is_user_approved": false,
+    "generic_questlog_hardening_is_active": false,
+    "next_isolated_target": "neutral provider dialogue scrolling or pagination",
+    "provider_runtime_acceptance_pending": true,
+    "death_screen_runtime_acceptance_pending": true,
+    "gnarl_final_portrait_and_regression_pending": true,
+    "story_canon_added_by_latest_technical_work": false
+  }
+}
