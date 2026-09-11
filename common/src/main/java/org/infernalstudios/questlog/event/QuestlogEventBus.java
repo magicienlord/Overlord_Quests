@@ -1,6 +1,5 @@
 package org.infernalstudios.questlog.event;
 
-import net.jodah.typetools.TypeResolver;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 
@@ -18,16 +17,14 @@ import java.util.function.Consumer;
 public class QuestlogEventBus {
     private final Map<Class<?>, List<Consumer<? extends QuestEvent>>> listeners = new HashMap<>();
 
-    public <T extends QuestEvent> void addListener(Consumer<T> listener) {
-        //noinspection unchecked
-        Class<T> eventClass = (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, listener.getClass());
-        if (eventClass != null && ((Class<?>) eventClass) != TypeResolver.Unknown.class) {
-            addListener(eventClass, listener);
-        } else {
-            throw new IllegalArgumentException("Could not resolve event class for listener " + listener);
-        }
-    }
-
+    /**
+     * Registers a listener against an explicit event class.
+     *
+     * The upstream convenience overload inferred the generic Consumer argument at
+     * runtime through TypeTools. OVERLORD QUESTS owns all registrations on this
+     * private bus and uses explicit event classes instead, avoiding an otherwise
+     * unnecessary runtime library dependency and making listener ownership clear.
+     */
     public <T extends QuestEvent> void addListener(Class<T> eventClass, Consumer<T> listener) {
         if (!QuestEvent.class.isAssignableFrom(eventClass)) {
             Questlog.LOGGER.warn("Registering an event of class {} which is not a subclass of QuestEvent", eventClass);
