@@ -68,7 +68,3 @@ jar {
             "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
     ])
 }
-
-publishMods {
-    file = tasks.named("reobfJar").flatMap { it.archiveFile }
-}
