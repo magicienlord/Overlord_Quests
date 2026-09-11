@@ -4,7 +4,7 @@ Status: TECHNICAL / PREPARATORY - NOT STORY CANON
 
 This document records source-derived quest-engine capabilities and limitations relevant to future OVERLORD REIGN quest authoring. It does not define quest chronology, story text, locations, rewards, faction outcomes, or other world canon.
 
-Foundation B remains the active presentation milestone until the approved Gnarl portrait receives direct in-game acceptance in the Questlog UI. The portrait binary itself is integrated and approved; the remaining gate is runtime composition and behavior.
+Foundation B remains an active presentation milestone. The current Gnarl portrait is a technical test asset that passes the mechanical repository gate; direct in-game popup-composition regression and exact final portrait-binary approval remain separate pending acceptance conditions.
 
 ## 1. Objective surface
 
@@ -127,7 +127,7 @@ It validates:
 
 Custom non-`questlog` namespaces remain extension points. The validator applies the common structural contract to them but does not invent schemas for future compatibility objectives.
 
-A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the approved Gnarl portrait mechanically, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
+A repository self-test script exercises positive and negative validator cases and is part of normal Forge CI. The authoritative Forge workflow also validates the current Gnarl popup test asset mechanically, reports static popup geometry, builds/reobfuscates the Forge JAR, performs JAR smoke checks, and assembles the Foundation B test kit.
 
 ## 5. Position objective dimensional safety
 
@@ -348,9 +348,13 @@ Status: GENERIC HARDENING CLOSED; APPROVED INTEGRATION WORK ACTIVE.
 
 OVERLORD QUESTS now has a server-authoritative NPC sidequest-provider layer derived from the useful quest-giver boundary identified in the Villager Retaliation reference, without importing its numeric reputation system as the governing progression model.
 
-Provider definitions can select entities, require completed quest markers, require authored world-scoped civilization disposition states, persist the issuing NPC identity, and choose no provider turn-in, exact-provider turn-in, or any-eligible-provider turn-in. Client actions never decide eligibility; the logical server re-resolves provider identity, distance, quest existence, and current eligibility before mutating progress.
+Provider definitions can select entity IDs or entity tags, require role tags, restrict dimensions, restrict providers to authored coordinate bounds, require completed quest markers, and require authored world-scoped civilization disposition states. Provider entries are presented in deterministic authored quest order. Definitions may also provide state-specific dialogue for available, in-progress, ready-to-turn-in, and failed states; the engine does not invent missing story dialogue.
+
+Selecting an available sidequest opens its authored offer state before acceptance. Acceptance is explicit, while declining is deliberately non-persistent and creates no hidden reputation, cooldown, mood, or rejection state. Accepted quests persist the issuing NPC identity and can require no provider turn-in, exact-provider turn-in, or any eligible provider turn-in. Client actions never decide eligibility; the logical server re-resolves provider identity, distance, quest existence, and current eligibility before mutating progress.
 
 Administrative quest resets delegate to the provider-aware `Quest.resetProgress()` contract, and `/questlog trigger` does not bypass an unaccepted provider binding. Synthetic development fixtures and `/questlog narrative disposition` commands provide deterministic validation without defining canonical civilizations or states.
+
+The optional `pool` field remains metadata only. No random, weighted, daily, rotating, cooldown, or limited-capacity scheduler is implied by its presence.
 
 Status: IMPLEMENTATION SCAFFOLD GREEN IN CI; DIRECT FORGE RUNTIME ACCEPTANCE PENDING.
 
@@ -361,3 +365,31 @@ The useful mechanical core of the Epic Death Screen reference has been integrate
 The reference mod's VHS grain, scanlines, chromatic/tape effects, cassette framing, heartbeat/breathing/tape ambience, cassette audio, and stock humorous phrases are explicitly outside the OVERLORD presentation target and are guarded by a repository validator. The current dark neutral screen is implementation scaffolding only.
 
 Status: MECHANICS GREEN IN CI; OVERLORD-SPECIFIC VISUAL PASS PLANNED.
+
+## 23. Chapter-editor definition authority
+
+The inherited chapter editor performed optimistic writes into `DefinitionUtil` before the logical server had validated or persisted the corresponding save packet. In integrated single-player those static caches are shared by client and server, so a client GUI could modify server-visible definition state before crossing the server authorization boundary.
+
+OVERLORD QUESTS now keeps the chapter editor on the same authority model as the rest of the definition system:
+
+- cache getters return isolated JSON snapshots;
+- chapter membership changes are constructed from a deep-copied quest snapshot and sent only through `QuestEditSavePacket`;
+- chapter saves are sent only through `ChapterEditSavePacket`;
+- the editor no longer calls the legacy optimistic `putCachedQuest` or `putCachedChapter` sinks;
+- server save, reload, and full-sync results are the only source of refreshed editor state;
+- a new unsaved chapter cannot receive quest memberships before its own definition exists authoritatively;
+- chapter IDs using a namespace other than the retained technical `questlog` namespace are rejected client-side before the editor closes, matching the existing server rule.
+
+CI scans all Java call sites so the legacy optimistic cache writers cannot silently re-enter active editor code.
+
+Status: INTEGRATED-SERVER EDITOR AUTHORITY HARDENED.
+
+## 24. Cyclic quest-completion dependencies
+
+`questlog:quest_complete` objectives dynamically query the target quest's completion state. A self-reference or multi-quest cycle can therefore recurse indefinitely if external configuration is malformed.
+
+Repository-controlled definitions are checked as a directed dependency graph in CI and cyclic `quest_complete` edges are rejected before packaging. Runtime remains defensive for external config: `Quest.isCompleted()` tracks the active evaluation graph by quest-object identity and treats a detected cycle as incomplete rather than recursing into `StackOverflowError`.
+
+A persistent malformed external cycle may be evaluated frequently by UI or objective checks, so the runtime warning is emitted only once per re-entered quest ID for the process lifetime. The completion result remains false on every detected recurrence; only duplicate log noise is suppressed.
+
+Status: STATIC AUTHORING REJECTION PLUS RUNTIME FAIL-CLOSED GUARD.
