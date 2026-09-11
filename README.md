@@ -16,7 +16,7 @@ The Forge project builds successfully on Java 17 against Forge 47.4.10, passes t
 
 Two additional integration surfaces are now present on the active branch:
 
-- an NPC sidequest-provider backend with server-authoritative offer/accept/turn-in handling, explicit non-persistent decline, authored state-specific dialogue, durable provider binding, main-quest marker gating, entity/tag/role/dimension/location eligibility, authored civilization-disposition gating, and development/admin validation commands;
+- an NPC sidequest-provider backend with server-authoritative offer/accept/turn-in handling, explicit non-persistent decline, authored state-specific dialogue, bounded client-side overflow scrolling for long authored dialogue, durable provider binding, main-quest marker gating, entity/tag/role/dimension/location eligibility, authored civilization-disposition gating, and development/admin validation commands;
 - an Epic Death Screen-derived mechanical scaffold that keeps the useful timing, skip, respawn, hardcore, and lifecycle behavior while explicitly excluding the source mod's VHS/cassette visual treatment and soundscape.
 
 The provider UI and death screen currently use neutral implementation scaffolds. Their final OVERLORD-specific presentation remains a separate DESIGN pass. The provider engine renders only dialogue explicitly authored in quest definitions and does not generate story speech. No canonical civilization IDs, quest text, faction outcomes, or death-screen lore are invented by these technical systems.
@@ -45,7 +45,7 @@ The Forge development artifact is built with:
 ./gradlew :forge:build
 ```
 
-GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts, dependency graphs, definition-cache and editor-authority contracts, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus dedicated Gnarl popup, NPC-provider, and death-screen runtime validation kits.
+GitHub Actions self-tests the OVERLORD definition validators, validates runtime-required fields, provider runtime/reset/dialogue/location contracts including the provider dialogue overflow boundary, dependency graphs, definition-cache and editor-authority contracts, event-listener lifecycle, definition wire-size limits, and the death-screen theme boundary. It also checks the Gnarl popup asset and static layout contract, builds and reobfuscates the Forge artifact, verifies required classes/resources inside the assembled JAR, and uploads the normal Forge artifact plus dedicated Gnarl popup, NPC-provider, and death-screen runtime validation kits.
 
 ## Adaptation strategy
 
