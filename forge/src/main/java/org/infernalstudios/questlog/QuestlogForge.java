@@ -13,6 +13,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.config.QuestlogConfig;
 import org.infernalstudios.questlog.networking.QuestlogPacketsForge;
 
@@ -36,6 +37,8 @@ public class QuestlogForge {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         Questlog.initClient();
+        OverlordDeathScreens.initialize();
+        OverlordDeathScreenCompatibilityForge.initialize();
     }
 
     @SubscribeEvent
