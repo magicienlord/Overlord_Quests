@@ -3,11 +3,13 @@ package org.infernalstudios.questlog.overlord.provider;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import org.infernalstudios.questlog.Questlog;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -21,7 +23,8 @@ import java.util.Set;
  *
  * The rule is intentionally generic. Civilization is narrative metadata, while
  * concrete provider eligibility is expressed through entity ids/tags, optional
- * role tags, dimensions, quest markers, and authored disposition requirements.
+ * role tags, dimensions, authored location bounds, quest markers, and authored
+ * disposition requirements.
  */
 public final class QuestProviderRule {
     public enum TurnInMode {
@@ -39,6 +42,35 @@ public final class QuestProviderRule {
         }
     }
 
+    /** Inclusive block-coordinate eligibility bounds, authored per provider rule. */
+    public record LocationBounds(BlockPos min, BlockPos max) {
+        public LocationBounds {
+            if (min == null || max == null) {
+                throw new IllegalArgumentException("provider location min and max are required");
+            }
+            BlockPos normalizedMin = new BlockPos(
+                    Math.min(min.getX(), max.getX()),
+                    Math.min(min.getY(), max.getY()),
+                    Math.min(min.getZ(), max.getZ())
+            );
+            BlockPos normalizedMax = new BlockPos(
+                    Math.max(min.getX(), max.getX()),
+                    Math.max(min.getY(), max.getY()),
+                    Math.max(min.getZ(), max.getZ())
+            );
+            min = normalizedMin;
+            max = normalizedMax;
+        }
+
+        public boolean contains(Entity entity) {
+            if (entity == null) return false;
+            BlockPos pos = entity.blockPosition();
+            return pos.getX() >= this.min.getX() && pos.getX() <= this.max.getX()
+                    && pos.getY() >= this.min.getY() && pos.getY() <= this.max.getY()
+                    && pos.getZ() >= this.min.getZ() && pos.getZ() <= this.max.getZ();
+        }
+    }
+
     @Nullable private final ResourceLocation pool;
     @Nullable private final ResourceLocation civilization;
     private final String role;
@@ -46,6 +78,7 @@ public final class QuestProviderRule {
     private final Set<ResourceLocation> entityTypeTags;
     private final Set<String> scoreboardTags;
     private final Set<ResourceLocation> dimensions;
+    @Nullable private final LocationBounds location;
     private final Set<ResourceLocation> unlockQuests;
     private final Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions;
     private final boolean lockToProvider;
@@ -59,6 +92,7 @@ public final class QuestProviderRule {
             Set<ResourceLocation> entityTypeTags,
             Set<String> scoreboardTags,
             Set<ResourceLocation> dimensions,
+            @Nullable LocationBounds location,
             Set<ResourceLocation> unlockQuests,
             Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions,
             boolean lockToProvider,
@@ -71,6 +105,7 @@ public final class QuestProviderRule {
         this.entityTypeTags = Set.copyOf(entityTypeTags);
         this.scoreboardTags = Set.copyOf(scoreboardTags);
         this.dimensions = Set.copyOf(dimensions);
+        this.location = location;
         this.unlockQuests = Set.copyOf(unlockQuests);
         Map<ResourceLocation, Set<ResourceLocation>> copy = new LinkedHashMap<>();
         requiredDispositions.forEach((key, value) -> copy.put(key, Set.copyOf(value)));
@@ -96,7 +131,8 @@ public final class QuestProviderRule {
         Set<ResourceLocation> entityTypeTags = idSet(json, "entity_type_tags");
         Set<String> scoreboardTags = stringSet(json, "scoreboard_tags");
         Set<ResourceLocation> dimensions = idSet(json, "dimensions");
-        Set<ResourceLocation> unlockQuests = idSet(json, "unlock_quests");
+        LocationBounds location = locationBounds(json);
+        Set<ResourceLocation> unlockQuests = questIdSet(json, "unlock_quests");
         Map<ResourceLocation, Set<ResourceLocation>> dispositions = dispositionMap(json);
         boolean lockToProvider = optionalBoolean(json, "lock_to_provider", true);
         TurnInMode turnInMode = TurnInMode.parse(optionalString(json, "turn_in", "same_provider"));
@@ -107,7 +143,7 @@ public final class QuestProviderRule {
 
         return new QuestProviderRule(
                 pool, civilization, role, entityTypes, entityTypeTags, scoreboardTags,
-                dimensions, unlockQuests, dispositions, lockToProvider, turnInMode
+                dimensions, location, unlockQuests, dispositions, lockToProvider, turnInMode
         );
     }
 
@@ -130,6 +166,9 @@ public final class QuestProviderRule {
         if (!this.dimensions.isEmpty() && !this.dimensions.contains(entity.level().dimension().location())) {
             return false;
         }
+        if (this.location != null && !this.location.contains(entity)) {
+            return false;
+        }
         if (!entity.getTags().containsAll(this.scoreboardTags)) {
             return false;
         }
@@ -139,6 +178,7 @@ public final class QuestProviderRule {
     @Nullable public ResourceLocation pool() { return this.pool; }
     @Nullable public ResourceLocation civilization() { return this.civilization; }
     public String role() { return this.role; }
+    @Nullable public LocationBounds location() { return this.location; }
     public Set<ResourceLocation> unlockQuests() { return this.unlockQuests; }
     public Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions() { return this.requiredDispositions; }
     public boolean lockToProvider() { return this.lockToProvider; }
@@ -167,6 +207,60 @@ public final class QuestProviderRule {
             result.add(id);
         }
         return result;
+    }
+
+    private static Set<ResourceLocation> questIdSet(JsonObject json, String key) {
+        Set<ResourceLocation> result = new LinkedHashSet<>();
+        if (!json.has(key)) return result;
+        if (!json.get(key).isJsonArray()) throw new IllegalArgumentException("provider " + key + " must be an array");
+        for (JsonElement element : json.getAsJsonArray(key)) {
+            if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
+                throw new IllegalArgumentException("provider " + key + " values must be strings");
+            }
+            String value = element.getAsString().trim();
+            ResourceLocation id = value.contains(":")
+                    ? ResourceLocation.tryParse(value)
+                    : ResourceLocation.tryParse(Questlog.MODID + ":" + value);
+            if (id == null) throw new IllegalArgumentException("Invalid provider quest id in " + key + ": " + element);
+            result.add(id);
+        }
+        return result;
+    }
+
+    @Nullable
+    private static LocationBounds locationBounds(JsonObject json) {
+        if (!json.has("location")) return null;
+        if (!json.get("location").isJsonObject()) {
+            throw new IllegalArgumentException("provider location must be an object");
+        }
+        JsonObject location = json.getAsJsonObject("location");
+        return new LocationBounds(
+                blockPos(location, "min"),
+                blockPos(location, "max")
+        );
+    }
+
+    private static BlockPos blockPos(JsonObject json, String key) {
+        if (!json.has(key) || !json.get(key).isJsonArray()) {
+            throw new IllegalArgumentException("provider location " + key + " must be a three-integer array");
+        }
+        JsonArray values = json.getAsJsonArray(key);
+        if (values.size() != 3) {
+            throw new IllegalArgumentException("provider location " + key + " must contain exactly three integers");
+        }
+        int[] coordinates = new int[3];
+        for (int i = 0; i < 3; i++) {
+            JsonElement value = values.get(i);
+            if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) {
+                throw new IllegalArgumentException("provider location " + key + " values must be integers");
+            }
+            double numeric = value.getAsDouble();
+            if (!Double.isFinite(numeric) || numeric != Math.rint(numeric) || numeric < Integer.MIN_VALUE || numeric > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("provider location " + key + " values must be 32-bit integers");
+            }
+            coordinates[i] = (int) numeric;
+        }
+        return new BlockPos(coordinates[0], coordinates[1], coordinates[2]);
     }
 
     private static Set<String> stringSet(JsonObject json, String key) {
