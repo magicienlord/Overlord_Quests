@@ -11,7 +11,10 @@ The test verifies:
 - the provider quest is unavailable as an accepted quest before provider interaction;
 - sneak + main-hand interaction opens the temporary provider menu;
 - ordinary non-sneaking villager interaction is not consumed by OVERLORD QUESTS;
+- selecting an available quest opens its authored offer dialogue before acceptance;
+- explicit decline returns to the provider list without accepting or persisting a rejection state;
 - acceptance binds the exact issuing NPC;
+- authored in-progress and ready-to-turn-in dialogue follows the server-derived quest state;
 - the provider menu refreshes without remaining action-locked;
 - provider binding survives save/quit/reload;
 - a second eligible villager cannot satisfy `same_provider` turn-in;
@@ -49,13 +52,17 @@ Run:
 
 Keep both villagers within easy reach for the initial acceptance test.
 
-## Ordinary acceptance pass
+## Ordinary acceptance and dialogue pass
 
 First interact normally with Provider A without sneaking. OVERLORD QUESTS must not open its provider screen. This confirms the temporary scaffold is not stealing the ordinary non-sneaking entity interaction path.
 
-Then sneak and interact with Provider A using the main hand. The provider screen must open and show `[DEV] NPC Provider Prototype` as available for acceptance. `[DEV] Disposition-Gated Provider Prototype` must not be present while `questlog:dev_civilization` is unresolved.
+Then sneak and interact with Provider A using the main hand. The provider screen must open and show `[DEV] NPC Provider Prototype` as available. `[DEV] Disposition-Gated Provider Prototype` must not be present while `questlog:dev_civilization` is unresolved.
 
-Select the ordinary provider prototype's accept action. The same screen should refresh from the server and show the quest as in progress. The controls must not remain permanently disabled after the response.
+Select `[DEV] NPC Provider Prototype`. Selection must open a neutral detail view before any server-side acceptance occurs. The offer dialogue must contain the two `[DEV]` lines defined by the fixture, including the line stating that declining must not alter quest state.
+
+Choose `Decline`. The screen must return to the provider list and the quest must still be available. Close and reopen the provider screen once to confirm decline did not create a hidden rejection state, cooldown, or binding.
+
+Select the quest again and choose `Accept`. The same screen should refresh from the server and show the quest as in progress. Selecting the in-progress entry must show the fixture's `[DEV]` in-progress response. The controls must not remain permanently disabled after the server response.
 
 Close the screen and sneak-interact with Provider A again. The quest must still show as in progress.
 
@@ -94,9 +101,9 @@ Give the objective item:
 
 Sneak-interact with Provider B first. Provider B must not present the accepted quest as ready for turn-in. The development definition uses `lock_to_provider=true` and `turn_in=same_provider`.
 
-Sneak-interact with Provider A. The quest must now appear as ready for turn-in.
+Sneak-interact with Provider A. The quest must now appear as ready for turn-in. Select it. The detail view must display the fixture's `[DEV]` ready-to-turn-in response before the player chooses the final action.
 
-Select turn in. The server should refresh the provider screen. The completed quest should no longer appear as an actionable provider entry.
+Select `Turn In`. The server should refresh the provider screen. The completed quest should no longer appear as an actionable provider entry.
 
 ## Disposition-gating pass
 
@@ -142,14 +149,14 @@ Repeat with the provider killed or otherwise removed in a disposable test world 
 Retain:
 
 - `latest.log` from the complete pass;
-- one screenshot of the available state;
-- one screenshot of the in-progress state;
-- one screenshot of the ready-to-turn-in state;
+- one screenshot of the authored offer dialogue with the Accept/Decline choice;
+- one screenshot of the in-progress dialogue state;
+- one screenshot of the ready-to-turn-in dialogue state;
 - one screenshot showing the disposition-gated quest absent while unresolved and present while `questlog:dev_open` is set;
 - any unexpected packet rejection or quest load error from the log.
 
 ## Acceptance criteria
 
-The provider scaffold passes this milestone only when the server-authoritative accept, reset, persistence, same-provider turn-in, disposition gating, refresh, ordinary-interaction preservation, and distance lifecycle behaviors all work in the actual Forge 1.20.1 instance.
+The provider scaffold passes this milestone only when the server-authoritative offer selection, explicit decline, accept, reset, persistence, same-provider turn-in, authored state dialogue, disposition gating, refresh, ordinary-interaction preservation, and distance lifecycle behaviors all work in the actual Forge 1.20.1 instance.
 
 Visual styling of this temporary provider screen is not an acceptance target. Final NPC quest-giver presentation remains a separate DESIGN pass.
