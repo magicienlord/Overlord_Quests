@@ -16,6 +16,21 @@ import java.util.Set;
 public final class QuestProviderService {
     public static final double MAX_INTERACTION_DISTANCE_SQR = 64.0D;
 
+    public enum InteractionState {
+        AVAILABLE,
+        IN_PROGRESS,
+        READY_TO_TURN_IN,
+        FAILED
+    }
+
+    public record InteractionEntry(ResourceLocation questId, InteractionState state) {
+        public InteractionEntry {
+            if (questId == null || state == null) {
+                throw new IllegalArgumentException("provider interaction entries require quest id and state");
+            }
+        }
+    }
+
     private QuestProviderService() {
     }
 
@@ -28,6 +43,47 @@ public final class QuestProviderService {
             if (canAccept(quest, provider)) {
                 result.add(quest);
             }
+        }
+        return result;
+    }
+
+    /**
+     * Server-owned view of the quests that are meaningful for one provider interaction.
+     * The client receives only this compact status surface and cannot decide eligibility.
+     */
+    public static List<InteractionEntry> interactionEntries(QuestManager manager, Entity provider) {
+        List<InteractionEntry> result = new ArrayList<>();
+        if (manager == null || provider == null || manager.isClient() || !manager.isActive()) {
+            return result;
+        }
+
+        for (Quest quest : manager.getAllQuests()) {
+            if (canTurnIn(quest, provider)) {
+                result.add(new InteractionEntry(quest.getId(), InteractionState.READY_TO_TURN_IN));
+                continue;
+            }
+            if (canAccept(quest, provider)) {
+                result.add(new InteractionEntry(quest.getId(), InteractionState.AVAILABLE));
+                continue;
+            }
+
+            QuestProviderRule rule = quest.getProviderRule();
+            QuestProviderBinding binding = quest.getProviderBinding();
+            if (rule == null || binding == null || quest.isCompleted()) {
+                continue;
+            }
+
+            boolean relatedProvider = binding.matches(provider)
+                    || ((!rule.lockToProvider() || rule.turnInMode() == QuestProviderRule.TurnInMode.ANY_ELIGIBLE)
+                    && rule.matchesEntity(provider));
+            if (!relatedProvider) {
+                continue;
+            }
+
+            result.add(new InteractionEntry(
+                    quest.getId(),
+                    quest.isFailed() ? InteractionState.FAILED : InteractionState.IN_PROGRESS
+            ));
         }
         return result;
     }
