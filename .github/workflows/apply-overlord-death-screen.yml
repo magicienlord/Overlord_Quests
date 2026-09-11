@@ -1,0 +1,699 @@
+name: Apply Overlord death screen
+
+on:
+  push:
+    branches: [gnarl-bootstrap]
+    paths:
+      - '.github/workflows/apply-overlord-death-screen.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: gnarl-bootstrap
+          fetch-depth: 0
+
+      - name: Add neutral Overlord death-screen mechanics
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = {
+          'common/src/main/java/org/infernalstudios/questlog/client/death/OverlordDeathSceneClock.java': r'''package org.infernalstudios.questlog.client.death;
+
+/**
+ * Bounded client-side timing state for the custom death flow.
+ *
+ * Adapted from the MIT-licensed Epic Death Screen scene clock, but deliberately
+ * contains no VHS, grain, cassette, soundscape, or other presentation logic.
+ */
+public final class OverlordDeathSceneClock {
+    public static final int MIN_DURATION_TICKS = 40;
+    public static final int MAX_DURATION_TICKS = 400;
+
+    private final int duration;
+    private int ticks;
+    private boolean requestedRespawn;
+
+    public OverlordDeathSceneClock(int durationTicks) {
+        this.duration = Math.max(MIN_DURATION_TICKS, Math.min(MAX_DURATION_TICKS, durationTicks));
+    }
+
+    public void tick() {
+        if (this.ticks < Integer.MAX_VALUE) {
+            this.ticks++;
+        }
+    }
+
+    public void skip() {
+        this.ticks = Math.max(this.ticks, this.duration);
+    }
+
+    public int ticks() {
+        return this.ticks;
+    }
+
+    public int duration() {
+        return this.duration;
+    }
+
+    public boolean ready() {
+        return this.ticks >= this.duration;
+    }
+
+    public float progress() {
+        return Math.min(1.0F, (float) this.ticks / (float) this.duration);
+    }
+
+    public boolean requestAutoRespawn(boolean enabled, boolean hardcore, boolean dead) {
+        if (!enabled || hardcore || !dead || !this.ready() || this.requestedRespawn) {
+            return false;
+        }
+        this.requestedRespawn = true;
+        return true;
+    }
+}
+''',
+          'common/src/main/java/org/infernalstudios/questlog/client/death/OverlordDeathScreenHooks.java': r'''package org.infernalstudios.questlog.client.death;
+
+import net.minecraft.client.player.LocalPlayer;
+import org.infernalstudios.questlog.Questlog;
+
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+
+/**
+ * Compatibility vetoes for revival/knockout systems.
+ *
+ * A failed compatibility hook is treated as blocked. It is safer to leave a
+ * foreign death/revival screen untouched than to replace it after its API changed.
+ */
+public final class OverlordDeathScreenHooks {
+    private static final Map<String, Predicate<LocalPlayer>> BLOCKERS = new LinkedHashMap<>();
+    private static final Set<String> FAILED = new HashSet<>();
+
+    private OverlordDeathScreenHooks() {
+    }
+
+    public static void registerBlocker(String id, Predicate<LocalPlayer> blocker) {
+        BLOCKERS.put(Objects.requireNonNull(id), Objects.requireNonNull(blocker));
+        FAILED.remove(id);
+    }
+
+    public static boolean isBlocked(LocalPlayer player) {
+        if (player == null) return true;
+
+        for (Map.Entry<String, Predicate<LocalPlayer>> entry : BLOCKERS.entrySet()) {
+            if (FAILED.contains(entry.getKey())) {
+                return true;
+            }
+            try {
+                if (entry.getValue().test(player)) {
+                    return true;
+                }
+            } catch (LinkageError | RuntimeException error) {
+                FAILED.add(entry.getKey());
+                Questlog.LOGGER.warn(
+                        "Overlord death screen compatibility hook {} failed; leaving the foreign death flow untouched",
+                        entry.getKey(), error
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+}
+''',
+          'common/src/main/java/org/infernalstudios/questlog/client/death/OverlordDeathScreens.java': r'''package org.infernalstudios.questlog.client.death;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.damagesource.DamageSource;
+import org.infernalstudios.questlog.Questlog;
+
+/** Client lifecycle and exact-vanilla-screen replacement gate. */
+public final class OverlordDeathScreens {
+    private static Screen checkedVanillaScreen;
+
+    private OverlordDeathScreens() {
+    }
+
+    public static void initialize() {
+        checkedVanillaScreen = null;
+    }
+
+    /**
+     * Tick fallback for loaders/mods that install the vanilla screen without the
+     * opening event path we normally intercept.
+     */
+    public static void tick() {
+        Minecraft minecraft = Minecraft.getInstance();
+        Screen current = minecraft.screen;
+        if (current == null || current.getClass() != DeathScreen.class) {
+            checkedVanillaScreen = null;
+            return;
+        }
+
+        if (current != checkedVanillaScreen
+                && minecraft.player != null
+                && minecraft.player.isDeadOrDying()
+                && !OverlordDeathScreenHooks.isBlocked(minecraft.player)) {
+            checkedVanillaScreen = current;
+            Screen replacement = replace(current);
+            if (replacement != current) {
+                minecraft.setScreen(replacement);
+            }
+        }
+    }
+
+    /**
+     * Replace only the exact vanilla DeathScreen. Subclasses belong to their own
+     * mods and are intentionally left alone.
+     */
+    public static Screen replace(Screen next) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (next == null
+                || next.getClass() != DeathScreen.class
+                || minecraft.player == null
+                || minecraft.level == null
+                || OverlordDeathScreenHooks.isBlocked(minecraft.player)) {
+            return next;
+        }
+
+        if (!Questlog.getConfig().deathScreen.enabled) {
+            return next;
+        }
+
+        DamageSource source = minecraft.player.getLastDamageSource();
+        Component cause = source == null
+                ? minecraft.player.getCombatTracker().getDeathMessage()
+                : source.getLocalizedDeathMessage(minecraft.player);
+        boolean hardcore = minecraft.level.getLevelData().isHardcore();
+        return new OverlordDeathScreen(cause, hardcore);
+    }
+}
+''',
+          'common/src/main/java/org/infernalstudios/questlog/client/death/OverlordDeathScreen.java': r'''package org.infernalstudios.questlog.client.death;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+import org.infernalstudios.questlog.Questlog;
+import org.infernalstudios.questlog.config.QuestlogConfig;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
+
+/**
+ * Mechanically complete death-screen scaffold awaiting an OVERLORD visual pass.
+ *
+ * The production VHS/grain/chromatic/tape presentation of the reference mod is
+ * intentionally absent. Until the dedicated design pass is approved this screen
+ * uses only a neutral dark field, Minecraft's real death message, and controls.
+ */
+public final class OverlordDeathScreen extends DeathScreen {
+    private final OverlordDeathSceneClock clock;
+    private final boolean hardcore;
+    private final ClientLevel originalLevel;
+    private final LocalPlayer originalPlayer;
+    private final Component cause;
+    private boolean sawDeadPlayer;
+    private boolean controlsRevealed;
+    private List<FormattedCharSequence> causeLines = List.of();
+
+    public OverlordDeathScreen(Component cause, boolean hardcore) {
+        super(cause, hardcore);
+        QuestlogConfig.DeathScreen config = Questlog.getConfig().deathScreen;
+        this.clock = new OverlordDeathSceneClock(config.sceneDurationTicks);
+        this.hardcore = hardcore;
+        this.cause = cause == null ? Component.empty() : cause;
+
+        Minecraft minecraft = Minecraft.getInstance();
+        this.originalLevel = minecraft.level;
+        this.originalPlayer = minecraft.player;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.controlsRevealed = false;
+
+        int buttonWidth = Math.min(200, this.width - 40);
+        int y = Math.max(this.height / 2 + 38, this.height - 78);
+        int index = 0;
+        for (GuiEventListener child : this.children()) {
+            if (child instanceof AbstractWidget widget) {
+                widget.setX((this.width - buttonWidth) / 2);
+                widget.setY(y + index++ * 24);
+                widget.setWidth(buttonWidth);
+            }
+        }
+
+        int wrapWidth = Math.max(80, this.width - 64);
+        this.causeLines = this.font.split(this.cause, wrapWidth);
+        if (this.causeLines.size() > 4) {
+            this.causeLines = List.copyOf(this.causeLines.subList(0, 4));
+        }
+        this.updateControls();
+    }
+
+    @Override
+    public void tick() {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer currentPlayer = minecraft.player;
+
+        if (currentPlayer != null && currentPlayer.isDeadOrDying()) {
+            this.sawDeadPlayer = true;
+        }
+
+        if (minecraft.level != this.originalLevel
+                || currentPlayer != this.originalPlayer
+                || currentPlayer == null
+                || (!currentPlayer.isDeadOrDying() && (this.sawDeadPlayer || this.clock.ticks() > 20))
+                || OverlordDeathScreenHooks.isBlocked(currentPlayer)) {
+            if (minecraft.screen == this) {
+                minecraft.setScreen(null);
+            }
+            return;
+        }
+
+        super.tick();
+        this.clock.tick();
+        this.updateControls();
+
+        QuestlogConfig.DeathScreen config = Questlog.getConfig().deathScreen;
+        if (this.clock.requestAutoRespawn(config.autoRespawn, this.hardcore, currentPlayer.isDeadOrDying())) {
+            for (GuiEventListener child : this.children()) {
+                if (child instanceof AbstractWidget widget) {
+                    widget.active = false;
+                    break;
+                }
+            }
+            currentPlayer.respawn();
+        }
+    }
+
+    private void updateControls() {
+        boolean show = this.clock.ready();
+        for (GuiEventListener child : this.children()) {
+            if (!(child instanceof AbstractWidget widget)) continue;
+            widget.visible = show;
+            if (!show) {
+                widget.active = false;
+            } else if (!this.controlsRevealed) {
+                widget.active = true;
+            }
+        }
+        this.controlsRevealed = show;
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, this.width, this.height, 0xFF000000);
+
+        int centerY = this.height / 2;
+        graphics.drawCenteredString(this.font, Component.translatable("deathScreen.title"), this.width / 2, centerY - 42, 0xE8E8E8);
+
+        int lineY = centerY - Math.max(0, (this.causeLines.size() - 1) * 5);
+        for (FormattedCharSequence line : this.causeLines) {
+            graphics.drawCenteredString(this.font, line, this.width / 2, lineY, 0xB8B8B8);
+            lineY += 11;
+        }
+
+        if (this.clock.ready()) {
+            for (GuiEventListener child : this.children()) {
+                if (child instanceof Renderable renderable) {
+                    renderable.render(graphics, mouseX, mouseY, partialTick);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (!this.clock.ready()) {
+            QuestlogConfig.DeathScreen config = Questlog.getConfig().deathScreen;
+            if (config.allowSkip && (keyCode == GLFW.GLFW_KEY_ESCAPE
+                    || keyCode == GLFW.GLFW_KEY_ENTER
+                    || keyCode == GLFW.GLFW_KEY_SPACE)) {
+                this.clock.skip();
+                this.updateControls();
+            }
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return !this.clock.ready() || super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+}
+''',
+          'forge/src/main/java/org/infernalstudios/questlog/OverlordDeathScreenCompatibilityForge.java': r'''package org.infernalstudios.questlog;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fml.ModList;
+import org.infernalstudios.questlog.client.death.OverlordDeathScreenHooks;
+
+import java.lang.reflect.Method;
+
+/** Optional Forge-side revival compatibility without hard dependencies. */
+public final class OverlordDeathScreenCompatibilityForge {
+    private OverlordDeathScreenCompatibilityForge() {
+    }
+
+    public static void initialize() {
+        if (ModList.get().isLoaded("hardcorerevival")) {
+            try {
+                Method knockedOut = Class.forName("net.blay09.mods.hardcorerevival.PlayerHardcoreRevivalManager")
+                        .getMethod("isKnockedOut", Player.class);
+                OverlordDeathScreenHooks.registerBlocker(
+                        "hardcorerevival",
+                        player -> invokeBoolean(knockedOut, null, player)
+                );
+            } catch (LinkageError | ReflectiveOperationException error) {
+                unavailable("hardcorerevival", error);
+            }
+        }
+
+        if (ModList.get().isLoaded("playerrevive")) {
+            try {
+                Method getBleeding = Class.forName("team.creative.playerrevive.server.PlayerReviveServer")
+                        .getMethod("getBleeding", Player.class);
+                Method isBleeding = Class.forName("team.creative.playerrevive.api.IBleeding")
+                        .getMethod("isBleeding");
+                OverlordDeathScreenHooks.registerBlocker("playerrevive", player -> {
+                    try {
+                        Object bleeding = getBleeding.invoke(null, player);
+                        return invokeBoolean(isBleeding, bleeding);
+                    } catch (ReflectiveOperationException error) {
+                        throw new IllegalStateException(error);
+                    }
+                });
+            } catch (LinkageError | ReflectiveOperationException error) {
+                unavailable("playerrevive", error);
+            }
+        }
+    }
+
+    private static boolean invokeBoolean(Method method, Object target, Object... args) {
+        try {
+            return Boolean.TRUE.equals(method.invoke(target, args));
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException(error);
+        }
+    }
+
+    private static void unavailable(String modId, Throwable error) {
+        Questlog.LOGGER.warn(
+                "Overlord death screen: {} revival API unavailable; leaving its death flow untouched",
+                modId, error
+        );
+        OverlordDeathScreenHooks.registerBlocker(modId, player -> true);
+    }
+}
+'''
+          }
+
+          for name, content in files.items():
+              path = Path(name)
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(content, encoding='utf-8')
+          PY
+
+      - name: Wire config and Forge events
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'missing expected block in {path}: {old[:120]!r}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          config = 'common/src/main/java/org/infernalstudios/questlog/config/QuestlogConfig.java'
+          replace(config,
+              '    @ConfigEntry.Category("colors")\n    @ConfigEntry.Gui.TransitiveObject\n    public Colors colors = new Colors();\n',
+              '    @ConfigEntry.Category("colors")\n    @ConfigEntry.Gui.TransitiveObject\n    public Colors colors = new Colors();\n\n    @ConfigEntry.Category("death_screen")\n    @ConfigEntry.Gui.TransitiveObject\n    public DeathScreen deathScreen = new DeathScreen();\n')
+          replace(config,
+              '    public static class Colors {\n',
+              '''    public static class DeathScreen {\n        @ConfigEntry.Gui.Tooltip()\n        public boolean enabled = true;\n\n        @ConfigEntry.Gui.Tooltip()\n        public int sceneDurationTicks = 120;\n\n        @ConfigEntry.Gui.Tooltip()\n        public boolean autoRespawn = true;\n\n        @ConfigEntry.Gui.Tooltip()\n        public boolean allowSkip = true;\n    }\n\n    public static class Colors {\n''')
+
+          forge = 'forge/src/main/java/org/infernalstudios/questlog/QuestlogForge.java'
+          replace(forge,
+              'import org.infernalstudios.questlog.config.QuestlogConfig;\n',
+              'import org.infernalstudios.questlog.client.death.OverlordDeathScreens;\nimport org.infernalstudios.questlog.config.QuestlogConfig;\n')
+          replace(forge,
+              '    public static void onClientSetup(FMLClientSetupEvent event) {\n        Questlog.initClient();\n    }\n',
+              '''    public static void onClientSetup(FMLClientSetupEvent event) {\n        Questlog.initClient();\n        OverlordDeathScreens.initialize();\n        OverlordDeathScreenCompatibilityForge.initialize();\n    }\n''')
+
+          forwarder = 'forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java'
+          replace(forwarder,
+              'import net.minecraftforge.client.event.ClientPlayerNetworkEvent;\n',
+              'import net.minecraftforge.client.event.ClientPlayerNetworkEvent;\nimport net.minecraftforge.client.event.ScreenEvent;\n')
+          replace(forwarder,
+              'import net.minecraftforge.eventbus.api.SubscribeEvent;\n',
+              'import net.minecraftforge.eventbus.api.EventPriority;\nimport net.minecraftforge.eventbus.api.SubscribeEvent;\nimport org.infernalstudios.questlog.client.death.OverlordDeathScreens;\n')
+          replace(forwarder,
+              '            QuestlogClientEvents.onClientTick();\n',
+              '            QuestlogClientEvents.onClientTick();\n            OverlordDeathScreens.tick();\n')
+          replace(forwarder,
+              '    @SubscribeEvent\n    @OnlyIn(Dist.CLIENT)\n    public static void onClientPlayerLogin',
+              '''    @SubscribeEvent(priority = EventPriority.LOWEST)\n    @OnlyIn(Dist.CLIENT)\n    public static void onScreenOpening(ScreenEvent.Opening event) {\n        var current = event.getNewScreen();\n        var replacement = OverlordDeathScreens.replace(current);\n        if (replacement != current) {\n            event.setNewScreen(replacement);\n        }\n    }\n\n    @SubscribeEvent\n    @OnlyIn(Dist.CLIENT)\n    public static void onClientPlayerLogin''')
+          PY
+
+      - name: Extend narrative definition validation
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('tools/validate_overlord_quest_examples.py')
+          s = p.read_text(encoding='utf-8')
+
+          def rep(old, new):
+              global s
+              if old not in s:
+                  raise SystemExit(f'missing validator block: {old[:120]!r}')
+              s = s.replace(old, new, 1)
+
+          rep('    "questlog:unobtainable",\n    "questlog:origin",\n',
+              '    "questlog:unobtainable",\n    "questlog:disposition",\n    "questlog:origin",\n')
+          rep('    "questlog:choice",\n}\n',
+              '    "questlog:choice",\n    "questlog:set_disposition",\n}\n')
+          rep('    if type_value == "questlog:visit_position":\n',
+              '''    if type_value == "questlog:disposition":\n        for disposition_field in ("civilization", "state"):\n            if disposition_field not in entry:\n                fail(path, f"'{field}.{disposition_field}' is required by {type_value}", errors)\n            else:\n                validate_resource_id(entry[disposition_field], f"{field}.{disposition_field}", path, errors)\n        if required_amount is not None and required_amount != 1:\n            fail(path, f"'{field}.required_amount' must be exactly 1 for {type_value}", errors)\n\n    if type_value == "questlog:visit_position":\n''')
+          rep('    elif type_value == "questlog:choice":\n',
+              '''    elif type_value == "questlog:set_disposition":\n        for disposition_field in ("civilization", "state"):\n            if disposition_field not in entry:\n                fail(path, f"'{field}.{disposition_field}' is required by {type_value}", errors)\n            else:\n                validate_resource_id(entry[disposition_field], f"{field}.{disposition_field}", path, errors)\n\n    elif type_value == "questlog:choice":\n''')
+
+          provider_fn = r'''
+
+def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    provider = data.get("provider")
+    if provider is None:
+        return
+    if not isinstance(provider, dict):
+        fail(path, "'provider' must be an object", errors)
+        return
+
+    for key in ("pool", "civilization"):
+        if key in provider:
+            validate_resource_id(provider[key], f"provider.{key}", path, errors)
+
+    if "role" in provider and (not isinstance(provider["role"], str) or not provider["role"].strip()):
+        fail(path, "'provider.role' must be a non-empty string", errors)
+
+    id_arrays = ("entity_types", "entity_type_tags", "dimensions", "unlock_quests")
+    for key in id_arrays:
+        if key not in provider:
+            continue
+        values = provider[key]
+        if not isinstance(values, list):
+            fail(path, f"'provider.{key}' must be a list", errors)
+            continue
+        for index, value in enumerate(values):
+            validate_resource_id(value, f"provider.{key}[{index}]", path, errors)
+
+    selectors = provider.get("entity_types", [])
+    tag_selectors = provider.get("entity_type_tags", [])
+    if not isinstance(selectors, list) or not isinstance(tag_selectors, list) or (not selectors and not tag_selectors):
+        fail(path, "provider requires at least one entity_types or entity_type_tags selector", errors)
+
+    if "scoreboard_tags" in provider:
+        values = provider["scoreboard_tags"]
+        if not isinstance(values, list):
+            fail(path, "'provider.scoreboard_tags' must be a list", errors)
+        else:
+            for index, value in enumerate(values):
+                if not isinstance(value, str) or not value.strip():
+                    fail(path, f"'provider.scoreboard_tags[{index}]' must be a non-empty string", errors)
+
+    if "lock_to_provider" in provider and not isinstance(provider["lock_to_provider"], bool):
+        fail(path, "'provider.lock_to_provider' must be a boolean", errors)
+
+    if "turn_in" in provider and provider["turn_in"] not in {"none", "same_provider", "any_eligible"}:
+        fail(path, "'provider.turn_in' must be one of: none, same_provider, any_eligible", errors)
+
+    if "required_dispositions" in provider:
+        value = provider["required_dispositions"]
+        if not isinstance(value, dict):
+            fail(path, "'provider.required_dispositions' must be an object", errors)
+        else:
+            for civilization, states in value.items():
+                validate_resource_id(civilization, "provider.required_dispositions civilization", path, errors)
+                if isinstance(states, str):
+                    validate_resource_id(states, f"provider.required_dispositions.{civilization}", path, errors)
+                elif isinstance(states, list) and states:
+                    for index, state in enumerate(states):
+                        validate_resource_id(state, f"provider.required_dispositions.{civilization}[{index}]", path, errors)
+                else:
+                    fail(path, f"'provider.required_dispositions.{civilization}' must be a resource id or non-empty list", errors)
+'''
+          marker = '\ndef validate_dev_boundary(data: dict[str, Any], path: Path, errors: list[str]) -> None:\n'
+          if marker not in s:
+              raise SystemExit('provider insertion marker missing')
+          s = s.replace(marker, provider_fn + marker, 1)
+          rep('    validate_reward_list(data, path, errors)\n    validate_overlay(data, path, errors)\n',
+              '    validate_reward_list(data, path, errors)\n    validate_provider_rule(data, path, errors)\n    validate_overlay(data, path, errors)\n')
+          p.write_text(s, encoding='utf-8')
+
+          t = Path('tools/test_validate_overlord_quest_examples.py')
+          ts = t.read_text(encoding='utf-8')
+          insert = r'''
+
+    expect_valid(
+        "disposition objective",
+        objective_errors({
+            "type": "questlog:disposition",
+            "civilization": "overlord_reign:test_civilization",
+            "state": "overlord_reign:dominated",
+        }),
+    )
+
+    expect_invalid(
+        "disposition objective amount",
+        objective_errors({
+            "type": "questlog:disposition",
+            "civilization": "overlord_reign:test_civilization",
+            "state": "overlord_reign:dominated",
+            "required_amount": 2,
+        }),
+        "must be exactly 1",
+    )
+
+    expect_valid(
+        "set disposition reward",
+        reward_errors({
+            "type": "questlog:set_disposition",
+            "civilization": "overlord_reign:test_civilization",
+            "state": "overlord_reign:hostile",
+        }),
+    )
+
+    provider_errors: list[str] = []
+    validator.validate_provider_rule({
+        "provider": {
+            "entity_types": ["minecraft:villager"],
+            "turn_in": "same_provider",
+            "required_dispositions": {
+                "overlord_reign:test_civilization": ["overlord_reign:neutral", "overlord_reign:dominated"]
+            },
+        }
+    }, TEST_PATH, provider_errors)
+    expect_valid("provider rule", provider_errors)
+
+    provider_errors = []
+    validator.validate_provider_rule({"provider": {"turn_in": "bad_mode"}}, TEST_PATH, provider_errors)
+    expect_invalid("provider rule missing selectors", provider_errors, "requires at least one")
+    expect_invalid("provider rule bad turn-in", provider_errors, "turn_in")
+'''
+          marker = '    print("OVERLORD QUESTS validator self-tests: PASS (14 cases)")\n'
+          if marker not in ts:
+              raise SystemExit('self-test insertion marker missing')
+          ts = ts.replace(marker, insert + '\n    print("OVERLORD QUESTS validator self-tests: PASS (19 cases)")\n', 1)
+          t.write_text(ts, encoding='utf-8')
+          PY
+
+      - name: Add death-screen theme regression validator
+        run: |
+          set -euo pipefail
+          cat > tools/validate_overlord_death_screen.py <<'PY'
+          #!/usr/bin/env python3
+          """Guard the approved non-VHS OVERLORD death-screen boundary."""
+          from pathlib import Path
+          import sys
+
+          ROOT = Path(__file__).resolve().parents[1]
+          roots = [
+              ROOT / 'common/src/main/java/org/infernalstudios/questlog/client/death',
+              ROOT / 'forge/src/main/java/org/infernalstudios/questlog/OverlordDeathScreenCompatibilityForge.java',
+          ]
+          forbidden = ('grain', 'scanline', 'chromatic', 'cassette', 'heartbeat', 'breathing', 'tape.ogg')
+          errors = []
+          for root in roots:
+              paths = [root] if root.is_file() else sorted(root.glob('*.java'))
+              for path in paths:
+                  text = path.read_text(encoding='utf-8').lower()
+                  # Documentation comments may state that rejected effects are absent.
+                  code = '\n'.join(line for line in text.splitlines() if not line.strip().startswith(('*', '//')))
+                  for token in forbidden:
+                      if token in code:
+                          errors.append(f'{path.relative_to(ROOT)} contains forbidden production token {token!r}')
+          resource_root = ROOT / 'common/src/main/resources/assets/questlog'
+          if resource_root.exists():
+              for path in resource_root.rglob('*'):
+                  if path.is_file() and any(token in path.name.lower() for token in ('cassette', 'heartbeat', 'breathing', 'tape')):
+                      errors.append(f'forbidden Epic Death Screen audio resource: {path.relative_to(ROOT)}')
+          if errors:
+              print('\n'.join(errors), file=sys.stderr)
+              raise SystemExit(1)
+          print('OVERLORD death-screen theme boundary: PASS (no VHS/audio production presentation)')
+          PY
+          chmod +x tools/validate_overlord_death_screen.py
+
+      - name: Validate and build
+        run: |
+          set -euo pipefail
+          python3 tools/test_validate_overlord_quest_examples.py
+          python3 tools/validate_overlord_quest_examples.py
+          python3 tools/validate_overlord_death_screen.py
+          chmod +x gradlew
+          ./gradlew :forge:build --stacktrace
+
+      - name: Commit implementation and remove migration
+        run: |
+          set -euo pipefail
+          rm .github/workflows/apply-overlord-death-screen.yml
+          git config user.name 'magicienlord'
+          git config user.email '126299567+magicienlord@users.noreply.github.com'
+          git add -A
+          git commit -m 'Integrate neutral Overlord death-screen mechanics'
+          git push origin HEAD:gnarl-bootstrap
