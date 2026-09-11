@@ -266,9 +266,9 @@ The remaining positional-list limitation means structural edits still need migra
 
 None of this preparatory hardening closes Foundation B.
 
-The exact approved portrait binary is integrated from the user-supplied `main` upload. The main upload and runtime resource share Git blob `40c74f6613f0cc23fbf6be0911dedfcfae82865b`, and runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`.
+The current runtime Gnarl portrait is a technical test asset. Runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`, but that mechanical identity check must not be misread as approval of the exact final corrected portrait binary.
 
-Foundation B now requires only direct unpublished-local-single-player review of the Gnarl popup implementation for:
+Foundation B still requires direct unpublished-local-single-player review of the Gnarl popup implementation for:
 
 - actual transparency in Minecraft;
 - clipping and anchoring;
@@ -278,7 +278,7 @@ Foundation B now requires only direct unpublished-local-single-player review of 
 - queued-popup retry reliability;
 - final decision on whether native Questlog overlay controls are sufficient.
 
-Portrait scale, parchment placement, and popup composition remain implementation-test values until that runtime review is accepted.
+Portrait scale, parchment placement, and popup composition remain implementation-test values until that runtime review is accepted. Exact final portrait-binary approval remains a separate acceptance condition.
 
 ## 16. Current authoring policy
 
@@ -334,16 +334,30 @@ OVERLORD QUESTS normalizes both command targets and quest chapter strings to res
 
 This is administrative tooling consistency only. It does not change quest chronology, progression design, or story content.
 
-## 20. Fork closure policy
+## 20. Active integration policy
 
-The source audit is now in closure mode. Generic Questlog refactoring is not an active project goal.
+Generic Questlog refactoring remains outside scope. Engine changes now require a concrete OVERLORD REIGN presentation, quest-authoring, or modpack-integration need.
 
-Further engine changes require one of three concrete triggers:
+The NPC sidequest-provider layer and the death-screen replacement are explicit active integration requirements, so their narrowly scoped engine work is permitted under this policy. This does not reopen unrelated upstream cleanup.
 
-- an approved OVERLORD REIGN quest cannot be represented correctly with the current objective/reward/presentation surface;
-- the Foundation B in-game test exposes a reproducible engine or presentation defect;
-- an actual modpack integration exposes a compatibility failure.
+The inherited CurseForge, Modrinth, and external wiki publication targets remain removed from the private fork. Build output is local or GitHub Actions based unless the Overlord explicitly establishes another publication target.
 
-The inherited CurseForge, Modrinth, and external wiki publication targets have been removed from the private fork. Build output is local or GitHub Actions based unless the Overlord explicitly establishes another publication target.
+Status: GENERIC HARDENING CLOSED; APPROVED INTEGRATION WORK ACTIVE.
 
-Status: ENGINE HARDENING CLOSED PENDING RUNTIME-FOUND DEFECTS.
+## 21. NPC provider and disposition extensions
+
+OVERLORD QUESTS now has a server-authoritative NPC sidequest-provider layer derived from the useful quest-giver boundary identified in the Villager Retaliation reference, without importing its numeric reputation system as the governing progression model.
+
+Provider definitions can select entities, require completed quest markers, require authored world-scoped civilization disposition states, persist the issuing NPC identity, and choose no provider turn-in, exact-provider turn-in, or any-eligible-provider turn-in. Client actions never decide eligibility; the logical server re-resolves provider identity, distance, quest existence, and current eligibility before mutating progress.
+
+Administrative quest resets delegate to the provider-aware `Quest.resetProgress()` contract, and `/questlog trigger` does not bypass an unaccepted provider binding. Synthetic development fixtures and `/questlog narrative disposition` commands provide deterministic validation without defining canonical civilizations or states.
+
+Status: IMPLEMENTATION SCAFFOLD GREEN IN CI; DIRECT FORGE RUNTIME ACCEPTANCE PENDING.
+
+## 22. Death-screen integration boundary
+
+The useful mechanical core of the Epic Death Screen reference has been integrated as an OVERLORD QUESTS client scaffold: exact vanilla-screen replacement, bounded delay, optional skip, optional non-hardcore auto-respawn, hardcore safety, lifecycle handling, and compatibility veto hooks.
+
+The reference mod's VHS grain, scanlines, chromatic/tape effects, cassette framing, heartbeat/breathing/tape ambience, cassette audio, and stock humorous phrases are explicitly outside the OVERLORD presentation target and are guarded by a repository validator. The current dark neutral screen is implementation scaffolding only.
+
+Status: MECHANICS GREEN IN CI; OVERLORD-SPECIFIC VISUAL PASS PLANNED.
