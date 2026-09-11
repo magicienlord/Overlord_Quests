@@ -18,7 +18,7 @@ public class QuestlogPacketsForge {
      * Requiring an exact protocol prevents a mismatched client from being admitted
      * merely because both sides happen to use the technical `questlog` mod id.
      */
-    private static final String PROTOCOL_VERSION = "overlord-quests-1";
+    private static final String PROTOCOL_VERSION = "overlord-quests-2";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(Questlog.MODID, "messages"))
