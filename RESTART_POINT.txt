@@ -1,0 +1,35 @@
+OVERLORD QUESTS CONVERSATION RESTART POINT
+
+Repository: magicienlord/Overlord_Quests
+Resume development branch: gnarl-bootstrap
+Do not continue development on: conversation-handoff-2026-09-11-run285
+Validated source head: 35f776889d753cae4b9cc9bdcdca7a0f4f49cb6d
+Known-green workflow run: 34559561281
+Workflow run number: 285
+Workflow result: success
+Minecraft: Java 1.20.1
+Forge: 47.4.10
+Java: 17
+Upstream Questlog baseline: 72edfa8cc2a411265ad20a916ce0282ec7be56c0
+
+FIRST ACTIONS
+1. Fetch gnarl-bootstrap and confirm it is still at 35f776889d753cae4b9cc9bdcdca7a0f4f49cb6d or a descendant.
+2. If it moved, reconcile the newer commits first.
+3. Read NEXT_CONVERSATION_HANDOFF.md and RECENT_COMMIT_LEDGER.md from this handoff package.
+4. Read README.md and the active system docs on gnarl-bootstrap.
+5. Do not modify main.
+6. Do not resume generic Questlog hardening without a concrete OVERLORD REIGN need.
+
+CURRENT NEXT TECHNICAL TARGET
+Provider dialogue currently wraps but truncates if it exceeds available vertical space. A neutral scrolling or pagination mechanism is the clearest isolated next implementation target because it enables authored content without deciding final NPC visual design.
+
+RUNTIME ACCEPTANCE STILL PENDING
+- direct NPC provider Forge acceptance pass;
+- direct death-screen Forge acceptance pass;
+- exact final Gnarl portrait-binary approval and post-rework Gnarl regression pass.
+
+ARCHITECTURE CAUTION
+The Overlord did not explicitly choose a full independently maintained Questlog fork/dedicated JAR architecture. Treat that architecture as PROPOSAL. Preserve Questlog as the framework and justify source extensions by concrete OVERLORD REIGN requirements.
+
+CANON CAUTION
+No story dialogue, canonical civilizations/states, settlements, provider coordinates, faction outcomes, production rewards, or quest chronology were established by the latest technical work.
