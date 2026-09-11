@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Adaptation Contract
 
-Status: FOUNDATION A COMPLETE / FOUNDATION B ACTIVE, TECHNICAL GATE GREEN
+Status: FOUNDATION A COMPLETE / FOUNDATION B ACTIVE, APPROVED PORTRAIT INTEGRATED, TECHNICAL GATE GREEN
 
 This file records engineering decisions for the Gnarl quest system. It is not a source of new OVERLORD REIGN world or story canon.
 
@@ -49,7 +49,7 @@ Preserving an upstream system does not forbid correctness or authority hardening
 The initial targets are:
 
 1. Establish a green Forge 47.4.10 build from the exact 3.3.3 baseline. **COMPLETE.**
-2. Create and validate the Gnarl visual presentation layer without disturbing quest mechanics. **ACTIVE, TECHNICAL ASSET/BUILD GATE COMPLETE, MANUAL IN-GAME REVIEW PENDING.**
+2. Create and validate the Gnarl visual presentation layer without disturbing quest mechanics. **ACTIVE, APPROVED PORTRAIT INTEGRATED, TECHNICAL ASSET/BUILD GATE COMPLETE, MANUAL IN-GAME REVIEW PENDING.**
 3. Make OVERLORD REIGN quest content distributable with the project rather than relying on manual user setup alone, while retaining config overrides for development. **ENGINE COMPLETE, CONTENT MANIFEST INTENTIONALLY EMPTY.**
 4. Add modpack-specific objective and reward bridges only when required by approved quest design. **NOT STARTED.**
 5. Keep world-specific assumptions out of generic engine code so unfinished systems such as the final Dark Tower world and ongoing personal-mod backports do not block development. **ONGOING RULE.**
@@ -79,7 +79,9 @@ The bundled `index.json` explicitly lists packaged quests and chapters. External
 
 The repository validator checks the bundled manifest and prevents development fixtures from being promoted through that path. The manifest currently contains no story quests or chapters.
 
-The in-game editor remains a config-layer editor. Because config definitions are reconstructed under the technical `questlog` namespace, editor save/remove packets now reject other namespaces rather than allowing an ID that cannot round-trip through the loader.
+The in-game editor remains a config-layer editor. Because config definitions are reconstructed under the technical `questlog` namespace, editor save/remove packets reject other namespaces rather than allowing an ID that cannot round-trip through the loader.
+
+Quest/chapter definitions that cross the Questlog network use an explicit 32,767 Java-character ceiling. Repository-controlled definitions are validated before build, editor packets enforce the same limit, and config/bundled definitions are rejected at load time if their compact JSON cannot safely cross that wire boundary. An oversized external quest is represented by the ordinary broken-quest fallback rather than loading successfully and failing later during synchronization.
 
 ## Definition validation contract
 
@@ -101,6 +103,8 @@ Quest persistence is positional inside each prerequisite, objective, failure, an
 
 The Triggers 1.0.1 shared event bus cannot unregister one listener. Hot-reloading definitions can therefore leave listeners belonging to old Objective instances registered. OVERLORD QUESTS avoids clearing the shared bus, which could break other consumers, and instead makes stale Objective instances inert by checking that their parent Quest is still the current QuestManager instance before state mutation.
 
+The private Questlog event bus no longer relies on runtime generic inference through TypeTools. All owned registrations use explicit event classes, which makes precise unregistering deterministic and removes an unnecessary runtime library dependency from the fork.
+
 The client-to-server packet surface has also been hardened. Reward collection, read acknowledgement, repeatable reset, and quest/chapter editor operations now validate their server-side sender and authoritative state before acting. Reward collection rejects early claims and invalid indices. Choice selections are validated before state mutation. Editor operations require permission level 2, reject unsupported namespaces, reject malformed save JSON, and confine filesystem operations to their intended config roots.
 
 Detailed source-derived capability notes are maintained in `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md`.
@@ -111,11 +115,11 @@ The active milestone is direct in-game validation of Gnarl's quest popup.
 
 Questlog 3.3.3 already supports the relevant presentation primitives on individual quests, including `show_popup_on_unlock`, custom background and peripheral textures, arbitrary panel dimensions and offsets, and an unrestricted overlay texture positioned relative to the left panel. The first visual vertical slice continues to exploit those native controls before changing rendering code.
 
-The approved popup-character baseline keeps the established portrait design. The approved face correction is square pupils that look toward the player while respecting each eye's perspective. Gnarl's existing snout geometry and non-angry expression are invariants and must not be altered by that correction.
+The popup-character baseline is locked: square pupils, player-directed gaze, perspective alignment to each eye, unchanged snout geometry, and the established sly/non-angry expression.
 
-The exact approved 1254 x 1254 RGBA portrait is integrated at `assets/questlog/textures/gui/overlord/gnarl_popup.png`. It is displayed in the current development fixture through a 160 x 160 overlay rectangle, so source texture resolution is not the same thing as on-screen size.
+The exact user-supplied portrait uploaded to `main` is integrated unchanged at `assets/questlog/textures/gui/overlord/gnarl_popup.png`. Both the main upload and runtime resource resolve to Git blob `40c74f6613f0cc23fbf6be0911dedfcfae82865b`; runtime validation records SHA-256 `699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed`. It is displayed in the current development fixture through a 160 x 160 overlay rectangle, so source texture resolution is not the same thing as on-screen size.
 
-The integrated portrait passed PNG integrity and alpha-content validation. The technical Foundation B pipeline has also passed definition validation, static layout reporting, Java 17 Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload. Current popup queue and engine hardening continue to pass the same full workflow.
+The integrated portrait passed PNG integrity and alpha-content validation. The technical Foundation B pipeline has also passed definition validation, static layout reporting, Java 17 Forge compilation, reobfuscation, assembled-JAR inspection, test-kit preparation, and artifact upload. Current popup queue and engine hardening continue through the same full workflow.
 
 The separate in-game Gnarl model remains work in progress and is not a source for automatic popup redesign. Full cross-alignment is deferred until the model reaches the review gate defined in `docs/GNARL_VISUAL_ALIGNMENT.md`.
 
@@ -126,6 +130,14 @@ The popup queue now delays automatic full-screen presentation while any other GU
 The trigger sound remains bound to the trigger event, not delayed popup display, so queue deferral must not produce a second identical cue when the screen eventually opens.
 
 If the native overlay path cannot achieve a stable readable Gnarl layout at normal GUI scales, only then should the renderer receive a dedicated speaker/portrait field.
+
+## Fork closure policy
+
+The fork is now in closure mode rather than open-ended Questlog redevelopment.
+
+Generic Questlog refactoring is out of scope. Additional engine changes are justified only by a concrete OVERLORD REIGN quest requirement, a reproducible defect discovered during the Foundation B in-game test, or an actual modpack compatibility failure.
+
+The imported upstream CurseForge, Modrinth, and external wiki publication tooling has been removed. This project produces private/local and GitHub Actions artifacts only unless the Overlord explicitly establishes a publication target.
 
 ## Canon boundary
 
