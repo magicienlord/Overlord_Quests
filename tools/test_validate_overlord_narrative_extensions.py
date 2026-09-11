@@ -89,6 +89,13 @@ def main():
             "max": [8, 72, 8],
         },
     }), "location.min")
+    expect_invalid("provider location integer overflow", provider({
+        "entity_types": ["minecraft:villager"],
+        "location": {
+            "min": [-2147483649, 0, 0],
+            "max": [2147483648, 64, 0],
+        },
+    }), "signed 32-bit")
     expect_valid("provider dialogue", provider({
         "entity_types": ["minecraft:villager"],
         "dialogue": {
@@ -116,7 +123,7 @@ def main():
         "required_dispositions": {"overlord_reign:test_civilization": []},
     }), "non-empty list")
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (15 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (16 cases)")
     return 0
 
 
