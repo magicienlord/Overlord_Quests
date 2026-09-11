@@ -93,6 +93,19 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
                 if not isinstance(value, str) or not value.strip():
                     core.fail(path, f"'provider.scoreboard_tags[{index}]' must be a non-empty string", errors)
 
+    if "location" in provider:
+        location = provider["location"]
+        if not isinstance(location, dict):
+            core.fail(path, "'provider.location' must be an object", errors)
+        else:
+            for key in ("min", "max"):
+                coordinates = location.get(key)
+                if not isinstance(coordinates, list) or len(coordinates) != 3:
+                    core.fail(path, f"'provider.location.{key}' must be a three-integer list", errors)
+                    continue
+                if any(not core.is_int(value) for value in coordinates):
+                    core.fail(path, f"'provider.location.{key}' must contain integers only", errors)
+
     if "lock_to_provider" in provider and not isinstance(provider["lock_to_provider"], bool):
         core.fail(path, "'provider.lock_to_provider' must be a boolean", errors)
 
