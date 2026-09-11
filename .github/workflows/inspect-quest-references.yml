@@ -83,6 +83,21 @@ jobs:
             echo "===== END ${file} ====="
           done < <(find reference-inspection/output/epic-src -type f -name '*.java' | sort)
 
+      - name: Print Epic Death Screen license and text resources
+        run: |
+          set -euo pipefail
+          for file in \
+            reference-inspection/output/epic-assets/LICENSE \
+            reference-inspection/output/epic-assets/AUDIO_CREDITS.md \
+            reference-inspection/output/epic-assets/assets/epicdeathscreen/sounds.json \
+            reference-inspection/output/epic-assets/assets/epicdeathscreen/lang/en_us.json \
+            reference-inspection/output/epic-assets/assets/epicdeathscreen/phrases/en_us.txt \
+            reference-inspection/output/epic-assets/epicdeathscreen-default.properties; do
+            echo "===== BEGIN ${file} ====="
+            cat "$file"
+            echo "===== END ${file} ====="
+          done
+
       - name: Print relevant Villager Retaliation provider source inventory
         run: |
           set -euo pipefail
