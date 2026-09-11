@@ -9,6 +9,7 @@ FORWARDER = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogFor
 OPEN_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/packet/QuestProviderOpenPacket.java"
 ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/packet/QuestProviderActionPacket.java"
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
+SERVICE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderService.java"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
 DIALOGUE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderDialogue.java"
 SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/provider/QuestProviderScreen.java"
@@ -37,6 +38,8 @@ require(OPEN_PACKET, "MAX_ENTRIES = 256", "bounded provider-menu entry count")
 require(OPEN_PACKET, "MAX_PROVIDER_NAME = 128", "bounded provider display name")
 require(ACTION_PACKET, "QuestProviderInteraction.sendMenu(player, provider, true)", "authoritative menu refresh after provider action")
 require(INTERACTION, "List.copyOf(entries.subList(0, QuestProviderOpenPacket.MAX_ENTRIES))", "server-side provider snapshot truncation")
+require(SERVICE, ".comparingInt((InteractionEntry entry) -> questSortOrder(manager, entry.questId()))", "deterministic provider interaction ordering")
+require(SERVICE, ".thenComparing(entry -> entry.questId().toString())", "provider interaction id tie-breaker")
 require(RULE, "record LocationBounds", "authored provider location contract")
 require(RULE, "this.location != null && !this.location.contains(entity)", "provider location eligibility check")
 require(RULE, "Questlog.MODID + \":\" + value", "bare provider unlock quest normalization")
