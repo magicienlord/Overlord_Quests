@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
@@ -37,6 +38,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     private static final ThreadLocal<Set<Quest>> COMPLETION_EVALUATION = ThreadLocal.withInitial(
             () -> Collections.newSetFromMap(new IdentityHashMap<>())
     );
+    private static final Set<ResourceLocation> REPORTED_COMPLETION_CYCLES = ConcurrentHashMap.newKeySet();
 
     public final List<Objective> prerequisites;
     public final List<Objective> objectives;
@@ -259,7 +261,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
         Set<Quest> evaluating = COMPLETION_EVALUATION.get();
         if (!evaluating.add(this)) {
-            Questlog.LOGGER.warn("Detected cyclic quest_complete dependency while evaluating {}", this.id);
+            if (REPORTED_COMPLETION_CYCLES.add(this.id)) {
+                Questlog.LOGGER.warn("Detected cyclic quest_complete dependency while evaluating {}. Further warnings for this quest ID are suppressed.", this.id);
+            }
             return false;
         }
 
