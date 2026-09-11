@@ -12,6 +12,9 @@ import org.infernalstudios.questlog.core.quests.display.QuestDisplayData;
 import org.infernalstudios.questlog.core.quests.display.WithDisplayData;
 import org.infernalstudios.questlog.core.quests.objectives.Objective;
 import org.infernalstudios.questlog.core.quests.rewards.Reward;
+import org.infernalstudios.questlog.overlord.provider.QuestProviderBinding;
+import org.infernalstudios.questlog.overlord.provider.QuestProviderRule;
+import org.jetbrains.annotations.Nullable;
 import org.infernalstudios.questlog.util.JsonUtils;
 import org.infernalstudios.questlog.util.NbtSaveable;
 import org.infernalstudios.questlog.util.Util;
@@ -46,6 +49,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     public boolean hasSentTrigger = false;
     private final boolean repeatable;
     private final boolean global;
+    @Nullable private final QuestProviderRule providerRule;
+    @Nullable private QuestProviderBinding providerBinding;
+    private boolean providerTurnedIn = false;
     private boolean disposed = false;
 
     public Quest(
@@ -57,7 +63,8 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
             ResourceLocation id,
             QuestManager manager,
             boolean repeatable,
-            boolean global
+            boolean global,
+            @Nullable QuestProviderRule providerRule
     ) {
         this.display = display;
         this.prerequisites = prerequisites;
@@ -68,8 +75,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         this.manager = manager;
         this.repeatable = repeatable;
         this.global = global;
+        this.providerRule = providerRule;
 
-        if (this.prerequisites.isEmpty()) {
+        if (this.prerequisites.isEmpty() && this.providerRule == null) {
             this.hasSentTrigger = true;
         }
 
@@ -131,8 +139,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
         boolean repeatable = JsonUtils.getOrDefault(definition, "repeatable", false);
         boolean global = JsonUtils.getOrDefault(definition, "global", false);
+        QuestProviderRule providerRule = QuestProviderRule.fromDefinition(definition);
 
-        return new Quest(display, prerequisites, objectives, failureConditions, rewards, id, manager, repeatable, global);
+        return new Quest(display, prerequisites, objectives, failureConditions, rewards, id, manager, repeatable, global, providerRule);
     }
 
     /**
@@ -165,13 +174,65 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         return this.global;
     }
 
+    @Nullable
+    public QuestProviderRule getProviderRule() {
+        return this.providerRule;
+    }
+
+    @Nullable
+    public QuestProviderBinding getProviderBinding() {
+        return this.providerBinding;
+    }
+
+    public boolean arePrerequisitesComplete() {
+        if (this.disposed || !this.manager.isActive()) return false;
+        for (Objective prerequisite : this.prerequisites) {
+            if (!prerequisite.isCompleted()) return false;
+        }
+        return true;
+    }
+
+    public boolean areObjectivesComplete() {
+        if (this.disposed || !this.manager.isActive() || this.isFailed()) return false;
+        for (Objective objective : this.objectives) {
+            if (!objective.isCompleted()) return false;
+        }
+        return true;
+    }
+
+    public boolean isReadyForProviderTurnIn() {
+        return this.providerRule != null
+                && this.providerBinding != null
+                && this.providerRule.requiresTurnIn()
+                && this.arePrerequisitesComplete()
+                && this.areObjectivesComplete()
+                && !this.providerTurnedIn;
+    }
+
+    public void bindProvider(QuestProviderBinding binding) {
+        if (this.disposed || !this.manager.isActive() || this.providerRule == null || binding == null || this.providerBinding != null) {
+            return;
+        }
+        this.providerBinding = binding;
+        this.providerTurnedIn = false;
+        this.markForUpdate();
+    }
+
+    public void completeProviderTurnIn() {
+        if (!this.isReadyForProviderTurnIn()) return;
+        this.providerTurnedIn = true;
+        this.markForUpdate();
+    }
+
     public void resetProgress() {
         if (this.disposed || !this.manager.isActive()) return;
         this.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
         this.objectives.forEach(obj -> obj.forceSetUnits(0));
         this.failureConditions.forEach(obj -> obj.forceSetUnits(0));
         this.rewards.forEach(Reward::revokeReward);
-        this.hasSentTrigger = this.prerequisites.isEmpty();
+        this.providerBinding = null;
+        this.providerTurnedIn = false;
+        this.hasSentTrigger = this.prerequisites.isEmpty() && this.providerRule == null;
         this.hasSentCompletion = false;
         this.markForUpdate();
     }
@@ -183,12 +244,8 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
     public boolean isTriggered() {
         if (this.disposed || !this.manager.isActive()) return false;
-        for (Objective req : this.prerequisites) {
-            if (!req.isCompleted()) {
-                return false;
-            }
-        }
-        return true;
+        if (this.providerRule != null && this.providerBinding == null) return false;
+        return this.arePrerequisitesComplete();
     }
 
     public boolean isFailed() {
@@ -212,12 +269,8 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
             // empty objective list can legitimately complete immediately.
             if (!this.isTriggered() || this.isFailed()) return false;
 
-            for (Objective objective : this.objectives) {
-                if (!objective.isCompleted()) {
-                    return false;
-                }
-            }
-            return true;
+            if (!this.areObjectivesComplete()) return false;
+            return this.providerRule == null || !this.providerRule.requiresTurnIn() || this.providerTurnedIn;
         } finally {
             evaluating.remove(this);
             if (evaluating.isEmpty()) {
@@ -251,6 +304,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         // repeatable/global are definition-owned behavior, not player progress.
         data.putBoolean("repeatable", this.repeatable);
         data.putBoolean("global", this.global);
+        data.putBoolean("provider_turned_in", false);
 
         data.put(
                 "prerequisites",
@@ -294,6 +348,13 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         if (this.disposed) return;
         this.hasSentCompletion = data.getBoolean("completed");
         this.hasSentTrigger = data.getBoolean("triggered");
+        if (this.providerRule != null && data.contains("provider_binding", Tag.TAG_COMPOUND)) {
+            this.providerBinding = QuestProviderBinding.load(data.getCompound("provider_binding"));
+            this.providerTurnedIn = this.providerBinding != null && data.getBoolean("provider_turned_in");
+        } else {
+            this.providerBinding = null;
+            this.providerTurnedIn = false;
+        }
 
         // `repeatable` and `global` may exist in inherited saves, but current
         // definition data is authoritative. Applying persisted values here made
@@ -301,7 +362,9 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         // could keep a quest globally synchronized after its definition stopped
         // being global.
 
-        if (this.prerequisites.isEmpty()) {
+        if (this.providerRule != null && this.providerBinding == null) {
+            this.hasSentTrigger = false;
+        } else if (this.prerequisites.isEmpty()) {
             this.hasSentTrigger = true;
         }
 
@@ -334,6 +397,10 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         tag.putBoolean("triggered", this.hasSentTrigger);
         tag.putBoolean("repeatable", this.repeatable);
         tag.putBoolean("global", this.global);
+        tag.putBoolean("provider_turned_in", this.providerTurnedIn);
+        if (this.providerRule != null && this.providerBinding != null) {
+            tag.put("provider_binding", this.providerBinding.save());
+        }
         tag.put("prerequisites", Util.toNbtList(this.prerequisites, Objective::serialize));
         tag.put("objectives", Util.toNbtList(this.objectives, Objective::serialize));
         tag.put("failures", Util.toNbtList(this.failureConditions, Objective::serialize));

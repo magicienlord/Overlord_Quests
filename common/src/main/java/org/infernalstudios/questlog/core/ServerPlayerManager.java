@@ -273,6 +273,15 @@ public class ServerPlayerManager {
         }
     }
 
+    /** Re-evaluates and synchronizes every active quest after a world-scoped narrative fact changes. */
+    public void syncAllQuestState() {
+        for (QuestManager manager : this.questManagers.values()) {
+            if (manager.isActive()) {
+                manager.sync();
+            }
+        }
+    }
+
     public void syncPlayer(QuestManager questManager) {
         if (!questManager.isActive()) {
             return;

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.core.quests.rewards.*;
+import org.infernalstudios.questlog.overlord.narrative.SetDispositionReward;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.util.HashMap;
@@ -27,6 +28,8 @@ public class QuestRewardRegistry {
                 new EditorMetadata("loot_table", "Loot Table ID:", null, EditorMetadata.SuggestionType.LOOT_TABLE));
         register(new ResourceLocation("questlog", "choice"), ChoiceReward::new,
                 new EditorMetadata(null, null, null));
+        register(new ResourceLocation("questlog", "set_disposition"), SetDispositionReward::new,
+                new EditorMetadata("civilization", "Civilization ID:", null));
     }
 
     public static Set<ResourceLocation> getRegisteredTypes() {
