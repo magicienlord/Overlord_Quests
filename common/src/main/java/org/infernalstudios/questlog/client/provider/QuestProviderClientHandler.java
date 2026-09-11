@@ -13,6 +13,13 @@ public final class QuestProviderClientHandler {
         if (minecraft.player == null || minecraft.level == null) {
             return;
         }
+
+        if (minecraft.screen instanceof QuestProviderScreen providerScreen
+                && providerScreen.matches(packet)) {
+            providerScreen.refresh(packet);
+            return;
+        }
+
         minecraft.setScreen(new QuestProviderScreen(packet));
     }
 }

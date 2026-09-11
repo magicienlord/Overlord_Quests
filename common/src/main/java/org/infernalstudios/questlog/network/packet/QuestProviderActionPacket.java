@@ -68,9 +68,14 @@ public record QuestProviderActionPacket(
         }
 
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
+        if (manager == null || !manager.isActive()) {
+            return;
+        }
+
         Quest quest = manager.getQuest(packet.questId);
         if (quest == null) {
             Questlog.LOGGER.warn("Rejected provider action for unknown quest {} from {}", packet.questId, player.getGameProfile().getName());
+            QuestProviderInteraction.sendMenu(player, provider, true);
             return;
         }
 

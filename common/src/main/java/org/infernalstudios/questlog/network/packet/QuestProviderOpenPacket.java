@@ -18,12 +18,15 @@ public record QuestProviderOpenPacket(
         List<QuestProviderService.InteractionEntry> entries
 ) {
     public static final IPacketContext.Direction DIRECTION = IPacketContext.Direction.SERVER_TO_CLIENT;
-    private static final int MAX_ENTRIES = 256;
-    private static final int MAX_PROVIDER_NAME = 128;
+    public static final int MAX_ENTRIES = 256;
+    public static final int MAX_PROVIDER_NAME = 128;
 
     public QuestProviderOpenPacket {
         if (providerId == null || providerName == null || entries == null) {
             throw new IllegalArgumentException("provider menu packet fields must be non-null");
+        }
+        if (providerName.length() > MAX_PROVIDER_NAME) {
+            throw new IllegalArgumentException("provider menu name exceeds " + MAX_PROVIDER_NAME + " characters");
         }
         if (entries.size() > MAX_ENTRIES) {
             throw new IllegalArgumentException("provider menu exceeds " + MAX_ENTRIES + " entries");
@@ -54,6 +57,9 @@ public record QuestProviderOpenPacket(
     }
 
     public void encode(FriendlyByteBuf buf) {
+        if (this.providerName.length() > MAX_PROVIDER_NAME) {
+            throw new IllegalArgumentException("provider menu name exceeds " + MAX_PROVIDER_NAME + " characters");
+        }
         if (this.entries.size() > MAX_ENTRIES) {
             throw new IllegalArgumentException("provider menu exceeds " + MAX_ENTRIES + " entries");
         }

@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.infernalstudios.questlog.QuestlogClient;
 import org.infernalstudios.questlog.core.quests.Quest;
@@ -29,8 +28,8 @@ public final class QuestProviderScreen extends Screen {
 
     private final int providerEntityId;
     private final UUID providerId;
-    private final String providerName;
-    private final List<QuestProviderService.InteractionEntry> entries;
+    private String providerName;
+    private List<QuestProviderService.InteractionEntry> entries;
     private int page;
     private boolean pendingAction;
 
@@ -40,6 +39,22 @@ public final class QuestProviderScreen extends Screen {
         this.providerId = packet.providerId();
         this.providerName = packet.providerName();
         this.entries = List.copyOf(packet.entries());
+    }
+
+    public boolean matches(QuestProviderOpenPacket packet) {
+        return packet != null
+                && this.providerEntityId == packet.providerEntityId()
+                && this.providerId.equals(packet.providerId());
+    }
+
+    public void refresh(QuestProviderOpenPacket packet) {
+        if (!this.matches(packet)) {
+            return;
+        }
+        this.providerName = packet.providerName();
+        this.entries = List.copyOf(packet.entries());
+        this.pendingAction = false;
+        this.rebuildWidgets();
     }
 
     @Override
@@ -133,6 +148,7 @@ public final class QuestProviderScreen extends Screen {
 
         Entity provider = minecraft.level.getEntity(this.providerEntityId);
         if (provider == null
+                || !provider.isAlive()
                 || !this.providerId.equals(provider.getUUID())
                 || minecraft.player.distanceToSqr(provider) > MAX_DISTANCE_SQR) {
             this.onClose();
