@@ -48,6 +48,15 @@ require(DIALOGUE, "case READY_TO_TURN_IN -> this.readyToTurnIn", "state-specific
 require(SCREEN, "Component.literal(\"Decline\")", "explicit non-persistent decline action")
 require(SCREEN, "rule.dialogue().linesFor(entry.state())", "authored dialogue rendering")
 require(SCREEN, "this.selectedQuestId = entry.questId()", "offer selection before acceptance")
+require(SCREEN, "private int dialogueScrollPixels;", "provider dialogue scroll state")
+require(SCREEN, "private int maxDialogueScroll", "bounded provider dialogue overflow calculation")
+require(SCREEN, "public boolean mouseScrolled", "mouse-wheel provider dialogue scrolling")
+require(SCREEN, "Component.literal(\"Up\")", "explicit provider dialogue scroll-up control")
+require(SCREEN, "Component.literal(\"Down\")", "explicit provider dialogue scroll-down control")
+
+screen = SCREEN.read_text(encoding="utf-8")
+if "if (y > maxY) return;" in screen:
+    errors.append("QuestProviderScreen.java: silent fixed-height provider dialogue truncation remains")
 
 if errors:
     print(f"Provider runtime contract validation failed with {len(errors)} error(s):", file=sys.stderr)
