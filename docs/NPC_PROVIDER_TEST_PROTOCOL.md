@@ -12,6 +12,7 @@ The test verifies:
 - sneak + main-hand interaction opens the temporary provider menu;
 - ordinary non-sneaking villager interaction is not consumed by OVERLORD QUESTS;
 - selecting an available quest opens its authored offer dialogue before acceptance;
+- authored offer dialogue that exceeds the detail-view height remains reachable through bounded scrolling rather than being silently truncated;
 - explicit decline returns to the provider list without accepting or persisting a rejection state;
 - acceptance binds the exact issuing NPC;
 - authored in-progress and ready-to-turn-in dialogue follows the server-derived quest state;
@@ -58,11 +59,13 @@ First interact normally with Provider A without sneaking. OVERLORD QUESTS must n
 
 Then sneak and interact with Provider A using the main hand. The provider screen must open and show `[DEV] NPC Provider Prototype` as available. `[DEV] Disposition-Gated Provider Prototype` must not be present while `questlog:dev_civilization` is unresolved.
 
-Select `[DEV] NPC Provider Prototype`. Selection must open a neutral detail view before any server-side acceptance occurs. The offer dialogue must contain the two `[DEV]` lines defined by the fixture, including the line stating that declining must not alter quest state.
+Select `[DEV] NPC Provider Prototype`. Selection must open a neutral detail view before any server-side acceptance occurs. The first visible offer dialogue must include the fixture's initial `[DEV]` lines, including the line stating that declining must not alter quest state.
+
+Before choosing an action, validate dialogue overflow. Use the neutral `Down` control or the mouse wheel to move through the authored offer text. The final line `[DEV] DIALOGUE SCROLL END.` must become visible. Use `Up` or the mouse wheel in the opposite direction and confirm earlier lines can be reached again. Reaching the sentinel is the runtime proof that long authored dialogue is no longer silently truncated by the fixed detail-view height.
 
 Choose `Decline`. The screen must return to the provider list and the quest must still be available. Close and reopen the provider screen once to confirm decline did not create a hidden rejection state, cooldown, or binding.
 
-Select the quest again and choose `Accept`. The same screen should refresh from the server and show the quest as in progress. Selecting the in-progress entry must show the fixture's `[DEV]` in-progress response. The controls must not remain permanently disabled after the server response.
+Select the quest again. The dialogue must reopen at the beginning rather than inheriting the previous detail-view scroll offset. Choose `Accept`. The same screen should refresh from the server and show the quest as in progress. Selecting the in-progress entry must show the fixture's `[DEV]` in-progress response. The controls must not remain permanently disabled after the server response.
 
 Close the screen and sneak-interact with Provider A again. The quest must still show as in progress.
 
@@ -150,6 +153,7 @@ Retain:
 
 - `latest.log` from the complete pass;
 - one screenshot of the authored offer dialogue with the Accept/Decline choice;
+- one screenshot with `[DEV] DIALOGUE SCROLL END.` visible after scrolling;
 - one screenshot of the in-progress dialogue state;
 - one screenshot of the ready-to-turn-in dialogue state;
 - one screenshot showing the disposition-gated quest absent while unresolved and present while `questlog:dev_open` is set;
@@ -157,6 +161,6 @@ Retain:
 
 ## Acceptance criteria
 
-The provider scaffold passes this milestone only when the server-authoritative offer selection, explicit decline, accept, reset, persistence, same-provider turn-in, authored state dialogue, disposition gating, refresh, ordinary-interaction preservation, and distance lifecycle behaviors all work in the actual Forge 1.20.1 instance.
+The provider scaffold passes this milestone only when the server-authoritative offer selection, explicit decline, accept, reset, persistence, same-provider turn-in, complete authored dialogue reachability, authored state dialogue, disposition gating, refresh, ordinary-interaction preservation, and distance lifecycle behaviors all work in the actual Forge 1.20.1 instance.
 
 Visual styling of this temporary provider screen is not an acceptance target. Final NPC quest-giver presentation remains a separate DESIGN pass.
