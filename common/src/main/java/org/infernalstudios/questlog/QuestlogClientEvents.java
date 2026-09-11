@@ -141,6 +141,16 @@ public class QuestlogClientEvents {
             return;
         }
 
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) {
+            // A disconnect can race the normal logout callback by a client tick.
+            // Do not recreate a local QuestManager or resolve queued quest IDs once
+            // the connection has already lost its player. Logout owns final cleanup.
+            QuestToastState.queuedPopups.clear();
+            QuestToastState.tickDelayForCheck = -1;
+            return;
+        }
+
         // The queue stores IDs rather than Quest objects. Definitions can be
         // replaced while a popup waits, so every consumption path must resolve
         // the current quest instance and current display data from the manager.
@@ -158,7 +168,6 @@ public class QuestlogClientEvents {
             return;
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.screen != null) {
             // Automatic full-screen presentation must not replace an inventory,
             // container, chat, editor, or other active screen. Replacing live
