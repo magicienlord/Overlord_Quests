@@ -24,6 +24,7 @@ Supported fields currently include:
 - `location`: optional inclusive block-coordinate bounds using `min` and `max` three-integer arrays;
 - `unlock_quests`: quest IDs that must already be complete before this sidequest may be accepted;
 - `required_dispositions`: map of civilization IDs to one or more allowed authored disposition-state IDs;
+- `dialogue`: optional authored state-specific NPC lines for `offer`, `in_progress`, `ready_to_turn_in`, and `failed`;
 - `civilization`: optional provider/civilization metadata stored in the provider binding;
 - `pool`: optional authored pool identifier reserved as metadata;
 - `lock_to_provider`: whether the accepted quest should remain visibly associated with the issuing provider;
@@ -46,6 +47,25 @@ The runtime normalizes reversed coordinate pairs, so `min` and `max` describe th
 
 `pool` is currently parsed and retained as definition metadata only. There is no random, weighted, rotating, daily, cooldown, or limited-capacity pool scheduler yet. Production quest design must not assume those behaviors until they are explicitly implemented.
 
+## Authored dialogue and decline flow
+
+The temporary provider screen now separates selecting an offered sidequest from accepting it. Selecting an `AVAILABLE` entry opens its neutral detail view. The player must then choose `Accept` or `Decline`; decline is intentionally non-persistent and simply returns to the provider's list. It does not create a hidden rejection score, cooldown, mood, or reputation fact.
+
+The optional `dialogue` object is definition-owned content. Each supported phase may be a single non-empty string or a non-empty list of strings:
+
+```json
+"dialogue": {
+  "offer": "Authored offer text.",
+  "in_progress": ["Authored reminder line one.", "Authored reminder line two."],
+  "ready_to_turn_in": "Authored completion hand-in text.",
+  "failed": "Authored failure response."
+}
+```
+
+The engine does not generate missing dialogue and does not treat the quest journal description as spoken NPC text. If a phase has no authored dialogue, the neutral scaffold simply shows the quest state and controls without inventing speech. This preserves the distinction between provider/source identity and narrative text authored for that provider interaction.
+
+This is not a branching dialogue-tree engine. It is the minimal state-aware presentation surface required by the planned NPC offer, accept/decline, dialogue, and turn-in flow. More elaborate conversation structures should be added only if approved quest design actually requires them.
+
 ## Runtime authority
 
 Provider eligibility is calculated on the logical server.
@@ -66,6 +86,8 @@ Acceptance checks:
 Accepting a quest records a durable provider binding containing the provider UUID, entity type, dimension, block position, display name, optional civilization metadata, and role metadata. The binding is stored in quest NBT and survives save/load and definition-manager reloads when the quest remains compatible.
 
 Provider turn-in is also server-authoritative. `same_provider` requires the exact stored UUID. `any_eligible` requires a currently eligible provider entity matching the provider rule. `none` means the provider does not gate final quest completion after the objectives are complete.
+
+Narrative requirements such as `required_dispositions` and `unlock_quests` gate acceptance. They are not re-applied to an already accepted quest during turn-in. This avoids silently orphaning an in-progress sidequest if later world progression changes a civilization state or completes additional branches. Entity, dimension, location, role/tag, and provider-identity rules still apply where required by the selected turn-in mode.
 
 Quest reset commands delegate to the provider-aware `Quest.resetProgress()` contract. This clears provider binding and turn-in state along with ordinary objectives, prerequisites, failures, and rewards. The administrative `/questlog trigger` command deliberately refuses to bypass an unaccepted provider binding.
 
@@ -120,13 +142,13 @@ The provider layer does not currently implement:
 
 - autonomous random quest generation;
 - numeric reputation accumulation;
-- dialogue trees;
+- branching dialogue trees;
 - procedural quest text;
 - automatic civilization identification from lore assumptions;
 - daily or timed quest rotation;
 - provider inventory/economy systems;
 - generated rewards;
-- final NPC quest-marker art or dialogue presentation.
+- final NPC quest-marker art or final dialogue presentation styling.
 
 Those systems must not be inferred merely because the reference mod contained broader quest-provider or reputation behavior.
 
