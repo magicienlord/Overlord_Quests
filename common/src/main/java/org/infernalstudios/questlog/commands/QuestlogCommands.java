@@ -182,12 +182,7 @@ public class QuestlogCommands {
             manager.createAllQuests();
 
             for (Quest quest : manager.getAllQuests()) {
-                quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
-                quest.objectives.forEach(obj -> obj.forceSetUnits(0));
-                quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
-                quest.rewards.forEach(Reward::revokeReward);
-                quest.hasSentTrigger = quest.prerequisites.isEmpty();
-                quest.hasSentCompletion = false;
+                quest.resetProgress();
             }
 
             ServerPlayerManager.INSTANCE.save(manager);
@@ -249,6 +244,9 @@ public class QuestlogCommands {
             List<Quest> affectedQuests = "all".equalsIgnoreCase(target) ? manager.getAllQuests() : getTargetQuests(manager, target);
 
             for (Quest quest : affectedQuests) {
+                if (quest.getProviderRule() != null && quest.getProviderBinding() == null) {
+                    continue;
+                }
                 if (!quest.isTriggered()) {
                     quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(trigger.getRequiredAmount()));
                     count++;
@@ -284,12 +282,7 @@ public class QuestlogCommands {
                     quest.objectives.forEach(obj -> obj.forceSetUnits(obj.getRequiredAmount()));
                     quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
                 } else {
-                    quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
-                    quest.objectives.forEach(obj -> obj.forceSetUnits(0));
-                    quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
-                    quest.rewards.forEach(Reward::revokeReward);
-                    quest.hasSentTrigger = quest.prerequisites.isEmpty();
-                    quest.hasSentCompletion = false;
+                    quest.resetProgress();
                 }
             }
             ServerPlayerManager.INSTANCE.save(manager);
@@ -316,12 +309,7 @@ public class QuestlogCommands {
         for (ServerPlayer player : players) {
             QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
             for (Quest quest : manager.getAllQuests()) {
-                quest.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
-                quest.objectives.forEach(obj -> obj.forceSetUnits(0));
-                quest.failureConditions.forEach(obj -> obj.forceSetUnits(0));
-                quest.rewards.forEach(Reward::revokeReward);
-                quest.hasSentTrigger = quest.prerequisites.isEmpty();
-                quest.hasSentCompletion = false;
+                quest.resetProgress();
             }
             ServerPlayerManager.INSTANCE.save(manager);
             ServerPlayerManager.INSTANCE.syncPlayer(manager);
