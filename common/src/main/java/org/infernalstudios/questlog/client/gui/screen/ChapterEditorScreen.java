@@ -182,33 +182,25 @@ public class ChapterEditorScreen extends Screen {
 
             ResourceLocation icon = inThisChapter ? CROSS_ICON : PLUS_ICON;
             ResourceLocation iconHighlight = inThisChapter ? CROSS_HIGHLIGHTED : PLUS_HIGHLIGHTED;
-            Component tooltip = Component.literal(inThisChapter ? "Remove" : "Add");
+            Component tooltip = this.chapterToEdit == null
+                    ? Component.translatable("questlog.editor.tooltip.chapter_membership_requires_save")
+                    : Component.literal(inThisChapter ? "Remove" : "Add");
 
             AbstractButton actionButton = new FunctionalButton(
                     panel2X + 125, rowY + 1, 16, 16, Component.empty(),
                     () -> {
                         ChapterEditorScreen.this.saveTemporaryState();
+                        JsonObject updatedQuest = qJson.deepCopy();
                         if (inThisChapter) {
-                            qJson.addProperty("chapter", currentChapPath.equals("main") ? "" : "main");
-                        } else {
-                            if (!currentChapPath.isEmpty()) {
-                                qJson.addProperty("chapter", currentChapPath);
-                            } else {
-                                String futureId = ChapterEditorScreen.this.idBox.getValue().trim();
-                                try {
-                                    ResourceLocation futureRl = futureId.contains(":") ?
-                                            ResourceLocation.tryParse(futureId) :
-                                            new ResourceLocation(Questlog.MODID, futureId);
-                                    if (futureRl != null) {
-                                        qJson.addProperty("chapter", futureRl.getPath());
-                                    }
-                                } catch (Exception ignored) {
-                                }
-                            }
+                            updatedQuest.addProperty("chapter", currentChapPath.equals("main") ? "" : "main");
+                        } else if (!currentChapPath.isEmpty()) {
+                            updatedQuest.addProperty("chapter", currentChapPath);
                         }
-                        DefinitionUtil.putCachedQuest(qKey, qJson);
-                        Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(qKey, qJson.toString()));
-                        ChapterEditorScreen.this.rebuildWidgets();
+
+                        // The server owns definition persistence and the shared
+                        // integrated-server cache. Wait for its save/reload/full-sync
+                        // response rather than mutating DefinitionUtil optimistically.
+                        Services.PLATFORM.sendPacketToServer(new QuestEditSavePacket(qKey, updatedQuest.toString()));
                     },
                     (button, ps, mouseX, mouseY, partialTicks) -> {
                         boolean hovered = button.isHoveredOrFocused();
@@ -219,7 +211,11 @@ public class ChapterEditorScreen extends Screen {
 
             actionButton.setTooltip(Tooltip.create(tooltip));
 
-            if (this.chapterToEdit == null && this.idBox.getValue().trim().isEmpty()) {
+            // A new chapter has no authoritative definition yet. Assigning quests
+            // before its save succeeds can create references to a chapter that the
+            // server later rejects or never persists, so membership edits remain
+            // disabled until the chapter exists and is reopened for editing.
+            if (this.chapterToEdit == null) {
                 actionButton.active = false;
             }
             this.addRenderableWidget(actionButton);
@@ -275,7 +271,15 @@ public class ChapterEditorScreen extends Screen {
         } catch (Exception e) {
             return;
         }
-        if (rl == null) return;
+        if (rl == null || !Questlog.MODID.equals(rl.getNamespace())) {
+            if (this.idBox != null) {
+                this.idBox.setTooltip(Tooltip.create(Component.translatable(
+                        "questlog.editor.error.chapter_namespace",
+                        Questlog.MODID
+                )));
+            }
+            return;
+        }
 
         JsonObject json = new JsonObject();
         json.addProperty("name", this.tempTitle);
@@ -288,7 +292,9 @@ public class ChapterEditorScreen extends Screen {
         json.addProperty("default_chapter", this.tempDefault);
         json.addProperty("hidden", this.tempHidden);
 
-        DefinitionUtil.putCachedChapter(rl, json);
+        // Do not mutate the client-visible static cache here. In integrated
+        // single-player it is the same cache used by the logical server. The
+        // authoritative packet handler writes, reloads, and synchronizes it.
         Services.PLATFORM.sendPacketToServer(new ChapterEditSavePacket(rl, json.toString()));
 
         if (this.minecraft != null) {
