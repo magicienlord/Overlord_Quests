@@ -17,6 +17,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:disposition",
     "questlog:fact",
     "questlog:entity_kill_stat",
+    "questlog:item_craft_stat",
 })
 core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
 
@@ -61,6 +62,16 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
             # Historical kill statistics are indexed by one exact EntityType. Do
             # not imply that EntityMatcher tags/NBT/name predicates are supported.
             core.validate_resource_id(entry["entity"], f"{field}.entity", path, errors)
+        return
+
+    if objective_type == "questlog:item_craft_stat":
+        if "item" not in entry:
+            core.fail(path, f"'{field}.item' is required by questlog:item_craft_stat", errors)
+        else:
+            # Vanilla crafted-item statistics are indexed by one exact Item. Tags,
+            # NBT matchers and wildcard item predicates cannot be retrospective.
+            core.validate_resource_id(entry["item"], f"{field}.item", path, errors)
+        return
 
 
 def validate_reward_entry(
