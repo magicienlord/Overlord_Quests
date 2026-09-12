@@ -28,18 +28,18 @@
   "triggered_sound": "minecraft:entity.experience_orb.pickup",
   "disable_details_button": true,
   "details_open_by_default": false,
-  "left_panel_width": 360,
+  "left_panel_width": 480,
   "right_panel_width": 170,
   "panel_height": 200,
   "left_panel_x_offset": 0,
   "left_panel_y_offset": 0,
   "speaker_id": "overlord_reign:gnarl",
   "speaker_reaction": "neutral",
-  "speaker_pane_width": 176,
+  "speaker_pane_width": 184,
   "speaker_alpha_cleanup": true,
   "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
-  "overlay_width": 168,
-  "overlay_height": 168,
+  "overlay_width": 176,
+  "overlay_height": 176,
   "overlay_x_offset": 0,
-  "overlay_y_offset": 4
+  "overlay_y_offset": 0
 }
