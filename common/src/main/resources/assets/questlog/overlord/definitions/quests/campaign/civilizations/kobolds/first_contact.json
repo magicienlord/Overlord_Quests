@@ -1,0 +1,50 @@
+{
+  "title": "The Kobold Den",
+  "description": "A designated Kobold Den has a Captain prepared to deal with you. Establish formal contact with the local community without mistaking one Den for the whole Kobold people.",
+  "description_completed": "Formal contact has been established with the designated Kobold Den. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:iron_pickaxe"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 130,
+  "provider": {
+    "entity_types": [
+      "kobolds:kobold_captain"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:kobold_main_captain"
+    ],
+    "civilization": "overlord_reign:kobolds",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "You found our Den. I am its Captain. If the dark tower has business beneath these hills, speak it to me, not to every wandering kobold you trip over.",
+      "ready_to_turn_in": "Good. We know who stands before us, and you know who speaks for this Den. That is enough for a beginning.",
+      "completed": "The Den remembers you. What happens next will belong to this Den, not every kobold under the earth."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/kobolds/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Kobold Den"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
