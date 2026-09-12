@@ -83,6 +83,21 @@ def main():
         "type": "questlog:visit_dimension_history",
     }), ".dimension")
 
+    expect_valid("position history objective", objective({
+        "type": "questlog:visit_position_history",
+        "bounds": [1000, 64, 1000, 1002, 66, 1002],
+        "dimension": "minecraft:overworld",
+        "required_amount": 1,
+    }))
+    expect_invalid("position history amount", objective({
+        "type": "questlog:visit_position_history",
+        "bounds": [1000, 64, 1000, 1002, 66, 1002],
+        "required_amount": 2,
+    }), "exactly 1")
+    expect_invalid("missing position history bounds", objective({
+        "type": "questlog:visit_position_history",
+    }), ".bounds")
+
     expect_valid("structure history objective", objective({
         "type": "questlog:visit_structure_history",
         "structure": "minecraft:mineshaft",
@@ -210,7 +225,7 @@ def main():
         "civilization": "questlog:dev_civilization",
     }, development_fixture=True))
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (33 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (36 cases)")
     return 0
 
 
