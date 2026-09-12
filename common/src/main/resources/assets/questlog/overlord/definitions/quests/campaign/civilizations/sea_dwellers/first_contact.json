@@ -1,0 +1,51 @@
+{
+  "title": "The Sea Village",
+  "description": "A designated Sea Village has chosen one senior trader to receive you as its Sea Elder. Establish formal contact with this local underwater community without mistaking one village for all Sea Dwellers.",
+  "description_completed": "Formal contact has been established with the designated Sea Village. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:prismarine_shard"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 140,
+  "provider": {
+    "entity_type_tags": [
+      "seadwellers:mermorphs"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:sea_dweller_main_elder"
+    ],
+    "role": "sea_elder",
+    "civilization": "overlord_reign:sea_dwellers",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "You are the ruler from the dark tower. I speak for this village when outsiders come with business. If you have words for our people, bring them to me.",
+      "ready_to_turn_in": "Then we understand one another well enough to begin. You know who speaks for this village, and we know whose shadow has reached our waters.",
+      "completed": "The village remembers your audience. What follows will be decided here, not for every Sea Dweller beyond these waters."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/sea_dwellers/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Sea Village"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
