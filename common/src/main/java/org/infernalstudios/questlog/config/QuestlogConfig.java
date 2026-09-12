@@ -23,6 +23,10 @@ public class QuestlogConfig implements ConfigData {
     @ConfigEntry.Gui.TransitiveObject
     public DeathScreen deathScreen = new DeathScreen();
 
+    @ConfigEntry.Category("ending_screen")
+    @ConfigEntry.Gui.TransitiveObject
+    public EndingScreen endingScreen = new EndingScreen();
+
     public static class Button {
         @ConfigEntry.Gui.Tooltip()
         public boolean enabled = true;
@@ -78,6 +82,27 @@ public class QuestlogConfig implements ConfigData {
 
         @ConfigEntry.Gui.Tooltip()
         public boolean autoRespawn = true;
+
+        @ConfigEntry.Gui.Tooltip()
+        public boolean allowSkip = true;
+    }
+
+    /**
+     * Development controls for the central-ending presentation scaffold.
+     *
+     * developmentPreview is deliberately false by default. The final campaign
+     * activation condition has not been authored yet, so normal Dragon victory
+     * must continue through the vanilla WinScreen until that explicit gate exists.
+     */
+    public static class EndingScreen {
+        @ConfigEntry.Gui.Tooltip()
+        public boolean enabled = true;
+
+        @ConfigEntry.Gui.Tooltip()
+        public boolean developmentPreview = false;
+
+        @ConfigEntry.Gui.Tooltip()
+        public int minimumDisplayTicks = 80;
 
         @ConfigEntry.Gui.Tooltip()
         public boolean allowSkip = true;
