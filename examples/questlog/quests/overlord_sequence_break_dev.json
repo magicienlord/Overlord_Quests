@@ -1,0 +1,20 @@
+{
+  "title": "[DEV] Sequence-Break Kill History",
+  "description": "Development-only fixture for recognizing an exact entity kill that happened before formal quest activation. This is not an OVERLORD REIGN story quest.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:iron_sword"
+  },
+  "objectives": [
+    {
+      "type": "questlog:entity_kill_stat",
+      "entity": "minecraft:zombie",
+      "required_amount": 1,
+      "name": "[DEV] Have killed at least one zombie at any time"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
