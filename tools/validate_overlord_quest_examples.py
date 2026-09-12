@@ -12,7 +12,11 @@ from typing import Any
 import validate_optional_objectives as optional_contract
 import validate_overlord_quest_examples_core as core
 
-core.KNOWN_QUESTLOG_OBJECTIVES.update({"questlog:disposition", "questlog:fact"})
+core.KNOWN_QUESTLOG_OBJECTIVES.update({
+    "questlog:disposition",
+    "questlog:fact",
+    "questlog:entity_kill_stat",
+})
 core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
 
 _CORE_OBJECTIVE_ENTRY = core.validate_objective_entry
@@ -47,6 +51,15 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         amount = entry.get("required_amount")
         if amount is not None and amount != 1:
             core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:fact", errors)
+        return
+
+    if objective_type == "questlog:entity_kill_stat":
+        if "entity" not in entry:
+            core.fail(path, f"'{field}.entity' is required by questlog:entity_kill_stat", errors)
+        else:
+            # Historical kill statistics are indexed by one exact EntityType. Do
+            # not imply that EntityMatcher tags/NBT/name predicates are supported.
+            core.validate_resource_id(entry["entity"], f"{field}.entity", path, errors)
 
 
 def validate_reward_entry(
