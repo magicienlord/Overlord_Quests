@@ -19,6 +19,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:fact",
     "questlog:entity_kill_stat",
     "questlog:item_craft_stat",
+    "questlog:visit_dimension_history",
     "questlog:visit_structure_history",
 })
 core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
@@ -73,6 +74,16 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
             # Vanilla crafted-item statistics are indexed by one exact Item. Tags,
             # NBT matchers and wildcard item predicates cannot be retrospective.
             core.validate_resource_id(entry["item"], f"{field}.item", path, errors)
+        return
+
+    if objective_type == "questlog:visit_dimension_history":
+        if "dimension" not in entry:
+            core.fail(path, f"'{field}.dimension' is required by questlog:visit_dimension_history", errors)
+        else:
+            core.validate_resource_id(entry["dimension"], f"{field}.dimension", path, errors)
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:visit_dimension_history", errors)
         return
 
     if objective_type == "questlog:visit_structure_history":
