@@ -15,14 +15,34 @@ The source implementation now provides:
 - action-button placement centered beneath the parchment body;
 - balanced responsive width allocation so constrained GUI scales preserve both parchment and readable reaction art;
 - horizontal portrait clamping so speaker offsets cannot push art back across the parchment boundary;
+- vertical portrait centering against the parchment body rather than bottom anchoring;
 - opt-in runtime cleanup for legacy portrait alpha/matte fringes, including transparent-edge colour bleed to avoid dark filtering halos;
 - the locked five-state semantic reaction vocabulary;
 - reaction-aware portrait lookup with a neutral/fallback path;
 - a shared `OverlordPresentationTheme` used by both Questlog speaker and in-world provider surfaces for core parchment/header/action geometry;
 - a Villager-Retaliation-derived provider interface restyled into the same Questlog parchment/button family without becoming the same interaction surface;
+- provider text rendered without Minecraft text shadow to avoid doubled-looking glyphs under the active font/resource stack;
+- provider dialogue scroll controls centered vertically inside a reserved lower parchment band instead of sitting against the bottom border;
 - static validators that prevent provider quests from accidentally acquiring the incorporeal portrait system.
 
 Development fixtures remain non-canon scaffolding until the visual gate is accepted in Minecraft.
+
+## Direct runtime review checkpoint
+
+Run 372 received direct in-game review in the full test instance.
+
+Observed results:
+
+- the new parchment-dominant Gnarl composition was accepted as a good base;
+- the dedicated right-side reaction lane was accepted;
+- the alpha-fringe correction was no longer identified as a visual problem;
+- the speaker portrait was judged too bottom-weighted and was requested to sit more centrally against the parchment body;
+- the in-world provider parchment interface was judged to work well overall;
+- provider heading/dialogue text showed an undesirable doubled appearance under the active font/resource stack;
+- Up/Down dialogue controls were judged too close to the lower parchment border and were requested on the middle axis of the available lower whitespace;
+- the neutral death-screen scaffold was also observed successfully and remains a usable mechanical/visual baseline for its later dedicated OVERLORD pass.
+
+The source changes following that review implement the three requested popup/provider refinements. A short regression pass is still required before the presentation gate closes.
 
 ## Two presentation surfaces
 
@@ -144,7 +164,7 @@ portrait display rectangle: 176 x 176
 speaker alpha cleanup: enabled
 ```
 
-The dedicated speaker screen keeps Gnarl in the right-side lane, bottom-anchors the portrait beside the parchment, clamps horizontal offsets to the speaker lane, preserves the parchment as the dominant quest-information surface, and centers the Read/Done action under parchment.
+The dedicated speaker screen keeps Gnarl in the right-side lane, vertically centers the portrait against the parchment body, clamps portrait offsets to the speaker/panel bounds, preserves the parchment as the dominant quest-information surface, and centers the Read/Done action under parchment.
 
 When the full requested width does not fit, the parchment and reaction lane shrink proportionally. The renderer still preserves a minimum parchment width and a bounded reaction lane instead of allowing either surface to consume the other.
 
@@ -153,6 +173,8 @@ Direct Minecraft review still has authority over final spacing, scale, edge qual
 ## Presentation validation boundary
 
 `tools/validate_presentation_contracts.py` guards the structural contract. In particular it rejects a definition that combines an in-world `provider` with the incorporeal speaker reaction pane and checks that both presentation surfaces retain their common theme boundary.
+
+The validator also guards the reviewed refinements: speaker vertical centering, provider no-shadow centered text, and the reserved lower band for dialogue scroll controls.
 
 `tools/check_gnarl_popup_layout.py` mirrors the responsive parchment/speaker-lane geometry across representative GUI widths, verifies that the two surfaces remain disjoint, checks that parchment remains dominant, and checks for horizontal or action-button clipping.
 
