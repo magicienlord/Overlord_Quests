@@ -1,0 +1,29 @@
+{
+  "title": "[DEV] Structure Visit History",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest validates exact-structure visit history recorded before formal quest activation. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:minecart"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "prerequisites": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Hold a debug stick to activate the history objective"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:visit_structure_history",
+      "structure": "minecraft:mineshaft",
+      "required_amount": 1,
+      "name": "[DEV] Have visited a mineshaft while this definition was loaded"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
