@@ -21,12 +21,14 @@ OPENING = OPENING_QUESTS / "a_new_master.json"
 BROWN = OPENING_QUESTS / "restore_browns.json"
 BROWN_REACTION = OPENING_QUESTS / "browns_return.json"
 DIRECT = OPENING_QUESTS / "make_an_impression.json"
+DIRECT_REACTION = OPENING_QUESTS / "direct_action_reaction.json"
 FORGE = TOWER_QUESTS / "prepare_the_forge.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
 BROWN_REACTION_ID = "questlog:campaign/opening/browns_return"
 DIRECT_ID = "questlog:campaign/opening/make_an_impression"
+DIRECT_REACTION_ID = "questlog:campaign/opening/direct_action_reaction"
 STAFF_ID = "minionsremastered:masters_staff"
 FORGE_FACT = "overlord_reign:tower/forge_prepared"
 
@@ -76,6 +78,7 @@ def collect_errors() -> list[str]:
     brown = load(BROWN, errors)
     brown_reaction = load(BROWN_REACTION, errors)
     direct = load(DIRECT, errors)
+    direct_reaction = load(DIRECT_REACTION, errors)
     forge = load(FORGE, errors)
     index = load(INDEX, errors)
 
@@ -85,6 +88,7 @@ def collect_errors() -> list[str]:
         "campaign/opening/restore_browns.json",
         "campaign/opening/browns_return.json",
         "campaign/opening/make_an_impression.json",
+        "campaign/opening/direct_action_reaction.json",
         "campaign/tower/prepare_the_forge.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
@@ -150,6 +154,13 @@ def collect_errors() -> list[str]:
         ):
             errors.append("direct-action opening contract changed unexpectedly")
 
+    if not has_quest_complete(direct_reaction, DIRECT_ID):
+        errors.append("direct-action reaction must depend on completed direct action")
+    if direct_reaction.get("speaker_id") != "overlord_reign:gnarl":
+        errors.append("direct-action reaction must remain a Gnarl speaker entry")
+    if direct_reaction.get("speaker_reaction") != "mocking":
+        errors.append("direct-action reaction semantic state changed unexpectedly")
+
     forge_prerequisites = forge.get("prerequisites", [])
     if not isinstance(forge_prerequisites, list) or len(forge_prerequisites) != 1:
         errors.append("first Tower infrastructure quest must retain one OR convergence prerequisite")
@@ -159,8 +170,8 @@ def collect_errors() -> list[str]:
             errors.append("first Tower infrastructure quest must converge through questlog:or")
         else:
             dependency_ids = nested_quest_complete_ids(convergence)
-            if dependency_ids != {BROWN_REACTION_ID, DIRECT_ID}:
-                errors.append("first Tower infrastructure quest must remain reachable from either opening direction")
+            if dependency_ids != {BROWN_REACTION_ID, DIRECT_REACTION_ID}:
+                errors.append("first Tower infrastructure quest must remain reachable from either completed opening direction")
 
     forge_objectives = forge.get("objectives", [])
     if not isinstance(forge_objectives, list) or len(forge_objectives) != 1:
@@ -199,6 +210,7 @@ def main() -> int:
 
     print("OVERLORD opening campaign contracts: PASS")
     print("opening concurrency: preserved")
+    print("Gnarl lifecycle reactions: preserved for both opening directions")
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
