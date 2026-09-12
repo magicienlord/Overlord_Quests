@@ -106,14 +106,16 @@ public class StatisticObjective extends Objective {
     public void writeInitialData(CompoundTag data) {
         super.writeInitialData(data);
         if (!this.retroactive) {
-            // Immediately active quests and prerequisite statistics need a baseline
-            // from their initial authoritative server state. Locked objectives are
-            // deliberately left uncaptured until the trigger transition.
+            // During QuestManager creation the Quest has not yet been inserted into
+            // the manager map, so isActiveQuestInstance() intentionally returns
+            // false. Initial server baselines therefore have to be captured here
+            // directly instead of going through the live-instance trigger helper.
             if (!this.baselineCaptured
                     && this.getParent() != null
                     && !this.getParent().manager.isClient()
                     && (this.isPartOfPrerequisites() || this.getParent().isTriggered())) {
-                this.captureBaseline();
+                this.statAtStart = this.getStatValue();
+                this.baselineCaptured = true;
             }
             data.putInt("statAtStart", this.statAtStart);
             data.putBoolean("baselineCaptured", this.baselineCaptured);
