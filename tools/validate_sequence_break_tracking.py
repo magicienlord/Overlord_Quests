@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Validate the narrow sequence-break entity-kill history contract."""
+"""Validate narrow retrospective sequence-break tracking contracts."""
 from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
+ENTITY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
+ITEM_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.java"
 REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestObjectiveRegistry.java"
 VALIDATOR = ROOT / "tools/validate_overlord_quest_examples.py"
-FIXTURE = ROOT / "examples/questlog/quests/overlord_sequence_break_dev.json"
+ENTITY_FIXTURE = ROOT / "examples/questlog/quests/overlord_sequence_break_dev.json"
+ITEM_FIXTURE = ROOT / "examples/questlog/quests/overlord_item_craft_sequence_break_dev.json"
 
 
 def collect_errors() -> list[str]:
@@ -18,21 +20,34 @@ def collect_errors() -> list[str]:
         if fragment not in text:
             errors.append(f"{path.relative_to(ROOT)}: missing {label}")
 
-    require(OBJECTIVE, "Stats.ENTITY_KILLED.get(this.entityType)", "vanilla persistent entity-kill statistic lookup")
-    require(OBJECTIVE, "player.getStats().getValue", "server-player statistics authority")
-    require(OBJECTIVE, "this.ticksUntilCheck = 20", "bounded one-second polling cadence")
-    require(OBJECTIVE, "!this.isActiveForPlayer(player)", "active quest/player lifecycle guard")
-    require(OBJECTIVE, "entityText.startsWith(\"#\")", "entity-tag rejection")
-    require(OBJECTIVE, "BuiltInRegistries.ENTITY_TYPE.containsKey(entityId)", "exact registered entity validation")
+    require(ENTITY_OBJECTIVE, "Stats.ENTITY_KILLED.get(this.entityType)", "vanilla persistent entity-kill statistic lookup")
+    require(ENTITY_OBJECTIVE, "player.getStats().getValue", "server-player entity statistics authority")
+    require(ENTITY_OBJECTIVE, "this.ticksUntilCheck = 20", "bounded entity polling cadence")
+    require(ENTITY_OBJECTIVE, "!this.isActiveForPlayer(player)", "active entity objective lifecycle guard")
+    require(ENTITY_OBJECTIVE, "entityText.startsWith(\"#\")", "entity-tag rejection")
+    require(ENTITY_OBJECTIVE, "BuiltInRegistries.ENTITY_TYPE.containsKey(entityId)", "exact registered entity validation")
+
+    require(ITEM_OBJECTIVE, "Stats.ITEM_CRAFTED.get(this.item)", "vanilla persistent item-craft statistic lookup")
+    require(ITEM_OBJECTIVE, "player.getStats().getValue", "server-player item statistics authority")
+    require(ITEM_OBJECTIVE, "this.ticksUntilCheck = 20", "bounded item polling cadence")
+    require(ITEM_OBJECTIVE, "!this.isActiveForPlayer(player)", "active item objective lifecycle guard")
+    require(ITEM_OBJECTIVE, "itemText.startsWith(\"#\")", "item-tag rejection")
+    require(ITEM_OBJECTIVE, "BuiltInRegistries.ITEM.containsKey(itemId)", "exact registered item validation")
 
     require(REGISTRY, 'new ResourceLocation("questlog", "entity_kill_stat")', "entity_kill_stat objective registration")
     require(REGISTRY, 'new EditorMetadata("entity", "Exact Entity ID:"', "exact-entity editor metadata")
+    require(REGISTRY, 'new ResourceLocation("questlog", "item_craft_stat")', "item_craft_stat objective registration")
+    require(REGISTRY, 'new EditorMetadata("item", "Exact Item ID:"', "exact-item editor metadata")
 
-    require(VALIDATOR, '"questlog:entity_kill_stat"', "definition validator registration")
-    require(VALIDATOR, "core.validate_resource_id(entry[\"entity\"]", "exact resource-id schema validation")
+    require(VALIDATOR, '"questlog:entity_kill_stat"', "entity-kill definition validator registration")
+    require(VALIDATOR, "core.validate_resource_id(entry[\"entity\"]", "exact entity resource-id schema validation")
+    require(VALIDATOR, '"questlog:item_craft_stat"', "item-craft definition validator registration")
+    require(VALIDATOR, "core.validate_resource_id(entry[\"item\"]", "exact item resource-id schema validation")
 
-    require(FIXTURE, '"type": "questlog:entity_kill_stat"', "development fixture objective")
-    require(FIXTURE, '"entity": "minecraft:zombie"', "development fixture exact entity")
+    require(ENTITY_FIXTURE, '"type": "questlog:entity_kill_stat"', "entity development fixture objective")
+    require(ENTITY_FIXTURE, '"entity": "minecraft:zombie"', "entity development fixture exact entity")
+    require(ITEM_FIXTURE, '"type": "questlog:item_craft_stat"', "item development fixture objective")
+    require(ITEM_FIXTURE, '"item": "minecraft:crafting_table"', "item development fixture exact item")
 
     return errors
 
