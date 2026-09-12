@@ -25,6 +25,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:visit_dimension_history",
     "questlog:visit_position_history",
     "questlog:visit_structure_history",
+    "questlog:ender_dragon_defeated",
 })
 # entity_died deliberately reuses the source-faithful EntityMatcher payload while
 # changing only which entity in a death event is treated as the objective target.
@@ -156,6 +157,12 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         amount = entry.get("required_amount")
         if amount is not None and amount != 1:
             core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:visit_structure_history", errors)
+        return
+
+    if objective_type == "questlog:ender_dragon_defeated":
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:ender_dragon_defeated", errors)
         return
 
 
