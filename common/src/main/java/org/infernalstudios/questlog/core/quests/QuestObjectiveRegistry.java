@@ -43,6 +43,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_kill"), EntityKillObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
+        register(new ResourceLocation("questlog", "entity_kill_stat"), EntityKillStatObjective::new,
+                new EditorMetadata("entity", "Exact Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_approach"), EntityApproachObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_tame"), EntityTameObjective::new,
