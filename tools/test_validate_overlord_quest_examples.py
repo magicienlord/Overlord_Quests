@@ -57,6 +57,33 @@ def main() -> int:
     )
 
     expect_valid(
+        "retrospective exact entity kill",
+        objective_errors({
+            "type": "questlog:entity_kill_stat",
+            "entity": "minecraft:zombie",
+            "required_amount": 2,
+        }),
+    )
+
+    expect_invalid(
+        "retrospective entity kill tag",
+        objective_errors({
+            "type": "questlog:entity_kill_stat",
+            "entity": "#minecraft:skeletons",
+        }),
+        "namespaced resource id",
+    )
+
+    expect_invalid(
+        "retrospective entity kill matcher object",
+        objective_errors({
+            "type": "questlog:entity_kill_stat",
+            "entity": {"id": "minecraft:zombie"},
+        }),
+        "namespaced resource id",
+    )
+
+    expect_valid(
         "custom extension objective",
         objective_errors({
             "type": "overlord_quests:future_bridge",
@@ -168,7 +195,7 @@ def main() -> int:
         "not a registered Questlog reward",
     )
 
-    print("OVERLORD QUESTS validator self-tests: PASS (14 cases)")
+    print("OVERLORD QUESTS validator self-tests: PASS (17 cases)")
     return 0
 
 
