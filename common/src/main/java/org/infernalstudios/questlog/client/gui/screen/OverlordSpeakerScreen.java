@@ -182,12 +182,12 @@ public final class OverlordSpeakerScreen extends Screen {
     private void renderSpeaker(GuiGraphics graphics) {
         QuestDisplayData display = this.quest.getDisplay();
         SpeakerPresentation speaker = display.getSpeakerPresentation();
-        ResourceLocation sourceTexture = display.getOverlayTexture();
-        if (speaker == null || sourceTexture == null || this.speakerWidth <= 0) {
+        ResourceLocation fallbackTexture = display.getOverlayTexture();
+        if (speaker == null || fallbackTexture == null || this.speakerWidth <= 0) {
             return;
         }
 
-        ResourceLocation texture = SpeakerPortraitTextures.resolve(sourceTexture, speaker.alphaCleanup());
+        ResourceLocation texture = SpeakerPortraitTextures.resolve(speaker, fallbackTexture);
         int sourceWidth = Math.max(1, display.getOverlayWidth());
         int sourceHeight = Math.max(1, display.getOverlayHeight());
         int maxWidth = Math.max(1, this.speakerWidth);
