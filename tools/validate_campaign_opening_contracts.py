@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions"
 OPENING_QUESTS = BUNDLED / "quests/campaign/opening"
 TOWER_QUESTS = BUNDLED / "quests/campaign/tower"
+EXPANSION_QUESTS = BUNDLED / "quests/campaign/expansion"
 INDEX = BUNDLED / "index.json"
 
 OPENING = OPENING_QUESTS / "a_new_master.json"
@@ -24,6 +25,7 @@ DIRECT = OPENING_QUESTS / "make_an_impression.json"
 DIRECT_REACTION = OPENING_QUESTS / "direct_action_reaction.json"
 FORGE = TOWER_QUESTS / "prepare_the_forge.json"
 FORGE_REACTION = TOWER_QUESTS / "forge_prepared_reaction.json"
+INITIAL_FOUNDATION = EXPANSION_QUESTS / "the_reign_takes_shape.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
@@ -31,8 +33,10 @@ BROWN_REACTION_ID = "questlog:campaign/opening/browns_return"
 DIRECT_ID = "questlog:campaign/opening/make_an_impression"
 DIRECT_REACTION_ID = "questlog:campaign/opening/direct_action_reaction"
 FORGE_ID = "questlog:campaign/tower/prepare_the_forge"
+FORGE_REACTION_ID = "questlog:campaign/tower/forge_prepared_reaction"
 STAFF_ID = "minionsremastered:masters_staff"
 FORGE_FACT = "overlord_reign:tower/forge_prepared"
+INITIAL_FOUNDATION_FACT = "overlord_reign:reign/initial_foundation_established"
 
 
 def load(path: Path, errors: list[str]) -> dict[str, Any]:
@@ -83,6 +87,7 @@ def collect_errors() -> list[str]:
     direct_reaction = load(DIRECT_REACTION, errors)
     forge = load(FORGE, errors)
     forge_reaction = load(FORGE_REACTION, errors)
+    initial_foundation = load(INITIAL_FOUNDATION, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -94,6 +99,7 @@ def collect_errors() -> list[str]:
         "campaign/opening/direct_action_reaction.json",
         "campaign/tower/prepare_the_forge.json",
         "campaign/tower/forge_prepared_reaction.json",
+        "campaign/expansion/the_reign_takes_shape.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
         errors.append("bundled definition index is missing one or more first-slice campaign definitions")
@@ -210,6 +216,50 @@ def collect_errors() -> list[str]:
     if forge_reaction.get("show_popup_on_unlock") is not True:
         errors.append("Tower forge reaction must remain an automatic popup")
 
+    foundation_prerequisites = initial_foundation.get("prerequisites", [])
+    if not isinstance(foundation_prerequisites, list) or len(foundation_prerequisites) != 2:
+        errors.append("initial-foundation convergence must require exactly Brown recovery and first Tower restoration")
+    else:
+        dependency_ids = {
+            entry.get("quest")
+            for entry in foundation_prerequisites
+            if isinstance(entry, dict) and entry.get("type") == "questlog:quest_complete"
+        }
+        if dependency_ids != {BROWN_REACTION_ID, FORGE_REACTION_ID}:
+            errors.append("initial-foundation convergence must wait for Brown recovery and first Tower restoration reactions")
+
+    foundation_objectives = initial_foundation.get("objectives", [])
+    if not isinstance(foundation_objectives, list) or len(foundation_objectives) != 1:
+        errors.append("initial-foundation convergence must remain a one-step Gnarl assessment")
+    else:
+        objective = foundation_objectives[0]
+        if not isinstance(objective, dict) or not (
+            objective.get("type") == "questlog:read"
+            and objective.get("required_amount") == 1
+        ):
+            errors.append("initial-foundation convergence must remain a read objective")
+
+    foundation_rewards = initial_foundation.get("rewards", [])
+    if not isinstance(foundation_rewards, list) or len(foundation_rewards) != 1:
+        errors.append("initial-foundation convergence must write one semantic campaign marker")
+    else:
+        reward = foundation_rewards[0]
+        if not isinstance(reward, dict) or not (
+            reward.get("type") == "questlog:set_fact"
+            and reward.get("fact") == INITIAL_FOUNDATION_FACT
+            and reward.get("auto_claim") is True
+        ):
+            errors.append("initial-foundation convergence must persist its semantic campaign fact")
+
+    if initial_foundation.get("speaker_id") != "overlord_reign:gnarl":
+        errors.append("initial-foundation convergence must remain assigned to Gnarl")
+    if initial_foundation.get("speaker_reaction") != "directive":
+        errors.append("initial-foundation convergence semantic speaker state changed unexpectedly")
+    if initial_foundation.get("show_popup_on_unlock") is not True:
+        errors.append("initial-foundation convergence must remain an automatic popup")
+    if initial_foundation.get("include_in_main") is not True:
+        errors.append("initial-foundation convergence must remain part of the main campaign")
+
     return errors
 
 
@@ -227,6 +277,7 @@ def main() -> int:
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
+    print("early-recovery convergence: Brown recovery plus first Tower restoration records the semi-open campaign foundation")
     return 0
 
 

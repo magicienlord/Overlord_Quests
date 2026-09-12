@@ -122,6 +122,8 @@ Do not create facts for:
 
 Where simple quest completion is sufficient, `questlog:quest_complete` remains the smaller representation.
 
+A semantic convergence fact may be appropriate when several implementation-level quest completions jointly establish one reusable campaign truth. In that case the fact should describe the stable meaning of the convergence rather than duplicate one source quest's completion state.
+
 ## Production fact registry
 
 The following production fact IDs are currently defined by bundled campaign content.
@@ -147,23 +149,50 @@ This fact does NOT mean:
 
 Those boundaries remain separate so the fact stays truthful even before exact Tower-room world integration is finalized.
 
-## Cross-mod capability markers
+### `overlord_reign:reign/initial_foundation_established`
 
-Narrative facts may also serve as the quest-side representation of a permanent capability that another OVERLORD REIGN mod owns, provided the external integration contract treats the fact as a durable, idempotent marker rather than reaching directly into Questlog internals.
+Category: early campaign convergence milestone.
 
-The approved future use is later Minion-type progression. The planned Minions Remastered fork owns four Minion-type slots. Crafting its Master's Staff unlocks Brown directly. Red, Green, and Blue remain locked until campaign quests establish three later unlock markers.
+Set by `campaign/expansion/the_reign_takes_shape` after both of the following have been completed and acknowledged:
 
-On the Questlog side, those later unlocks fit the narrative-fact model because they are:
+- Brown Minion recovery;
+- the first practical Tower infrastructure restoration.
 
-- boolean;
-- monotonic in normal gameplay;
-- persistent across save/reload;
-- reusable by later quests if campaign design needs to know which Minion types have been acquired;
-- materially meaningful outside the quest that first grants them.
+Meaning:
 
-The exact Red, Green, and Blue production fact/marker IDs remain UNKNOWN and must not be invented until the Minions Remastered fork exposes its final integration surface and campaign authoring identifies the relevant unlock quests.
+- the current Overlord has recovered the Brown tribe and established the first practical Tower infrastructure milestone;
+- the opening foundation is complete enough for the campaign to enter its semi-open, capability-driven structure;
+- later campaign and provider content may gate on one stable semantic marker instead of depending on the implementation details of two early quest branches.
 
-See `docs/MINION_UNLOCK_INTEGRATION.md` for the cross-mod ownership and reconciliation contract.
+This fact does NOT mean:
+
+- that Red, Green, or Blue Minions have been restored;
+- that any civilization disposition has been resolved;
+- that any later Tower facility is complete;
+- that any named region, dungeon, or settlement has been discovered;
+- that Theurgy or any other optional native system has been assigned a mandatory story role;
+- that a concealed later campaign branch or outcome has been selected.
+
+The fact is intentionally broader than either source quest completion while remaining strictly bounded to the two established opening recoveries.
+
+## Cross-mod capability ownership
+
+Not every persistent capability should be mirrored as a Questlog narrative fact.
+
+The current Minion integration is the authoritative example. Build #118 of `Overlord_Minions` owns Minion progression state. Questlog uses:
+
+```text
+questlog:unlock_minion
+questlog:minion_unlocked
+```
+
+The reward calls the public Minion progression API, and the objective/prerequisite reads owner state. Questlog does not duplicate Red, Green, or Blue unlock state in `OverlordNarrativeState` and does not require parallel Minion fact IDs.
+
+Brown remains the Master's Staff bootstrap owned by the Minion system. Red, Green, and Blue remain sequential campaign-earned capabilities, but their durable capability state belongs to `Overlord_Minions`.
+
+A separate narrative fact should be added around a Minion recovery only if campaign content later needs to remember a distinct historical statement that is not equivalent to "this Minion slot is unlocked". Such a fact must be justified by authored narrative semantics, not created as a technical mirror.
+
+See `docs/MINION_UNLOCK_INTEGRATION.md` and `docs/MINION_RECOVERY_AUTHORING_CONTRACT.md` for the cross-mod ownership and authoring boundaries.
 
 ## Development fixtures
 
