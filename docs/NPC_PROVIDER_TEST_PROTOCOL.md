@@ -41,7 +41,7 @@ Use the CI-generated `overlord-quests-provider-test-kit` for the exact commit un
 5. Launch an unpublished local single-player world with commands available.
 6. Do not use Open to LAN for the primary acceptance pass.
 
-The current CI provider kit contains the established provider, disposition, and narrative-fact fixtures. The native-profession fixture may be copied manually from `examples/questlog/quests/overlord_provider_profession_dev.json` until the kit manifest is expanded to include it.
+The current CI provider kit packages the established provider, native Villager profession, disposition, and narrative-fact fixtures together. No manual fixture copy is required.
 
 ## Deterministic setup
 
@@ -123,7 +123,7 @@ Provider A must present it as ready. Select it, confirm the authored ready-to-tu
 
 This check validates the provider bridge required by the REIGN rule that Villager professions may be sidequest-provider roles.
 
-Copy `overlord_provider_profession_dev.json` into `config/questlog/quests/` if the current provider kit does not already contain it, then reload quest definitions or restart the test world.
+The provider kit already contains `overlord_provider_profession_dev.json`. No additional file installation is needed.
 
 Spawn a Farmer Villager with no `overlord_role` tag:
 
