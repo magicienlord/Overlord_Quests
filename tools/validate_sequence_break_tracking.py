@@ -12,6 +12,7 @@ ITEM_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/
 DIMENSION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitDimensionHistoryObjective.java"
 POSITION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitPositionHistoryObjective.java"
 STRUCTURE_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitStructureHistoryObjective.java"
+DRAGON_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/EnderDragonDefeatedObjective.java"
 REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestObjectiveRegistry.java"
 VALIDATOR = ROOT / "tools/validate_overlord_quest_examples.py"
 ENTITY_FIXTURE = ROOT / "examples/questlog/quests/overlord_sequence_break_dev.json"
@@ -19,6 +20,7 @@ ITEM_FIXTURE = ROOT / "examples/questlog/quests/overlord_item_craft_sequence_bre
 DIMENSION_FIXTURE = ROOT / "examples/questlog/quests/overlord_dimension_history_dev.json"
 POSITION_FIXTURE = ROOT / "examples/questlog/quests/overlord_position_history_dev.json"
 STRUCTURE_FIXTURE = ROOT / "examples/questlog/quests/overlord_structure_history_dev.json"
+DRAGON_FIXTURE = ROOT / "examples/questlog/quests/overlord_ender_dragon_defeated_dev.json"
 
 
 def collect_errors() -> list[str]:
@@ -77,6 +79,14 @@ def collect_errors() -> list[str]:
     require(STRUCTURE_OBJECTIVE, 'data.getBoolean("seen")', "structure-history reload")
     require(STRUCTURE_OBJECTIVE, "this.getParent().markForUpdate()", "structure-history quest synchronization")
 
+    require(DRAGON_OBJECTIVE, "class EnderDragonDefeatedObjective", "Ender Dragon world-state objective implementation")
+    require(DRAGON_OBJECTIVE, "player.getServer().getLevel(Level.END)", "authoritative End level lookup")
+    require(DRAGON_OBJECTIVE, "end.getDragonFight()", "persistent End fight lookup")
+    require(DRAGON_OBJECTIVE, "fight.hasPreviouslyKilledDragon()", "persistent first-defeat world-state check")
+    require(DRAGON_OBJECTIVE, "this.ticksUntilCheck = 20", "bounded Dragon-state polling cadence")
+    require(DRAGON_OBJECTIVE, "!this.isActiveForPlayer(player)", "active Dragon objective lifecycle guard")
+    require(DRAGON_OBJECTIVE, "this.setUnits(1)", "ordinary Questlog completion handoff")
+
     require(REGISTRY, 'new ResourceLocation("questlog", "entity_kill_stat")', "entity_kill_stat objective registration")
     require(REGISTRY, 'new EditorMetadata("entity", "Exact Entity ID:"', "exact-entity editor metadata")
     require(REGISTRY, 'new ResourceLocation("questlog", "item_craft_stat")', "item_craft_stat objective registration")
@@ -86,6 +96,7 @@ def collect_errors() -> list[str]:
     require(REGISTRY, 'new ResourceLocation("questlog", "visit_position_history")', "visit_position_history objective registration")
     require(REGISTRY, 'new ResourceLocation("questlog", "visit_structure_history")', "visit_structure_history objective registration")
     require(REGISTRY, 'new EditorMetadata("structure", "Exact Structure ID:"', "exact-structure editor metadata")
+    require(REGISTRY, 'new ResourceLocation("questlog", "ender_dragon_defeated")', "ender_dragon_defeated objective registration")
 
     require(VALIDATOR, '"questlog:entity_kill_stat"', "entity-kill definition validator registration")
     require(VALIDATOR, "core.validate_resource_id(entry[\"entity\"]", "exact entity resource-id schema validation")
@@ -97,6 +108,8 @@ def collect_errors() -> list[str]:
     require(VALIDATOR, "core.validate_bounds(entry[\"bounds\"]", "position-history bounds schema validation")
     require(VALIDATOR, '"questlog:visit_structure_history"', "structure-history definition validator registration")
     require(VALIDATOR, "core.validate_resource_id(entry[\"structure\"]", "exact structure resource-id schema validation")
+    require(VALIDATOR, 'objective_type == "questlog:ender_dragon_defeated"', "Dragon world-state schema validation")
+    require(VALIDATOR, "must be exactly 1 for questlog:ender_dragon_defeated", "boolean Dragon objective amount guard")
 
     require(ENTITY_FIXTURE, '"type": "questlog:entity_kill_stat"', "entity development fixture objective")
     require(ENTITY_FIXTURE, '"entity": "minecraft:zombie"', "entity development fixture exact entity")
@@ -108,6 +121,8 @@ def collect_errors() -> list[str]:
     require(POSITION_FIXTURE, '"dimension": "minecraft:overworld"', "position development fixture dimension guard")
     require(STRUCTURE_FIXTURE, '"type": "questlog:visit_structure_history"', "structure development fixture objective")
     require(STRUCTURE_FIXTURE, '"structure": "minecraft:mineshaft"', "structure development fixture exact structure")
+    require(DRAGON_FIXTURE, '"type": "questlog:ender_dragon_defeated"', "Dragon world-state development fixture")
+    require(DRAGON_FIXTURE, '"required_amount": 1', "Dragon development fixture boolean amount")
 
     return errors
 
