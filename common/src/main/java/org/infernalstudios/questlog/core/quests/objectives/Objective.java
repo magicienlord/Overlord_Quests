@@ -38,9 +38,14 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
 
     /**
      * Hook for objective state that must be initialized at the exact transition
-     * from locked to triggered. Most objectives have no trigger-time state.
+     * from locked to triggered. Logic objectives inherit recursive propagation so
+     * specialized descendants receive the transition without every logic type
+     * having to reimplement this method.
      */
     public void onQuestTriggered() {
+        for (Objective child : this.getChildren()) {
+            child.onQuestTriggered();
+        }
     }
 
     /**
