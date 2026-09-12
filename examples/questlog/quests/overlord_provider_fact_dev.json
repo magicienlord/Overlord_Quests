@@ -1,0 +1,39 @@
+{
+  "title": "[DEV] Fact-Gated Provider Prototype",
+  "description": "Development-only fixture for required and forbidden narrative-fact provider gating. This is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:paper"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "provider": {
+    "entity_types": [
+      "minecraft:villager"
+    ],
+    "required_facts": [
+      "questlog:dev_provider_open"
+    ],
+    "forbidden_facts": [
+      "questlog:dev_provider_closed"
+    ],
+    "dialogue": {
+      "offer": "[DEV] This offer validates required and forbidden narrative-fact provider gating.",
+      "in_progress": "[DEV] Fact-gated provider quest accepted."
+    },
+    "lock_to_provider": false,
+    "turn_in": "none"
+  },
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one debug stick after accepting the fact-gated quest"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
