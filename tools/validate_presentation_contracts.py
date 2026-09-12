@@ -19,10 +19,11 @@ QUEST_ROOTS = (
 SPEAKER_PRESENTATION = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/display/SpeakerPresentation.java"
 CLIENT_EVENTS = ROOT / "common/src/main/java/org/infernalstudios/questlog/QuestlogClientEvents.java"
 PROVIDER_SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/provider/QuestProviderScreen.java"
+PORTRAIT_TEXTURES = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/gui/SpeakerPortraitTextures.java"
 
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 REACTIONS = {"neutral", "directive", "mocking", "approving", "severe"}
-SPEAKER_FIELDS = {"speaker_id", "speaker_reaction", "speaker_pane_width"}
+SPEAKER_FIELDS = {"speaker_id", "speaker_reaction", "speaker_pane_width", "speaker_alpha_cleanup"}
 
 
 def iter_quest_files():
@@ -47,7 +48,7 @@ def collect_errors() -> list[str]:
         if speaker_id is None:
             if present:
                 errors.append(
-                    f"{path.relative_to(ROOT)}: speaker_reaction/speaker_pane_width require speaker_id"
+                    f"{path.relative_to(ROOT)}: speaker presentation fields require speaker_id"
                 )
             continue
 
@@ -63,6 +64,10 @@ def collect_errors() -> list[str]:
         pane_width = data.get("speaker_pane_width", 170)
         if not isinstance(pane_width, int) or isinstance(pane_width, bool) or not 96 <= pane_width <= 512:
             errors.append(f"{path.relative_to(ROOT)}: speaker_pane_width must be an integer from 96 through 512")
+
+        alpha_cleanup = data.get("speaker_alpha_cleanup", False)
+        if not isinstance(alpha_cleanup, bool):
+            errors.append(f"{path.relative_to(ROOT)}: speaker_alpha_cleanup must be a boolean")
 
         overlay = data.get("overlay")
         if not isinstance(overlay, str) or not RESOURCE_ID.fullmatch(overlay):
@@ -88,8 +93,17 @@ def collect_errors() -> list[str]:
         for reaction in REACTIONS:
             if reaction.upper() not in speaker_source:
                 errors.append(f"SpeakerPresentation.java: missing reaction state {reaction}")
+        if 'speaker_alpha_cleanup' not in speaker_source:
+            errors.append("SpeakerPresentation.java: alpha-cleanup authoring flag is missing")
     except OSError as exc:
         errors.append(f"SpeakerPresentation.java: unreadable: {exc}")
+
+    try:
+        portrait_source = PORTRAIT_TEXTURES.read_text(encoding="utf-8")
+        if "cleanMatteFringe" not in portrait_source or "DynamicTexture" not in portrait_source:
+            errors.append("SpeakerPortraitTextures.java: opt-in runtime alpha cleanup is missing")
+    except OSError as exc:
+        errors.append(f"SpeakerPortraitTextures.java: unreadable: {exc}")
 
     try:
         events = CLIENT_EVENTS.read_text(encoding="utf-8")
