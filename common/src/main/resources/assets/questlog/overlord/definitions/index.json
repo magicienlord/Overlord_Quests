@@ -1,4 +1,10 @@
 {
-  "quests": [],
-  "chapters": []
+  "quests": [
+    "campaign/opening/a_new_master.json",
+    "campaign/opening/restore_browns.json",
+    "campaign/opening/make_an_impression.json"
+  ],
+  "chapters": [
+    "main.json"
+  ]
 }
