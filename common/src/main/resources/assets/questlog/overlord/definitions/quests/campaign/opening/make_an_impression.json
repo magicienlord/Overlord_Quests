@@ -1,0 +1,33 @@
+{
+  "title": "Make an Impression",
+  "description": "The Tower can wait for a moment. Step into the world and make the new reign tangible through direct action before returning to the machinery of rule.",
+  "description_completed": "The Overlord has made his first personal mark upon the world. Rebuilding the instruments of rule remains available when he chooses to turn back to it.",
+  "icon": {
+    "item": "minecraft:iron_sword"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 20,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/a_new_master",
+      "required_amount": 1,
+      "name": "Begin the new reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:stat",
+      "stat": "minecraft:mob_kills",
+      "required_amount": 1,
+      "retroactive": false,
+      "name": "Act personally upon the world"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
