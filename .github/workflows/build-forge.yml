@@ -42,6 +42,9 @@ jobs:
       - name: Validate quest anchor protection contracts
         run: python3 tools/validate_anchor_protection_contracts.py
 
+      - name: Validate failure consequence contracts
+        run: python3 tools/validate_failure_consequence_contracts.py
+
       - name: Validate sequence-break tracking contracts
         run: python3 tools/validate_sequence_break_tracking.py
 
@@ -220,6 +223,7 @@ jobs:
           cp docs/NPC_PROVIDER_TEST_PROTOCOL.md "$KIT/docs/"
           cp docs/NARRATIVE_FACTS.md "$KIT/docs/"
           cp docs/QUEST_ANCHOR_PROTECTION.md "$KIT/docs/"
+          cp docs/QUEST_ANCHOR_PROTECTION_TEST_PROTOCOL.md "$KIT/docs/"
 
           cat > "$KIT/INSTALL.txt" <<'EOF'
           OVERLORD QUESTS - NPC PROVIDER TEST KIT
