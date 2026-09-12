@@ -20,6 +20,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:entity_kill_stat",
     "questlog:item_craft_stat",
     "questlog:visit_dimension_history",
+    "questlog:visit_position_history",
     "questlog:visit_structure_history",
 })
 core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
@@ -62,8 +63,6 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         if "entity" not in entry:
             core.fail(path, f"'{field}.entity' is required by questlog:entity_kill_stat", errors)
         else:
-            # Historical kill statistics are indexed by one exact EntityType. Do
-            # not imply that EntityMatcher tags/NBT/name predicates are supported.
             core.validate_resource_id(entry["entity"], f"{field}.entity", path, errors)
         return
 
@@ -71,8 +70,6 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         if "item" not in entry:
             core.fail(path, f"'{field}.item' is required by questlog:item_craft_stat", errors)
         else:
-            # Vanilla crafted-item statistics are indexed by one exact Item. Tags,
-            # NBT matchers and wildcard item predicates cannot be retrospective.
             core.validate_resource_id(entry["item"], f"{field}.item", path, errors)
         return
 
@@ -84,6 +81,18 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         amount = entry.get("required_amount")
         if amount is not None and amount != 1:
             core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:visit_dimension_history", errors)
+        return
+
+    if objective_type == "questlog:visit_position_history":
+        if "bounds" not in entry:
+            core.fail(path, f"'{field}.bounds' is required by questlog:visit_position_history", errors)
+        else:
+            core.validate_bounds(entry["bounds"], f"{field}.bounds", path, errors)
+        if "dimension" in entry:
+            core.validate_resource_id(entry["dimension"], f"{field}.dimension", path, errors)
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:visit_position_history", errors)
         return
 
     if objective_type == "questlog:visit_structure_history":
@@ -273,13 +282,10 @@ def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) 
         validate_provider_rule(data, path, errors, development_fixture=development_fixture)
 
 
-# Install wrappers into the retained core module so its recursive validation and
-# main manifest walk use the OVERLORD extensions too.
 core.validate_objective_entry = validate_objective_entry
 core.validate_reward_entry = validate_reward_entry
 core.validate_quest = validate_quest
 
-# Re-export helpers used by the existing validator self-test.
 fail = core.fail
 validate_resource_id = core.validate_resource_id
 validate_registry_predicate = core.validate_registry_predicate
