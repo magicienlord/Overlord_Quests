@@ -83,6 +83,22 @@ The native profession path is additive. An explicit `overlord_role:<role>` tag s
 
 This implements the approved REIGN rule that Villager professions, including compatible modded professions, may serve as sidequest-provider roles when the quest fits the profession and location. It does not automatically generate quests for every profession.
 
+## Production civilization anchor scope
+
+The lore authority defines civilization questlines around deliberately authored anchor populations. Ordinary procedural settlements, ordinary profession matches, and unrelated members of the same species must not become civilization quest starters merely because they satisfy a broad entity selector.
+
+The repository validator therefore applies an additional rule to bundled production definitions that use `provider.civilization`:
+
+- the provider must include at least one non-empty `scoreboard_tags` selector or an authored `location` bound;
+- entity type, entity tag, profession/role, dimension, disposition, and campaign gates may narrow eligibility further, but none of them alone proves membership in the canonical anchor population;
+- development fixtures are exempt so synthetic provider mechanics can be tested without creating fake world anchors.
+
+A scoreboard tag is the preferred pre-placement bridge when the lore establishes the anchor identity but final world coordinates remain UNKNOWN. For example, world integration may mark the intended anchor NPC or anchor population with an explicit authored tag while leaving all naturally generated peers untouched.
+
+A location bound is appropriate only once world integration has a stable authored area. Coordinates in provider definitions remain implementation data and do not become canonical geography merely because the runtime can match them.
+
+This guard implements the anchor rule from `Overlord_Lore_and_Canon/reference/16_CIVILIZATION_QUEST_ANCHORS.md`. It is deliberately conservative: production civilization content must identify the intended local polity rather than accidentally applying to every matching NPC in generated terrain.
+
 ## Authored dialogue and decline flow
 
 The temporary provider screen now separates selecting an offered sidequest from accepting it. Selecting an `AVAILABLE` entry opens its neutral detail view. The player must then choose `Accept` or `Decline`; decline is intentionally non-persistent and simply returns to the provider's list. It does not create a hidden rejection score, cooldown, mood, or reputation fact.
