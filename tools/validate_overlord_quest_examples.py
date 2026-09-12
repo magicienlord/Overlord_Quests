@@ -17,17 +17,31 @@ import validate_presentation_contracts as presentation_contract
 core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:disposition",
     "questlog:fact",
+    "questlog:entity_died",
     "questlog:entity_kill_stat",
     "questlog:item_craft_stat",
     "questlog:visit_dimension_history",
     "questlog:visit_position_history",
     "questlog:visit_structure_history",
 })
+# entity_died deliberately reuses the source-faithful EntityMatcher payload while
+# changing only which entity in a death event is treated as the objective target.
+core.ENTITY_OBJECTIVES.add("questlog:entity_died")
 core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
 
 _CORE_OBJECTIVE_ENTRY = core.validate_objective_entry
 _CORE_REWARD_ENTRY = core.validate_reward_entry
 _CORE_VALIDATE_QUEST = core.validate_quest
+
+
+def validate_scoreboard_tag(value: Any, field: str, path: Path, errors: list[str]) -> None:
+    if not isinstance(value, str) or not value.strip():
+        core.fail(path, f"'{field}' must be a non-empty scoreboard tag string", errors)
+    elif len(value) > 1024:
+        # Entity scoreboard tags are persisted strings. Keep configuration input
+        # bounded well below arbitrary definition abuse while preserving Minecraft's
+        # normal practical tag use.
+        core.fail(path, f"'{field}' must not exceed 1024 characters", errors)
 
 
 def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[str]) -> None:
@@ -36,6 +50,30 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         return
 
     objective_type = entry.get("type")
+
+    if objective_type in core.ENTITY_OBJECTIVES:
+        if "scoreboard_tag" in entry:
+            validate_scoreboard_tag(entry["scoreboard_tag"], f"{field}.scoreboard_tag", path, errors)
+        entity_matcher = entry.get("entity")
+        if isinstance(entity_matcher, dict) and "scoreboard_tag" in entity_matcher:
+            validate_scoreboard_tag(
+                entity_matcher["scoreboard_tag"],
+                f"{field}.entity.scoreboard_tag",
+                path,
+                errors,
+            )
+
+        if objective_type == "questlog:entity_died":
+            has_selector = any(
+                key in entry for key in ("entity", "custom_name", "entity_name", "scoreboard_tag", "predicate")
+            )
+            if not has_selector:
+                core.fail(
+                    path,
+                    f"'{field}' questlog:entity_died requires an explicit entity matcher selector",
+                    errors,
+                )
+
     if objective_type == "questlog:disposition":
         for key in ("civilization", "state"):
             if key not in entry:
