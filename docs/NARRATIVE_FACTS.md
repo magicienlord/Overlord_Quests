@@ -175,6 +175,28 @@ This fact does NOT mean:
 
 The fact is intentionally broader than either source quest completion while remaining strictly bounded to the two established opening recoveries.
 
+### `overlord_reign:civilizations/goblins/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/goblins/first_contact` after the Overlord accepts and completes the designated Goblin leader's first formal interaction at the principal Goblin Camp.
+
+Meaning:
+
+- the designated Goblin anchor polity has formally entered the current Overlord's campaign history;
+- later Goblin content may distinguish established contact from an undiscovered or unrelated procedural Goblin population;
+- the issuing leader and camp are the authored local polity defined by the Goblin civilization decisions, not every Goblin generated elsewhere.
+
+This fact does NOT mean:
+
+- that the Goblin civilization disposition has been resolved;
+- that the camp is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that all Goblins recognize the Overlord's authority;
+- that exact camp coordinates have been fixed in canon;
+- that later Goblin branch outcomes have been selected.
+
+The fact intentionally records contact only. Political state remains a separate authored disposition or consequence when later campaign content actually resolves it.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.
