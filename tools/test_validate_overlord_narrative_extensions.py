@@ -185,6 +185,12 @@ def main():
             "failed": "[DEV] Failed.",
         },
     }))
+    expect_valid("provider completion dialogue", provider({
+        "entity_types": ["minecraft:villager"],
+        "dialogue": {
+            "completed": "[DEV] Completed follow-up."
+        },
+    }))
     expect_invalid("provider dialogue unknown phase", provider({
         "entity_types": ["minecraft:villager"],
         "dialogue": {"victory": "[DEV] Unsupported."},
@@ -225,7 +231,7 @@ def main():
         "civilization": "questlog:dev_civilization",
     }, development_fixture=True))
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (36 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (37 cases)")
     return 0
 
 
