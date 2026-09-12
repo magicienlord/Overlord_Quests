@@ -233,7 +233,7 @@ def validate_provider_rule(
         if not isinstance(dialogue, dict):
             core.fail(path, "'provider.dialogue' must be an object", errors)
         else:
-            allowed_keys = {"offer", "in_progress", "ready_to_turn_in", "failed"}
+            allowed_keys = {"offer", "in_progress", "ready_to_turn_in", "failed", "completed"}
             for key, value in dialogue.items():
                 if key not in allowed_keys:
                     core.fail(path, f"'provider.dialogue.{key}' is not a supported dialogue phase", errors)
