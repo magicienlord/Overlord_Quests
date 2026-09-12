@@ -22,9 +22,21 @@ def objective(entry):
     return errors
 
 
-def reward(entry):
+def reward(entry, *, inside_choice=False):
     errors = []
-    validator.validate_reward_entry(entry, "rewards[0]", TEST_PATH, errors)
+    validator.validate_reward_entry(
+        entry,
+        "rewards[0]",
+        TEST_PATH,
+        errors,
+        inside_choice=inside_choice,
+    )
+    return errors
+
+
+def failure_rewards(entries):
+    errors = []
+    validator.validate_failure_rewards({"failure_rewards": entries}, TEST_PATH, errors)
     return errors
 
 
@@ -131,6 +143,32 @@ def main():
         "type": "questlog:set_fact",
     }), ".fact")
 
+    for slot in ("red", "green", "blue"):
+        expect_valid(f"{slot} minion unlock reward", reward({
+            "type": "questlog:unlock_minion",
+            "slot": slot,
+            "auto_claim": True,
+        }))
+    expect_invalid("Brown cannot be quest unlocked", reward({
+        "type": "questlog:unlock_minion",
+        "slot": "brown",
+        "auto_claim": True,
+    }), "red, green, blue")
+    expect_invalid("minion unlock must auto-claim", reward({
+        "type": "questlog:unlock_minion",
+        "slot": "red",
+    }), "auto_claim")
+    expect_invalid("minion unlock cannot be choice nested", reward({
+        "type": "questlog:unlock_minion",
+        "slot": "red",
+        "auto_claim": True,
+    }, inside_choice=True), "cannot be nested")
+    expect_invalid("minion unlock cannot be failure reward", failure_rewards([{
+        "type": "questlog:unlock_minion",
+        "slot": "red",
+        "auto_claim": True,
+    }]), "cannot unlock a Minion tier")
+
     expect_valid("provider entity selector", provider({
         "entity_types": ["minecraft:villager"],
         "turn_in": "same_provider",
@@ -231,7 +269,7 @@ def main():
         "civilization": "questlog:dev_civilization",
     }, development_fixture=True))
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (37 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (44 cases)")
     return 0
 
 
