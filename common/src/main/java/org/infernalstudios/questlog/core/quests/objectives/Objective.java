@@ -37,6 +37,13 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     }
 
     /**
+     * Hook for objective state that must be initialized at the exact transition
+     * from locked to triggered. Most objectives have no trigger-time state.
+     */
+    public void onQuestTriggered() {
+    }
+
+    /**
      * Releases listeners owned by this objective from Questlog's private event
      * bus. Logic objectives inherit recursive cleanup for their child tree.
      * External Triggers callbacks cannot currently be removed individually, so
