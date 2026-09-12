@@ -1,24 +1,26 @@
 # Minions Remastered Runtime Integration Audit
 
-Status: TECHNICAL SOURCE CHECK / EXTERNAL INTEGRATION BLOCKER CONFIRMED
+Status: HISTORICAL UPSTREAM RUNTIME AUDIT / BUILD #118 PROGRESSION BLOCKER RESOLVED
 
 Date: 2026-09-12
 
 ## Scope
 
-This audit records the actual Minions Remastered integration surface presently available to OVERLORD QUESTS. It distinguishes the installed upstream gameplay JAR and the current `magicienlord/Overlord_Minions` visual addon from the planned four-type progression contract in `docs/MINION_UNLOCK_INTEGRATION.md`.
+This document preserves the original audit of the installed upstream Minions Remastered `0.3.0` gameplay JAR, then records the later OVERLORD Minions progression interface that resolved the Red, Green, and Blue integration blocker.
 
-No external Minions repository or JAR is modified by this audit.
+The historical findings remain useful because they explain why OVERLORD QUESTS must not infer campaign progression from the upstream Minions Remastered capability, live Minion slots, UUID order, or renderer state.
 
-## Installed gameplay JAR
+The current authoritative cross-mod contract is `docs/MINION_UNLOCK_INTEGRATION.md`.
 
-The current OVERLORD REIGN modpack contains:
+## Historical installed gameplay JAR audit
+
+The audited OVERLORD REIGN modpack contained:
 
 ```text
 minionsremastered-0.3.0.jar
 ```
 
-The JAR declares:
+The JAR declared:
 
 ```text
 modId=minionsremastered
@@ -27,21 +29,21 @@ Minecraft 1.20.1
 Forge loader 47+
 ```
 
-The Master's Staff remains registered as:
+The Master's Staff was registered as:
 
 ```text
 minionsremastered:masters_staff
 ```
 
-Its installed shaped recipe uses raw gold, emerald, and stick. OVERLORD QUESTS may therefore continue to use the exact item ID as the Brown bootstrap observation point while the replacement fork preserves that registry ID.
+Its installed shaped recipe used raw gold, emerald, and stick. The exact item ID remains the Brown bootstrap observation point used by OVERLORD QUESTS.
 
-## Current master capability
+## Historical upstream capability findings
 
-The installed `IMasterCapability` exposes gameplay ownership and command state for Minions. Its public surface includes:
+The audited upstream `IMasterCapability` exposed gameplay ownership and command state for Minions, including:
 
 - player ownership;
 - a list of Minion UUIDs;
-- adding/removing Minions;
+- adding and removing Minions;
 - four live Minion positions through the current hard cap;
 - per-position Minion inventory data;
 - current order;
@@ -49,108 +51,158 @@ The installed `IMasterCapability` exposes gameplay ownership and command state f
 - pause state;
 - synchronization.
 
-The implementation's maximum of four is a cap on simultaneously tracked Minion UUID positions. It is NOT a Brown/Red/Green/Blue type-unlock model.
+The implementation's maximum of four was a cap on simultaneously tracked Minion UUID positions. It was not a Brown, Red, Green, Blue type-unlock model.
 
-This distinction is critical. The existing four UUID positions must not be treated as the four REIGN Minion-type progression slots.
+The upstream capability serialized Minion UUID positions, Minion inventory data, order state, container targeting, and pause state. It did not serialize Brown, Red, Green, or Blue campaign unlock ownership, Minion type identity per summon position, or traditional Hive-return state.
 
-## Persistence surface
+Summoning created the single upstream gameplay entity type and recorded its UUID in the master capability. The summon packet's list position represented a stored Minion position, not a traditional Minion type.
 
-The installed master capability serializes Minion UUID positions, Minion inventory data, order state, container targeting, and pause state.
+Those findings remain valid for the audited upstream `0.3.0` JAR. OVERLORD QUESTS must never infer campaign progression from:
 
-It does not serialize:
-
-- Brown unlocked;
-- Red unlocked;
-- Green unlocked;
-- Blue unlocked;
-- a Minion type associated with each summon position;
-- Hive-return state for the four traditional tribes.
-
-Therefore the installed capability does not provide a durable progression signal that OVERLORD QUESTS can safely target for Red, Green, or Blue recovery.
-
-## Staff and summon behavior
-
-The installed Master's Staff opens/operates the existing Minions Remastered control path. Summoning creates the single gameplay entity type and records the resulting Minion UUID in the master capability. The current summon packet accepts a Minion-list position for restoring a specific stored Minion, not a traditional Minion type.
-
-The installed mod contains one gameplay entity registration surface for the Minion rather than four traditional type entities.
-
-OVERLORD QUESTS must not infer Brown/Red/Green/Blue progression from:
-
-- the Minion-list index;
+- the live Minion-list index;
 - current number of summoned Minions;
 - Minion UUID ordering;
+- UUID-derived renderer appearance;
 - current entity colour data;
-- the presence of the Master's Staff alone after the initial Brown bootstrap milestone.
+- the presence of the Master's Staff after the initial Brown bootstrap milestone.
 
-## Current `magicienlord/Overlord_Minions` repository
+## Historical blocker
 
-The current `Overlord_Minions` main branch still describes a thin client-side visual addon. Its documented architecture:
+At the time of the original audit, neither the upstream Minions Remastered `0.3.0` capability nor the then-current visual-addon architecture exposed a durable four-type progression API. Therefore Red, Green, and Blue handoff was correctly considered blocked at that point.
 
-- leaves the Minions Remastered gameplay entity untouched;
-- replaces the renderer only;
-- chooses Brown, Red, Green, or Blue appearance deterministically from entity UUID;
-- deliberately adds no gameplay Minion type state;
-- adds no type-unlock persistence or synchronization.
+That conclusion is now superseded for the OVERLORD REIGN project by the newer OVERLORD Minions progression implementation described below. It must not be read as the current integration state.
 
-That repository therefore does not yet satisfy the four-slot progression contract required by OVERLORD QUESTS.
+## Current OVERLORD Minions progression authority
 
-Its current UUID-derived visual assignment must not be mistaken for campaign progression authority.
+OVERLORD Minions Build #118 is the validated development dependency recorded by `docs/MINION_UNLOCK_INTEGRATION.md`.
 
-## Quest-side consequence
+The preserved implementation checkpoint `35dc7da09f39eb93f5c47eac2b5aad983bab0b95` in `magicienlord/Overlord_Minions` exposes the stable server-side API:
 
-The current production Brown recovery quest may safely observe the exact Master's Staff craft because:
-
-- the item ID exists in the installed gameplay mod;
-- the planned replacement fork is expected to preserve the staff as the Brown bootstrap action;
-- `questlog:item_craft_stat` makes that observation sequence-break safe;
-- Questlog does not grant Brown itself.
-
-The later Red, Green, and Blue recovery rewards remain blocked from production implementation until the external Minions gameplay layer exposes a stable type-unlock interface.
-
-This is an external integration blocker, not missing Questlog state machinery. Questlog already has durable monotonic narrative facts suitable for representing the campaign decision once the owning Minions implementation can consume it.
-
-## Required external contract
-
-The Minions gameplay implementation needs a stable server-authoritative surface equivalent to:
-
-```text
-isTypeUnlocked(player, type)
-unlockType(player, type)
+```java
+com.overlordreign.minions.api.OverlordMinionProgression
 ```
 
-or an equally stable command/event/marker bridge.
+with fixed slot identity from:
 
-The external owner must also define durable Hive-return reconciliation if Hive manifestation belongs to the Minions implementation.
+```java
+com.overlordreign.minions.progression.MinionSlot
+```
 
-Required semantic properties remain:
+The public integration surface is:
 
-- Brown bootstrap from the Master's Staff;
-- Red, then Green, then Blue ordering;
+```java
+OverlordMinionProgression.isUnlocked(MinecraftServer server, MinionSlot slot)
+OverlordMinionProgression.highestUnlocked(MinecraftServer server)
+OverlordMinionProgression.unlock(MinecraftServer server, MinionSlot slot)
+```
+
+The fixed owner-side slot order is:
+
+```text
+0 Brown
+1 Red
+2 Green
+3 Blue
+```
+
+The owner-side state is world-scoped `SavedData` named `overlord_minions_unlocks`. It persists the highest unlocked slot, clamps loaded state to the Brown through Blue range, treats already-open slots as idempotent success, rejects skipped slots, and keeps Brown owned by the Master's Staff bootstrap.
+
+The owner API returns:
+
+```text
+UNLOCKED
+ALREADY_UNLOCKED
+OUT_OF_ORDER
+BOOTSTRAP_OWNED_BY_STAFF
+```
+
+This resolves the original missing-progression-interface blocker without requiring Questlog to mutate private Minions state.
+
+## Current quest-side integration
+
+OVERLORD QUESTS now implements a bounded optional bridge to the documented public API only.
+
+For later Minion tiers it exposes:
+
+```json
+{
+  "type": "questlog:unlock_minion",
+  "slot": "red",
+  "auto_claim": true
+}
+```
+
+and the authoritative owner-state objective:
+
+```json
+{
+  "type": "questlog:minion_unlocked",
+  "slot": "red",
+  "required_amount": 1
+}
+```
+
+Only Red, Green, and Blue are valid quest-side slots. Brown remains intentionally excluded because the Master's Staff bootstrap owns Brown access.
+
+The bridge:
+
+- calls the public `unlock` and `isUnlocked` methods only;
+- treats `UNLOCKED` and `ALREADY_UNLOCKED` as successful reconciliation;
+- leaves out-of-order or unavailable handoffs pending;
+- retries completed pending external unlock rewards on player load;
+- fails closed if the optional API is absent or incompatible;
+- does not mirror owner-side Minion unlock state into Questlog persistence;
+- does not mutate Minions Remastered roster state, private capability fields, or save NBT.
+
+## Brown bootstrap
+
+The production Brown recovery branch continues to observe the exact Master's Staff craft through `questlog:item_craft_stat` against:
+
+```text
+minionsremastered:masters_staff
+```
+
+This is sequence-break safe because the crafted-item statistic survives if the staff was crafted before the Questlog objective became active.
+
+Questlog observes the milestone only. It does not grant Brown.
+
+## Current implementation boundary
+
+RESOLVED:
+
+- stable Red, Green, and Blue owner-side progression interface;
+- fixed Brown, Red, Green, Blue slot identities;
+- persistent monotonic owner state;
+- ordered unlock enforcement;
 - idempotent repeated application;
-- save-persistent unlock state;
-- reconciliation on load when the Questlog marker predates the integration update;
-- no accidental use of the existing four live-Minion UUID positions as type slots;
-- no dependence on client-only renderer assignment;
-- no direct Questlog mutation of private Minions save NBT.
+- bounded Questlog reward bridge;
+- bounded Questlog owner-state prerequisite;
+- fail-closed behavior when the owner API is unavailable;
+- player-load retry for pending completed handoffs.
 
-## Preferred bridge order
+STILL TO AUTHOR OR RUNTIME-VALIDATE:
 
-Implementation preference remains:
+- concealed production Red recovery milestone;
+- concealed production Green recovery milestone;
+- concealed production Blue recovery milestone;
+- full-modpack runtime validation against the supplied Build #118 development JAR;
+- save and reload verification of the complete Red to Green to Blue sequence in a disposable integration world;
+- any separate Hive manifestation implementation required by the owning Minions system.
 
-1. stable public server API/event from the Minions fork;
-2. stable server command owned by that fork;
-3. marker/fact reconciliation bridge owned by that fork.
-
-Reflection into private capability fields, mixin mutation of private state, or direct save-NBT surgery remains rejected for production integration.
+Static source verification and Questlog build validation do not substitute for that full-modpack runtime pass.
 
 ## Current decision
 
 Brown quest observation: IMPLEMENTED ON QUEST SIDE.
 
-Brown capability unlock: EXTERNAL OWNER.
+Brown capability bootstrap: EXTERNAL OWNER, Master's Staff.
 
-Red/Green/Blue campaign markers: DEFERRED UNTIL EXTERNAL INTERFACE EXISTS.
+Red, Green, Blue Questlog bridge: IMPLEMENTED AGAINST VALIDATED BUILD #118 CONTRACT.
 
-Red/Green/Blue capability unlock and Hive-return persistence: EXTERNAL OWNER.
+Red, Green, Blue owner persistence: EXTERNAL OWNER, PUBLIC API VERIFIED AT PRESERVED CHECKPOINT.
 
-No further Questlog-side guesswork is justified at this boundary. Campaign authoring may continue around the blocker without serializing unrelated early content behind it.
+Production Red, Green, Blue campaign authoring: PENDING AUTHORED RECOVERY MILESTONES.
+
+Full cross-mod runtime validation: PENDING.
+
+The original external-interface blocker is closed. Any older Quest documentation that still describes that interface as unknown or unavailable is superseded by `docs/MINION_UNLOCK_INTEGRATION.md` and this updated audit.
