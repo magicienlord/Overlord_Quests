@@ -39,6 +39,9 @@ jobs:
       - name: Validate provider runtime contracts
         run: python3 tools/validate_provider_runtime_contracts.py
 
+      - name: Validate quest anchor protection contracts
+        run: python3 tools/validate_anchor_protection_contracts.py
+
       - name: Validate sequence-break tracking contracts
         run: python3 tools/validate_sequence_break_tracking.py
 
@@ -111,6 +114,7 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/misc/VisitDimensionHistoryObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/misc/VisitPositionHistoryObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/misc/VisitStructureHistoryObjective.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestAnchorProtection.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/provider/QuestProviderScreen.class'
@@ -215,6 +219,7 @@ jobs:
           cp docs/NPC_PROVIDER_SYSTEM.md "$KIT/docs/"
           cp docs/NPC_PROVIDER_TEST_PROTOCOL.md "$KIT/docs/"
           cp docs/NARRATIVE_FACTS.md "$KIT/docs/"
+          cp docs/QUEST_ANCHOR_PROTECTION.md "$KIT/docs/"
 
           cat > "$KIT/INSTALL.txt" <<'EOF'
           OVERLORD QUESTS - NPC PROVIDER TEST KIT
@@ -244,6 +249,7 @@ jobs:
           narrative_fact_development_quest=config/questlog/quests/overlord_narrative_fact_dev.json
           interaction_scaffold=sneak_main_hand_entity_interact
           provider_authority=server
+          quest_anchor_protection=explicit_scoreboard_tag
           EOF
 
           (
