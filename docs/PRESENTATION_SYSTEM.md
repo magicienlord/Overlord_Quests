@@ -1,14 +1,16 @@
 # OVERLORD QUESTS Presentation System
 
-Status: IMPLEMENTED VISUAL FOUNDATION / DIRECT IN-GAME ACCEPTANCE PENDING
+Status: VISUAL FOUNDATION ACCEPTED FOR CAMPAIGN AUTHORING
 
 This document records the presentation boundary that must be stabilized before production campaign content is authored into OVERLORD QUESTS.
 
 ## Visual-foundation gate
 
-Production campaign implementation remains blocked on direct acceptance of the coherent visual and interaction baseline.
+The presentation gate is closed for campaign authoring.
 
-The source implementation now provides:
+Direct in-game review established the parchment-dominant speaker composition and the reworked provider interface as a solid base. The Overlord then explicitly accepted the requested follow-up corrections without requiring an additional visual regression pass, provided those corrections were implemented. They are implemented in the active source and guarded by the presentation validators.
+
+The source implementation provides:
 
 - a dedicated Questlog parchment layout for remotely presented speakers;
 - a disjoint right-side incorporeal speaker reaction lane;
@@ -25,7 +27,7 @@ The source implementation now provides:
 - provider dialogue scroll controls centered vertically inside a reserved lower parchment band instead of sitting against the bottom border;
 - static validators that prevent provider quests from accidentally acquiring the incorporeal portrait system.
 
-Development fixtures remain non-canon scaffolding until the visual gate is accepted in Minecraft.
+Development fixtures remain non-canon scaffolding. Closing the visual gate permits production campaign authoring, but does not promote development fixture text or IDs to canon.
 
 ## Direct runtime review checkpoint
 
@@ -42,7 +44,15 @@ Observed results:
 - Up/Down dialogue controls were judged too close to the lower parchment border and were requested on the middle axis of the available lower whitespace;
 - the neutral death-screen scaffold was also observed successfully and remains a usable mechanical/visual baseline for its later dedicated OVERLORD pass.
 
-The source changes following that review implement the three requested popup/provider refinements. A short regression pass is still required before the presentation gate closes.
+The requested follow-up refinements were then implemented:
+
+- incorporeal speaker portraits are vertically centered against the parchment body;
+- provider headings and dialogue are rendered without text shadow;
+- dialogue Up/Down controls occupy a centered lower parchment band rather than touching the bottom border.
+
+Run 376 passed the repository presentation validators, static layout checks, Forge build, reobfuscation, assembled-JAR verification, and artifact packaging after an unchanged retry of a transient NeoForged Maven HTTP 502 dependency-resolution failure.
+
+The Overlord explicitly waived another visual regression pass after confirming that these requested corrections were made. This closes the visual-foundation gate for quest authoring.
 
 ## Two presentation surfaces
 
@@ -168,7 +178,7 @@ The dedicated speaker screen keeps Gnarl in the right-side lane, vertically cent
 
 When the full requested width does not fit, the parchment and reaction lane shrink proportionally. The renderer still preserves a minimum parchment width and a bounded reaction lane instead of allowing either surface to consume the other.
 
-Direct Minecraft review still has authority over final spacing, scale, edge quality, and GUI-scale behavior. Passing CI establishes build correctness, not visual acceptance.
+The accepted composition is the campaign-authoring baseline. Future speaker-specific artwork may still receive ordinary asset refinements without reopening the framework-level visual gate unless those refinements require structural UI changes.
 
 ## Presentation validation boundary
 
@@ -178,7 +188,7 @@ The validator also guards the reviewed refinements: speaker vertical centering, 
 
 `tools/check_gnarl_popup_layout.py` mirrors the responsive parchment/speaker-lane geometry across representative GUI widths, verifies that the two surfaces remain disjoint, checks that parchment remains dominant, and checks for horizontal or action-button clipping.
 
-The Forge workflow still requires an actual build and JAR smoke pass after these checks.
+The Forge workflow still requires an actual build and JAR smoke pass after changes to these presentation classes.
 
 ## Minion visual-identity dependency
 
