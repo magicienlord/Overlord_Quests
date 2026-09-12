@@ -6,20 +6,20 @@ Status: TECHNICAL IMPLEMENTATION OF APPROVED QUEST ARCHITECTURE
 
 `magicienlord/Overlord_Lore_and_Canon` defines Main Quest markers as runtime representations of real narrative facts, requires sidequests to leave persistent quest facts or completion state where appropriate, and requires sparse conditional architecture based on explicit facts rather than numeric reputation or morality systems.
 
-This document defines how OVERLORD QUESTS represents those facts technically. It does not define any canonical fact ID or story event.
+This document defines how OVERLORD QUESTS represents those facts technically and records stable production IDs once campaign authoring actually needs them.
 
 ## Model
 
 A narrative fact is a world-scoped `ResourceLocation` that means one authored historical statement has become true.
 
-Examples in this document use synthetic development IDs only:
+Development examples use synthetic IDs such as:
 
 ```text
 questlog:dev_fact_open
 questlog:dev_provider_closed
 ```
 
-Production IDs must be chosen by campaign content from the authoritative lore and campaign design. The engine does not infer them from NPC names, factions, locations, or mod content.
+Production IDs are chosen by campaign content from the authoritative lore and campaign design. The engine does not infer them from NPC names, factions, locations, or mod content.
 
 Narrative facts are deliberately boolean and monotonic during normal gameplay:
 
@@ -61,9 +61,9 @@ Fact objectives are valid anywhere ordinary objective trees are valid, including
 
 The reward records the fact in world narrative state and immediately re-synchronizes active quest state so dependent fact objectives and provider gates react without waiting for an unrelated event.
 
-For hidden campaign state transitions, authors should normally use `auto_claim: true`. A manual claim is appropriate only when the act of claiming the visible reward is itself intentionally the moment the fact becomes true.
+For hidden campaign state transitions, authors should normally use `auto_claim: true`. A manual claim is appropriate only when claiming the visible reward is intentionally the moment the fact becomes true.
 
-The reward is monotonic. It has no `clear` form.
+The reward is monotonic. It has no production `clear` form.
 
 ## Provider gates
 
@@ -110,7 +110,7 @@ Permission-gated commands are available for authoring and test recovery:
 
 ## Authoring rules
 
-Use a named narrative fact when the truth is materially reusable outside the quest that first established it. Examples of legitimate categories from the approved architecture include discovery, local-ruler outcomes, crisis resolution, Tower restoration milestones, NPC survival/death, branch outputs, persistent capability unlocks, and other persistent consequences.
+Use a named narrative fact when the truth is materially reusable outside the quest that first established it. Legitimate categories from the approved architecture include discovery, local-ruler outcomes, crisis resolution, Tower restoration milestones, NPC survival/death, branch outputs, persistent capability unlocks, and other persistent consequences.
 
 Do not create facts for:
 
@@ -122,11 +122,36 @@ Do not create facts for:
 
 Where simple quest completion is sufficient, `questlog:quest_complete` remains the smaller representation.
 
+## Production fact registry
+
+The following production fact IDs are currently defined by bundled campaign content.
+
+### `overlord_reign:tower/forge_prepared`
+
+Category: Tower restoration milestone.
+
+Set when the first Tower forge preparation quest completes its native Hot Iron progression requirement.
+
+Meaning:
+
+- the Overlord has acquired the core smithing equipment needed to furnish the Tower's purpose-built forge chamber;
+- the campaign may treat the forge restoration process as having reached its prepared-material stage;
+- later Tower content may use this fact without depending directly on the implementation details of the originating quest.
+
+This fact does NOT mean:
+
+- that a specific anvil or workstation has been placed at a fixed world coordinate;
+- that every future forge upgrade is complete;
+- that Hot Iron progression has been exhausted;
+- that the final architectural installation or world-state presentation has been implemented.
+
+Those boundaries remain separate so the fact stays truthful even before exact Tower-room world integration is finalized.
+
 ## Cross-mod capability markers
 
 Narrative facts may also serve as the quest-side representation of a permanent capability that another OVERLORD REIGN mod owns, provided the external integration contract treats the fact as a durable, idempotent marker rather than reaching directly into Questlog internals.
 
-The approved first use is Minion-type progression. The planned Minions Remastered fork owns four Minion-type slots. Crafting its staff unlocks Brown directly. Red, Green, and Blue remain locked until campaign quests establish three later unlock markers.
+The approved future use is later Minion-type progression. The planned Minions Remastered fork owns four Minion-type slots. Crafting its Master's Staff unlocks Brown directly. Red, Green, and Blue remain locked until campaign quests establish three later unlock markers.
 
 On the Questlog side, those later unlocks fit the narrative-fact model because they are:
 
@@ -136,7 +161,7 @@ On the Questlog side, those later unlocks fit the narrative-fact model because t
 - reusable by later quests if campaign design needs to know which Minion types have been acquired;
 - materially meaningful outside the quest that first grants them.
 
-The exact production fact/marker IDs are currently UNKNOWN and must not be invented until the Minions Remastered fork exposes its final integration surface and campaign authoring identifies the relevant unlock quests.
+The exact Red, Green, and Blue production fact/marker IDs remain UNKNOWN and must not be invented until the Minions Remastered fork exposes its final integration surface and campaign authoring identifies the relevant unlock quests.
 
 See `docs/MINION_UNLOCK_INTEGRATION.md` for the cross-mod ownership and reconciliation contract.
 
