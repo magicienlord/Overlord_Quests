@@ -4,7 +4,7 @@ Status: TECHNICAL + VISUAL FOUNDATION VALIDATION / DEVELOPMENT CONTENT ONLY
 
 This protocol validates the NPC sidequest provider scaffold. The fixtures and commands below are not OVERLORD REIGN story canon.
 
-Direct full-modpack runtime evidence has already validated provider discovery, offer presentation, long-dialogue scrolling through its terminal sentinel, explicit acceptance, transition to authored in-progress dialogue, and the shared provider visual baseline. Persistence, same-provider turn-in, disposition/fact rejection, distance closure, and the newer native Villager-profession role bridge remain separate robustness checks until directly evidenced.
+Direct full-modpack runtime evidence has already validated provider discovery, offer presentation, long-dialogue scrolling through its terminal sentinel, explicit acceptance, transition to authored in-progress dialogue, and the shared provider visual baseline. Persistence, same-provider turn-in, provider-specific completed dialogue, disposition/fact rejection, distance closure, and the newer native Villager-profession role bridge remain separate robustness checks until directly evidenced.
 
 ## Test scope
 
@@ -21,6 +21,7 @@ The test verifies:
 - provider binding survives save/quit/reload;
 - a second eligible villager cannot satisfy `same_provider` turn-in;
 - the original provider can complete the turn-in after the objective is complete;
+- an explicitly authored `completed` line remains available from the issuing provider after completion without reopening quest actions;
 - a Villager's registered profession can satisfy the provider `role` field without manual `overlord_role` tagging;
 - authored disposition/fact state can gate provider eligibility without a numeric reputation system;
 - the provider menu closes when the player leaves the interaction boundary;
@@ -72,7 +73,7 @@ Expected visual result:
 4. list spacing is regular and does not collide with the parchment border;
 5. page navigation, when present, belongs visually to the same control family;
 6. selecting a quest preserves the same parchment frame and places the quest title beneath the provider heading;
-7. Accept/Decline, Turn In/Back, and dialogue Up/Down controls use the same visual family;
+7. Accept/Decline, Turn In/Back, completed follow-up Back, and dialogue Up/Down controls use the same visual family;
 8. provider text remains readable at the normal OVERLORD REIGN GUI scale;
 9. there is NO right-side incorporeal reaction portrait lane for the villager;
 10. the screen clearly feels related to Questlog without pretending the in-world villager is an incorporeal Questlog speaker.
@@ -107,7 +108,7 @@ Accept it again, save/quit, reload the world, and reopen Provider A. The quest m
 
 This persistence check is required before provider-binding reload behavior is promoted from source/CI coverage to direct runtime validation.
 
-## Same-provider turn-in spot-check
+## Same-provider turn-in and completed-follow-up spot-check
 
 Give the objective item:
 
@@ -117,7 +118,21 @@ Give the objective item:
 
 Provider B must not present the accepted quest as ready for `same_provider` turn-in.
 
-Provider A must present it as ready. Select it, confirm the authored ready-to-turn-in response, then choose `Turn In`. The completed quest should disappear from actionable provider entries after the authoritative refresh.
+Provider A must present it as ready. Select it, confirm the authored ready-to-turn-in response, then choose `Turn In`.
+
+After the authoritative refresh, the same selected detail should transition into the fixture's authored completed follow-up. The screen must no longer expose Accept or Turn In for that entry. Returning to the provider list should show the quest as `Completed` rather than as an actionable quest.
+
+Close and reopen Provider A. The completed follow-up must remain available because the durable issuing-provider binding is retained after completion. Save, exit, reload, and verify it once more if the earlier persistence pass did not already cross completion.
+
+Provider B must not expose this completed follow-up. The completion relationship belongs to the exact provider that issued the quest, not merely another provider that matches the same entity rule.
+
+Acceptance:
+
+- same-provider turn-in remains enforced;
+- completed dialogue appears only because the fixture explicitly authors `provider.dialogue.completed`;
+- completion follow-up is presentation-only and offers no new quest action;
+- the original issuing provider owns the follow-up;
+- provider binding persistence keeps the follow-up stable across reload.
 
 ## Native Villager profession-role spot-check
 
@@ -177,12 +192,13 @@ Retain:
 - one screenshot of the provider quest LIST at normal GUI scale;
 - one screenshot of the selected offer with Accept/Decline visible;
 - one screenshot with `[DEV] DIALOGUE SCROLL END.` visible;
+- one screenshot of the completed provider follow-up with only the Back action available;
 - one screenshot of the native Farmer profession fixture being offered without an explicit role tag;
 - one screenshot at the adjacent/narrower GUI configuration if its composition differs materially;
 - any visual clipping, text collision, packet rejection, or quest-load error.
 
 ## Acceptance criteria
 
-The provider visual foundation itself is already accepted. This protocol now serves as the remaining runtime robustness procedure for provider persistence, same-provider turn-in, narrative gating, distance lifecycle, and native Villager profession-role matching.
+The provider visual foundation itself is already accepted. This protocol now serves as the remaining runtime robustness procedure for provider persistence, same-provider turn-in, provider-specific completed dialogue, narrative gating, distance lifecycle, and native Villager profession-role matching.
 
 A failure in one of those robustness checks blocks promotion of that specific behavior to runtime-validated status, but does not by itself reopen the accepted parchment visual foundation.
