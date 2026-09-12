@@ -1,0 +1,32 @@
+{
+  "title": "The First Horde",
+  "description": "Forge the Master's Staff and restore the Brown Minions to the Overlord's service. The staff is the first practical instrument of renewed Minion command; the Brown Hive returns with its tribe rather than being physically retrieved.",
+  "description_completed": "The Master's Staff has been forged. The Brown Minions and their Hive have returned to the Overlord's service.",
+  "icon": {
+    "item": "minionsremastered:masters_staff"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 10,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/a_new_master",
+      "required_amount": 1,
+      "name": "Begin the new reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft",
+      "item": "minionsremastered:masters_staff",
+      "required_amount": 1,
+      "name": "Forge the Master's Staff"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
