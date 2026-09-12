@@ -19,7 +19,8 @@
     "campaign/civilizations/sea_dwellers/first_contact.json",
     "campaign/civilizations/sea_dwellers/aquamarine_barter.json",
     "campaign/civilizations/dwarves/first_contact.json",
-    "campaign/civilizations/umvuthana/first_contact.json"
+    "campaign/civilizations/umvuthana/first_contact.json",
+    "campaign/civilizations/umvuthana/suns_blessing.json"
   ],
   "chapters": [
     "main.json"
