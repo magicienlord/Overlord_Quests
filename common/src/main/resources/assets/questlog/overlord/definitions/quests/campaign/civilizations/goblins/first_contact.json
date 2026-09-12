@@ -21,7 +21,6 @@
     ],
     "dialogue": {
       "offer": "Big boss comes to Goblin camp. Good. Goblins have ears, knives, and business. Mostly knives. You want to know this camp, you talk to me.",
-      "in_progress": "Still thinking? Goblins do not usually wait this long unless something is on fire.",
       "ready_to_turn_in": "There. You listened. Now you know who speaks for this camp, and I know the new Overlord can hear words as well as screaming.",
       "completed": "This camp remembers you, big boss. That can be useful. Or expensive. Usually both."
     },
@@ -36,13 +35,7 @@
       "name": "Establish the first foundation of the reign"
     }
   ],
-  "objectives": [
-    {
-      "type": "questlog:read",
-      "required_amount": 1,
-      "name": "Consider the Goblin leader's position"
-    }
-  ],
+  "objectives": [],
   "rewards": [
     {
       "type": "questlog:set_fact",
