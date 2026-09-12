@@ -131,6 +131,7 @@ def collect_errors() -> list[str]:
             "OverlordPresentationTheme.renderHeaderSeparator",
             "laneLeft",
             "laneRight",
+            "this.panelY + (this.panelHeight - drawHeight) / 2",
         )
         for token in required_speaker_tokens:
             if token not in speaker_screen:
@@ -153,6 +154,10 @@ def collect_errors() -> list[str]:
             errors.append("QuestProviderScreen.java: shared Questlog parchment/button visual language is missing")
         if "OverlordPresentationTheme" not in provider or "renderHeaderSeparator" not in provider:
             errors.append("QuestProviderScreen.java: provider surface is not using shared OVERLORD presentation tokens")
+        if "drawCenteredNoShadow" not in provider or "drawCenteredString(" in provider:
+            errors.append("QuestProviderScreen.java: provider text must use the no-shadow centered renderer")
+        if "DIALOGUE_SCROLL_CONTROL_BAND" not in provider or "availableBand" not in provider:
+            errors.append("QuestProviderScreen.java: dialogue scroll controls are not centered in their reserved band")
     except OSError as exc:
         errors.append(f"QuestProviderScreen.java: unreadable: {exc}")
 
