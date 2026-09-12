@@ -47,7 +47,7 @@ jobs:
           EOF
 
       - name: Prepare Forge server run and runtime classpath
-        run: ./gradlew :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
+        run: ./gradlew :common:createMinecraftArtifacts :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
 
       - name: Boot Forge dedicated server
         id: server
