@@ -37,6 +37,8 @@ When writing or implementing campaign content, use this order:
 
 Implementation inference may choose how to represent an established requirement. It may not decide an unresolved historical, geographical, character, or faction fact merely because the engine needs a value.
 
+When an older project mirror conflicts with a newer explicit decision in `Overlord_Lore_and_Canon`, the newer decision is authoritative for quest implementation. Older mirrors are not silently treated as equal competing canon once the newer decision has superseded them.
+
 ## Four-layer quest model
 
 Campaign quests should preserve the source-derived separation between:
@@ -136,6 +138,27 @@ Quest-critical NPC anchors that must survive until an authored transition may us
 When the death of a specific authored anchor is itself meaningful campaign state, use `questlog:entity_died` with that anchor's unique identity tag. Do not repurpose the inherited `questlog:entity_death` objective, because its historical meaning is that the player died to the matching entity. `entity_died` is event-driven, so the relevant quest or persistent tracking state must be active before a legitimate kill window opens unless another surviving signal records an earlier death. See `docs/ENTITY_DEATH_TRACKING.md`.
 
 Exact coordinates remain a world-integration concern unless the lore authority has explicitly established them.
+
+## Current civilization authority
+
+The current generalized disposition roster contains ten civilizations:
+
+1. Villagers
+2. Illagers
+3. Dwarves
+4. Gnumus
+5. Goblins
+6. Kobolds
+7. Ribbits
+8. Sea Dwellers
+9. Piglins
+10. Umvuthana
+
+This roster follows the newer `Overlord_Lore_and_Canon` civilization decision set, especially `reference/16_CIVILIZATION_QUEST_ANCHORS.md` and the civilization-specific decision files.
+
+Demons are explicitly excluded from the generalized civilization disposition roster. They may still receive encounters, local quests, lore, and Netherworld subplots, but Questlog must not treat them as an eleventh peer disposition civilization unless a later explicit lore decision changes that rule.
+
+Civilization anchors are authored by stable identity and quest function before final world placement. Exact coordinates and terrain integration may therefore remain UNKNOWN while production quest definitions use narrow authored scoreboard tags to identify the designated anchor population or NPC. Final world integration may later replace or supplement those tags with stable location bounds without changing the underlying political scope.
 
 ## Campaign concurrency
 
