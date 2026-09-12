@@ -1,0 +1,52 @@
+{
+  "title": "Gnumu Business",
+  "description": "Formal contact with the settlement is one thing; understanding what its merchants actually value is another. Trade with a Gnumu Merchant using their own Doubloons, then return to the principal settlement's trader.",
+  "description_completed": "The Overlord has completed a native Gnumu trade using the settlement's own currency and seen its local commerce firsthand.",
+  "icon": {
+    "item": "gnumus:gnumus_doubloons"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 111,
+  "provider": {
+    "entity_types": [
+      "gnumus:gnumus_merchant"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:gnumu_main_merchant"
+    ],
+    "civilization": "overlord_reign:gnumus",
+    "required_facts": [
+      "overlord_reign:civilizations/gnumus/contact_established"
+    ],
+    "dialogue": {
+      "offer": "The Elder may judge rulers. I judge customers. Bring Doubloons to a Gnumu Merchant and make a proper trade. Then we can discuss whether the dark tower understands business.",
+      "in_progress": "No trade yet? Titles are impressive, but Doubloons are easier to count.",
+      "ready_to_turn_in": "Good. You used our money and completed a proper bargain. That is a language merchants understand.",
+      "completed": "If you have Doubloons, there will usually be a Gnumu willing to discuss where they should go."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/gnumus/contact_established",
+      "required_amount": 1,
+      "name": "Establish formal contact with the principal Gnumu settlement"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "gnumus:business_approach",
+      "required_amount": 1,
+      "name": "Trade with a Gnumu Merchant using Gnumus Doubloons"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
