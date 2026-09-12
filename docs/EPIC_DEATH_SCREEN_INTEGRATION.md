@@ -1,6 +1,6 @@
 # Epic Death Screen integration
 
-Status: MECHANICAL SCAFFOLD IMPLEMENTED / OVERLORD VISUAL PASS PLANNED
+Status: MECHANICS IMPLEMENTED / RESTRAINED OVERLORD VISUAL PASS IMPLEMENTED / DIRECT VISUAL ACCEPTANCE PENDING
 
 This document records the approved integration boundary for the Epic Death Screen mechanics inside OVERLORD QUESTS. It does not establish OVERLORD REIGN story canon.
 
@@ -12,7 +12,7 @@ The inspected reference code is MIT licensed, Copyright (c) 2026 Litewer. Its or
 
 ## Implemented mechanical boundary
 
-The current OVERLORD QUESTS death flow preserves the useful mechanical behavior of the reference implementation while keeping presentation neutral:
+The current OVERLORD QUESTS death flow preserves the useful mechanical behavior of the reference implementation while keeping story authority outside the screen:
 
 - replace the exact vanilla death screen without indiscriminately replacing another mod's custom death UI;
 - bounded cinematic delay before respawn controls become available;
@@ -24,7 +24,7 @@ The current OVERLORD QUESTS death flow preserves the useful mechanical behavior 
 - actual Minecraft cause-of-death text;
 - configuration through OVERLORD QUESTS rather than a second standalone mod/config surface.
 
-The mechanical scaffold is integrated in the Forge runtime and covered by normal build/JAR validation. This does not approve the current neutral visual composition as the final OVERLORD REIGN death screen.
+The mechanical layer remains unchanged by the visual pass.
 
 ## Explicitly rejected presentation from the reference
 
@@ -41,16 +41,39 @@ Do not integrate as production presentation:
 - cassette/tape audio cues;
 - the reference mod's stock humorous death phrases as OVERLORD narrative text.
 
-No Epic Death Screen audio assets are required for the OVERLORD QUESTS implementation at this stage. CI contains a theme-boundary validator specifically to prevent the rejected VHS/cassette treatment from being reintroduced accidentally.
+No Epic Death Screen audio assets are required for the OVERLORD QUESTS implementation. CI contains a theme-boundary validator specifically to prevent the rejected VHS/cassette treatment from being reintroduced accidentally.
 
-## Current visual boundary
+## Implemented visual boundary
 
-IMPLEMENTATION currently uses a deliberately neutral scaffold while the mechanics are stabilized: dark background, actual Minecraft cause-of-death text, and ordinary controls. That scaffold is not a final design.
+IMPLEMENTATION now replaces the original plain black scaffold with a restrained code-rendered OVERLORD composition while preserving the accepted mechanical base.
 
-The final death-screen visual language remains PLANNED and requires a dedicated OVERLORD visual pass. Until that pass is explicitly approved, temporary visuals must not invent lore, faction imagery, quotations, Gnarl dialogue, or other story content.
+The pass uses:
 
-The visual pass may replace the neutral scaffold without changing the proven timing, skip, respawn, hardcore, compatibility, and lifecycle mechanics underneath it.
+- a near-black background;
+- a bounded central charcoal death panel;
+- thin recessed frame lines;
+- restrained dark-red accent bars and divider treatment;
+- the vanilla localized death-screen title;
+- the actual Minecraft cause-of-death text;
+- the inherited ordinary death controls after the configured scene delay.
+
+The pass deliberately adds no custom story copy, quotation, Gnarl dialogue, faction emblem, character art, lore symbol, audio, animation, or external texture dependency. `OverlordDeathScreen` does not use `Component.literal(...)`, which keeps authored death copy out of this presentation layer.
+
+The central panel width is clamped for narrow screens, and cause-of-death wrapping is derived from the same panel geometry so the text and frame cannot drift into separate layout systems.
+
+This visual pass is IMPLEMENTED but not yet promoted to an accepted final visual baseline. Direct in-game review remains the DESIGN acceptance boundary.
+
+## Static contract
+
+`tools/validate_overlord_death_screen.py` now guards both sides of the presentation boundary:
+
+- rejected VHS and cassette implementation remains absent;
+- the restrained frame, dark-red accent, localized vanilla title, actual cause text, and delayed-control contract remain present;
+- authored narrative copy through `Component.literal(...)` is rejected in the death screen;
+- the existing ending-screen presentation boundary continues to run from the same validator.
 
 ## Regression requirement
 
 The death-screen integration is client-side presentation/control flow and must not alter Questlog quest progression, Gnarl popup behavior, persistent provider bindings, narrative disposition state, rewards, or save compatibility.
+
+Any future visual revision must preserve the validated timing, skip, respawn, hardcore, compatibility, and lifecycle mechanics underneath it.
