@@ -110,6 +110,12 @@ public final class QuestProviderService {
         }
 
         OverlordNarrativeState narrative = OverlordNarrativeState.get(player.server);
+        for (ResourceLocation fact : rule.requiredFacts()) {
+            if (!narrative.hasFact(fact)) return false;
+        }
+        for (ResourceLocation fact : rule.forbiddenFacts()) {
+            if (narrative.hasFact(fact)) return false;
+        }
         for (Map.Entry<ResourceLocation, Set<ResourceLocation>> requirement : rule.requiredDispositions().entrySet()) {
             if (!requirement.getValue().contains(narrative.getDisposition(requirement.getKey()))) {
                 return false;
