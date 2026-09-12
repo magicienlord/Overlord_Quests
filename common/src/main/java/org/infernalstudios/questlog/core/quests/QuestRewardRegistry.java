@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.core.quests.rewards.*;
+import org.infernalstudios.questlog.overlord.minions.UnlockMinionReward;
 import org.infernalstudios.questlog.overlord.narrative.SetDispositionReward;
 import org.infernalstudios.questlog.overlord.narrative.SetFactReward;
 import org.infernalstudios.questlog.util.JsonUtils;
@@ -33,6 +34,8 @@ public class QuestRewardRegistry {
                 new EditorMetadata("civilization", "Civilization ID:", null));
         register(new ResourceLocation("questlog", "set_fact"), SetFactReward::new,
                 new EditorMetadata("fact", "Narrative Fact ID:", null));
+        register(new ResourceLocation("questlog", "unlock_minion"), UnlockMinionReward::new,
+                new EditorMetadata("slot", "Minion Slot:", null));
     }
 
     public static Set<ResourceLocation> getRegisteredTypes() {
