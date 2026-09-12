@@ -14,6 +14,7 @@ import org.infernalstudios.questlog.core.quests.objectives.logic.NotObjective;
 import org.infernalstudios.questlog.core.quests.objectives.logic.OrObjective;
 import org.infernalstudios.questlog.core.quests.objectives.misc.*;
 import org.infernalstudios.questlog.overlord.narrative.DispositionObjective;
+import org.infernalstudios.questlog.overlord.narrative.FactObjective;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.util.HashMap;
@@ -97,6 +98,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata(null, null, "required_amount"));
         register(new ResourceLocation("questlog", "disposition"), DispositionObjective::new,
                 new EditorMetadata("civilization", "Civilization ID:", null));
+        register(new ResourceLocation("questlog", "fact"), FactObjective::new,
+                new EditorMetadata("fact", "Narrative Fact ID:", null));
 
         // Origins
         register(new ResourceLocation("questlog", "origin"), OriginObjective::new,
