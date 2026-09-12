@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 import validate_optional_objectives as optional_contract
 import validate_overlord_quest_examples_core as core
+import validate_presentation_contracts as presentation_contract
 
 core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:disposition",
@@ -245,7 +246,12 @@ def main() -> int:
     core_result = core.main()
     if core_result != 0:
         return core_result
-    return optional_contract.main()
+
+    optional_result = optional_contract.main()
+    if optional_result != 0:
+        return optional_result
+
+    return presentation_contract.main()
 
 
 if __name__ == "__main__":
