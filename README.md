@@ -6,18 +6,18 @@ The project begins from Infernal Studios' **Questlog 3.3.3** source baseline and
 
 ## Current status
 
-**Foundation A is complete. Production campaign content is deliberately blocked behind the current visual-foundation gate.**
+**Foundation A is complete. The visual-foundation gate is closed and production campaign authoring may now proceed from the lore/source authority.**
 
-The first Gnarl runtime pass proved popup delivery, the READ interaction, quest transition, completion flow, and queue lifecycle, but direct visual review exposed two presentation defects: the portrait intruded into the parchment and its low-alpha edge carried a visible coloured matte. The active branch now replaces that composition with a dedicated right-side incorporeal-speaker lane and an opt-in runtime alpha-fringe cleanup. Direct in-game acceptance of the new layout remains pending.
+The first Gnarl runtime pass proved popup delivery, the READ interaction, quest transition, completion flow, and queue lifecycle. Direct visual review then established the parchment-dominant composition, dedicated right-side reaction lane, and shared provider visual language as a solid base. The review requested three final refinements: vertically center the incorporeal portrait against the parchment body, remove the doubled-looking provider text caused by the active font/resource stack, and move dialogue Up/Down controls into the middle of the available lower parchment whitespace. Those corrections are implemented and structurally guarded. The Overlord explicitly waived an additional visual regression pass once those requested changes were confirmed implemented.
 
-The visual foundation also separates two NPC presentation systems:
+The visual foundation separates two NPC presentation systems:
 
 - **Questlog incorporeal speakers** use the dedicated parchment + right-side reaction lane. Their semantic reaction vocabulary is locked to `neutral`, `directive`, `mocking`, `approving`, and `severe`. Action controls stay beneath parchment.
 - **In-world providers** use the Villager-Retaliation-derived server-authoritative provider framework. They do not receive reaction portraits. Their screen has been restyled into the same parchment/separator/button family so both surfaces belong to OVERLORD QUESTS without becoming the same interface.
 
 Reaction art does not need to exist for every future incorporeal speaker before campaign authoring. Definitions store `speaker_id` and `speaker_reaction`; the renderer resolves a speaker-specific reaction asset when available, falls back to that speaker's neutral asset, then to the entry's explicit development/legacy portrait. Concrete visual rosters are requested only when the hidden campaign actually establishes that a speaker is needed.
 
-The Forge project builds on Java 17 against Forge 47.4.10, passes repository validators, survives the reobfuscation stage, passes assembled-JAR smoke checks, and produces dedicated validation kits through GitHub Actions.
+The Forge project builds on Java 17 against Forge 47.4.10, passes repository validators, survives the reobfuscation stage, passes assembled-JAR smoke checks, and produces dedicated validation kits through GitHub Actions. Run 376 completed successfully after an unchanged retry of a transient NeoForged Maven HTTP 502 dependency-resolution failure.
 
 Additional implementation surfaces on the active branch include:
 
@@ -27,7 +27,7 @@ Additional implementation surfaces on the active branch include:
 - explicit world-scoped narrative facts for sparse historical state and provider gating rather than a hidden morality/reputation score;
 - retrospective exact-entity kill tracking for sequence-break-safe campaign hooks where Minecraft's persistent statistics provide reliable surviving evidence.
 
-Direct full-modpack runtime testing has validated provider discovery, offer presentation, long-dialogue scrolling through its terminal sentinel, explicit acceptance, transition to authored in-progress provider dialogue, and the basic death-screen replacement path. The visual rewrite now requires a focused regression pass before the presentation gate can close.
+Direct full-modpack runtime testing has validated provider discovery, offer presentation, long-dialogue scrolling through its terminal sentinel, explicit acceptance, transition to authored in-progress provider dialogue, the shared visual baseline for Gnarl/provider presentation, and the basic death-screen replacement path.
 
 The provider engine renders only dialogue explicitly authored in quest definitions and does not generate story speech. No canonical civilization IDs, quest text, faction outcomes, or death-screen lore are invented by these technical systems.
 
@@ -61,7 +61,7 @@ GitHub Actions self-tests the definition validators, provider/narrative/presenta
 
 The fork keeps Questlog's underlying quest state machine, objectives, rewards, synchronization, editor, and JSON format. Work is concentrated on OVERLORD REIGN presentation, Gnarl-facing quest delivery, packaged project content, and modpack-specific integrations.
 
-Bundled definition support is implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest is intentionally empty while the visual foundation is still under acceptance and before production campaign content begins.
+Bundled definition support is implemented: approved quest and chapter definitions may ship inside the mod JAR, while `config/questlog/` files remain higher-priority overrides. The bundled manifest remains intentionally empty until the first production campaign slice is authored from the lore/source authority.
 
 The repository validator checks the source-defined built-in objective and reward surface, recursive logic/choice structures, registry-tag matchers, specialized runtime-required fields, provider/disposition/narrative-fact extensions, authored provider dialogue/location fields, optional-objective placement and runtime semantics, speaker/reaction presentation boundaries, and bundled-content boundaries. Definition loading and packet handling enforce the same synchronization-size contract so an oversized external definition cannot load successfully and fail only when a player sync occurs.
 
@@ -75,6 +75,6 @@ Inherited upstream CurseForge, Modrinth, and external wiki publication tooling h
 
 `magicienlord/Overlord_Lore_and_Canon` is the read-only design/source authority. `magicienlord/Overlord_Quests` is the implementation authority.
 
-Story text, quest progression, rewards, canonical disposition states, and world-specific objectives are not invented from implementation convenience. Once the visual foundation is accepted, production campaign work may proceed from the lore/source authority behind the spoiler firewall without asking for routine approvals.
+Story text, quest progression, rewards, canonical disposition states, and world-specific objectives are not invented from implementation convenience. With the visual foundation accepted, production campaign work may proceed from the lore/source authority behind the spoiler firewall without asking for routine approvals. Questions are reserved for genuinely unresolved decisions that materially affect lore, player experience, or technical feasibility.
 
 See `docs/PRESENTATION_SYSTEM.md` for the locked presentation split and reaction contract, `docs/CAMPAIGN_AUTHORING_CONTRACT.md` for authority/spoiler rules, `docs/GNARL_POPUP_VERTICAL_SLICE.md` and `docs/FOUNDATION_B_TEST_PROTOCOL.md` for the speaker visual slice, `docs/NPC_PROVIDER_SYSTEM.md` and `docs/NPC_PROVIDER_TEST_PROTOCOL.md` for the provider system, `docs/EPIC_DEATH_SCREEN_INTEGRATION.md` and `docs/DEATH_SCREEN_TEST_PROTOCOL.md` for death-screen integration, `docs/OPTIONAL_OBJECTIVES.md` and `docs/NARRATIVE_FACTS.md` for state authoring, `docs/QUEST_ENGINE_CAPABILITY_AUDIT.md` for source-derived engine findings, and `UPSTREAM_BASELINE.md` for provenance.
