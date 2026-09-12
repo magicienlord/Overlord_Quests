@@ -16,6 +16,7 @@ BUNDLED = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions
 OPENING_QUESTS = BUNDLED / "quests/campaign/opening"
 TOWER_QUESTS = BUNDLED / "quests/campaign/tower"
 EXPANSION_QUESTS = BUNDLED / "quests/campaign/expansion"
+CIVILIZATION_QUESTS = BUNDLED / "quests/campaign/civilizations"
 INDEX = BUNDLED / "index.json"
 
 OPENING = OPENING_QUESTS / "a_new_master.json"
@@ -26,6 +27,7 @@ DIRECT_REACTION = OPENING_QUESTS / "direct_action_reaction.json"
 FORGE = TOWER_QUESTS / "prepare_the_forge.json"
 FORGE_REACTION = TOWER_QUESTS / "forge_prepared_reaction.json"
 INITIAL_FOUNDATION = EXPANSION_QUESTS / "the_reign_takes_shape.json"
+GOBLIN_CONTACT = CIVILIZATION_QUESTS / "goblins/first_contact.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
@@ -37,6 +39,10 @@ FORGE_REACTION_ID = "questlog:campaign/tower/forge_prepared_reaction"
 STAFF_ID = "minionsremastered:masters_staff"
 FORGE_FACT = "overlord_reign:tower/forge_prepared"
 INITIAL_FOUNDATION_FACT = "overlord_reign:reign/initial_foundation_established"
+GOBLIN_ENTITY = "goblins_tyranny:leader_goblin"
+GOBLIN_ANCHOR_TAG = "overlord_anchor:goblin_main"
+GOBLIN_CIVILIZATION = "overlord_reign:goblins"
+GOBLIN_CONTACT_FACT = "overlord_reign:civilizations/goblins/contact_established"
 
 
 def load(path: Path, errors: list[str]) -> dict[str, Any]:
@@ -88,6 +94,7 @@ def collect_errors() -> list[str]:
     forge = load(FORGE, errors)
     forge_reaction = load(FORGE_REACTION, errors)
     initial_foundation = load(INITIAL_FOUNDATION, errors)
+    goblin_contact = load(GOBLIN_CONTACT, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -100,9 +107,10 @@ def collect_errors() -> list[str]:
         "campaign/tower/prepare_the_forge.json",
         "campaign/tower/forge_prepared_reaction.json",
         "campaign/expansion/the_reign_takes_shape.json",
+        "campaign/civilizations/goblins/first_contact.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
-        errors.append("bundled definition index is missing one or more first-slice campaign definitions")
+        errors.append("bundled definition index is missing one or more guarded production campaign definitions")
 
     if opening.get("show_popup_on_unlock") is not True:
         errors.append("opening campaign entry must remain an automatic speaker popup")
@@ -260,24 +268,81 @@ def collect_errors() -> list[str]:
     if initial_foundation.get("include_in_main") is not True:
         errors.append("initial-foundation convergence must remain part of the main campaign")
 
+    provider = goblin_contact.get("provider")
+    if not isinstance(provider, dict):
+        errors.append("Goblin first contact must remain provider-bound to the designated anchor leader")
+    else:
+        if provider.get("entity_types") != [GOBLIN_ENTITY]:
+            errors.append("Goblin first contact must target only the source-backed leader_goblin entity")
+        if provider.get("scoreboard_tags") != [GOBLIN_ANCHOR_TAG]:
+            errors.append("Goblin first contact must remain scoped to the designated principal Goblin Camp anchor")
+        if provider.get("civilization") != GOBLIN_CIVILIZATION:
+            errors.append("Goblin first contact civilization identity changed unexpectedly")
+        if provider.get("required_facts") != [INITIAL_FOUNDATION_FACT]:
+            errors.append("Goblin first contact must remain gated behind the semi-open campaign foundation")
+        if provider.get("lock_to_provider") is not True or provider.get("turn_in") != "same_provider":
+            errors.append("Goblin first contact must remain bound to the exact designated Goblin leader")
+
+    goblin_prerequisites = goblin_contact.get("prerequisites", [])
+    if not isinstance(goblin_prerequisites, list) or len(goblin_prerequisites) != 1:
+        errors.append("Goblin first contact must retain one initial-foundation prerequisite")
+    else:
+        prerequisite = goblin_prerequisites[0]
+        if not isinstance(prerequisite, dict) or not (
+            prerequisite.get("type") == "questlog:fact"
+            and prerequisite.get("fact") == INITIAL_FOUNDATION_FACT
+            and prerequisite.get("required_amount") == 1
+        ):
+            errors.append("Goblin first contact must remain gated by the established reign foundation fact")
+
+    goblin_objectives = goblin_contact.get("objectives", [])
+    if not isinstance(goblin_objectives, list) or len(goblin_objectives) != 1:
+        errors.append("Goblin first contact must retain one bounded provider interaction objective")
+    else:
+        objective = goblin_objectives[0]
+        if not isinstance(objective, dict) or not (
+            objective.get("type") == "questlog:read"
+            and objective.get("required_amount") == 1
+        ):
+            errors.append("Goblin first contact must remain an explicit interaction/read milestone")
+
+    goblin_rewards = goblin_contact.get("rewards", [])
+    if not isinstance(goblin_rewards, list) or len(goblin_rewards) != 1:
+        errors.append("Goblin first contact must write exactly one contact-history fact")
+    else:
+        reward = goblin_rewards[0]
+        if not isinstance(reward, dict) or not (
+            reward.get("type") == "questlog:set_fact"
+            and reward.get("fact") == GOBLIN_CONTACT_FACT
+            and reward.get("auto_claim") is True
+        ):
+            errors.append("Goblin first contact must persist the designated-camp contact fact")
+
+    goblin_serialized = json.dumps(goblin_contact, sort_keys=True)
+    if "questlog:set_disposition" in goblin_serialized or "required_dispositions" in goblin_serialized:
+        errors.append("Goblin first contact must not prematurely resolve or require a Goblin political disposition")
+    if goblin_contact.get("show_popup_on_unlock") is not False:
+        errors.append("Goblin first contact must remain an in-world provider interaction rather than a remote popup")
+
     return errors
 
 
 def main() -> int:
     errors = collect_errors()
     if errors:
-        print(f"Opening campaign contract validation failed with {len(errors)} error(s):", file=sys.stderr)
+        print(f"Production campaign contract validation failed with {len(errors)} error(s):", file=sys.stderr)
         for error in errors:
             print(f"  * {error}", file=sys.stderr)
         return 1
 
-    print("OVERLORD opening campaign contracts: PASS")
+    print("OVERLORD production campaign contracts: PASS")
     print("opening concurrency: preserved")
     print("Gnarl lifecycle reactions: preserved for both opening directions and first Tower restoration")
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
     print("early-recovery convergence: Brown recovery plus first Tower restoration records the semi-open campaign foundation")
+    print("first civilization anchor: designated Goblin leader contact only, no disposition resolution")
     return 0
 
 
