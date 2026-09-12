@@ -36,7 +36,7 @@ Acceptance:
 
 1. Start from the opening state with the Brown recovery branch available.
 2. Craft `minionsremastered:masters_staff` through the normal Minions Remastered recipe.
-3. Confirm Minions Remastered performs its own Brown slot `0` bootstrap behavior.
+3. Confirm Minions Remastered performs its own Brown slot `0` bootstrap behavior in the target progression fork.
 4. Confirm OVERLORD QUESTS recognizes the craft and advances the Brown recovery branch.
 5. Confirm the follow-up Gnarl reaction is delivered once.
 
@@ -46,6 +46,8 @@ Acceptance:
 - no physical-hive transport objective appears;
 - the recovery branch completes from the real craft event/statistic;
 - the follow-up presentation does not duplicate on normal reload.
+
+The currently installed upstream Minions Remastered 0.3.0 does not itself expose the planned four-type unlock model. Use the target progression fork for the capability-authority check, or record that sub-check as blocked rather than interpreting the existing four live-Minion UUID positions as type slots. See `docs/MINIONS_REMASTERED_RUNTIME_AUDIT.md`.
 
 ## C. Brown sequence-break recognition
 
@@ -81,19 +83,22 @@ Acceptance:
 1. Complete either accepted opening direction far enough to expose the first Tower infrastructure quest.
 2. Progress Hot Iron normally until the installed `hot_iron:local_smithery` advancement is complete.
 3. Confirm the Tower infrastructure quest recognizes the native advancement, including when that advancement was completed before the quest became active.
-4. Query the persistent narrative state:
+4. Confirm the authored Gnarl completion reaction is delivered once after the Tower milestone resolves.
+5. Query the persistent narrative state:
 
 ```text
 /questlog narrative fact get overlord_reign:tower/forge_prepared
 ```
 
-5. Confirm the fact is present after quest completion.
-6. Save, exit, reload, and query it again.
+6. Confirm the fact is present after quest completion.
+7. Save, exit, reload, and query it again.
+8. Confirm the already-acknowledged completion reaction does not replay unexpectedly after reload.
 
 Acceptance:
 
 - native Hot Iron progression remains authoritative;
 - the quest does not substitute a parallel fake smithing progression;
+- the corresponding Gnarl lifecycle reaction is delivered exactly once during ordinary progression;
 - `overlord_reign:tower/forge_prepared` is set automatically and survives reload;
 - the fact does not claim that fixed-coordinate workstation placement or later forge upgrades are already complete.
 
