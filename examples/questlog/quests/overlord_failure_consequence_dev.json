@@ -1,0 +1,34 @@
+{
+  "title": "[DEV] Failure Consequence Prototype",
+  "description": "[DEV] This is not an OVERLORD REIGN story quest. It validates that an active quest failure can write one explicit persistent consequence without a success or claim flow.",
+  "description_completed": "[DEV] The success path is not the target of this fixture.",
+  "chapter": "main",
+  "include_in_main": false,
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "[DEV] Optional success control"
+    }
+  ],
+  "failures": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:barrier",
+      "required_amount": 1,
+      "name": "[DEV] Obtain the failure trigger"
+    }
+  ],
+  "rewards": [],
+  "failure_rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "questlog:dev_failure_consequence",
+      "auto_claim": true
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "hide_when_completed": false
+}
