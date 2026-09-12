@@ -1,0 +1,51 @@
+{
+  "title": "The Ribbit Village",
+  "description": "A designated Ribbit Village has an Elder willing to receive you. The local Gardener seems an unlikely courtier, but this is the voice the village has chosen to put before the Overlord.",
+  "description_completed": "Formal contact has been established with the designated Ribbit Village. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:lily_pad"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 120,
+  "provider": {
+    "entity_types": [
+      "ribbits:ribbit"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:ribbit_main_elder"
+    ],
+    "role": "ribbits:gardener",
+    "civilization": "overlord_reign:ribbits",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "Oh! You must be the new ruler from the dark tower. I am the Elder here, when I am not tending the gardens. If you have come to speak with our village, then you may speak with me.",
+      "ready_to_turn_in": "There. We have met properly now. That is usually better than meeting improperly, I think.",
+      "completed": "You are still welcome to speak with us. Preferably without setting the garden on fire."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/ribbits/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Ribbit Village"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
