@@ -1,0 +1,35 @@
+{
+  "title": "[DEV] Villager Profession Provider",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest validates native Villager profession matching through the provider role field without requiring an overlord_role scoreboard tag. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:wheat"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "provider": {
+    "entity_types": [
+      "minecraft:villager"
+    ],
+    "role": "minecraft:farmer",
+    "dialogue": {
+      "offer": "[DEV] This offer must appear on an eligible Farmer Villager without a manual provider-role tag.",
+      "in_progress": "[DEV] Native profession matching remains active for this accepted quest.",
+      "ready_to_turn_in": "[DEV] Return to the same Farmer Villager to close the profession-role test."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:wheat_seeds",
+      "required_amount": 1,
+      "name": "[DEV] Obtain wheat seeds"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
