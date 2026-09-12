@@ -4,11 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.npc.Villager;
 import org.infernalstudios.questlog.Questlog;
 
 import javax.annotation.Nullable;
@@ -23,7 +25,7 @@ import java.util.Set;
  *
  * The rule is intentionally generic. Civilization is narrative metadata, while
  * concrete provider eligibility is expressed through entity ids/tags, optional
- * role tags, dimensions, authored location bounds, quest completion markers,
+ * roles, dimensions, authored location bounds, quest completion markers,
  * explicit narrative facts, and authored disposition requirements.
  */
 public final class QuestProviderRule {
@@ -168,7 +170,7 @@ public final class QuestProviderRule {
     public boolean matchesEntity(Entity entity) {
         if (entity == null) return false;
 
-        ResourceLocation entityId = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         boolean typeMatches = this.entityTypes.contains(entityId);
         if (!typeMatches) {
             for (ResourceLocation tagId : this.entityTypeTags) {
@@ -190,7 +192,29 @@ public final class QuestProviderRule {
         if (!entity.getTags().containsAll(this.scoreboardTags)) {
             return false;
         }
-        return this.role.isEmpty() || entity.getTags().contains("overlord_role:" + this.role);
+        return this.matchesRole(entity);
+    }
+
+    /**
+     * Logical provider roles remain compatible with the existing explicit
+     * `overlord_role:<role>` scoreboard-tag bridge. Vanilla and modded Villagers
+     * additionally expose their registered profession directly as a native role,
+     * allowing profession-authored sidequests without per-entity tag setup.
+     *
+     * Namespaced profession IDs are preferred for production definitions. A bare
+     * role still matches the profession path for compatibility with existing
+     * simple role strings.
+     */
+    private boolean matchesRole(Entity entity) {
+        if (this.role.isEmpty()) return true;
+        if (entity.getTags().contains("overlord_role:" + this.role)) return true;
+        if (!(entity instanceof Villager villager)) return false;
+
+        ResourceLocation professionId = BuiltInRegistries.VILLAGER_PROFESSION.getKey(
+                villager.getVillagerData().getProfession()
+        );
+        if (professionId == null) return false;
+        return professionId.toString().equals(this.role) || professionId.getPath().equals(this.role);
     }
 
     @Nullable public ResourceLocation pool() { return this.pool; }
