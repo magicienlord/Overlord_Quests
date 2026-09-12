@@ -1,0 +1,42 @@
+{
+  "title": "[DEV] Theurgy Native Progression",
+  "description": "DEVELOPMENT CONTENT ONLY. Validates retrospective observation of native Theurgy advancement milestones and a persistent crafted-apparatus statistic. It establishes no OVERLORD REIGN story role for Theurgy.",
+  "icon": {
+    "item": "theurgy:liquefaction_cauldron"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "prerequisites": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain a debug stick only after the Theurgy milestones are complete"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "theurgy:has_basic_rod",
+      "required_amount": 1,
+      "name": "[DEV] Native basic-rod advancement"
+    },
+    {
+      "type": "questlog:advancement",
+      "advancement": "theurgy:has_liquefaction_cauldron",
+      "required_amount": 1,
+      "name": "[DEV] Native liquefaction-cauldron advancement"
+    },
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "theurgy:fermentation_vat",
+      "required_amount": 1,
+      "name": "[DEV] Historical Fermentation Vat craft"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
