@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.QuestlogClientEvents;
 import org.infernalstudios.questlog.client.gui.QuestlogGuiSet;
+import org.infernalstudios.questlog.client.gui.SpeakerPortraitTextures;
 import org.infernalstudios.questlog.client.gui.components.QuestlogButton;
 import org.infernalstudios.questlog.client.gui.components.ScrollableComponent;
 import org.infernalstudios.questlog.client.gui.components.scrollable.ScrollableText;
@@ -29,6 +30,7 @@ public final class OverlordSpeakerScreen extends Screen {
     private static final int SPEAKER_GAP = 10;
     private static final int MIN_PANEL_WIDTH = 220;
     private static final int MIN_SPEAKER_WIDTH = 72;
+    private static final int MIN_PANEL_HEIGHT = 110;
     private static final int TITLE_Y = 13;
     private static final int TITLE_WIDTH = 180;
     private static final int TITLE_HEIGHT = 16;
@@ -67,7 +69,8 @@ public final class OverlordSpeakerScreen extends Screen {
         SpeakerPresentation speaker = display.getSpeakerPresentation();
         int requestedSpeakerWidth = speaker == null ? 0 : speaker.paneWidth();
 
-        this.panelHeight = Math.min(display.getPanelHeight(), Math.max(140, this.height - 54));
+        int availablePanelHeight = Math.max(MIN_PANEL_HEIGHT, this.height - 54);
+        this.panelHeight = Math.max(MIN_PANEL_HEIGHT, Math.min(display.getPanelHeight(), availablePanelHeight));
         this.speakerWidth = requestedSpeakerWidth;
 
         int desiredPanelWidth = display.getLeftPanelWidth();
@@ -179,11 +182,12 @@ public final class OverlordSpeakerScreen extends Screen {
     private void renderSpeaker(GuiGraphics graphics) {
         QuestDisplayData display = this.quest.getDisplay();
         SpeakerPresentation speaker = display.getSpeakerPresentation();
-        ResourceLocation texture = display.getOverlayTexture();
-        if (speaker == null || texture == null || this.speakerWidth <= 0) {
+        ResourceLocation sourceTexture = display.getOverlayTexture();
+        if (speaker == null || sourceTexture == null || this.speakerWidth <= 0) {
             return;
         }
 
+        ResourceLocation texture = SpeakerPortraitTextures.resolve(sourceTexture, speaker.alphaCleanup());
         int sourceWidth = Math.max(1, display.getOverlayWidth());
         int sourceHeight = Math.max(1, display.getOverlayHeight());
         int maxWidth = Math.max(1, this.speakerWidth);
