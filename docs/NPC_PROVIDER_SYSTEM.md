@@ -26,7 +26,7 @@ Supported fields currently include:
 - `required_facts`: explicit world narrative facts that must already be present;
 - `forbidden_facts`: explicit world narrative facts that must still be absent;
 - `required_dispositions`: map of civilization IDs to one or more allowed authored disposition-state IDs;
-- `dialogue`: optional authored state-specific NPC lines for `offer`, `in_progress`, `ready_to_turn_in`, and `failed`;
+- `dialogue`: optional authored state-specific NPC lines for `offer`, `in_progress`, `ready_to_turn_in`, `failed`, and `completed`;
 - `civilization`: optional provider/civilization metadata stored in the provider binding;
 - `pool`: optional authored pool identifier reserved as metadata;
 - `lock_to_provider`: whether the accepted quest should remain visibly associated with the issuing provider;
@@ -99,9 +99,9 @@ A location bound is appropriate only once world integration has a stable authore
 
 This guard implements the anchor rule from `Overlord_Lore_and_Canon/reference/16_CIVILIZATION_QUEST_ANCHORS.md`. It is deliberately conservative: production civilization content must identify the intended local polity rather than accidentally applying to every matching NPC in generated terrain.
 
-## Authored dialogue and decline flow
+## Authored dialogue, decline flow, and completion follow-up
 
-The temporary provider screen now separates selecting an offered sidequest from accepting it. Selecting an `AVAILABLE` entry opens its neutral detail view. The player must then choose `Accept` or `Decline`; decline is intentionally non-persistent and simply returns to the provider's list. It does not create a hidden rejection score, cooldown, mood, or reputation fact.
+The temporary provider screen separates selecting an offered sidequest from accepting it. Selecting an `AVAILABLE` entry opens its neutral detail view. The player must then choose `Accept` or `Decline`; decline is intentionally non-persistent and simply returns to the provider's list. It does not create a hidden rejection score, cooldown, mood, or reputation fact.
 
 The optional `dialogue` object is definition-owned content. Each supported phase may be a single non-empty string or a non-empty list of strings:
 
@@ -110,15 +110,20 @@ The optional `dialogue` object is definition-owned content. Each supported phase
   "offer": "Authored offer text.",
   "in_progress": ["Authored reminder line one.", "Authored reminder line two."],
   "ready_to_turn_in": "Authored completion hand-in text.",
-  "failed": "Authored failure response."
+  "failed": "Authored failure response.",
+  "completed": "Authored post-completion follow-up."
 }
 ```
 
-The engine does not generate missing dialogue and does not treat the quest journal description as spoken NPC text. If a phase has no authored dialogue, the neutral scaffold simply shows the quest state and controls without inventing speech. This preserves the distinction between provider/source identity and narrative text authored for that provider interaction.
+The engine does not generate missing dialogue and does not treat the quest journal description as spoken NPC text. If a phase has no authored dialogue, the neutral scaffold does not invent speech.
 
-Authored dialogue is wrapped to the temporary detail view. If the wrapped content exceeds the available vertical region, the client now exposes neutral `Up` and `Down` controls and mouse-wheel scrolling instead of silently dropping the remaining lines. Scroll position is presentation-only state. It resets when the player selects a different offer, returns to the provider list, or the selected quest changes server-derived interaction state. Provider eligibility and quest state remain authoritative on the server.
+`completed` is deliberately opt-in. A completed provider quest is exposed in the provider menu only when that phase has authored dialogue, so ordinary completed sidequests do not permanently clutter every provider menu. The completed follow-up is shown only by the exact NPC that originally issued the quest, using the durable provider binding that already survives save/load. This preserves provider-specific aftermath without inventing a relationship with another otherwise eligible NPC.
 
-This is not a branching dialogue-tree engine. It is the minimal state-aware presentation surface required by the planned NPC offer, accept/decline, dialogue, and turn-in flow. More elaborate conversation structures should be added only if approved quest design actually requires them.
+For `any_eligible` turn-in, the issuing provider remains the completion follow-up owner because current persistent state records the issuer, not a separate last-turn-in NPC. If future campaign design genuinely needs a different provider to own post-completion dialogue, that requires an explicit additional state model rather than guessing from eligibility.
+
+Authored dialogue is wrapped to the detail view. If the wrapped content exceeds the available vertical region, the client exposes neutral `Up` and `Down` controls and mouse-wheel scrolling instead of silently dropping remaining lines. Scroll position is presentation-only state. It resets when the player selects a different entry, returns to the provider list, or the selected quest changes server-derived interaction state. Provider eligibility and quest state remain authoritative on the server.
+
+This is not a branching dialogue-tree engine. It is the minimal state-aware presentation surface required by the planned NPC offer, accept/decline, dialogue, turn-in, and provider-specific aftermath flow. More elaborate conversation structures should be added only if approved quest design actually requires them.
 
 ## Runtime authority
 
@@ -146,6 +151,8 @@ Provider turn-in is also server-authoritative. `same_provider` requires the exac
 
 Narrative requirements such as `required_dispositions`, `unlock_quests`, `required_facts`, and `forbidden_facts` gate acceptance. They are not re-applied to an already accepted quest during turn-in. This avoids silently orphaning an in-progress sidequest if later world progression changes narrative state. If a later fact should invalidate or redirect an active quest, that consequence must be authored explicitly. Entity, dimension, location, role/tag, and provider-identity rules still apply where required by the selected turn-in mode.
 
+After completion, the server may expose a `COMPLETED` entry to the exact issuing provider when and only when `provider.dialogue.completed` contains authored lines. This state is presentation-only: it has no accept or turn-in action, does not change quest completion, and does not create a new persistent consequence by itself.
+
 Quest reset commands delegate to the provider-aware `Quest.resetProgress()` contract. This clears provider binding and turn-in state along with ordinary objectives, prerequisites, failures, and rewards. The administrative `/questlog trigger` command deliberately refuses to bypass an unaccepted provider binding.
 
 ## Interaction protocol
@@ -154,18 +161,21 @@ The current temporary Forge interaction is intentionally non-invasive:
 
 - sneak;
 - main-hand entity interaction;
-- only opens the provider menu when the target currently exposes at least one relevant provider quest.
+- only opens the provider menu when the target currently exposes at least one relevant provider quest or authored completion follow-up.
 
 Ordinary non-sneaking interaction is left untouched so vanilla trading and unrelated mod interactions are not replaced by the scaffold.
 
 The server sends a bounded provider-menu snapshot. The client cannot decide whether a quest is eligible. Client actions contain the provider runtime entity ID, provider UUID, quest ID, and requested action. Before accepting either action the server re-resolves the entity and verifies UUID, alive state, distance, active quest manager, quest existence, and current accept/turn-in eligibility.
 
-The temporary menu supports four server-derived states:
+The temporary menu supports five server-derived states:
 
 - `AVAILABLE`;
 - `IN_PROGRESS`;
 - `READY_TO_TURN_IN`;
-- `FAILED`.
+- `FAILED`;
+- `COMPLETED`.
+
+The first four ordinal positions remain unchanged because the provider menu packet currently encodes interaction state as an enum ordinal. `COMPLETED` was appended rather than inserted so existing packet-state ordinals retain their meaning within the current protocol.
 
 Provider snapshots are capped at 256 entries. The temporary client presentation paginates seven entries at a time, preserves the current list page when the same provider refreshes, clears the pending-action lock after a server refresh, provides bounded scrolling for overflowing authored dialogue, and closes automatically if the provider disappears, dies, changes identity, or moves outside the interaction boundary.
 
@@ -224,7 +234,7 @@ Those systems must not be inferred merely because the reference mod contained br
 
 ## Development fixtures
 
-`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, authored dialogue overflow scrolling, and interaction safety. Its deliberately long `[DEV]` offer dialogue ends with a sentinel line used only to prove that overflow content remains reachable.
+`examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, authored dialogue overflow scrolling, provider-specific completed dialogue, and interaction safety. Its deliberately long `[DEV]` offer dialogue ends with a sentinel line used only to prove that overflow content remains reachable.
 
 `examples/questlog/quests/overlord_provider_profession_dev.json` is an implementation-only Farmer Villager fixture. It verifies that `role: minecraft:farmer` can match the Villager's native registered profession without requiring an `overlord_role:minecraft:farmer` scoreboard tag.
 
