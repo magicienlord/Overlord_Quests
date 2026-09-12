@@ -1,0 +1,27 @@
+name: Illager Campaign Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-illager-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-illager-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate Illager Bastille campaign contract
+        run: python3 tools/validate_illager_campaign_contract.py
