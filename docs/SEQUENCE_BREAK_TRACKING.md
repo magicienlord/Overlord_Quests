@@ -8,7 +8,7 @@ Status: TECHNICAL IMPLEMENTATION OF APPROVED CAMPAIGN RULE
 
 The same authority requires native-mod progression to be tracked through the cleanest reliable signal available, preferring advancements, boss/world state, items, structure discovery, capabilities, documented APIs, and similarly stable hooks. It also explicitly states that dimensions should not be artificially blocked merely because the central campaign has not formally introduced them, and that a legitimate early visit should be recognized where technically possible. Quest-critical civilization anchors likewise exist in the world before formal quest activation.
 
-This document records narrow Questlog fallbacks for exact entity kills, exact item crafts, pre-activation exact-dimension visits, pre-activation authored-area visits, and pre-activation exact-structure visits when a stronger native persistent signal is unavailable. It does not authorize any particular boss, item, dimension, area, structure, quest, sequence, or story reaction.
+This document records narrow Questlog fallbacks for exact entity kills, explicitly identified entity kills, exact item crafts, pre-activation exact-dimension visits, pre-activation authored-area visits, and pre-activation exact-structure visits when a stronger native persistent signal is unavailable. It does not authorize any particular boss, item, dimension, area, structure, quest, sequence, or story reaction.
 
 ## Event-based objectives
 
@@ -31,6 +31,31 @@ OVERLORD QUESTS adds:
 `questlog:entity_kill_stat` reads Minecraft's persistent `Stats.ENTITY_KILLED` counter for one exact registered entity type. The objective polls the server player's statistic at a one-second cadence and projects the historical count into ordinary Questlog objective progress.
 
 This allows a qualifying player-attributed kill from before formal quest activation to satisfy the objective without recreating the encounter.
+
+## Pre-activation identified-entity kill history
+
+Vanilla entity-kill statistics cannot distinguish one authored individual from another entity of the same registered type. That matters for REIGN anchors where the identity of a particular marked NPC is the accomplishment, rather than merely killing any entity of that class.
+
+For this case OVERLORD QUESTS adds:
+
+```json
+{
+  "type": "questlog:entity_kill_history",
+  "entity": "minecraft:zombie",
+  "scoreboard_tag": "overlord_anchor:example_target",
+  "required_amount": 1
+}
+```
+
+`questlog:entity_kill_history` observes the actual entity death event and reuses Questlog's full `EntityMatcher` surface. It can therefore combine an exact entity type with an authored persistent scoreboard tag, custom-name rule, entity predicate, or other supported matcher field.
+
+The kill must be attributed to the player through Minecraft's damage source. When a matching entity dies, the objective records its own persistent boolean `seen` state immediately even if the parent quest is still locked. The observation survives save/reload and is already complete when later prerequisites expose the quest.
+
+This objective exists specifically for sequence-break-safe unique targets. It does not weaken ordinary quest lifecycle rules and does not turn all event objectives into pre-activation trackers.
+
+Its historical reach is deliberately bounded. It cannot reconstruct a qualifying kill that happened before OVERLORD QUESTS was installed, before the relevant bundled definition existed, or before the player's QuestManager began tracking that definition. If a native mod exposes a durable boss flag, advancement, capability, or other stronger persistent signal, that native source remains preferable.
+
+The objective represents one boolean historical event. `required_amount` is therefore fixed at `1` by repository validation.
 
 ## Retrospective exact-item craft objective
 
@@ -127,6 +152,8 @@ The statistic-backed retrospective objectives accept one exact namespaced regist
 
 They do not support tag predicates or arbitrary matcher payloads because vanilla statistics are keyed by exact registry entries. `entity_kill_stat` also does not support NBT, custom-name filters, or entity predicates. `item_craft_stat` does not support NBT-sensitive crafting distinctions.
 
+`entity_kill_history` fills the unique-target gap by observing a real death event with the full entity matcher. In exchange, it is not a preexisting vanilla statistic and therefore cannot reconstruct a kill from before Questlog began observing that definition. It also deliberately requires player attribution; incidental environmental death is not equivalent to the Overlord defeating the target.
+
 `visit_dimension_history` uses one exact dimension ID. It does not mean the player completed any particular objective, dungeon, boss, ritual, or native progression inside that dimension.
 
 `visit_position_history` records one authored bounding region and optional dimension. It is unsuitable as a substitute for a native progression signal or for recognizing a procedural settlement whose identity has not actually been established.
@@ -145,7 +172,7 @@ For an actual REIGN milestone, choose the most authoritative available signal in
 2. a stable native advancement or comparable persistent milestone;
 3. an explicit persistent world or campaign fact produced by a reliable compatibility hook;
 4. a reliable item, dimension, structure, authored location, or other existing state signal when it uniquely proves the accomplishment;
-5. Questlog's own pre-activation observation history when the campaign definition can observe the event before formal activation and no stronger native persistence exists;
+5. Questlog's own pre-activation observation history when the campaign definition can observe the event before formal activation and no stronger native persistence exists, including `entity_kill_history` for one explicitly identified target;
 6. a matching vanilla persistent statistic such as `questlog:entity_kill_stat` or `questlog:item_craft_stat` when that statistic honestly proves the event;
 7. event-only tracking when the design specifically requires the event to happen after activation.
 
@@ -161,6 +188,8 @@ If a native mod does not expose trustworthy evidence that a unique event happene
 
 `examples/questlog/quests/overlord_sequence_break_dev.json` checks retrospective exact-entity kills with a vanilla zombie.
 
+`examples/questlog/quests/overlord_entity_kill_history_dev.json` checks pre-activation history for one explicitly tagged vanilla zombie. Its debug-stick prerequisite deliberately keeps the quest locked while the tagged kill can occur.
+
 `examples/questlog/quests/overlord_item_craft_sequence_break_dev.json` checks retrospective exact-item crafting with a vanilla crafting table.
 
 `examples/questlog/quests/overlord_dimension_history_dev.json` checks pre-activation exact-dimension visit history with the vanilla Nether. Its debug-stick prerequisite deliberately keeps the quest locked while the dimension observation can occur.
@@ -169,7 +198,9 @@ If a native mod does not expose trustworthy evidence that a unique event happene
 
 `examples/questlog/quests/overlord_structure_history_dev.json` checks pre-activation exact-structure visit history with a vanilla mineshaft. Its debug-stick prerequisite deliberately keeps the quest locked while the structure observation can occur.
 
-All five are non-canon development fixtures.
+All six are non-canon development fixtures.
+
+For the tagged-kill-history fixture, summon a zombie, add scoreboard tag `questlog_dev_kill_history_target`, kill it as the player without the debug stick, then obtain the debug stick. The objective must complete without another kill and must retain the observation across a save/reload inserted before the prerequisite is satisfied. An environmental death without player attribution must not satisfy the objective.
 
 For the dimension-history fixture, enter `minecraft:the_nether` without the debug stick, remain there for at least one second, return to the Overworld, then obtain the debug stick. The objective must complete without another Nether visit and must retain the observation across a save/reload inserted before the prerequisite is satisfied.
 
