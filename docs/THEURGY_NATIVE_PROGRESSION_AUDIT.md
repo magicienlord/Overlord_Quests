@@ -1,6 +1,6 @@
 # Theurgy Native Progression Audit
 
-Status: VERIFIED NATIVE SIGNAL / PRODUCTION NARRATIVE ROLE NOT YET ASSIGNED
+Status: DEEP TECHNICAL AUDIT / VERIFIED NATIVE SIGNALS / PRODUCTION NARRATIVE ROLE NOT YET ASSIGNED
 
 Date: 2026-09-12
 
@@ -8,7 +8,9 @@ Date: 2026-09-12
 
 This audit identifies sequence-break-safe native Theurgy progression signals that OVERLORD QUESTS may observe without replacing Theurgy's own progression loop.
 
-It does not establish a new Dark Tower room, facility, quest, or story fact by itself.
+Theurgy is treated as a deep-integration mod because it is a staged gameplay system with apparatus dependencies, persistent knowledge/progression surfaces, material-processing loops, and several later capabilities. It is not reduced to a single arbitrary quest checkbox.
+
+This document does not establish a new Dark Tower room, facility, quest, or story fact by itself.
 
 ## Installed OVERLORD REIGN artifact
 
@@ -28,35 +30,18 @@ com/klikli_dev/theurgy/content/apparatus/salammoniacaccumulator/SalAmmoniacAccum
 
 The JAR entry set is unchanged. No resource, recipe JSON, configuration, metadata, advancement data, or unrelated class was changed by A4R2.
 
-Therefore upstream 1.30.0 advancement resources remain applicable to the installed A4R2 artifact.
+Therefore upstream 1.30.0 advancement resources and authored progression topology remain applicable to the installed A4R2 artifact except for the already documented behavior correction in those two machine classes.
 
-## Verified upstream advancement
-
-The exact upstream 1.20.1 1.30.0 generated advancement contains:
+Exact upstream source reference used by this audit:
 
 ```text
-theurgy:has_liquefaction_cauldron
+klikli-dev/theurgy
+aa440153154ea1691010412a5d79dd96b85810e6
 ```
 
-Its criterion is the vanilla `minecraft:inventory_changed` trigger for:
+## Verified native advancement surface
 
-```text
-theurgy:liquefaction_cauldron
-```
-
-The generated advancement has parent:
-
-```text
-theurgy:book_root
-```
-
-The source datagen implementation constructs the same milestone from `ItemRegistry.LIQUEFACTION_CAULDRON`.
-
-This is a durable vanilla advancement and is therefore suitable for retrospective observation by OVERLORD QUESTS. If the player obtains the cauldron before a REIGN quest formally points toward that Theurgy milestone, an advancement objective can recognize the already-completed native state rather than requiring duplicate work.
-
-## Other verified upstream progression signals
-
-The same exact upstream datagen surface also defines:
+The exact upstream advancement generator defines the following complete advancement set:
 
 ```text
 theurgy:book_root
@@ -70,13 +55,102 @@ theurgy:has_precious_rod
 theurgy:has_liquefaction_cauldron
 ```
 
-These are technically available native signals because A4R2 does not alter the advancement resources. This audit does not assign campaign meaning to all of them.
+`theurgy:book_root` is a presence/root marker driven by a player tick and should not be treated as meaningful capability progression.
+
+The rod milestones use vanilla inventory-change criteria for their corresponding native rod items. `theurgy:has_basic_rod` is an OR milestone satisfied by the tier-1 rod or the abundant/common sulfur-attuned rods. The remaining rod advancements represent specific later rod ownership milestones.
+
+`theurgy:has_liquefaction_cauldron` uses the vanilla `minecraft:inventory_changed` trigger for:
+
+```text
+theurgy:liquefaction_cauldron
+```
+
+These completed advancements are durable player progression evidence and are directly observable through OVERLORD QUESTS' existing `questlog:advancement` objective. No reflection bridge, private NBT access, command shim, or new Theurgy dependency is required.
+
+## Verified gameplay topology
+
+The generated Hermetica book and exact source recipes show that Theurgy is a capability graph rather than a flat item list.
+
+### 1. Divination branch
+
+Theurgy provides tiered divination rods and sulfur-attuned variants. This branch has the strongest native advancement coverage because the mod exposes persistent advancement milestones for basic, amethyst, tier-2, tier-3, tier-4, rare, and precious rods.
+
+If REIGN later needs to know that a rod capability tier has been reached, the corresponding Theurgy advancement should be preferred over a Questlog-local duplicate state.
+
+### 2. Basic spagyrics and the three alchemical principles
+
+The Hermetica places the basic apparatus stage before creation of the three core alchemical principles.
+
+Verified apparatus semantics from the exact upstream language/source surface:
+
+- Calcination Oven extracts Alchemical Salt from items. Salt represents physical matter/body.
+- Liquefaction Cauldron extracts Alchemical Sulfur from items using solvent. Sulfur represents the idea/soul and participates in replication/transmutation.
+- Mercury Distiller extracts Alchemical Mercury from items. Mercury is the energy/catalytic principle.
+- Pyromantic Brazier supplies heat to apparatus.
+- Sal Ammoniac Accumulator and Tank create/store the solvent used by Liquefaction.
+
+The generated book makes `create_salt`, `create_mercury`, and `create_solvent` descend from the basic apparatus entry, while `create_sulfur` descends from solvent creation. This is native progression structure, not a REIGN-authored ordering.
+
+Only Liquefaction currently has a dedicated vanilla advancement milestone. The absence of matching advancements for every apparatus is significant and must not be papered over by pretending they exist.
+
+### 3. Incubation
+
+The native book's `incubation` entry requires the Salt, Mercury, and Sulfur branches as parents. The Incubator then recombines the three principles into items and requires heat plus the relevant ingredient vessels.
+
+This is a genuine later capability boundary. It should not be represented merely by possession of one early machine if a future REIGN quest actually depends on successful recombination capability.
+
+### 4. Replication and reformation
+
+The native book opens replication after the spagyrics/incubation foundation. The later reformation system includes source, target, and result pedestals plus Sulfuric Flux infrastructure.
+
+Supporting apparatus includes:
+
+- Mercury Catalyst, converting Mercury crystal material into Mercury Flux;
+- Mercury Capacitor, storing larger quantities of Mercury Flux;
+- Caloric Flux Emitter, remotely supplying heat;
+- Mercury Flux Emitter, transferring Mercury Flux;
+- Sulfuric Flux Emitter, powering the reformation array;
+- source/target/result reformation pedestals.
+
+The book places `reformation_array` after the within-type-and-tier conversion concept. This is another distinct capability boundary rather than an interchangeable duplicate of the early Liquefaction milestone.
+
+### 5. Transmutation
+
+The Fermentation Vat is the native apparatus used for conversion between different types of matter. Its book entry follows the `convert_to_other_type` concept, and the dedicated transmutation entry follows the Fermentation Vat.
+
+The exact shaped recipe also depends on earlier Theurgy material, including Alchemical Sulfur, so this stage is mechanically downstream of the basic spagyrics loop.
+
+### 6. Exaltation
+
+The Digestion Vat is the native apparatus used for conversion between tiers of matter. Its book entry follows `convert_to_other_tier` and is later than the transmutation branch in the generated progression topology.
+
+Its recipe requires Sal Ammoniac products and other later materials, making it another meaningful capability stage rather than a cosmetic machine acquisition.
+
+## Signal hierarchy for Quest integration
+
+Theurgy should be integrated using the strongest surviving evidence that actually represents the campaign requirement.
+
+Preferred order:
+
+1. **Native vanilla advancement**, when Theurgy already exposes the exact accomplishment. This is ideal because it is durable and naturally sequence-break safe.
+2. **Persistent vanilla craft statistic**, when the intended capability is uniquely established by crafting a specific apparatus and no native advancement exists. OVERLORD QUESTS already provides `questlog:item_craft_stat` for this purpose.
+3. **A stronger native persistent state or public API**, if a future Theurgy capability cannot be represented correctly by advancement/craft evidence and the installed version exposes such an authority.
+4. **A REIGN narrative fact after native evidence resolves**, only when later story logic needs a stable interpretation of the accomplishment. The fact records REIGN meaning, not duplicate ownership of Theurgy progression.
+
+Do not use as authoritative progression evidence merely because they are convenient:
+
+- opening or reading a Hermetica page;
+- transient GUI state;
+- current inventory possession when prior possession matters;
+- temporary machine contents/progress;
+- arbitrary Questlog-only counters duplicating a Theurgy accomplishment;
+- commands that grant a synthetic milestone instead of observing native play.
+
+The Modonomicon book entries contain research/view conditions useful for Theurgy's own instructional flow, but page visibility/read state is not automatically equivalent to actual apparatus capability. OVERLORD QUESTS must not confuse knowledge presentation with mechanical accomplishment.
 
 ## Questlog compatibility
 
-OVERLORD QUESTS already supports the `questlog:advancement` objective. No new objective type, reflection bridge, Theurgy hard dependency, private NBT access, or command shim is required to observe these milestones.
-
-A future source-authorized definition may therefore use a native objective of the form:
+A future source-authorized definition may directly observe a native advancement, for example:
 
 ```json
 {
@@ -85,7 +159,23 @@ A future source-authorized definition may therefore use a native objective of th
 }
 ```
 
-The exact field spelling must continue to follow the validated Questlog advancement-objective schema at authoring time.
+For a later apparatus without a native advancement, a campaign definition may use the existing persistent craft-stat objective only when crafting that apparatus is the correct gameplay milestone. The exact item ID and required amount must be verified against the installed artifact at authoring time.
+
+No new generic objective is justified by the current Theurgy audit. Existing advancement and persistent craft-stat surfaces cover the known durable milestone classes.
+
+## Sequence-break behavior
+
+If a native advancement is selected as a campaign milestone, the advancement remains authoritative. A player who legitimately completed it before the REIGN quest activates must receive credit without reacquiring or recrafting the apparatus.
+
+If a craft-stat milestone is selected, the persistent Minecraft craft statistic provides the same retrospective property for actual crafted outputs.
+
+The campaign must not require the player to:
+
+- discard and reacquire an apparatus;
+- craft a duplicate solely because the quest activated late;
+- clear a native advancement;
+- repeat a native process with no gameplay reason;
+- maintain a parallel Questlog ownership flag for the same mechanical state.
 
 ## Lore and design boundary
 
@@ -95,29 +185,28 @@ Those facts make Theurgy a valid candidate for Tower infrastructure integration,
 
 - the canonical name of a Theurgy-linked Tower facility;
 - which physical Tower room hosts it;
-- whether the Liquefaction Cauldron is the activation milestone for that facility;
-- when that milestone appears in the hidden campaign;
-- what Gnarl says about it;
-- what later quests depend on it.
+- whether any one Theurgy apparatus is the activation milestone for that facility;
+- which Theurgy capability stages belong to the central campaign versus optional/Tower development;
+- when such milestones appear in the hidden campaign;
+- what Gnarl says about them;
+- what later quests depend on them.
 
-Those points remain UNKNOWN until resolved by source-authorized campaign construction. OVERLORD QUESTS must not promote this technical signal into canon merely because it is convenient.
+Those points remain UNKNOWN until resolved by source-authorized campaign construction. OVERLORD QUESTS must not promote technical progression topology into canon merely because it is convenient.
 
-## Sequence-break rule
+## Current integration conclusions
 
-If `theurgy:has_liquefaction_cauldron` is later adopted as a campaign milestone, the native advancement should remain authoritative evidence of the accomplishment.
+Exact A4R2 compatibility with upstream advancement and book resources: **VERIFIED**.
 
-The quest must not require the player to discard and reacquire the cauldron, craft a duplicate merely to satisfy Questlog, clear the native advancement, or use a parallel Questlog-only state when the advancement already expresses the required fact.
+Complete native advancement list above: **VERIFIED** from exact 1.30.0 datagen source.
 
-If a separate persistent REIGN fact is needed for later narrative gating, it should be written only after the native advancement objective resolves, so the REIGN fact records campaign interpretation while Theurgy remains the authority for the underlying mechanical accomplishment.
+`theurgy:has_liquefaction_cauldron` existence and criterion: **VERIFIED**.
 
-## Current decision
+Theurgy's staged gameplay topology across divination, basic spagyrics, incubation, reformation/replication, transmutation, and exaltation: **VERIFIED** from exact source recipes and generated Hermetica structure.
 
-Exact A4R2 artifact compatibility with upstream advancement resources: VERIFIED.
+Use of native advancements as retrospective Questlog progression signals: **TECHNICALLY APPROVED**.
 
-`theurgy:has_liquefaction_cauldron` existence and criterion: VERIFIED.
+Use of persistent craft statistics for apparatus lacking an advancement: **TECHNICALLY AVAILABLE, SELECT ONLY WHEN A CONCRETE CAMPAIGN MILESTONE REQUIRES IT**.
 
-Use as a retrospective Questlog progression signal: TECHNICALLY APPROVED.
+Specific Dark Tower facility assignment: **UNKNOWN**.
 
-Specific Dark Tower facility assignment: UNKNOWN.
-
-Production quest wiring: NOT YET AUTHORIZED BY A CONCRETE CAMPAIGN MILESTONE.
+Production quest wiring beyond already authorized campaign content: **DEFERRED UNTIL A CONCRETE SOURCE-AUTHORIZED CAMPAIGN ROLE IS SELECTED**.
