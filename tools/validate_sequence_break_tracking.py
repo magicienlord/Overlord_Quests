@@ -9,12 +9,14 @@ ROOT = Path(__file__).resolve().parents[1]
 ENTITY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
 ITEM_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.java"
 DIMENSION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitDimensionHistoryObjective.java"
+POSITION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitPositionHistoryObjective.java"
 STRUCTURE_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitStructureHistoryObjective.java"
 REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestObjectiveRegistry.java"
 VALIDATOR = ROOT / "tools/validate_overlord_quest_examples.py"
 ENTITY_FIXTURE = ROOT / "examples/questlog/quests/overlord_sequence_break_dev.json"
 ITEM_FIXTURE = ROOT / "examples/questlog/quests/overlord_item_craft_sequence_break_dev.json"
 DIMENSION_FIXTURE = ROOT / "examples/questlog/quests/overlord_dimension_history_dev.json"
+POSITION_FIXTURE = ROOT / "examples/questlog/quests/overlord_position_history_dev.json"
 STRUCTURE_FIXTURE = ROOT / "examples/questlog/quests/overlord_structure_history_dev.json"
 
 
@@ -49,6 +51,16 @@ def collect_errors() -> list[str]:
     require(DIMENSION_OBJECTIVE, 'data.getBoolean("seen")', "dimension-history reload")
     require(DIMENSION_OBJECTIVE, "this.getParent().markForUpdate()", "dimension-history quest synchronization")
 
+    require(POSITION_OBJECTIVE, "class VisitPositionHistoryObjective", "position-history objective implementation")
+    require(POSITION_OBJECTIVE, "private boolean seen = false", "persistent position observation state")
+    require(POSITION_OBJECTIVE, "this.ticksUntilCheck = 20", "bounded position polling cadence")
+    require(POSITION_OBJECTIVE, "!this.isActiveForPlayer(player)", "active position objective lifecycle guard")
+    require(POSITION_OBJECTIVE, "this.bounds.isInside(player.blockPosition())", "authored position bounds detection")
+    require(POSITION_OBJECTIVE, "player.level().dimension().location().equals(this.dimension)", "optional position dimension guard")
+    require(POSITION_OBJECTIVE, 'data.putBoolean("seen", this.seen)', "position-history persistence")
+    require(POSITION_OBJECTIVE, 'data.getBoolean("seen")', "position-history reload")
+    require(POSITION_OBJECTIVE, "this.getParent().markForUpdate()", "position-history quest synchronization")
+
     require(STRUCTURE_OBJECTIVE, "class VisitStructureHistoryObjective", "structure-history objective implementation")
     require(STRUCTURE_OBJECTIVE, "private boolean seen = false", "persistent structure observation state")
     require(STRUCTURE_OBJECTIVE, "this.ticksUntilCheck = 20", "bounded structure polling cadence")
@@ -64,6 +76,7 @@ def collect_errors() -> list[str]:
     require(REGISTRY, 'new EditorMetadata("item", "Exact Item ID:"', "exact-item editor metadata")
     require(REGISTRY, 'new ResourceLocation("questlog", "visit_dimension_history")', "visit_dimension_history objective registration")
     require(REGISTRY, 'new EditorMetadata("dimension", "Exact Dimension ID:"', "exact-dimension editor metadata")
+    require(REGISTRY, 'new ResourceLocation("questlog", "visit_position_history")', "visit_position_history objective registration")
     require(REGISTRY, 'new ResourceLocation("questlog", "visit_structure_history")', "visit_structure_history objective registration")
     require(REGISTRY, 'new EditorMetadata("structure", "Exact Structure ID:"', "exact-structure editor metadata")
 
@@ -73,6 +86,8 @@ def collect_errors() -> list[str]:
     require(VALIDATOR, "core.validate_resource_id(entry[\"item\"]", "exact item resource-id schema validation")
     require(VALIDATOR, '"questlog:visit_dimension_history"', "dimension-history definition validator registration")
     require(VALIDATOR, "core.validate_resource_id(entry[\"dimension\"]", "exact dimension resource-id schema validation")
+    require(VALIDATOR, '"questlog:visit_position_history"', "position-history definition validator registration")
+    require(VALIDATOR, "core.validate_bounds(entry[\"bounds\"]", "position-history bounds schema validation")
     require(VALIDATOR, '"questlog:visit_structure_history"', "structure-history definition validator registration")
     require(VALIDATOR, "core.validate_resource_id(entry[\"structure\"]", "exact structure resource-id schema validation")
 
@@ -82,6 +97,8 @@ def collect_errors() -> list[str]:
     require(ITEM_FIXTURE, '"item": "minecraft:crafting_table"', "item development fixture exact item")
     require(DIMENSION_FIXTURE, '"type": "questlog:visit_dimension_history"', "dimension development fixture objective")
     require(DIMENSION_FIXTURE, '"dimension": "minecraft:the_nether"', "dimension development fixture exact dimension")
+    require(POSITION_FIXTURE, '"type": "questlog:visit_position_history"', "position development fixture objective")
+    require(POSITION_FIXTURE, '"dimension": "minecraft:overworld"', "position development fixture dimension guard")
     require(STRUCTURE_FIXTURE, '"type": "questlog:visit_structure_history"', "structure development fixture objective")
     require(STRUCTURE_FIXTURE, '"structure": "minecraft:mineshaft"', "structure development fixture exact structure")
 
