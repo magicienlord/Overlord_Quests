@@ -36,6 +36,7 @@
   "speaker_id": "overlord_reign:gnarl",
   "speaker_reaction": "neutral",
   "speaker_pane_width": 176,
+  "speaker_alpha_cleanup": true,
   "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
   "overlay_width": 168,
   "overlay_height": 168,
