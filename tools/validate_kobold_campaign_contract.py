@@ -3,6 +3,7 @@
 import validate_civilization_campaign_contracts as civilization
 import validate_goblin_sidequest_contracts as goblin_sidequest
 import validate_goblin_engineer_sidequest_contracts as goblin_engineer
+import validate_goblin_tavern_sidequest_contracts as goblin_tavern
 
 
 def collect_errors() -> list[str]:
@@ -10,6 +11,7 @@ def collect_errors() -> list[str]:
         civilization.collect_errors()
         + goblin_sidequest.collect_errors()
         + goblin_engineer.collect_errors()
+        + goblin_tavern.collect_errors()
     )
 
 
@@ -21,7 +23,7 @@ def main() -> int:
             print(f"  * {error}")
         return 1
     print("Civilization production contracts: PASS")
-    print("first-contact slices and source-backed Goblin merchant/engineer sidequests are guarded")
+    print("first-contact slices and source-backed Goblin merchant/engineer/tavern sidequests are guarded")
     return 0
 
 
