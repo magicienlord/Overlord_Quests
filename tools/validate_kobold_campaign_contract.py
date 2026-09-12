@@ -6,6 +6,7 @@ import validate_goblin_engineer_sidequest_contracts as goblin_engineer
 import validate_goblin_tavern_sidequest_contracts as goblin_tavern
 import validate_sea_dweller_sidequest_contracts as sea_dweller_sidequest
 import validate_gnumu_sidequest_contracts as gnumu_sidequest
+import validate_umvuthi_blessing_sidequest_contracts as umvuthi_blessing
 
 
 def collect_errors() -> list[str]:
@@ -16,6 +17,7 @@ def collect_errors() -> list[str]:
         + goblin_tavern.collect_errors()
         + sea_dweller_sidequest.collect_errors()
         + gnumu_sidequest.collect_errors()
+        + umvuthi_blessing.collect_errors()
     )
 
 
@@ -27,7 +29,7 @@ def main() -> int:
             print(f"  * {error}")
         return 1
     print("Civilization production contracts: PASS")
-    print("first-contact slices plus source-backed Goblin, Sea Dweller and Gnumu sidequests are guarded")
+    print("first-contact slices plus source-backed Goblin, Sea Dweller, Gnumu and Umvuthi sidequests are guarded")
     return 0
 
 
