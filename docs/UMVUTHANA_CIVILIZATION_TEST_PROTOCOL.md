@@ -144,7 +144,7 @@ Expected result:
 
 This is the required local post-audience neutrality behavior.
 
-## Check 7: source-native misbehaviour still overrides peace
+## Check 7: source-native misbehaviour still overrides peace and provider dialogue
 
 Use a disposable validation world for this check.
 
@@ -154,10 +154,12 @@ Expected result:
 
 - Mowzie records the player as the relevant Umvuthi's misbehaving player;
 - Questlog no longer suppresses that Umvuthi acquiring the offender as a combat target;
-- putting an Umvuthana mask back on does not restore the peaceful Questlog audience path for that stored offender;
-- quest-anchor damage protection, if still present, remains a separate mechanism and does not erase native hostility.
+- sneak + main-hand interaction with that same canonical Umvuthi does not open the Questlog provider menu for the stored offender;
+- completed peaceful follow-up dialogue is therefore inaccessible to that stored offender while Mowzie still identifies them as the offender;
+- putting an Umvuthana mask back on does not restore the peaceful Questlog audience/provider path for that stored offender;
+- quest-anchor damage protection, if still present, remains a separate mechanism and does not erase native hostility or native offender state.
 
-This proves the post-audience bridge is not permanent immunity.
+This proves the post-audience bridge is not permanent immunity and that Questlog does not present peaceful conversation while Mowzie's authoritative relationship state is hostile.
 
 ## Check 8: save/reload persistence
 
@@ -192,5 +194,6 @@ The first-audience slice is runtime-valid only when all of the following are dir
 - the mask is no longer needed for basic peaceful presence after completion;
 - unrelated Umvuthis remain unchanged;
 - Mowzie-native misbehaviour overrides the local peace exception for the offending player;
+- the same offender cannot reopen Questlog's peaceful provider menu or completed follow-up while Mowzie still marks them as the offender;
 - state survives save/reload;
 - Mowzie's Mobs remains an optional class-link dependency for Questlog.
