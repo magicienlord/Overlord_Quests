@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Guard the approved non-VHS OVERLORD death-screen production boundary."""
+"""Guard the approved OVERLORD death and ending presentation boundaries."""
 from pathlib import Path
 import sys
+
+import validate_overlord_ending_screen as ending_contract
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA_ROOTS = [
@@ -36,7 +38,7 @@ def main() -> int:
         return 1
 
     print("OVERLORD death-screen boundary: PASS (no VHS or cassette soundscape implementation)")
-    return 0
+    return ending_contract.main()
 
 
 if __name__ == "__main__":
