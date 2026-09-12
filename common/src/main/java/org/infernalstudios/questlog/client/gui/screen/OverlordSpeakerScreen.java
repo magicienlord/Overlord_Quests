@@ -244,10 +244,15 @@ public final class OverlordSpeakerScreen extends Screen {
         int baseX = laneLeft + (maxWidth - drawWidth) / 2;
         int x = clamp(baseX + display.getOverlayXOffset(), laneLeft, laneRight - drawWidth);
 
-        // Bottom anchoring gives character portraits a stable visual footing beside
-        // the parchment instead of making them appear to float over its midpoint.
-        int baseY = this.panelY + this.panelHeight - drawHeight;
-        int y = baseY + display.getOverlayYOffset();
+        // The reaction visual is centered against the parchment body rather than
+        // standing on its bottom edge. Per-portrait offsets still allow authored
+        // optical correction, but cannot move the artwork outside the panel span.
+        int baseY = this.panelY + (this.panelHeight - drawHeight) / 2;
+        int y = clamp(
+                baseY + display.getOverlayYOffset(),
+                this.panelY,
+                this.panelY + this.panelHeight - drawHeight
+        );
 
         graphics.blit(texture, x, y, 0, 0, drawWidth, drawHeight, drawWidth, drawHeight);
     }
