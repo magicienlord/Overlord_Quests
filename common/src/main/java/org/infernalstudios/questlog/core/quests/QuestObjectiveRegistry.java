@@ -13,6 +13,7 @@ import org.infernalstudios.questlog.core.quests.objectives.logic.AndObjective;
 import org.infernalstudios.questlog.core.quests.objectives.logic.NotObjective;
 import org.infernalstudios.questlog.core.quests.objectives.logic.OrObjective;
 import org.infernalstudios.questlog.core.quests.objectives.misc.*;
+import org.infernalstudios.questlog.overlord.minions.MinionUnlockedObjective;
 import org.infernalstudios.questlog.overlord.narrative.DispositionObjective;
 import org.infernalstudios.questlog.overlord.narrative.FactObjective;
 import org.infernalstudios.questlog.util.JsonUtils;
@@ -114,6 +115,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("civilization", "Civilization ID:", null));
         register(new ResourceLocation("questlog", "fact"), FactObjective::new,
                 new EditorMetadata("fact", "Narrative Fact ID:", null));
+        register(new ResourceLocation("questlog", "minion_unlocked"), MinionUnlockedObjective::new,
+                new EditorMetadata("slot", "Minion Slot:", null));
 
         // Origins
         register(new ResourceLocation("questlog", "origin"), OriginObjective::new,
