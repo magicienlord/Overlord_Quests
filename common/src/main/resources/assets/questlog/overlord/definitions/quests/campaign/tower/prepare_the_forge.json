@@ -16,13 +16,13 @@
           "type": "questlog:quest_complete",
           "quest": "questlog:campaign/opening/browns_return",
           "required_amount": 1,
-          "name": "Begin restoring the machinery of rule"
+          "name": "Complete the Brown recovery opening direction"
         },
         {
           "type": "questlog:quest_complete",
-          "quest": "questlog:campaign/opening/make_an_impression",
+          "quest": "questlog:campaign/opening/direct_action_reaction",
           "required_amount": 1,
-          "name": "Make the first personal mark upon the world"
+          "name": "Complete the direct-action opening direction"
         }
       ],
       "name": "Complete either opening direction"
