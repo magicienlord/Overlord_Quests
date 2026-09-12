@@ -1,182 +1,201 @@
 # OVERLORD QUESTS Minion Type Unlock Integration
 
-Status: ACTIVE CAMPAIGN CONTRACT / EXTERNAL BRIDGE PENDING
+Status: ACTIVE CAMPAIGN CONTRACT / QUEST BRIDGE IMPLEMENTED AGAINST VALIDATED BUILD #118
 
-This document records the approved gameplay integration boundary between OVERLORD QUESTS and the planned Minions Remastered fork. The Brown bootstrap is now represented in the first bundled production campaign slice. The later Red, Green, and Blue integration still waits for the Minions Remastered fork to expose its stable unlock and hive-return surface.
+This document records the approved gameplay integration boundary between OVERLORD QUESTS and OVERLORD Minions.
 
-## Approved progression model
+The Red, Green, and Blue progression interface is now stable enough for Quest integration. Build #118 is the current validated development dependency. The remaining OVERLORD Minions work is renderer-side and does not change this progression contract.
 
-The Minions Remastered fork exposes four zero-based Minion-type slots with a fixed type mapping:
+## Stable external progression API
+
+The owning mod is `overlord_minions`.
+
+The stable public integration surface is:
+
+```java
+com.overlordreign.minions.api.OverlordMinionProgression
+```
+
+with fixed slot identity from:
+
+```java
+com.overlordreign.minions.progression.MinionSlot
+```
+
+The quest-side calls are:
+
+```java
+OverlordMinionProgression.unlock(server, MinionSlot.RED);
+OverlordMinionProgression.unlock(server, MinionSlot.GREEN);
+OverlordMinionProgression.unlock(server, MinionSlot.BLUE);
+```
+
+The fixed slot order is part of the cross-mod contract:
 
 - slot `0` = Brown
 - slot `1` = Red
 - slot `2` = Green
 - slot `3` = Blue
 
-Crafting the Minions Remastered Master's Staff unlocks only slot `0`, Brown.
+The external state implementation accepts exactly the next slot, treats an already-unlocked slot as idempotent success, rejects an out-of-order later slot, and keeps Brown owned by the Master's Staff bootstrap.
 
-Red, Green, and Blue remain locked after staff crafting and are intended to be unlocked later by quest progression through durable quest markers.
+## Approved progression model
 
 The campaign unlock sequence is fixed:
 
 `Brown -> Red -> Green -> Blue`
 
-Quest progression must therefore unlock slot `1` before slot `2`, and slot `2` before slot `3`. Production quest authoring must not create a route that grants Green before Red or Blue before Green.
+Brown requires no quest-side unlock trigger.
 
-The exact later quests, narrative circumstances, marker IDs, and bridge calls remain UNKNOWN until the Minions Remastered fork exposes its final integration surface and campaign authoring reaches those sections.
+Crafting the Minions Remastered Master's Staff is the bootstrap action that grants Brown access. Questlog observes that milestone for campaign progression but does not intercept the staff and does not grant slot `0` itself.
 
-## REIGN Minion retrieval model
+Red, Green, and Blue are quest-earned capabilities and must be unlocked sequentially. Production authoring must not create a valid route that grants Green before Red or Blue before Green.
 
-OVERLORD REIGN deliberately does not reproduce the original-game gameplay loop of physically retrieving a Minion hive as the means of recovering that Minion type.
+## Quest-side reward
 
-Instead, each Minion type is recovered through an authored sequence of quests and gameplay actions. Completing the relevant recovery sequence causes the Minion type to return together with its associated hive through an unseen, magical, or otherwise non-physical-return mechanism appropriate to the final authored lore.
+OVERLORD QUESTS now exposes the bounded reward type:
 
-The stable design rule is:
+```json
+{
+  "type": "questlog:unlock_minion",
+  "slot": "red",
+  "auto_claim": true
+}
+```
 
-- the player performs the required quest chain and gameplay actions;
-- the campaign reaches the recovery milestone for the next Minion type;
-- that Minion type becomes available in its fixed Minions Remastered slot;
-- its associated hive returns as part of the same recovery outcome;
-- the player is not required to locate, carry, escort, or physically retrieve that hive as the unlock mechanism.
+Valid `slot` values are only:
 
-The exact diegetic mechanism of each return remains UNKNOWN until the relevant campaign section is authored from `magicienlord/Overlord_Lore_and_Canon` and the primary-source material.
+- `red`
+- `green`
+- `blue`
 
-The hive is therefore a consequence and manifestation of successful Minion recovery, not the physical quest object whose transportation unlocks the type.
+Brown is intentionally not a valid reward slot.
 
-## Ownership boundary
+The reward delegates the state transition to the public OVERLORD Minions progression API. It does not write Minion unlock NBT, manipulate the Minions Remastered roster, change spawned Minions, intercept the Master's Staff, or duplicate external persistence.
 
-OVERLORD QUESTS owns the campaign decision that a later Minion type has been earned.
+The reward is required to use `auto_claim: true` and is not valid inside a choice reward or as a failure consequence.
 
-The Minions Remastered fork owns:
+## Runtime result handling
 
-- the four-slot Minion-type system;
-- the fixed slot mapping `0=Brown, 1=Red, 2=Green, 3=Blue`;
-- the initial Brown unlock caused by staff crafting;
-- persistence of unlocked Minion slots/types on its side;
-- enforcing which Minion types can actually be selected, summoned, or assigned;
-- the stable technical API, command, event, or marker-consumption surface used by OVERLORD QUESTS.
+The external API returns one of four progression results:
 
-The technical ownership of spawning, restoring, activating, or otherwise manifesting each associated hive remains UNKNOWN until the Minions Remastered fork exposes its final hive/integration surface. The campaign requirement is fixed: the hive returns with the corresponding Minion type and is not the item the player physically retrieves to unlock it.
+- `UNLOCKED`
+- `ALREADY_UNLOCKED`
+- `OUT_OF_ORDER`
+- `BOOTSTRAP_OWNED_BY_STAFF`
 
-OVERLORD QUESTS must not infer Red, Green, or Blue unlocks from inventory possession or current spawned Minion counts.
+Questlog marks its reward as applied only after `UNLOCKED` or `ALREADY_UNLOCKED`.
 
-## Quest-side representation
+`ALREADY_UNLOCKED` is deliberately treated as success. This makes repeated quest-side reconciliation harmless.
 
-OVERLORD QUESTS has monotonic world-scoped narrative facts and auto-claimed `questlog:set_fact` rewards. That mechanism is suitable for later Minion unlock milestones because those unlocks represent persistent campaign state rather than reversible reputation values.
+`OUT_OF_ORDER` leaves the reward unapplied so the campaign cannot silently claim a tier the owning mod rejected.
 
-The preferred later integration is:
+If the external API is temporarily unavailable or incompatible, the reward also remains unapplied. Questlog therefore does not convert a missing dependency or temporary integration failure into false progression success.
 
-1. the relevant production quest completes;
-2. the quest records one durable Minion-unlock marker/fact;
-3. the Minions Remastered bridge consumes or is notified of that marker and permanently opens the corresponding slot/type;
-4. the associated hive is restored or manifested as part of the same recovery milestone through the final agreed integration owner;
-5. reload reconciliation preserves the unlock and hive-return state without requiring the original completion event to replay.
+## Linkage boundary
 
-Exact production marker IDs remain UNKNOWN and must not be invented before the external contract exists.
+OVERLORD QUESTS remains buildable without shipping OVERLORD Minions as a hard class-link dependency. The bounded compatibility adapter resolves only the documented public API class, documented slot enum, and documented `unlock(MinecraftServer, MinionSlot)` method.
+
+This is not access to private Minions internals. No mixin, private-field access, saved-data mutation, roster mutation, or client-side progression state is used.
+
+Build #118 is the development validation baseline for this API contract. The current source contract confirms the same public API and fixed slot identities while renderer work continues independently.
 
 ## Brown bootstrap exception
 
-Brown is deliberately different from the other three types.
+The production Brown branch remains different from later tiers.
 
-Brown unlocks when the Minions Remastered Master's Staff is crafted. This is a Minions Remastered gameplay bootstrap and does not require a Questlog reward or narrative fact to grant slot `0`.
-
-The bundled opening campaign now observes that craft as the Brown-recovery milestone. Questlog is not the authority that opens the Brown slot.
-
-The Brown branch follows the same REIGN retrieval principle as the later types: crafting the staff is the decisive gameplay action that leads to Brown access being restored, with the Brown hive returning as part of that recovery outcome rather than being physically carried back by the player.
-
-## Sequence-break-safe Brown observation
-
-The production Brown branch uses `questlog:item_craft_stat` against the exact verified item ID:
+The branch uses `questlog:item_craft_stat` against:
 
 ```text
 minionsremastered:masters_staff
 ```
 
-This objective reads Minecraft's persistent per-item crafted statistic. If the player legitimately crafts the Master's Staff before the quest formally becomes active, Questlog can still recognize the surviving craft evidence instead of asking for a second staff.
+That objective recognizes the surviving vanilla crafted-item statistic when the player crafted the staff before Questlog formally introduced the objective.
 
-This is observation only. Minions Remastered remains authoritative for the actual slot `0` unlock and for the final Brown hive manifestation behavior.
-
-The retrospective objective is intentionally exact-item-only. If a future Minions Remastered revision stops incrementing the vanilla crafted-item statistic for the staff, the integration must move to a more authoritative native signal rather than pretending the old statistic still proves the event.
+This is observation only. Questlog does not grant Brown and does not intercept the staff.
 
 ## Red, Green, and Blue unlock semantics
 
-For each later type, the unlock marker should be:
+For each later tier:
 
-- boolean;
-- monotonic during normal play;
-- idempotent if applied more than once;
-- durable across save/reload;
-- safe if the Minions Remastered fork processes it after the originating quest already completed;
-- independent of the current number of spawned Minions;
-- independent of temporary inventory state;
-- independent of provider disposition or sidequest reputation.
+- the relevant authored quest milestone decides that the type has been earned;
+- the milestone uses `questlog:unlock_minion` with the correct slot;
+- OVERLORD Minions remains authoritative for persistent slot ownership;
+- repeated application is harmless;
+- current spawned-Minions counts do not affect ownership;
+- temporary inventory state does not affect ownership;
+- provider disposition does not substitute for the unlock state.
 
-The later unlocks are ordered:
+The external API independently rejects sequence skipping, while campaign quest prerequisites must also preserve the same order.
 
-- Red, slot `1`, requires Brown slot `0`;
-- Green, slot `2`, requires Red slot `1`;
-- Blue, slot `3`, requires Green slot `2`.
+## REIGN Minion retrieval model
 
-Quest definitions should enforce this sequence authoritatively. The Minions Remastered bridge should also reject, defer, or safely reconcile an out-of-order marker rather than exposing a later slot while an earlier slot is locked.
+OVERLORD REIGN does not use physical Hive transport as the required gameplay mechanism for recovering a Minion type.
 
-Each later Minion-recovery sequence must culminate in both the relevant slot unlock and the return of that type's associated hive. Hive manifestation must be idempotent and save-persistent so reconciliation cannot duplicate it.
+Each type is recovered through an authored quest and gameplay sequence. The successful recovery milestone makes that Minion type available and establishes the associated Hive return as part of the same campaign outcome.
 
-## Compatibility requirement
+The player is not required to locate, carry, escort, or physically retrieve the Hive as the unlock mechanism.
 
-The integration must avoid a fragile direct dependency from ordinary quest definitions onto Minions Remastered implementation internals.
+The exact diegetic mechanism for each Hive return remains authored campaign material and is not invented by the integration layer.
 
-Preferred integration order:
+## Ownership boundary
 
-1. stable public unlock API or event exposed by the Minions Remastered fork;
-2. stable server command exposed by the fork and invoked by an auto-claimed Questlog command reward;
-3. stable marker/fact polling bridge owned by the Minions fork.
+OVERLORD QUESTS owns:
 
-The same preference applies to hive restoration if Minions Remastered owns hive manifestation. Direct reflection, mixin access into private Minions Remastered fields, hard-coded save-NBT mutation, and client-only unlock/hive state should be avoided.
+- the campaign conditions under which Red, Green, or Blue has been earned;
+- the quest milestone that calls the public unlock API;
+- the surrounding Gnarl framing and persistent campaign record;
+- quest sequencing that prevents intentional tier skips.
+
+OVERLORD Minions owns:
+
+- the fixed slot mapping;
+- Brown bootstrap ownership;
+- Red, Green, and Blue persistent unlock state;
+- sequence enforcement at the progression API;
+- actual Minion roster and summon gating;
+- Minions Remastered compatibility behavior;
+- any owner-side implementation needed to manifest the recovered capability.
+
+OVERLORD QUESTS must not infer Red, Green, or Blue ownership from inventory possession, UUID-derived appearance, current Minion counts, or provider state.
 
 ## Reconciliation requirement
 
-Because unlocks are permanent campaign capabilities, the bridge must reconcile existing progress safely without violating slot order.
+The API is idempotent by contract, so an already-open tier may safely receive the same unlock call again.
 
-If a world loads after a relevant later unlock quest is already complete, or after its durable fact is already present, the corresponding Minion type and hive-return state must reconcile correctly even if the original completion event is no longer replayed. Reconciliation must walk progression in order so a later stored marker cannot bypass an earlier required slot.
+Questlog itself does not duplicate the Minion unlock state. Its only local persistence is the normal quest reward-application flag that records whether the campaign milestone successfully handed the transition to the owning mod.
 
-This applies to:
+If the API is absent or rejects the tier as out of order, that reward is left pending rather than falsely recorded as applied.
 
-- existing development worlds;
-- migration after the Minions fork is updated;
-- recovery after temporary mod removal;
-- save/load ordering;
-- future quest-definition revisions that preserve the same production marker.
+The campaign must still author later recovery quests in fixed order so ordinary gameplay reaches:
+
+`0 Brown -> 1 Red -> 2 Green -> 3 Blue`
 
 ## Current implementation boundary
 
 IMPLEMENTED in OVERLORD QUESTS:
 
-- the Brown recovery branch is authored and bundled as production campaign content;
-- the branch observes the exact Master's Staff craft through retrospective persistent statistics;
-- Questlog does not grant Brown directly;
-- the campaign records Brown recovery using the non-physical hive-retrieval model;
-- the opening Gnarl presentation can react after that recovery milestone.
+- Brown recovery remains staff-owned and is observed through the exact Master's Staff craft statistic;
+- stable slot order is recorded as Brown `0`, Red `1`, Green `2`, Blue `3`;
+- a bounded public-API bridge targets `OverlordMinionProgression.unlock`;
+- `questlog:unlock_minion` is registered for Red, Green, and Blue only;
+- auto-claim is mandatory;
+- already-unlocked tiers reconcile as success;
+- out-of-order tiers remain unapplied;
+- Questlog does not manipulate Minions Remastered roster or unlock persistence;
+- the definition validator rejects Brown, unknown slot values, manual-claim usage, choice nesting, and failure-consequence usage.
 
-PENDING external Minions Remastered work:
+STILL TO AUTHOR OR RUNTIME-VALIDATE:
 
-- the stable Red/Green/Blue unlock integration surface;
-- the exact production marker IDs for slots `1`, `2`, and `3`;
-- the final ownership/API for hive manifestation and reconciliation;
-- development tests proving actual slot and hive state across save/reload.
+- the concealed production Red recovery milestone;
+- the concealed production Green recovery milestone;
+- the concealed production Blue recovery milestone;
+- full-modpack runtime validation against the supplied Build #118 development JAR;
+- save/reload verification of the complete Red -> Green -> Blue sequence in an integration world;
+- any separate Hive manifestation implementation required by the owning Minions system.
 
-When the external interface exists, the Quest side should add one bounded adapter and a development fixture that proves:
-
-- Brown remains staff-crafting-owned as slot `0`;
-- Red/Green/Blue begin locked;
-- Red unlocks only slot `1`;
-- Green cannot expose slot `2` before Red;
-- Blue cannot expose slot `3` before Green;
-- the complete valid sequence is `0 Brown -> 1 Red -> 2 Green -> 3 Blue`;
-- no path requires physical hive transport;
-- repeated application is harmless and does not duplicate hive manifestation;
-- save/reload preserves each unlock and hive-return state;
-- already-present markers reconcile in slot order.
+The Minion renderer may continue changing visually without reopening this progression contract unless the owning mod explicitly changes the public API, which the current renderer pass is not expected to do.
 
 ## Repository consistency note
 
-Any older Minion-fork documentation that describes UUID-derived visual assignment without the four-slot progression model predates this contract. OVERLORD QUESTS treats the fixed four-slot model documented here as the integration target.
+Any older Quest documentation that says the Red, Green, and Blue bridge is blocked on an unknown external interface is superseded by this document.
