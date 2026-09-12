@@ -57,6 +57,8 @@ public class QuestDisplayData {
     private final int overlayHeight;
     private final int overlayXOffset;
     private final int overlayYOffset;
+    @Nullable
+    private final SpeakerPresentation speakerPresentation;
 
     @Nullable
     private final Blittable badge;
@@ -136,6 +138,7 @@ public class QuestDisplayData {
         this.overlayHeight = JsonUtils.getOrDefault(data, "overlay_height", this.panelHeight);
         this.overlayXOffset = JsonUtils.getOrDefault(data, "overlay_x_offset", 0);
         this.overlayYOffset = JsonUtils.getOrDefault(data, "overlay_y_offset", 0);
+        this.speakerPresentation = SpeakerPresentation.fromDefinition(data);
 
         String completedSoundLoc = JsonUtils.getOrDefault(data, "completed_sound", (String) null);
         this.completedSound = completedSoundLoc == null ? null : new ResourceLocation(completedSoundLoc);
@@ -471,6 +474,15 @@ public class QuestDisplayData {
 
     public int getOverlayYOffset() {
         return this.overlayYOffset;
+    }
+
+    @Nullable
+    public SpeakerPresentation getSpeakerPresentation() {
+        return this.speakerPresentation;
+    }
+
+    public boolean hasSpeakerPresentation() {
+        return this.speakerPresentation != null;
     }
 
     @Nullable
