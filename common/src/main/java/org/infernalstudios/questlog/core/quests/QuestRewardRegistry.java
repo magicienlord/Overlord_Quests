@@ -5,6 +5,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.core.quests.rewards.*;
 import org.infernalstudios.questlog.overlord.narrative.SetDispositionReward;
+import org.infernalstudios.questlog.overlord.narrative.SetFactReward;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 import java.util.HashMap;
@@ -30,6 +31,8 @@ public class QuestRewardRegistry {
                 new EditorMetadata(null, null, null));
         register(new ResourceLocation("questlog", "set_disposition"), SetDispositionReward::new,
                 new EditorMetadata("civilization", "Civilization ID:", null));
+        register(new ResourceLocation("questlog", "set_fact"), SetFactReward::new,
+                new EditorMetadata("fact", "Narrative Fact ID:", null));
     }
 
     public static Set<ResourceLocation> getRegisteredTypes() {
