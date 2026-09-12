@@ -61,6 +61,8 @@ public class QuestObjectiveRegistry {
         // Item
         register(new ResourceLocation("questlog", "item_craft"), ItemCraftObjective::new,
                 new EditorMetadata("item", "Item ID:", "required_amount", EditorMetadata.SuggestionType.ITEM));
+        register(new ResourceLocation("questlog", "item_craft_stat"), ItemCraftStatObjective::new,
+                new EditorMetadata("item", "Exact Item ID:", "required_amount", EditorMetadata.SuggestionType.ITEM));
         register(new ResourceLocation("questlog", "item_drop"), ItemDropObjective::new,
                 new EditorMetadata("item", "Item ID:", "required_amount", EditorMetadata.SuggestionType.ITEM));
         register(new ResourceLocation("questlog", "item_equip"), ItemEquipObjective::new,
