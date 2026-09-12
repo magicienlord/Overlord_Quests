@@ -1,0 +1,36 @@
+{
+  "title": "[DEV] Unlock Green Minions",
+  "description": "Development-only fixture for ordered OVERLORD Minions progression. This is not campaign content.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:blaze_rod"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:overlord_minion_unlock_red_dev",
+      "required_amount": 1,
+      "name": "[DEV] Red unlock fixture complete"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:blaze_rod",
+      "required_amount": 1,
+      "name": "[DEV] Obtain a blaze rod"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "green",
+      "auto_claim": true,
+      "name": "[DEV] Unlock Green Minions"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
