@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Report screen-space geometry for the Gnarl popup development fixture.
+"""Report screen-space geometry for the Gnarl speaker popup fixture.
 
-This is a static implementation aid, not an in-game renderer test. It mirrors the
-relevant QuestDetails placement constants while the right details panel is closed.
-The report makes clipping and content-overlap thresholds explicit before manual
-GUI-scale testing.
+This mirrors OverlordSpeakerScreen's layout policy closely enough to catch
+regressions before in-game review. It deliberately treats the parchment body and
+speaker lane as disjoint surfaces and keeps the primary action under parchment.
 """
-
 from __future__ import annotations
 
 import json
@@ -15,187 +13,121 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 QUEST = ROOT / "examples" / "questlog" / "quests" / "overlord_gnarl_popup_dev.json"
 
-# QuestDetails constants that affect the current single-panel prototype.
-CONTENT_X = 18
-CONTENT_Y = 36
-CONTENT_WIDTH_INSET = 38
-CONTENT_HEIGHT_INSET = 68
-BUTTON_Y_GAP = 2
+OUTER_MARGIN = 12
+SPEAKER_GAP = 10
+MIN_PANEL_WIDTH = 220
+MIN_SPEAKER_WIDTH = 72
+BUTTON_GAP = 2
 BUTTON_HEIGHT = 18
 
 
 def require_int(data: dict, key: str, default: int | None = None) -> int:
-    if key in data:
-        value = data[key]
-    elif default is not None:
-        value = default
-    else:
-        raise ValueError(f"missing required integer field: {key}")
-    if not isinstance(value, int) or isinstance(value, bool):
+    value = data.get(key, default)
+    if value is None or not isinstance(value, int) or isinstance(value, bool):
         raise ValueError(f"{key} must be an integer")
     return value
 
 
-def intersection(a0: int, a1: int, b0: int, b1: int) -> int:
-    return max(0, min(a1, b1) - max(a0, b0))
-
-
 def horizontal_geometry(data: dict, screen_width: int) -> dict[str, int]:
-    left_width = require_int(data, "left_panel_width", 275)
-    panel_offset = require_int(data, "left_panel_x_offset", 0)
-    overlay_width = require_int(data, "overlay_width", left_width)
-    overlay_offset = require_int(data, "overlay_x_offset", 0)
+    desired_panel = require_int(data, "left_panel_width", 275)
+    requested_speaker = require_int(data, "speaker_pane_width", 170)
+    available = max(MIN_PANEL_WIDTH, screen_width - OUTER_MARGIN * 2)
 
-    base_x = (screen_width - left_width) // 2
-    panel_x = base_x + panel_offset
-    overlay_x = panel_x + overlay_offset
-    left = min(panel_x, overlay_x)
-    right = max(panel_x + left_width, overlay_x + overlay_width)
+    speaker = requested_speaker
+    desired_total = desired_panel + SPEAKER_GAP + speaker
+    if desired_total > available:
+        speaker_budget = available - desired_panel - SPEAKER_GAP
+        speaker = max(MIN_SPEAKER_WIDTH, min(speaker, speaker_budget))
+
+    panel_budget = available - SPEAKER_GAP - speaker
+    panel = max(MIN_PANEL_WIDTH, min(desired_panel, panel_budget))
+    total = panel + SPEAKER_GAP + speaker
+    panel_x = (screen_width - total) // 2
+    speaker_x = panel_x + panel + SPEAKER_GAP
 
     return {
+        "panel_width": panel,
+        "speaker_width": speaker,
         "panel_x": panel_x,
-        "overlay_x": overlay_x,
-        "composition_left": left,
-        "composition_right": right,
-        "clip_left": max(0, -left),
-        "clip_right": max(0, right - screen_width),
+        "speaker_x": speaker_x,
+        "composition_left": panel_x,
+        "composition_right": speaker_x + speaker,
+        "clip_left": max(0, -panel_x),
+        "clip_right": max(0, speaker_x + speaker - screen_width),
+        "surface_gap": speaker_x - (panel_x + panel),
     }
 
 
 def vertical_geometry(data: dict, screen_height: int) -> dict[str, int]:
-    panel_height = require_int(data, "panel_height", 166)
-    panel_offset = require_int(data, "left_panel_y_offset", 0)
-    overlay_height = require_int(data, "overlay_height", panel_height)
-    overlay_offset = require_int(data, "overlay_y_offset", 0)
-
-    base_y = (screen_height - panel_height) // 2
-    panel_y = base_y + panel_offset
-    overlay_y = panel_y + overlay_offset
-    button_y = panel_y + panel_height + BUTTON_Y_GAP
-
-    top = min(panel_y, overlay_y)
-    bottom = max(
-        panel_y + panel_height,
-        overlay_y + overlay_height,
-        button_y + BUTTON_HEIGHT,
-    )
-
+    requested_height = require_int(data, "panel_height", 166)
+    panel_height = min(requested_height, max(140, screen_height - 54))
+    panel_y = max(8, (screen_height - panel_height - 22) // 2)
+    button_y = panel_y + panel_height + BUTTON_GAP
+    bottom = button_y + BUTTON_HEIGHT
     return {
+        "panel_height": panel_height,
         "panel_y": panel_y,
-        "overlay_y": overlay_y,
         "button_y": button_y,
-        "composition_top": top,
-        "composition_bottom": bottom,
-        "clip_top": max(0, -top),
+        "clip_top": max(0, -panel_y),
         "clip_bottom": max(0, bottom - screen_height),
     }
 
 
-def minimum_full_visibility_width(data: dict) -> int:
-    for width in range(1, 4097):
-        geo = horizontal_geometry(data, width)
-        if geo["clip_left"] == 0 and geo["clip_right"] == 0:
-            return width
-    raise RuntimeError("no full-visibility width found <= 4096")
-
-
-def minimum_full_visibility_height(data: dict) -> int:
-    for height in range(1, 4097):
-        geo = vertical_geometry(data, height)
-        if geo["clip_top"] == 0 and geo["clip_bottom"] == 0:
-            return height
-    raise RuntimeError("no full-visibility height found <= 4096")
-
-
 def main() -> int:
     data = json.loads(QUEST.read_text(encoding="utf-8"))
+    errors: list[str] = []
 
-    if data.get("disable_details_button") is not True or data.get("details_open_by_default") is not False:
-        raise ValueError(
-            "static report assumes the Gnarl fixture opens with the right details panel closed"
-        )
+    if data.get("speaker_id") != "overlord_reign:gnarl":
+        errors.append("Gnarl fixture must declare speaker_id=overlord_reign:gnarl")
+    if data.get("speaker_reaction") not in {"neutral", "directive", "mocking", "approving", "severe"}:
+        errors.append("Gnarl fixture reaction is outside the locked five-state vocabulary")
+    if data.get("disable_details_button") is not True:
+        errors.append("Gnarl popup fixture must keep the inherited details panel disabled")
 
-    left_width = require_int(data, "left_panel_width", 275)
+    overlay_width = require_int(data, "overlay_width", 160)
+    overlay_height = require_int(data, "overlay_height", 160)
+    speaker_width = require_int(data, "speaker_pane_width", 170)
+    panel_width = require_int(data, "left_panel_width", 275)
     panel_height = require_int(data, "panel_height", 166)
-    overlay_width = require_int(data, "overlay_width", left_width)
-    overlay_height = require_int(data, "overlay_height", panel_height)
-    overlay_x_offset = require_int(data, "overlay_x_offset", 0)
-    overlay_y_offset = require_int(data, "overlay_y_offset", 0)
 
-    panel_left = 0
-    panel_right = left_width
-    panel_top = 0
-    panel_bottom = panel_height
+    if overlay_width > speaker_width:
+        errors.append("portrait width exceeds its declared speaker lane")
 
-    overlay_left = overlay_x_offset
-    overlay_right = overlay_x_offset + overlay_width
-    overlay_top = overlay_y_offset
-    overlay_bottom = overlay_y_offset + overlay_height
-
-    panel_overlap_x = intersection(panel_left, panel_right, overlay_left, overlay_right)
-    panel_overlap_y = intersection(panel_top, panel_bottom, overlay_top, overlay_bottom)
-
-    description_left = CONTENT_X
-    description_right = CONTENT_X + (left_width - CONTENT_WIDTH_INSET)
-    description_top = CONTENT_Y
-    description_bottom = CONTENT_Y + (panel_height - CONTENT_HEIGHT_INSET)
-
-    description_overlap_x = intersection(
-        description_left, description_right, overlay_left, overlay_right
-    )
-    description_overlap_y = intersection(
-        description_top, description_bottom, overlay_top, overlay_bottom
-    )
-
-    min_width = minimum_full_visibility_width(data)
-    min_height = minimum_full_visibility_height(data)
-
-    print("GNARL POPUP STATIC LAYOUT REPORT")
-    print("status: implementation geometry only; manual in-game review still required")
-    print("runtime scope: unpublished local single-player world")
-    print(f"left panel: {left_width} x {panel_height}")
-    print(f"overlay: {overlay_width} x {overlay_height}")
-    print(f"overlay offset from left panel: x={overlay_x_offset:+d}, y={overlay_y_offset:+d}")
-    print(f"horizontal portrait/panel overlap: {panel_overlap_x} px")
-    print(f"vertical portrait/panel overlap: {panel_overlap_y} px")
-    print(
-        "description rectangle: "
-        f"x={description_left}..{description_right}, y={description_top}..{description_bottom}"
-    )
-    print(
-        "portrait/description geometric intrusion: "
-        f"{description_overlap_x} x {description_overlap_y} px "
-        f"({description_overlap_x * description_overlap_y} px^2)"
-    )
-    print(f"primary button extends {BUTTON_Y_GAP + BUTTON_HEIGHT} px below the panel")
-    print(f"minimum scaled GUI width for full horizontal visibility: {min_width} px")
-    print(f"minimum scaled GUI height for panel/overlay/button visibility: {min_height} px")
+    print("GNARL SPEAKER POPUP STATIC LAYOUT REPORT")
+    print("status: presentation geometry only; in-game visual approval remains required")
+    print(f"parchment request: {panel_width} x {panel_height}")
+    print(f"speaker lane request: {speaker_width} px")
+    print(f"portrait request: {overlay_width} x {overlay_height}")
+    print(f"locked surface gap: {SPEAKER_GAP} px")
+    print("primary action: below parchment body, never below speaker lane")
     print()
-    print("scaled_width  panel_x  overlay_x  left_clip  right_clip")
-    for width in (320, 360, 400, 426, 440, 480, 640, 854, 960):
+    print("scaled_width  panel_w  speaker_w  panel_x  speaker_x  gap  left_clip  right_clip")
+    for width in (320, 360, 400, 426, 480, 540, 640, 854, 960):
         geo = horizontal_geometry(data, width)
         print(
-            f"{width:12d}  {geo['panel_x']:7d}  {geo['overlay_x']:9d}"
+            f"{width:12d}  {geo['panel_width']:7d}  {geo['speaker_width']:9d}"
+            f"  {geo['panel_x']:7d}  {geo['speaker_x']:9d}  {geo['surface_gap']:3d}"
             f"  {geo['clip_left']:9d}  {geo['clip_right']:10d}"
         )
 
     print()
-    print("scaled_height  panel_y  overlay_y  button_y  top_clip  bottom_clip")
-    for height in (180, 200, 228, 229, 240, 270, 360, 480):
+    print("scaled_height  panel_h  panel_y  button_y  top_clip  bottom_clip")
+    for height in (180, 200, 228, 240, 270, 360, 480):
         geo = vertical_geometry(data, height)
         print(
-            f"{height:13d}  {geo['panel_y']:7d}  {geo['overlay_y']:9d}"
+            f"{height:13d}  {geo['panel_height']:7d}  {geo['panel_y']:7d}"
             f"  {geo['button_y']:8d}  {geo['clip_top']:8d}  {geo['clip_bottom']:11d}"
         )
 
-    if description_overlap_x > 0 and description_overlap_y > 0:
+    if errors:
         print()
-        print(
-            "NOTE: the current overlay reaches into the description rectangle. "
-            "This is a geometric warning only; alpha in the portrait and actual text glyph placement "
-            "must be judged in game."
-        )
+        print("GNARL SPEAKER POPUP LAYOUT CHECK FAILED:")
+        for error in errors:
+            print(f"  * {error}")
+        return 1
 
+    print()
+    print("GNARL SPEAKER POPUP LAYOUT CHECK: PASS")
     return 0
 
 
