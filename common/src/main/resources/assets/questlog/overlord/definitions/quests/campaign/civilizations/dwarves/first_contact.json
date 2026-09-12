@@ -1,0 +1,51 @@
+{
+  "title": "The Successor Hold",
+  "description": "A Dwarven successor hold survives beneath the old Golden Hills legacy. Its Forge-Thane is willing to receive you. Establish formal contact with this hold before deciding what place it will have in the new reign.",
+  "description_completed": "Formal contact has been established with the designated Dwarven successor hold. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:anvil"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 150,
+  "provider": {
+    "entity_types": [
+      "dwarven_forge:dwarf"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:dwarf_forge_thane"
+    ],
+    "role": "minecraft:toolsmith",
+    "civilization": "overlord_reign:dwarves",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "You stand in a Dwarven hold, not a ruin waiting to be claimed. I am its Forge-Thane. If the dark tower has business with my people, speak it here.",
+      "ready_to_turn_in": "Then the formalities are done. You know who speaks for this hold, and I know whose claim has returned to the world above.",
+      "completed": "Our hold has heard you. What we become under this reign has not yet been decided."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/dwarves/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Dwarven hold"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
