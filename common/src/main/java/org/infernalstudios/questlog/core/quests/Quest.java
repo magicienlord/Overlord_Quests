@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.core.QuestManager;
 import org.infernalstudios.questlog.core.quests.display.QuestDisplayData;
@@ -44,6 +45,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     public final List<Objective> objectives;
     public final List<Objective> failureConditions;
     public final List<Reward> rewards;
+    public final List<Reward> failureRewards;
     public final QuestManager manager;
     private final QuestDisplayData display;
     private final ResourceLocation id;
@@ -55,6 +57,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     @Nullable private QuestProviderBinding providerBinding;
     private boolean providerTurnedIn = false;
     private boolean disposed = false;
+    private boolean applyingFailureConsequences = false;
 
     public Quest(
             QuestDisplayData display,
@@ -62,6 +65,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
             List<Objective> objectives,
             List<Objective> failureConditions,
             List<Reward> rewards,
+            List<Reward> failureRewards,
             ResourceLocation id,
             QuestManager manager,
             boolean repeatable,
@@ -73,6 +77,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         this.objectives = objectives;
         this.failureConditions = failureConditions;
         this.rewards = rewards;
+        this.failureRewards = failureRewards;
         this.id = id;
         this.manager = manager;
         this.repeatable = repeatable;
@@ -103,6 +108,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
             }
         });
         this.rewards.forEach(reward -> reward.setParent(this));
+        this.failureRewards.forEach(reward -> reward.setParent(this));
         display.setQuest(this);
     }
 
@@ -112,6 +118,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         List<Objective> objectives = new ArrayList<>();
         List<Objective> failureConditions = new ArrayList<>();
         List<Reward> rewards = new ArrayList<>();
+        List<Reward> failureRewards = new ArrayList<>();
 
         JsonArray reqArray = definition.has("prerequisites") ? definition.getAsJsonArray("prerequisites")
                 : (definition.has("requirements") ? definition.getAsJsonArray("requirements") : new JsonArray());
@@ -144,11 +151,34 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
             }
         }
 
+        for (JsonElement rewardElement : JsonUtils.getOrDefault(definition, "failure_rewards", new JsonArray())) {
+            if (!rewardElement.isJsonObject()) {
+                throw new IllegalArgumentException("Failure consequence entries must be JSON objects");
+            }
+            Reward reward = QuestRewardRegistry.create(rewardElement.getAsJsonObject());
+            if (!reward.isAutoClaim()) {
+                throw new IllegalArgumentException("Failure consequences must use auto_claim because a failed quest cannot expose a claim flow");
+            }
+            failureRewards.add(reward);
+        }
+
         boolean repeatable = JsonUtils.getOrDefault(definition, "repeatable", false);
         boolean global = JsonUtils.getOrDefault(definition, "global", false);
         QuestProviderRule providerRule = QuestProviderRule.fromDefinition(definition);
 
-        return new Quest(display, prerequisites, objectives, failureConditions, rewards, id, manager, repeatable, global, providerRule);
+        return new Quest(
+                display,
+                prerequisites,
+                objectives,
+                failureConditions,
+                rewards,
+                failureRewards,
+                id,
+                manager,
+                repeatable,
+                global,
+                providerRule
+        );
     }
 
     /**
@@ -231,12 +261,46 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         this.markForUpdate();
     }
 
+    /**
+     * Applies the authored automatic consequences of a failed, already-triggered
+     * quest. The re-entry guard is necessary because every Reward marks its parent
+     * for synchronization, and narrative rewards may also synchronize the whole
+     * active graph after changing world-scoped state.
+     *
+     * Failure consequences are intentionally not a claimable reward surface. The
+     * definition loader requires auto_claim=true for every entry, so this method
+     * can persist facts, dispositions, commands, or other authored consequences at
+     * the exact failure boundary without waiting for an impossible success screen.
+     */
+    public void applyFailureConsequences(ServerPlayer player) {
+        if (player == null
+                || this.disposed
+                || !this.manager.isActive()
+                || this.applyingFailureConsequences
+                || !this.isTriggered()
+                || !this.isFailed()) {
+            return;
+        }
+
+        this.applyingFailureConsequences = true;
+        try {
+            for (Reward reward : this.failureRewards) {
+                if (!reward.hasRewarded()) {
+                    reward.applyReward(player);
+                }
+            }
+        } finally {
+            this.applyingFailureConsequences = false;
+        }
+    }
+
     public void resetProgress() {
         if (this.disposed || !this.manager.isActive()) return;
         this.prerequisites.forEach(trigger -> trigger.forceSetUnits(0));
         this.objectives.forEach(obj -> obj.forceSetUnits(0));
         this.failureConditions.forEach(obj -> obj.forceSetUnits(0));
         this.rewards.forEach(Reward::revokeReward);
+        this.failureRewards.forEach(Reward::revokeReward);
         this.providerBinding = null;
         this.providerTurnedIn = false;
         this.hasSentTrigger = this.prerequisites.isEmpty() && this.providerRule == null;
@@ -351,6 +415,15 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
                     return tag;
                 })
         );
+
+        data.put(
+                "failure_rewards",
+                Util.toNbtList(this.failureRewards, reward -> {
+                    CompoundTag tag = new CompoundTag();
+                    reward.writeInitialData(tag);
+                    return tag;
+                })
+        );
     }
 
     @Override
@@ -398,6 +471,11 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         for (int i = 0; i < Math.min(rewardData.size(), this.rewards.size()); i++) {
             this.rewards.get(i).deserialize((CompoundTag) rewardData.get(i));
         }
+
+        List<Tag> failureRewardData = data.getList("failure_rewards", Tag.TAG_COMPOUND);
+        for (int i = 0; i < Math.min(failureRewardData.size(), this.failureRewards.size()); i++) {
+            this.failureRewards.get(i).deserialize((CompoundTag) failureRewardData.get(i));
+        }
     }
 
     @Override
@@ -415,6 +493,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         tag.put("objectives", Util.toNbtList(this.objectives, Objective::serialize));
         tag.put("failures", Util.toNbtList(this.failureConditions, Objective::serialize));
         tag.put("rewards", Util.toNbtList(this.rewards, Reward::serialize));
+        tag.put("failure_rewards", Util.toNbtList(this.failureRewards, Reward::serialize));
         return tag;
     }
 }
