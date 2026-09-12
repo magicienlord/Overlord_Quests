@@ -63,6 +63,24 @@ Brown unlocks when the Minions Remastered staff is crafted. This is a Minions Re
 
 A quest may still observe staff crafting or Brown availability for progression purposes if campaign design requires it, but Questlog must not be the authority that grants the first Brown slot.
 
+## Early Gnarl branch anchor
+
+The Brown bootstrap is also a PLANNED early Gnarl campaign branch.
+
+Gnarl will have an opening branch whose gameplay task is to craft the Minions Remastered staff and thereby regain access to the Brown Minions. Questlog observes the staff-crafting milestone and advances the branch, while Minions Remastered remains the authority that actually unlocks slot `0`.
+
+This establishes the first Minion-recovery step as a real gameplay action rather than a purely narrative grant.
+
+Only the structural anchor is decided at this stage:
+
+- speaker/quest source: Gnarl;
+- task: craft the Minions Remastered staff;
+- gameplay consequence: Minions Remastered unlocks Brown, slot `0`;
+- quest consequence: the Gnarl branch recognizes that Brown access has been restored and can progress onward;
+- later Minion recovery remains ordered Red, then Green, then Blue.
+
+The exact quest title, dialogue, prerequisite circumstances, follow-up branch, and production marker IDs remain UNKNOWN until campaign authoring begins after the visual-foundation gate is complete. Do not invent those details early.
+
 ## Red, Green, and Blue unlock semantics
 
 For each later type, the unlock marker should be:
@@ -116,9 +134,12 @@ This is important for:
 
 OVERLORD QUESTS does not yet contain production Red/Green/Blue unlock rewards because the external Minions Remastered unlock API/marker IDs are not yet available in this repository.
 
-Once that interface is exposed, the Quest side should add one bounded integration adapter plus a development fixture that proves:
+The early Gnarl Brown branch is also not yet authored as production content because the current project priority is the shared visual foundation. Its structural role is nevertheless fixed by this document.
+
+Once the Minions Remastered interface is exposed, the Quest side should add one bounded integration adapter plus a development fixture that proves:
 
 - Brown remains staff-crafting-owned as slot `0`;
+- the early Gnarl branch can observe the staff-crafting/Brown bootstrap milestone without becoming the authority that unlocks Brown;
 - Red/Green/Blue begin locked;
 - the Red marker unlocks only slot `1`;
 - the Green marker cannot expose slot `2` before Red is unlocked;
