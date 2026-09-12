@@ -8,6 +8,7 @@ import validate_presentation_contracts as presentation
 ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = ROOT / "common/src/main/java/org/infernalstudios/questlog/commands/QuestlogCommands.java"
 FORWARDER = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java"
+NETWORKING = ROOT / "forge/src/main/java/org/infernalstudios/questlog/networking/QuestlogPacketsForge.java"
 OPEN_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/packet/QuestProviderOpenPacket.java"
 ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/packet/QuestProviderActionPacket.java"
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
@@ -37,6 +38,9 @@ require(
 require(FORWARDER, "!player.isShiftKeyDown()", "sneak-only temporary provider interaction")
 require(FORWARDER, "event.getHand() != InteractionHand.MAIN_HAND", "main-hand-only provider interaction")
 require(FORWARDER, "OverlordNarrativeCommands.register(event.getDispatcher())", "narrative admin command registration")
+require(NETWORKING, 'PROTOCOL_VERSION = "overlord-quests-3"', "provider completed-state network protocol bump")
+require(NETWORKING, ".clientAcceptedVersions(PROTOCOL_VERSION::equals)", "exact client protocol compatibility")
+require(NETWORKING, ".serverAcceptedVersions(PROTOCOL_VERSION::equals)", "exact server protocol compatibility")
 require(OPEN_PACKET, "MAX_ENTRIES = 256", "bounded provider-menu entry count")
 require(OPEN_PACKET, "MAX_PROVIDER_NAME = 128", "bounded provider display name")
 require(OPEN_PACKET, "buf.writeByte(entry.state().ordinal())", "provider state ordinal packet encoding")
