@@ -4,7 +4,7 @@ Status: TECHNICAL + VISUAL FOUNDATION VALIDATION / DEVELOPMENT CONTENT ONLY
 
 This protocol validates the NPC sidequest provider scaffold. The fixtures and commands below are not OVERLORD REIGN story canon.
 
-The core server-authoritative provider behavior has already received a successful direct runtime pass. The current rerun is primarily required because the formerly bare provider screen has been moved into the shared Questlog parchment/button visual language.
+Direct full-modpack runtime evidence has already validated provider discovery, offer presentation, long-dialogue scrolling through its terminal sentinel, explicit acceptance, transition to authored in-progress dialogue, and the shared provider visual baseline. Persistence, same-provider turn-in, disposition/fact rejection, distance closure, and the newer native Villager-profession role bridge remain separate robustness checks until directly evidenced.
 
 ## Test scope
 
@@ -21,6 +21,7 @@ The test verifies:
 - provider binding survives save/quit/reload;
 - a second eligible villager cannot satisfy `same_provider` turn-in;
 - the original provider can complete the turn-in after the objective is complete;
+- a Villager's registered profession can satisfy the provider `role` field without manual `overlord_role` tagging;
 - authored disposition/fact state can gate provider eligibility without a numeric reputation system;
 - the provider menu closes when the player leaves the interaction boundary;
 - command resets clear provider binding rather than leaving stale accepted state;
@@ -39,6 +40,8 @@ Use the CI-generated `overlord-quests-provider-test-kit` for the exact commit un
 4. Copy the kit's `config/` contents into the instance `config/` directory.
 5. Launch an unpublished local single-player world with commands available.
 6. Do not use Open to LAN for the primary acceptance pass.
+
+The current CI provider kit contains the established provider, disposition, and narrative-fact fixtures. The native-profession fixture may be copied manually from `examples/questlog/quests/overlord_provider_profession_dev.json` until the kit manifest is expanded to include it.
 
 ## Deterministic setup
 
@@ -92,8 +95,6 @@ Select the quest again. Dialogue must reopen at the beginning. Choose `Accept`. 
 
 ## Reset and persistence spot-check
 
-The older runtime pass already established the broader provider contract, but the visual rewrite must not have regressed it.
-
 Before completing the accepted quest, run:
 
 ```text
@@ -103,6 +104,8 @@ Before completing the accepted quest, run:
 The quest must become available again rather than remaining bound.
 
 Accept it again, save/quit, reload the world, and reopen Provider A. The quest must remain bound and in progress.
+
+This persistence check is required before provider-binding reload behavior is promoted from source/CI coverage to direct runtime validation.
 
 ## Same-provider turn-in spot-check
 
@@ -115,6 +118,31 @@ Give the objective item:
 Provider B must not present the accepted quest as ready for `same_provider` turn-in.
 
 Provider A must present it as ready. Select it, confirm the authored ready-to-turn-in response, then choose `Turn In`. The completed quest should disappear from actionable provider entries after the authoritative refresh.
+
+## Native Villager profession-role spot-check
+
+This check validates the provider bridge required by the REIGN rule that Villager professions may be sidequest-provider roles.
+
+Copy `overlord_provider_profession_dev.json` into `config/questlog/quests/` if the current provider kit does not already contain it, then reload quest definitions or restart the test world.
+
+Spawn a Farmer Villager with no `overlord_role` tag:
+
+```text
+/summon minecraft:villager ~3 ~ ~ {VillagerData:{profession:"minecraft:farmer",level:2,type:"minecraft:plains"},NoAI:1b,Invulnerable:1b,PersistenceRequired:1b,CustomName:'{"text":"[DEV] Native Farmer"}'}
+```
+
+Sneak and interact with that Villager. `[DEV] Villager Profession Provider` must be offered even though the entity has no `overlord_role:minecraft:farmer` scoreboard tag.
+
+Then use a non-Farmer Villager with no explicit role tag. The profession-gated fixture must not appear on that provider.
+
+Acceptance:
+
+- `role: minecraft:farmer` resolves through the registered Villager profession;
+- no manual role tagging is required for the native profession path;
+- the entity-type selector still applies;
+- profession matching does not make unrelated Villagers eligible.
+
+Modded professions should later be spot-checked with one installed profession provider once a production sidequest actually depends on that modded profession. The engine lookup is registry-driven and does not hard-code vanilla professions.
 
 ## Disposition-gating spot-check
 
@@ -149,11 +177,12 @@ Retain:
 - one screenshot of the provider quest LIST at normal GUI scale;
 - one screenshot of the selected offer with Accept/Decline visible;
 - one screenshot with `[DEV] DIALOGUE SCROLL END.` visible;
+- one screenshot of the native Farmer profession fixture being offered without an explicit role tag;
 - one screenshot at the adjacent/narrower GUI configuration if its composition differs materially;
 - any visual clipping, text collision, packet rejection, or quest-load error.
 
 ## Acceptance criteria
 
-The provider visual foundation passes when the parchment hierarchy and controls are coherent in the actual Forge 1.20.1 instance, ordinary provider NPCs remain free of the incorporeal reaction-portrait system, and the previously validated server-authoritative behavior remains intact after the visual rewrite.
+The provider visual foundation itself is already accepted. This protocol now serves as the remaining runtime robustness procedure for provider persistence, same-provider turn-in, narrative gating, distance lifecycle, and native Villager profession-role matching.
 
-Failure of the new visual baseline keeps the overall presentation gate open and blocks production campaign content.
+A failure in one of those robustness checks blocks promotion of that specific behavior to runtime-validated status, but does not by itself reopen the accepted parchment visual foundation.
