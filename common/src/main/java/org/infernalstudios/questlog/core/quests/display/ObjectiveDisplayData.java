@@ -106,7 +106,7 @@ public class ObjectiveDisplayData {
 
     public Component getName() {
         return this.objective != null && this.objective.isOptional()
-                ? Component.translatable("questlog.objective.optional", this.name)
+                ? this.name.copy().append(Component.literal(" (Optional)"))
                 : this.name;
     }
 
