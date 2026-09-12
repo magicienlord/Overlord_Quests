@@ -11,6 +11,7 @@ REWARD = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/mini
 OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/minions/MinionUnlockedObjective.java"
 REWARD_REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestRewardRegistry.java"
 OBJECTIVE_REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestObjectiveRegistry.java"
+EVENTS = ROOT / "common/src/main/java/org/infernalstudios/questlog/QuestlogEvents.java"
 MANAGER = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/QuestManager.java"
 PLAYER_MANAGER = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/ServerPlayerManager.java"
 MODS_TOML = ROOT / "forge/src/main/resources/META-INF/mods.toml"
@@ -67,6 +68,7 @@ def main() -> int:
     objective = read(OBJECTIVE, errors)
     reward_registry = read(REWARD_REGISTRY, errors)
     objective_registry = read(OBJECTIVE_REGISTRY, errors)
+    events = read(EVENTS, errors)
     manager = read(MANAGER, errors)
     player_manager = read(PLAYER_MANAGER, errors)
     mods_toml = read(MODS_TOML, errors)
@@ -102,6 +104,8 @@ def main() -> int:
     require('new ResourceLocation("questlog", "minion_unlocked")' in objective_registry, "minion_unlocked objective is not registered", errors)
     require("reconcileExternalProgressionRewards" in manager, "pending external Minion unlocks need login reconciliation", errors)
     require("reconcileExternalProgressionRewards(serverPlayer)" in player_manager, "player load must invoke Minion unlock reconciliation", errors)
+    require("reward instanceof UnlockMinionReward && reward.hasRewarded()" in events, "successful Minion reward must be detected at the completion boundary", errors)
+    require("ServerPlayerManager.INSTANCE.syncAllQuestState();" in events, "successful Minion handoff must immediately refresh owner-backed prerequisites", errors)
 
     require('modId = "overlord_minions"' in mods_toml, "Forge metadata must declare the optional OVERLORD Minions integration", errors)
     require("mandatory = false" in mods_toml[mods_toml.find('modId = "overlord_minions"'):], "OVERLORD Minions integration must remain optional at loader level", errors)
@@ -160,6 +164,7 @@ def main() -> int:
     print("slot ownership: Brown=staff bootstrap, Red=1, Green=2, Blue=3")
     print("quest-side persistence: delegated to public OverlordMinionProgression API")
     print("later-tier gating: quest milestone plus authoritative previous-slot owner state")
+    print("post-handoff refresh: immediate active-graph synchronization")
     print("reconciliation: idempotent login retry for completed pending milestones")
     return 0
 
