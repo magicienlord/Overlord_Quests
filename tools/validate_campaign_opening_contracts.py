@@ -29,6 +29,7 @@ FORGE_REACTION = TOWER_QUESTS / "forge_prepared_reaction.json"
 INITIAL_FOUNDATION = EXPANSION_QUESTS / "the_reign_takes_shape.json"
 GOBLIN_CONTACT = CIVILIZATION_QUESTS / "goblins/first_contact.json"
 GNUMU_CONTACT = CIVILIZATION_QUESTS / "gnumus/first_contact.json"
+RIBBIT_CONTACT = CIVILIZATION_QUESTS / "ribbits/first_contact.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
@@ -110,7 +111,7 @@ def validate_provider_contact(
             if "role" in provider:
                 errors.append(f"{label} must not acquire an unsupported provider role")
         elif provider.get("role") != role:
-            errors.append(f"{label} must retain its authored local social role")
+            errors.append(f"{label} must retain its source-backed or authored provider role")
 
         dialogue = provider.get("dialogue")
         if not isinstance(dialogue, dict):
@@ -168,6 +169,7 @@ def collect_errors() -> list[str]:
     initial_foundation = load(INITIAL_FOUNDATION, errors)
     goblin_contact = load(GOBLIN_CONTACT, errors)
     gnumu_contact = load(GNUMU_CONTACT, errors)
+    ribbit_contact = load(RIBBIT_CONTACT, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -182,6 +184,7 @@ def collect_errors() -> list[str]:
         "campaign/expansion/the_reign_takes_shape.json",
         "campaign/civilizations/goblins/first_contact.json",
         "campaign/civilizations/gnumus/first_contact.json",
+        "campaign/civilizations/ribbits/first_contact.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
         errors.append("bundled definition index is missing one or more guarded production campaign definitions")
@@ -361,6 +364,16 @@ def collect_errors() -> list[str]:
         contact_fact="overlord_reign:civilizations/gnumus/contact_established",
         role="elder_shaman",
     )
+    validate_provider_contact(
+        ribbit_contact,
+        errors,
+        label="Ribbit first contact",
+        entity_type="ribbits:ribbit",
+        anchor_tag="overlord_anchor:ribbit_main_elder",
+        civilization="overlord_reign:ribbits",
+        contact_fact="overlord_reign:civilizations/ribbits/contact_established",
+        role="ribbits:gardener",
+    )
 
     return errors
 
@@ -380,7 +393,7 @@ def main() -> int:
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
     print("early-recovery convergence: Brown recovery plus first Tower restoration records the semi-open campaign foundation")
-    print("civilization contacts: Goblin and Gnumu anchors are local, provider-native, and disposition-unresolved")
+    print("civilization contacts: Goblin, Gnumu, and Ribbit anchors are local, provider-native, and disposition-unresolved")
     return 0
 
 
