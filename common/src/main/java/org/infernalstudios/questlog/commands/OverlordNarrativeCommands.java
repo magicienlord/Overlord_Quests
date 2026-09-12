@@ -3,7 +3,6 @@ package org.infernalstudios.questlog.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -22,6 +21,16 @@ public final class OverlordNarrativeCommands {
         OverlordNarrativeState state = OverlordNarrativeState.get(ctx.getSource().getServer());
         return SharedSuggestionProvider.suggest(
                 state.snapshotDispositions().keySet().stream()
+                        .sorted(Comparator.comparing(ResourceLocation::toString))
+                        .map(ResourceLocation::toString),
+                builder
+        );
+    };
+
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_FACTS = (ctx, builder) -> {
+        OverlordNarrativeState state = OverlordNarrativeState.get(ctx.getSource().getServer());
+        return SharedSuggestionProvider.suggest(
+                state.snapshotFacts().stream()
                         .sorted(Comparator.comparing(ResourceLocation::toString))
                         .map(ResourceLocation::toString),
                 builder
@@ -66,6 +75,26 @@ public final class OverlordNarrativeCommands {
                                         )
                                 )
                         )
+                        .then(Commands.literal("fact")
+                                .then(Commands.literal("get")
+                                        .then(Commands.argument("fact", ResourceLocationArgument.id())
+                                                .suggests(SUGGEST_FACTS)
+                                                .executes(OverlordNarrativeCommands::getFact)
+                                        )
+                                )
+                                .then(Commands.literal("set")
+                                        .then(Commands.argument("fact", ResourceLocationArgument.id())
+                                                .suggests(SUGGEST_FACTS)
+                                                .executes(OverlordNarrativeCommands::setFact)
+                                        )
+                                )
+                                .then(Commands.literal("clear")
+                                        .then(Commands.argument("fact", ResourceLocationArgument.id())
+                                                .suggests(SUGGEST_FACTS)
+                                                .executes(OverlordNarrativeCommands::clearFact)
+                                        )
+                                )
+                        )
                         .build()
         );
     }
@@ -104,6 +133,40 @@ public final class OverlordNarrativeCommands {
                 () -> Component.literal(
                         (changed ? "Cleared" : "Kept") + " narrative disposition " + civilization + " = " + OverlordNarrativeState.UNRESOLVED
                 ),
+                true
+        );
+        return 1;
+    }
+
+    private static int getFact(CommandContext<CommandSourceStack> ctx) {
+        ResourceLocation fact = ResourceLocationArgument.getId(ctx, "fact");
+        boolean present = OverlordNarrativeState.get(ctx.getSource().getServer()).hasFact(fact);
+        ctx.getSource().sendSuccess(
+                () -> Component.literal("Narrative fact " + fact + " = " + present),
+                false
+        );
+        return present ? 1 : 0;
+    }
+
+    private static int setFact(CommandContext<CommandSourceStack> ctx) {
+        ResourceLocation fact = ResourceLocationArgument.getId(ctx, "fact");
+        OverlordNarrativeState narrative = OverlordNarrativeState.get(ctx.getSource().getServer());
+        boolean changed = narrative.setFact(fact);
+        syncQuestStateIfChanged(changed);
+        ctx.getSource().sendSuccess(
+                () -> Component.literal((changed ? "Set" : "Kept") + " narrative fact " + fact),
+                true
+        );
+        return 1;
+    }
+
+    private static int clearFact(CommandContext<CommandSourceStack> ctx) {
+        ResourceLocation fact = ResourceLocationArgument.getId(ctx, "fact");
+        OverlordNarrativeState narrative = OverlordNarrativeState.get(ctx.getSource().getServer());
+        boolean changed = narrative.clearFact(fact);
+        syncQuestStateIfChanged(changed);
+        ctx.getSource().sendSuccess(
+                () -> Component.literal((changed ? "Cleared" : "Kept absent") + " narrative fact " + fact),
                 true
         );
         return 1;
