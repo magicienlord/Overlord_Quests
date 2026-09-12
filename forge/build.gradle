@@ -62,6 +62,18 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 }
 
+tasks.register('resolveServerSmokeRuntime') {
+    group = 'verification'
+    description = 'Resolves the Forge development runtime classpath and transforms for offline dedicated-server smoke boot.'
+    doLast {
+        configurations.runtimeClasspath.files.each { file ->
+            if (!file.exists()) {
+                throw new GradleException("Resolved runtime artifact does not exist: ${file}")
+            }
+        }
+    }
+}
+
 jar {
     finalizedBy('reobfJar')
     manifest.attributes([
