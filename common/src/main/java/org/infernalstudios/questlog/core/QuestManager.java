@@ -8,9 +8,11 @@ import net.minecraft.world.entity.player.Player;
 import org.infernalstudios.questlog.Questlog;
 import org.infernalstudios.questlog.QuestlogEvents;
 import org.infernalstudios.questlog.core.quests.Quest;
+import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.packet.QuestDataPacket;
 import org.infernalstudios.questlog.network.packet.QuestRemovePacket;
+import org.infernalstudios.questlog.overlord.minions.UnlockMinionReward;
 import org.infernalstudios.questlog.platform.Services;
 
 import java.util.ArrayList;
@@ -120,6 +122,28 @@ public class QuestManager {
      */
     public List<Quest> getAllQuests() {
         return new ArrayList<>(this.quests.values());
+    }
+
+    /**
+     * Re-applies only the idempotent external progression rewards whose owning
+     * mod remains authoritative for persistence. A completed Questlog milestone
+     * may have been saved while the optional API owner was unavailable. The
+     * Minion API explicitly treats an already-open tier as success, so login-time
+     * reconciliation is safe and does not duplicate Minion state in Questlog.
+     */
+    public void reconcileExternalProgressionRewards(ServerPlayer serverPlayer) {
+        if (!this.isActive() || serverPlayer == null) return;
+
+        for (Quest quest : this.quests.values()) {
+            if (!quest.isCompleted()) continue;
+            for (Reward reward : quest.rewards) {
+                if (reward instanceof UnlockMinionReward
+                        && reward.isAutoClaim()
+                        && !reward.hasRewarded()) {
+                    reward.applyReward(serverPlayer);
+                }
+            }
+        }
     }
 
     /**
