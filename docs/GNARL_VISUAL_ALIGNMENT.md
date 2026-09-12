@@ -108,7 +108,8 @@ Unless explicitly revised by the Overlord, preserve these while aligning against
 - the original snout/muzzle geometry remains unchanged;
 - the original sly/non-angry expression remains unchanged;
 - the portrait should read clearly at quest-popup scale before close-detail fidelity is considered;
-- transparency around Gnarl must remain clean so the portrait can overlap parchment without a rectangular backdrop;
+- transparency around Gnarl must remain clean so the portrait reads cleanly in its dedicated right-side reaction lane beside parchment;
+- no visible portrait pixel should be positioned back across the parchment body;
 - the portrait must not be forced into the geometric stiffness of the Minecraft model;
 - no model-derived detail should be added merely because it exists in the `.geo.json`.
 
@@ -153,6 +154,6 @@ SNOUT GEOMETRY / NON-ANGRY EXPRESSION: LOCKED INVARIANTS.
 
 CURRENT REPOSITORY PNG: APPROVED EXACT BINARY INTEGRATED FROM MAIN.
 
-POPUP UI COMPOSITION: IMPLEMENTATION TEST, NOT YET LOCKED.
+POPUP UI COMPOSITION: DEDICATED RIGHT-SIDE REACTION LANE IMPLEMENTED, DIRECT IN-GAME ACCEPTANCE PENDING.
 
 FULL POPUP / MODEL MIX: NOT APPROVED YET. Defer until the in-game model reaches the cross-alignment review gate.
