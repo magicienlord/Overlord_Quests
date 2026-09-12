@@ -92,6 +92,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("dimension", "Exact Dimension ID:", null, EditorMetadata.SuggestionType.DIMENSION));
         register(new ResourceLocation("questlog", "visit_position"), VisitPositionObjective::new,
                 new EditorMetadata("bounds", "Position / Bounds:", null));
+        register(new ResourceLocation("questlog", "visit_position_history"), VisitPositionHistoryObjective::new,
+                new EditorMetadata("bounds", "Position / Bounds:", null));
         register(new ResourceLocation("questlog", "visit_structure"), VisitStructureObjective::new,
                 new EditorMetadata("structure", "Structure ID:", "required_amount", EditorMetadata.SuggestionType.STRUCTURE));
         register(new ResourceLocation("questlog", "visit_structure_history"), VisitStructureHistoryObjective::new,
