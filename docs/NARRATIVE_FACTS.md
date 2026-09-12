@@ -267,6 +267,74 @@ This fact does NOT mean:
 
 The fact records formal contact with one designated Den only. Political state and later consequences remain separate authored systems.
 
+### `overlord_reign:civilizations/sea_dwellers/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/sea_dwellers/first_contact` after the Overlord completes the first formal interaction with the designated Sea Elder at the principal Sea Village.
+
+Meaning:
+
+- the designated Sea Village has formally entered the current Overlord's campaign history;
+- the provider belongs to the exact installed `#seadwellers:mermorphs` native entity family and carries the authored local Sea Elder role;
+- later Sea Dweller content may distinguish the selected village from unrelated Sea Villages and naturally occurring Mermorphs.
+
+This fact does NOT mean:
+
+- that Sea Dweller disposition has been resolved;
+- that the village is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that every Sea Dweller recognizes the Overlord's authority;
+- that exact village coordinates have been fixed in canon;
+- that native Sea Dweller trade behavior has been globally rewritten;
+- that any removed or nonexistent Ocean Dragon progression is part of the campaign.
+
+The fact records formal contact with one designated Sea Village only.
+
+### `overlord_reign:civilizations/dwarves/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/dwarves/first_contact` after the Overlord completes the first formal interaction with the designated Forge-Thane of the Golden Hills successor hold.
+
+Meaning:
+
+- the designated Dwarven successor hold has formally entered the current Overlord's campaign history;
+- the provider is the exact installed `dwarven_forge:dwarf` entity with native `minecraft:toolsmith` profession, which the source mod presents as Dwarven Forger;
+- the authored Forge-Thane identity applies to that local political anchor rather than every Dwarven Forger.
+
+This fact does NOT mean:
+
+- that Dwarven disposition has been resolved;
+- that the successor hold is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that every Dwarf recognizes the Forge-Thane as a universal ruler;
+- that the old Golden Hills kingdom has been restored;
+- that exact hold coordinates have been fixed in canon;
+- that native Dwarven amethyst trade behavior has been globally rewritten.
+
+The fact records formal contact with the designated successor hold only.
+
+### `overlord_reign:civilizations/umvuthana/contact_established`
+
+Category: civilization-anchor first-audience milestone.
+
+Set by `campaign/civilizations/umvuthana/first_contact` after the Overlord completes the legitimate mask-gated audience with the designated canonical Umvuthi.
+
+Meaning:
+
+- the Overlord has formally met the creator-god and political center of the designated Grove;
+- the audience was entered through the exact installed Umvuthana-mask recognition path rather than by globally disabling Umvuthi hostility;
+- the designated Grove has crossed from pre-audience hostility into the explicit local political state written by the same quest.
+
+This fact does NOT mean:
+
+- that all Umvuthana or all Umvuthis are neutral;
+- that the designated Umvuthi is subjugated;
+- that the native boss/destructive route has been removed;
+- that a player marked by Mowzie's Mobs as the Umvuthi's misbehaving player receives permanent immunity;
+- that exact Grove coordinates have been fixed in canon.
+
+Unlike the other current civilization contact facts, this audience also writes the designated Grove's disposition to `overlord_reign:neutral` because the newer Umvuthana decisions explicitly define first-audience completion as the transition to local neutrality. The historical contact fact and the current disposition remain separate state dimensions. See `docs/CIVILIZATION_DISPOSITIONS.md` and `docs/UMVUTHI_AUDIENCE_INTEGRATION.md`.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.
