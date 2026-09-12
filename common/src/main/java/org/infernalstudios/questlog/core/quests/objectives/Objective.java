@@ -19,6 +19,8 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     private Quest parent;
     private int units;
     private boolean isPartOfPrerequisites = false;
+    private boolean isOptionalRoot = false;
+    private boolean isPartOfOptionalObjective = false;
 
     public Objective(JsonObject definition) {
         // Repository validation rejects non-positive required amounts, but config
@@ -53,6 +55,31 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
     @Deprecated
     public void markAsRequirement() {
         this.markAsPrerequisite();
+    }
+
+    /**
+     * Marks this top-level objective as optional and propagates the optional
+     * progress boundary to every nested logic child. Only the root carries the
+     * presentation label; descendants inherit only the runtime freeze semantics.
+     */
+    public void markAsOptional() {
+        this.isOptionalRoot = true;
+        this.markOptionalTree();
+    }
+
+    private void markOptionalTree() {
+        this.isPartOfOptionalObjective = true;
+        for (Objective child : this.getChildren()) {
+            child.markOptionalTree();
+        }
+    }
+
+    public boolean isOptional() {
+        return this.isOptionalRoot;
+    }
+
+    public boolean isPartOfOptionalObjective() {
+        return this.isPartOfOptionalObjective;
     }
 
     @Nullable
@@ -110,6 +137,14 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         }
 
         if (this.getParent() != null && !this.getParent().isTriggered() && !this.isPartOfPrerequisites) {
+            return;
+        }
+
+        // Optional objectives are opportunities available while a quest is live,
+        // not post-completion score counters. QuestManager sets hasSentCompletion
+        // synchronously when the required objective boundary is crossed, so later
+        // callbacks cannot mutate an optional branch after the quest has closed.
+        if (this.getParent() != null && this.isPartOfOptionalObjective && this.getParent().hasSentCompletion) {
             return;
         }
 
