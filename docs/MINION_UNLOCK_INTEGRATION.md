@@ -6,32 +6,39 @@ This document records the approved gameplay integration boundary between OVERLOR
 
 ## Approved progression model
 
-The Minions Remastered fork will expose four Minion-type slots corresponding to the four traditional Minion types:
+The Minions Remastered fork will expose four zero-based Minion-type slots with a fixed type mapping:
 
-1. Brown
-2. Red
-3. Green
-4. Blue
+- slot `0` = Brown
+- slot `1` = Red
+- slot `2` = Green
+- slot `3` = Blue
 
-Crafting the Minions Remastered staff unlocks only the first slot, Brown.
+Crafting the Minions Remastered staff unlocks only slot `0`, Brown.
 
 Red, Green, and Blue remain locked after staff crafting and are intended to be unlocked later by quest progression through durable quest markers.
 
-The three later unlocks are independent. A player does not receive all four Minion types simply by obtaining the staff.
+The campaign unlock sequence is fixed and must follow the slot order:
+
+`Brown -> Red -> Green -> Blue`
+
+Quest progression must therefore unlock slot `1` before slot `2`, and slot `2` before slot `3`. Production quest authoring must not create a route that grants Green before Red or Blue before Green.
+
+This ordering is a technical and campaign progression constraint. The exact quests, narrative circumstances, and final marker IDs that grant Red, Green, and Blue remain UNKNOWN until campaign authoring reaches those sections and the Minions Remastered fork exposes its final integration surface.
 
 ## Ownership boundary
 
-OVERLORD QUESTS owns the campaign decision that a Minion type has been earned.
+OVERLORD QUESTS owns the campaign decision that the next Minion type has been earned.
 
 The Minions Remastered fork owns:
 
 - the four-slot Minion-type system;
+- the fixed slot-to-type mapping `0=Brown, 1=Red, 2=Green, 3=Blue`;
 - the initial Brown unlock caused by staff crafting;
 - persistence of unlocked Minion slots/types on its side;
 - enforcing which Minion types can actually be selected, summoned, or assigned;
 - the technical API, command, or marker-consumption surface used by OVERLORD QUESTS.
 
-OVERLORD QUESTS must not infer Minion unlocks from inventory possession once Brown has been established. Red, Green, and Blue unlock only from explicit campaign markers.
+OVERLORD QUESTS must not infer Minion unlocks from inventory possession once Brown has been established. Red, Green, and Blue unlock only from explicit campaign markers and only in the approved sequence.
 
 ## Quest-side representation
 
@@ -69,6 +76,14 @@ For each later type, the unlock marker should be:
 - independent of temporary inventory state;
 - independent of provider disposition or sidequest reputation.
 
+The later unlocks are not order-independent. Their prerequisite relationship is fixed:
+
+- Red, slot `1`, requires the Brown bootstrap state from slot `0`;
+- Green, slot `2`, requires Red to have been unlocked;
+- Blue, slot `3`, requires Green to have been unlocked.
+
+Quest definitions should enforce this sequence authoritatively. The Minions Remastered bridge should also reject, defer, or safely reconcile an out-of-order marker rather than exposing a later slot while an earlier slot is still locked.
+
 The quest that grants each type is UNKNOWN until campaign authoring establishes it from the lore/source authority.
 
 ## Compatibility requirement
@@ -85,9 +100,9 @@ Direct reflection, mixin access into private Minions Remastered fields, hard-cod
 
 ## Sequence-break behavior
 
-Because unlocks are permanent campaign capabilities, the bridge must reconcile existing progress safely.
+Because unlocks are permanent campaign capabilities, the bridge must reconcile existing progress safely without violating the fixed slot order.
 
-If a world loads after a relevant unlock quest is already complete, or after its durable fact is already present, the corresponding Minion type must become available even if the original completion event is no longer replayed.
+If a world loads after a relevant unlock quest is already complete, or after its durable fact is already present, the corresponding Minion type must become available even if the original completion event is no longer replayed. Reconciliation must walk progression in order so a later stored marker does not bypass an earlier required slot.
 
 This is important for:
 
@@ -103,12 +118,15 @@ OVERLORD QUESTS does not yet contain production Red/Green/Blue unlock rewards be
 
 Once that interface is exposed, the Quest side should add one bounded integration adapter plus a development fixture that proves:
 
-- Brown remains staff-crafting-owned;
+- Brown remains staff-crafting-owned as slot `0`;
 - Red/Green/Blue begin locked;
-- each synthetic quest marker unlocks only its assigned type;
+- the Red marker unlocks only slot `1`;
+- the Green marker cannot expose slot `2` before Red is unlocked;
+- the Blue marker cannot expose slot `3` before Green is unlocked;
+- the complete valid sequence is `0 Brown -> 1 Red -> 2 Green -> 3 Blue`;
 - repeated application is harmless;
 - save/reload preserves each unlock;
-- an already-present marker reconciles correctly on world load;
+- already-present markers reconcile correctly on world load in slot order;
 - removing one development marker through admin tooling does not silently revoke a type in normal production semantics unless the Minions fork explicitly defines reversible debug behavior.
 
 ## Repository consistency note
