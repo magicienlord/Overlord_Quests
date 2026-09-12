@@ -68,6 +68,14 @@ public final class SpeakerPortraitTextures {
         );
     }
 
+    public static void clear() {
+        Minecraft minecraft = Minecraft.getInstance();
+        for (ResourceLocation generated : CLEANED.values()) {
+            minecraft.getTextureManager().release(generated);
+        }
+        CLEANED.clear();
+    }
+
     private static ResourceLocation resolveAlpha(ResourceLocation source, boolean cleanAlpha) {
         if (!cleanAlpha) {
             return source;
