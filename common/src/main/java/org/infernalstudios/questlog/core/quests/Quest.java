@@ -123,7 +123,12 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
 
         for (JsonElement objectiveElement : JsonUtils.getOrDefault(definition, "objectives", new JsonArray())) {
             if (objectiveElement.isJsonObject()) {
-                objectives.add(QuestObjectiveRegistry.create(objectiveElement.getAsJsonObject()));
+                JsonObject objectiveDefinition = objectiveElement.getAsJsonObject();
+                Objective objective = QuestObjectiveRegistry.create(objectiveDefinition);
+                if (JsonUtils.getOrDefault(objectiveDefinition, "optional", false)) {
+                    objective.markAsOptional();
+                }
+                objectives.add(objective);
             }
         }
 
@@ -197,7 +202,7 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
     public boolean areObjectivesComplete() {
         if (this.disposed || !this.manager.isActive() || this.isFailed()) return false;
         for (Objective objective : this.objectives) {
-            if (!objective.isCompleted()) return false;
+            if (!objective.isOptional() && !objective.isCompleted()) return false;
         }
         return true;
     }
@@ -268,9 +273,10 @@ public class Quest implements NbtSaveable, WithDisplayData<QuestDisplayData> {
         }
 
         try {
-            // A quest with prerequisites but no objectives must not be considered
-            // complete while it is still locked. Once its prerequisites trigger, an
-            // empty objective list can legitimately complete immediately.
+            // A quest with prerequisites but no required objectives must not be
+            // considered complete while it is still locked. Once its prerequisites
+            // trigger, an empty required-objective set can legitimately complete
+            // immediately. Optional objectives never gate this boundary.
             if (!this.isTriggered() || this.isFailed()) return false;
 
             if (!this.areObjectivesComplete()) return false;
