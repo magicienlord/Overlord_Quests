@@ -43,15 +43,13 @@ public record QuestProviderOpenPacket(
             throw new IllegalArgumentException("Invalid provider menu entry count: " + count);
         }
 
-        QuestProviderService.InteractionState[] states = QuestProviderService.InteractionState.values();
         List<QuestProviderService.InteractionEntry> entries = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             ResourceLocation questId = buf.readResourceLocation();
-            int stateOrdinal = buf.readUnsignedByte();
-            if (stateOrdinal >= states.length) {
-                throw new IllegalArgumentException("Unknown provider quest interaction state: " + stateOrdinal);
-            }
-            entries.add(new QuestProviderService.InteractionEntry(questId, states[stateOrdinal]));
+            QuestProviderService.InteractionState state = QuestProviderService.InteractionState.fromWireId(
+                    buf.readUnsignedByte()
+            );
+            entries.add(new QuestProviderService.InteractionEntry(questId, state));
         }
         return new QuestProviderOpenPacket(entityId, providerId, providerName, entries);
     }
@@ -69,7 +67,7 @@ public record QuestProviderOpenPacket(
         buf.writeVarInt(this.entries.size());
         for (QuestProviderService.InteractionEntry entry : this.entries) {
             buf.writeResourceLocation(entry.questId());
-            buf.writeByte(entry.state().ordinal());
+            buf.writeByte(entry.state().wireId());
         }
     }
 
