@@ -1,0 +1,53 @@
+{
+  "title": "Goblin Engineering",
+  "description": "One of the principal camp's engineers insists that Goblin engineering deserves more respect than its noise, smoke, and occasional loss of eyebrows usually receives. Use one of their engineer workbenches and see what the camp is actually capable of building.",
+  "description_completed": "The Overlord has used a Goblin engineer workbench and seen the camp's native engineering system firsthand.",
+  "icon": {
+    "item": "goblins_tyranny:engineer_workbench"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 106,
+  "provider": {
+    "entity_types": [
+      "goblins_tyranny:engineer_goblin",
+      "goblins_tyranny:engineeress_goblin"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:goblin_main_engineer"
+    ],
+    "civilization": "overlord_reign:goblins",
+    "required_facts": [
+      "overlord_reign:civilizations/goblins/contact_established"
+    ],
+    "dialogue": {
+      "offer": "Everybody respects swords. Nobody respects the clever Goblin who makes the thing that explodes behind the sword. Use our workbench, big boss. Then you can respect us properly.",
+      "in_progress": "Workbench is still there. Probably. If it exploded, that also proves it was engineering.",
+      "ready_to_turn_in": "See? Goblin engineering. Clever, useful, dangerous. Usually in that order.",
+      "completed": "You have seen the workbench. Now when something explodes, you can appreciate the craftsmanship."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/goblins/contact_established",
+      "required_amount": 1,
+      "name": "Establish formal contact with the principal Goblin Camp"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "goblins_tyranny:engineer_success",
+      "required_amount": 1,
+      "name": "Use a Goblin engineer workbench"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
