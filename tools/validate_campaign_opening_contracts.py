@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the first bundled REIGN campaign slice against structural regressions.
+"""Guard the bundled REIGN opening and first civilization slices.
 
 This validator deliberately checks implementation invariants only. It does not
 print authored dialogue or expose concealed later campaign content.
@@ -28,6 +28,7 @@ FORGE = TOWER_QUESTS / "prepare_the_forge.json"
 FORGE_REACTION = TOWER_QUESTS / "forge_prepared_reaction.json"
 INITIAL_FOUNDATION = EXPANSION_QUESTS / "the_reign_takes_shape.json"
 GOBLIN_CONTACT = CIVILIZATION_QUESTS / "goblins/first_contact.json"
+GNUMU_CONTACT = CIVILIZATION_QUESTS / "gnumus/first_contact.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
@@ -39,10 +40,6 @@ FORGE_REACTION_ID = "questlog:campaign/tower/forge_prepared_reaction"
 STAFF_ID = "minionsremastered:masters_staff"
 FORGE_FACT = "overlord_reign:tower/forge_prepared"
 INITIAL_FOUNDATION_FACT = "overlord_reign:reign/initial_foundation_established"
-GOBLIN_ENTITY = "goblins_tyranny:leader_goblin"
-GOBLIN_ANCHOR_TAG = "overlord_anchor:goblin_main"
-GOBLIN_CIVILIZATION = "overlord_reign:goblins"
-GOBLIN_CONTACT_FACT = "overlord_reign:civilizations/goblins/contact_established"
 
 
 def load(path: Path, errors: list[str]) -> dict[str, Any]:
@@ -84,6 +81,81 @@ def nested_quest_complete_ids(entry: Any) -> set[str]:
     return set()
 
 
+def validate_provider_contact(
+    data: dict[str, Any],
+    errors: list[str],
+    *,
+    label: str,
+    entity_type: str,
+    anchor_tag: str,
+    civilization: str,
+    contact_fact: str,
+    role: str | None = None,
+) -> None:
+    provider = data.get("provider")
+    if not isinstance(provider, dict):
+        errors.append(f"{label} must remain provider-bound to its designated anchor NPC")
+    else:
+        if provider.get("entity_types") != [entity_type]:
+            errors.append(f"{label} must target only its source-backed anchor entity type")
+        if provider.get("scoreboard_tags") != [anchor_tag]:
+            errors.append(f"{label} must remain scoped to its designated local civilization anchor")
+        if provider.get("civilization") != civilization:
+            errors.append(f"{label} civilization identity changed unexpectedly")
+        if provider.get("required_facts") != [INITIAL_FOUNDATION_FACT]:
+            errors.append(f"{label} must remain gated behind the semi-open campaign foundation")
+        if provider.get("lock_to_provider") is not True or provider.get("turn_in") != "same_provider":
+            errors.append(f"{label} must remain bound to the exact issuing anchor NPC")
+        if role is None:
+            if "role" in provider:
+                errors.append(f"{label} must not acquire an unsupported provider role")
+        elif provider.get("role") != role:
+            errors.append(f"{label} must retain its authored local social role")
+
+        dialogue = provider.get("dialogue")
+        if not isinstance(dialogue, dict):
+            errors.append(f"{label} must retain authored provider dialogue")
+        else:
+            for phase in ("offer", "ready_to_turn_in", "completed"):
+                if not isinstance(dialogue.get(phase), str) or not dialogue.get(phase, "").strip():
+                    errors.append(f"{label} must retain non-empty {phase} provider dialogue")
+            if "in_progress" in dialogue:
+                errors.append(f"{label} must not expose a fake in-progress phase when no intervening gameplay objective exists")
+
+    prerequisites = data.get("prerequisites", [])
+    if not isinstance(prerequisites, list) or len(prerequisites) != 1:
+        errors.append(f"{label} must retain one initial-foundation prerequisite")
+    else:
+        prerequisite = prerequisites[0]
+        if not isinstance(prerequisite, dict) or not (
+            prerequisite.get("type") == "questlog:fact"
+            and prerequisite.get("fact") == INITIAL_FOUNDATION_FACT
+            and prerequisite.get("required_amount") == 1
+        ):
+            errors.append(f"{label} must remain gated by the established reign foundation fact")
+
+    if data.get("objectives") != []:
+        errors.append(f"{label} must remain a provider-native conversation with no artificial journal objective")
+
+    rewards = data.get("rewards", [])
+    if not isinstance(rewards, list) or len(rewards) != 1:
+        errors.append(f"{label} must write exactly one contact-history fact")
+    else:
+        reward = rewards[0]
+        if not isinstance(reward, dict) or not (
+            reward.get("type") == "questlog:set_fact"
+            and reward.get("fact") == contact_fact
+            and reward.get("auto_claim") is True
+        ):
+            errors.append(f"{label} must persist its designated-anchor contact fact")
+
+    serialized = json.dumps(data, sort_keys=True)
+    if "questlog:set_disposition" in serialized or "required_dispositions" in serialized:
+        errors.append(f"{label} must not prematurely resolve or require a political disposition")
+    if data.get("show_popup_on_unlock") is not False:
+        errors.append(f"{label} must remain an in-world provider interaction rather than a remote popup")
+
+
 def collect_errors() -> list[str]:
     errors: list[str] = []
     opening = load(OPENING, errors)
@@ -95,6 +167,7 @@ def collect_errors() -> list[str]:
     forge_reaction = load(FORGE_REACTION, errors)
     initial_foundation = load(INITIAL_FOUNDATION, errors)
     goblin_contact = load(GOBLIN_CONTACT, errors)
+    gnumu_contact = load(GNUMU_CONTACT, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -108,6 +181,7 @@ def collect_errors() -> list[str]:
         "campaign/tower/forge_prepared_reaction.json",
         "campaign/expansion/the_reign_takes_shape.json",
         "campaign/civilizations/goblins/first_contact.json",
+        "campaign/civilizations/gnumus/first_contact.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
         errors.append("bundled definition index is missing one or more guarded production campaign definitions")
@@ -268,63 +342,25 @@ def collect_errors() -> list[str]:
     if initial_foundation.get("include_in_main") is not True:
         errors.append("initial-foundation convergence must remain part of the main campaign")
 
-    provider = goblin_contact.get("provider")
-    if not isinstance(provider, dict):
-        errors.append("Goblin first contact must remain provider-bound to the designated anchor leader")
-    else:
-        if provider.get("entity_types") != [GOBLIN_ENTITY]:
-            errors.append("Goblin first contact must target only the source-backed leader_goblin entity")
-        if provider.get("scoreboard_tags") != [GOBLIN_ANCHOR_TAG]:
-            errors.append("Goblin first contact must remain scoped to the designated principal Goblin Camp anchor")
-        if provider.get("civilization") != GOBLIN_CIVILIZATION:
-            errors.append("Goblin first contact civilization identity changed unexpectedly")
-        if provider.get("required_facts") != [INITIAL_FOUNDATION_FACT]:
-            errors.append("Goblin first contact must remain gated behind the semi-open campaign foundation")
-        if provider.get("lock_to_provider") is not True or provider.get("turn_in") != "same_provider":
-            errors.append("Goblin first contact must remain bound to the exact designated Goblin leader")
-        dialogue = provider.get("dialogue")
-        if not isinstance(dialogue, dict):
-            errors.append("Goblin first contact must retain authored provider dialogue")
-        else:
-            for phase in ("offer", "ready_to_turn_in", "completed"):
-                if not isinstance(dialogue.get(phase), str) or not dialogue.get(phase, "").strip():
-                    errors.append(f"Goblin first contact must retain non-empty {phase} provider dialogue")
-            if "in_progress" in dialogue:
-                errors.append("Goblin first contact must not expose a fake in-progress phase when no intervening gameplay objective exists")
-
-    goblin_prerequisites = goblin_contact.get("prerequisites", [])
-    if not isinstance(goblin_prerequisites, list) or len(goblin_prerequisites) != 1:
-        errors.append("Goblin first contact must retain one initial-foundation prerequisite")
-    else:
-        prerequisite = goblin_prerequisites[0]
-        if not isinstance(prerequisite, dict) or not (
-            prerequisite.get("type") == "questlog:fact"
-            and prerequisite.get("fact") == INITIAL_FOUNDATION_FACT
-            and prerequisite.get("required_amount") == 1
-        ):
-            errors.append("Goblin first contact must remain gated by the established reign foundation fact")
-
-    goblin_objectives = goblin_contact.get("objectives")
-    if goblin_objectives != []:
-        errors.append("Goblin first contact must remain a provider-native conversation with no artificial journal objective")
-
-    goblin_rewards = goblin_contact.get("rewards", [])
-    if not isinstance(goblin_rewards, list) or len(goblin_rewards) != 1:
-        errors.append("Goblin first contact must write exactly one contact-history fact")
-    else:
-        reward = goblin_rewards[0]
-        if not isinstance(reward, dict) or not (
-            reward.get("type") == "questlog:set_fact"
-            and reward.get("fact") == GOBLIN_CONTACT_FACT
-            and reward.get("auto_claim") is True
-        ):
-            errors.append("Goblin first contact must persist the designated-camp contact fact")
-
-    goblin_serialized = json.dumps(goblin_contact, sort_keys=True)
-    if "questlog:set_disposition" in goblin_serialized or "required_dispositions" in goblin_serialized:
-        errors.append("Goblin first contact must not prematurely resolve or require a Goblin political disposition")
-    if goblin_contact.get("show_popup_on_unlock") is not False:
-        errors.append("Goblin first contact must remain an in-world provider interaction rather than a remote popup")
+    validate_provider_contact(
+        goblin_contact,
+        errors,
+        label="Goblin first contact",
+        entity_type="goblins_tyranny:leader_goblin",
+        anchor_tag="overlord_anchor:goblin_main",
+        civilization="overlord_reign:goblins",
+        contact_fact="overlord_reign:civilizations/goblins/contact_established",
+    )
+    validate_provider_contact(
+        gnumu_contact,
+        errors,
+        label="Gnumu first contact",
+        entity_type="gnumus:gnumus_shaman",
+        anchor_tag="overlord_anchor:gnumu_main_elder",
+        civilization="overlord_reign:gnumus",
+        contact_fact="overlord_reign:civilizations/gnumus/contact_established",
+        role="elder_shaman",
+    )
 
     return errors
 
@@ -344,7 +380,7 @@ def main() -> int:
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
     print("early-recovery convergence: Brown recovery plus first Tower restoration records the semi-open campaign foundation")
-    print("first civilization anchor: provider-native designated Goblin leader contact only, no disposition resolution")
+    print("civilization contacts: Goblin and Gnumu anchors are local, provider-native, and disposition-unresolved")
     return 0
 
 
