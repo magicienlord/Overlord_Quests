@@ -1,0 +1,29 @@
+{
+  "title": "[DEV] Tagged Kill History",
+  "description": "Development-only fixture for recognizing a player-attributed kill of an explicitly tagged entity before formal quest activation. This is not OVERLORD REIGN story content.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:iron_sword"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Unlock the fixture after the tagged kill"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:entity_kill_history",
+      "entity": "minecraft:zombie",
+      "scoreboard_tag": "questlog_dev_kill_history_target",
+      "required_amount": 1,
+      "name": "[DEV] Have killed the tagged zombie"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
