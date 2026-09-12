@@ -23,8 +23,8 @@ import java.util.Set;
  *
  * The rule is intentionally generic. Civilization is narrative metadata, while
  * concrete provider eligibility is expressed through entity ids/tags, optional
- * role tags, dimensions, authored location bounds, quest markers, and authored
- * disposition requirements.
+ * role tags, dimensions, authored location bounds, quest completion markers,
+ * explicit narrative facts, and authored disposition requirements.
  */
 public final class QuestProviderRule {
     public enum TurnInMode {
@@ -81,6 +81,8 @@ public final class QuestProviderRule {
     @Nullable private final LocationBounds location;
     private final QuestProviderDialogue dialogue;
     private final Set<ResourceLocation> unlockQuests;
+    private final Set<ResourceLocation> requiredFacts;
+    private final Set<ResourceLocation> forbiddenFacts;
     private final Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions;
     private final boolean lockToProvider;
     private final TurnInMode turnInMode;
@@ -96,6 +98,8 @@ public final class QuestProviderRule {
             @Nullable LocationBounds location,
             QuestProviderDialogue dialogue,
             Set<ResourceLocation> unlockQuests,
+            Set<ResourceLocation> requiredFacts,
+            Set<ResourceLocation> forbiddenFacts,
             Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions,
             boolean lockToProvider,
             TurnInMode turnInMode
@@ -110,6 +114,8 @@ public final class QuestProviderRule {
         this.location = location;
         this.dialogue = dialogue == null ? QuestProviderDialogue.EMPTY : dialogue;
         this.unlockQuests = Set.copyOf(unlockQuests);
+        this.requiredFacts = Set.copyOf(requiredFacts);
+        this.forbiddenFacts = Set.copyOf(forbiddenFacts);
         Map<ResourceLocation, Set<ResourceLocation>> copy = new LinkedHashMap<>();
         requiredDispositions.forEach((key, value) -> copy.put(key, Set.copyOf(value)));
         this.requiredDispositions = Collections.unmodifiableMap(copy);
@@ -137,6 +143,8 @@ public final class QuestProviderRule {
         LocationBounds location = locationBounds(json);
         QuestProviderDialogue dialogue = QuestProviderDialogue.fromProviderDefinition(json);
         Set<ResourceLocation> unlockQuests = questIdSet(json, "unlock_quests");
+        Set<ResourceLocation> requiredFacts = idSet(json, "required_facts");
+        Set<ResourceLocation> forbiddenFacts = idSet(json, "forbidden_facts");
         Map<ResourceLocation, Set<ResourceLocation>> dispositions = dispositionMap(json);
         boolean lockToProvider = optionalBoolean(json, "lock_to_provider", true);
         TurnInMode turnInMode = TurnInMode.parse(optionalString(json, "turn_in", "same_provider"));
@@ -144,10 +152,16 @@ public final class QuestProviderRule {
         if (entityTypes.isEmpty() && entityTypeTags.isEmpty()) {
             throw new IllegalArgumentException("provider requires at least one entity_types or entity_type_tags selector");
         }
+        Set<ResourceLocation> contradictoryFacts = new LinkedHashSet<>(requiredFacts);
+        contradictoryFacts.retainAll(forbiddenFacts);
+        if (!contradictoryFacts.isEmpty()) {
+            throw new IllegalArgumentException("provider cannot both require and forbid narrative fact(s): " + contradictoryFacts);
+        }
 
         return new QuestProviderRule(
                 pool, civilization, role, entityTypes, entityTypeTags, scoreboardTags,
-                dimensions, location, dialogue, unlockQuests, dispositions, lockToProvider, turnInMode
+                dimensions, location, dialogue, unlockQuests, requiredFacts, forbiddenFacts,
+                dispositions, lockToProvider, turnInMode
         );
     }
 
@@ -185,6 +199,8 @@ public final class QuestProviderRule {
     @Nullable public LocationBounds location() { return this.location; }
     public QuestProviderDialogue dialogue() { return this.dialogue; }
     public Set<ResourceLocation> unlockQuests() { return this.unlockQuests; }
+    public Set<ResourceLocation> requiredFacts() { return this.requiredFacts; }
+    public Set<ResourceLocation> forbiddenFacts() { return this.forbiddenFacts; }
     public Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions() { return this.requiredDispositions; }
     public boolean lockToProvider() { return this.lockToProvider; }
     public TurnInMode turnInMode() { return this.turnInMode; }
