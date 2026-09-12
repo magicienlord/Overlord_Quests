@@ -1,0 +1,51 @@
+{
+  "title": "The Gnumu Settlement",
+  "description": "The principal Gnumu settlement has an Elder Shaman prepared to receive you. Establish formal contact with the local polity without assuming what place it will ultimately occupy in your reign.",
+  "description_completed": "Formal contact has been established with the designated Gnumu settlement. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:amethyst_shard"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 110,
+  "provider": {
+    "entity_types": [
+      "gnumus:gnumus_shaman"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:gnumu_main_elder"
+    ],
+    "role": "elder_shaman",
+    "civilization": "overlord_reign:gnumus",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "You are the one from the dark tower. If you have business with this settlement, speak it here. I will hear what kind of ruler has returned to the world.",
+      "ready_to_turn_in": "Good. We understand one another well enough to begin. The settlement now knows who has come to its door.",
+      "completed": "The Elder Shaman remembers your coming. Whatever follows between us will not be by accident."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/gnumus/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Gnumu settlement"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
