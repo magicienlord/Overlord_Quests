@@ -60,7 +60,7 @@ OVERLORD QUESTS has two deliberately different NPC presentation classes.
 
 ### Questlog incorporeal speaker surface
 
-This surface is for non-corporeal or remotely presented personnel who communicate through the Questlog framework, such as Gnarl and other future characters assigned to that presentation model.
+This surface is for non-corporeal or remotely presented personnel who communicate through the Questlog framework. The approved personnel roster currently includes Gnarl, Mortis, and Quaver. Additional high-value personnel may be added only when the lore authority and campaign establish that this presentation model is appropriate.
 
 The main parchment quest body occupies most of the composition. A dedicated area on the right is reserved for the active speaker reaction visual. The reaction visual is laid out as a separate surface and does not overlap the parchment body.
 
@@ -70,7 +70,7 @@ Quest action controls remain grouped beneath the parchment body. Controls are ne
 
 Automatic popup delivery routes any quest with speaker presentation metadata to `OverlordSpeakerScreen`; ordinary Questlog entries without that metadata continue to use the inherited quest-details presentation.
 
-Only characters using this incorporeal Questlog presentation receive a reaction-visual roster.
+Only characters using this incorporeal Questlog presentation receive a reaction-visual roster. The authoritative implementation roster and asset-production boundary are recorded in `docs/INCORPOREAL_SPEAKER_ROSTER.md`.
 
 ### In-world provider surface
 
