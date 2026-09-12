@@ -1,0 +1,68 @@
+{
+  "package": "OVERLORD QUESTS conversation handoff",
+  "date": "2026-09-12",
+  "repository": "magicienlord/Overlord_Quests",
+  "implementation_branch_at_packaging": "gnarl-bootstrap",
+  "implementation_checkpoint": "423ab3290b743633be22580e01629af1dd3c74e1",
+  "implementation_checkpoint_message": "Match development fixture canon boundary",
+  "preservation_branch": "conversation-handoff-2026-09-12-run565",
+  "preservation_rule": "Branch was created directly from the implementation checkpoint. Commits after that checkpoint contain HANDOFF records only.",
+  "validation": {
+    "workflow": "Build Forge 1.20.1",
+    "run_number": 565,
+    "run_id": 34687293557,
+    "successful_attempt": 2,
+    "successful_job_id": 103538074352,
+    "result": "success",
+    "attempt_1_note": "External NeoForged Maven HTTP 502 while resolving org.jetbrains:annotations metadata. Failed jobs were rerun unchanged; no source patch was made."
+  },
+  "validated_runtime_jar": "overlord-quests-forge-1.20.1-0.1.0-alpha.1.jar",
+  "github_artifacts": [
+    {
+      "name": "overlord-quests-forge-1.20.1",
+      "artifact_id": 10295619605,
+      "zip_sha256": "c4f9c93f7bbc9928101d5f3ece8dfb23a5b1d056fc7f03b938fbd6de0615db05"
+    },
+    {
+      "name": "overlord-quests-gnarl-popup-test-kit",
+      "artifact_id": 10295959081,
+      "zip_sha256": "5dc94df70ba7a2c22545b712bc38447b687d8d0bb76c8e2dff4bb754a85fd235"
+    },
+    {
+      "name": "overlord-quests-provider-test-kit",
+      "artifact_id": 10295724404,
+      "zip_sha256": "967b058c0d2676012665e068f3f959c8195480762fdccea6e0dd3f0cb91da10c"
+    },
+    {
+      "name": "overlord-quests-consequence-test-kit",
+      "artifact_id": 10295874134,
+      "zip_sha256": "e72d664ed65ae45e3a01b6f8a799d7f312beadce213b3375618a675c85da7ec0"
+    },
+    {
+      "name": "overlord-quests-minion-progression-test-kit",
+      "artifact_id": 10295764297,
+      "zip_sha256": "f6ab7cfc71b6fe6fa45540492b703ceab7cc2161c5665403380618990777330c"
+    },
+    {
+      "name": "overlord-quests-death-screen-test-kit",
+      "artifact_id": 10295794320,
+      "zip_sha256": "54115b14c81b9fcdc1874fa71131690c742c5eaa56551c1cc0dbbba2c37f40cc"
+    }
+  ],
+  "handoff_files": [
+    "HANDOFF/README_FIRST.md",
+    "HANDOFF/NEXT_CONVERSATION_HANDOFF.md",
+    "HANDOFF/RESTART_POINT.txt",
+    "HANDOFF/VALIDATION_STATE.md",
+    "HANDOFF/RECENT_WORK_LEDGER.md",
+    "HANDOFF/HANDOFF_MANIFEST.json"
+  ],
+  "resume_requirement": "Re-fetch the live gnarl-bootstrap branch before implementation. It may be newer than this preserved checkpoint. Compare it to 423ab3290b743633be22580e01629af1dd3c74e1 and treat the live repository as implementation authority if it advanced.",
+  "spoiler_firewall": true,
+  "implementation_changed_during_packaging": false,
+  "notes": [
+    "The preservation branch must not be treated as the normal implementation branch by default.",
+    "Theurgy technical milestones are verified hooks, not automatically production campaign canon.",
+    "Full-modpack runtime validation of the Minions Build #118 Brown to Red to Green to Blue integration remains outstanding."
+  ]
+}
