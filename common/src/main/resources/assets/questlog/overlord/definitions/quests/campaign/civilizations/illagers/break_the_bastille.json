@@ -1,0 +1,45 @@
+{
+  "title": "Break the Bastille",
+  "description": "One designated Bastille is the principal Illager warband anchor. Enter it and kill the marked Legioner who commands this local force. Breaking this Bastille establishes authority over its warband, not over every Illager band in the world.",
+  "description_completed": "The designated Bastille has lost its marked commander. The local warband has been forced to recognize that the new Overlord can reach and break its command structure. Its political outcome remains unresolved, and unrelated Illager bands remain independent.",
+  "icon": {
+    "item": "minecraft:crossbow"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 170,
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "takesapillage:bastille",
+      "required_amount": 1,
+      "name": "Enter the designated Bastille"
+    },
+    {
+      "type": "questlog:entity_kill_history",
+      "entity": "takesapillage:legioner",
+      "scoreboard_tag": "overlord_anchor:illager_bastille_commander",
+      "required_amount": 1,
+      "name": "Kill the marked Bastille commander"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/illagers/authority_established",
+      "auto_claim": true,
+      "name": "Record the breaking of the designated Bastille's command"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
