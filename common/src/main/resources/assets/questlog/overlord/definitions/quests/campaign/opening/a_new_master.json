@@ -1,0 +1,39 @@
+{
+  "title": "A New Master",
+  "description": "At last, Sire. The Netherworld has chosen again. Your Tower has risen, magnificent in outline and rather less impressive in usefulness. The Minions are scattered, the halls are empty, and the world has had centuries to grow comfortable. We can begin putting the machinery of your rule back together, or you may go outside and make the age regret its complacency personally. I leave the order of your first amusements to you, Master.",
+  "description_completed": "The new reign has begun. Restoring the machinery of rule and acting directly upon the world are both open to the Overlord.",
+  "icon": {
+    "item": "minecraft:nether_star"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 0,
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Gnarl's first counsel"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "directive",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}
