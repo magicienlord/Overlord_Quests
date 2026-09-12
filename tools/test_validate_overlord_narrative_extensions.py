@@ -69,6 +69,34 @@ def main():
         "type": "questlog:fact",
     }), ".fact")
 
+    expect_valid("dimension history objective", objective({
+        "type": "questlog:visit_dimension_history",
+        "dimension": "minecraft:the_nether",
+        "required_amount": 1,
+    }))
+    expect_invalid("dimension history amount", objective({
+        "type": "questlog:visit_dimension_history",
+        "dimension": "minecraft:the_nether",
+        "required_amount": 2,
+    }), "exactly 1")
+    expect_invalid("missing dimension history id", objective({
+        "type": "questlog:visit_dimension_history",
+    }), ".dimension")
+
+    expect_valid("structure history objective", objective({
+        "type": "questlog:visit_structure_history",
+        "structure": "minecraft:mineshaft",
+        "required_amount": 1,
+    }))
+    expect_invalid("structure history amount", objective({
+        "type": "questlog:visit_structure_history",
+        "structure": "minecraft:mineshaft",
+        "required_amount": 2,
+    }), "exactly 1")
+    expect_invalid("missing structure history id", objective({
+        "type": "questlog:visit_structure_history",
+    }), ".structure")
+
     expect_valid("set disposition reward", reward({
         "type": "questlog:set_disposition",
         "civilization": "overlord_reign:test_civilization",
@@ -182,7 +210,7 @@ def main():
         "civilization": "questlog:dev_civilization",
     }, development_fixture=True))
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (27 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (33 cases)")
     return 0
 
 
