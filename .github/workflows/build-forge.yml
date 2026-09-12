@@ -51,6 +51,9 @@ jobs:
       - name: Validate sequence-break tracking contracts
         run: python3 tools/validate_sequence_break_tracking.py
 
+      - name: Validate Minion progression contracts
+        run: python3 tools/validate_minion_progression_contracts.py
+
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
 
@@ -115,6 +118,9 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/FactObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/SetFactReward.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/minions/OverlordMinionProgressionBridge.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/minions/MinionUnlockedObjective.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/minions/UnlockMinionReward.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/entity/EntityDiedObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.class'
@@ -135,6 +141,7 @@ jobs:
 
           unzip -p "$JAR" META-INF/mods.toml > assembled-mods.toml
           grep -Fq 'modId = "cloth_config"' assembled-mods.toml
+          grep -Fq 'modId = "overlord_minions"' assembled-mods.toml
 
           if jar tf "$JAR" | grep -Eq '^assets/questlog/overlord/definitions/(quests|chapters)/.*_dev\.json$'; then
             echo "Development quest/chapter content was bundled into the runtime JAR."
@@ -318,6 +325,60 @@ jobs:
             sha256sum mods/* config/questlog/quests/overlord_failure_consequence_dev.json config/questlog/quests/overlord_anchor_death_dev.json > SHA256SUMS.txt
           )
 
+      - name: Prepare Minion progression test kit
+        run: |
+          set -euo pipefail
+          KIT='build/minion-progression-test-kit'
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p "$KIT/mods" "$KIT/config/questlog/quests" "$KIT/docs"
+
+          cp "$JAR" "$KIT/mods/"
+          cp examples/questlog/quests/overlord_minion_unlock_red_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_minion_unlock_green_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_minion_unlock_blue_dev.json "$KIT/config/questlog/quests/"
+          cp docs/MINION_UNLOCK_INTEGRATION.md "$KIT/docs/"
+          cp docs/MINION_PROGRESSION_TEST_PROTOCOL.md "$KIT/docs/"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - MINION PROGRESSION TEST KIT
+
+          1. Back up the test instance.
+          2. Keep the compatible OVERLORD Minions build and Minions Remastered installed.
+          3. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          4. Copy the contents of this kit's mods/ directory into the instance mods/ directory.
+          5. Copy the contents of this kit's config/ directory into the instance config/ directory.
+          6. Create a fresh disposable single-player integration world with commands enabled.
+          7. Follow docs/MINION_PROGRESSION_TEST_PROTOCOL.md exactly.
+
+          This kit contains development-only Minion progression fixtures. It establishes no OVERLORD REIGN story canon.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS Minion progression test kit
+          commit=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          progression_owner=overlord_minions
+          minions_contract_baseline=Build_118_or_compatible_newer
+          slot_order=Brown_0_Red_1_Green_2_Blue_3
+          brown_owner=masters_staff_bootstrap
+          later_tier_owner_state=OverlordMinionProgression
+          EOF
+
+          (
+            cd "$KIT"
+            sha256sum mods/* config/questlog/quests/overlord_minion_unlock_red_dev.json config/questlog/quests/overlord_minion_unlock_green_dev.json config/questlog/quests/overlord_minion_unlock_blue_dev.json > SHA256SUMS.txt
+          )
+
       - name: Prepare death-screen test kit
         run: |
           set -euo pipefail
@@ -402,6 +463,13 @@ jobs:
         with:
           name: overlord-quests-consequence-test-kit
           path: build/consequence-test-kit/
+          if-no-files-found: error
+
+      - name: Upload Minion progression test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-minion-progression-test-kit
+          path: build/minion-progression-test-kit/
           if-no-files-found: error
 
       - name: Upload death-screen test kit
