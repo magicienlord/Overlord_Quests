@@ -37,3 +37,13 @@ mandatory = true
 versionRange = "${cloth_config_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+# OVERLORD Minions owns Red/Green/Blue progression persistence. This remains an
+# optional integration so Questlog development and non-REIGN validation can boot
+# without the addon, while normal modpack load order places the API owner first.
+[[dependencies.${mod_id}]]
+modId = "overlord_minions"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
