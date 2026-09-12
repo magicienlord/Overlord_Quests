@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import org.infernalstudios.questlog.Questlog;
+import org.infernalstudios.questlog.core.quests.display.SpeakerPresentation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +15,16 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Client-only portrait preparation for incorporeal Questlog speakers.
+ * Client-only portrait resolution/preparation for incorporeal Questlog speakers.
+ *
+ * Quest definitions author semantic speaker/reaction state rather than hard-wiring
+ * every future expression asset. If a roster asset exists at the conventional
+ * speaker path, it wins. Neutral is the second choice, and the quest's explicit
+ * overlay remains a development/legacy fallback.
  *
  * Most speaker art should be authored with clean straight-alpha edges and pass
  * through untouched. A legacy/source image with visible matte colour can opt in
- * to a conservative fringe cleanup through speaker_alpha_cleanup. The cleanup
- * preserves alpha and only replaces RGB on low/medium-alpha edge pixels with the
- * colour of a nearby opaque source pixel.
+ * to conservative fringe cleanup through speaker_alpha_cleanup.
  */
 public final class SpeakerPortraitTextures {
     private static final int TRANSPARENT_CUTOFF = 8;
@@ -33,7 +37,38 @@ public final class SpeakerPortraitTextures {
     private SpeakerPortraitTextures() {
     }
 
-    public static ResourceLocation resolve(ResourceLocation source, boolean cleanAlpha) {
+    public static ResourceLocation resolve(SpeakerPresentation speaker, ResourceLocation fallback) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ResourceLocation requested = rosterPath(speaker, speaker.reaction());
+        ResourceLocation neutral = rosterPath(speaker, SpeakerPresentation.Reaction.NEUTRAL);
+
+        ResourceLocation source;
+        if (minecraft.getResourceManager().getResource(requested).isPresent()) {
+            source = requested;
+        } else if (!requested.equals(neutral) && minecraft.getResourceManager().getResource(neutral).isPresent()) {
+            source = neutral;
+        } else {
+            source = fallback;
+        }
+
+        return resolveAlpha(source, speaker.alphaCleanup());
+    }
+
+    public static ResourceLocation rosterPath(
+            SpeakerPresentation speaker,
+            SpeakerPresentation.Reaction reaction
+    ) {
+        ResourceLocation speakerId = speaker.speakerId();
+        return new ResourceLocation(
+                Questlog.MODID,
+                "textures/gui/overlord/speakers/"
+                        + speakerId.getNamespace() + "/"
+                        + speakerId.getPath() + "/"
+                        + reaction.serializedName() + ".png"
+        );
+    }
+
+    private static ResourceLocation resolveAlpha(ResourceLocation source, boolean cleanAlpha) {
         if (!cleanAlpha) {
             return source;
         }
