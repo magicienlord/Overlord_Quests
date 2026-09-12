@@ -45,7 +45,7 @@ def collect_errors() -> list[str]:
     require(REGISTRY, 'new EditorMetadata("entity", "Target Entity ID:"', "target-death editor metadata")
 
     require(DEFINITION_VALIDATOR, '"questlog:entity_died"', "entity_died validator registration")
-    require(DEFINITION_VALIDATOR, 'core.ENTITY_OBJECTIVES.add("questlog:entity_died")', "entity matcher validation inclusion")
+    require(DEFINITION_VALIDATOR, 'core.ENTITY_OBJECTIVES.update({"questlog:entity_died", "questlog:entity_kill_history"})', "entity matcher validation inclusion")
     require(DEFINITION_VALIDATOR, "def validate_scoreboard_tag", "scoreboard-tag schema validation")
     require(DEFINITION_VALIDATOR, "requires an explicit entity matcher selector", "wildcard death rejection")
 
