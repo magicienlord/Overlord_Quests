@@ -39,8 +39,12 @@ public class QuestObjectiveRegistry {
         // Entity
         register(new ResourceLocation("questlog", "entity_breed"), EntityBreedObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
+        // Historical upstream semantics: the player dies to the matching entity.
         register(new ResourceLocation("questlog", "entity_death"), EntityDeathObjective::new,
-                new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
+                new EditorMetadata("entity", "Killer Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
+        // OVERLORD extension: the matching target entity itself dies, regardless of cause.
+        register(new ResourceLocation("questlog", "entity_died"), EntityDiedObjective::new,
+                new EditorMetadata("entity", "Target Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_kill"), EntityKillObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_kill_stat"), EntityKillStatObjective::new,
