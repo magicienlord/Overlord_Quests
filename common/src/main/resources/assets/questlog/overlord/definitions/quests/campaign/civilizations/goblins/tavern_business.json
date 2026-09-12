@@ -1,0 +1,52 @@
+{
+  "title": "A Goblin Drink",
+  "description": "The principal camp's bartender is offended by the idea that anyone could understand Goblin civilization without first paying for something from behind the bar. Purchase some liquor through the Goblins' own tavern system and return when the transaction is complete.",
+  "description_completed": "The Overlord has completed a native Goblin tavern purchase and the camp bartender has gained one more paying customer.",
+  "icon": {
+    "item": "goblins_tyranny:mug"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 107,
+  "provider": {
+    "entity_types": [
+      "goblins_tyranny:bartender_goblin"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:goblin_main_bartender"
+    ],
+    "civilization": "overlord_reign:goblins",
+    "required_facts": [
+      "overlord_reign:civilizations/goblins/contact_established"
+    ],
+    "dialogue": {
+      "offer": "You talked to leader, yes. Very important. But nobody knows a camp until they buy a drink. Buy Goblin liquor. Then maybe you can say you visited properly.",
+      "in_progress": "Still no drink? This is becoming a very dry diplomatic incident.",
+      "ready_to_turn_in": "Good. Coin moved, liquor moved. Now this is a respectable relationship.",
+      "completed": "You know where the bar is now. That is important knowledge in any civilization."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/goblins/contact_established",
+      "required_amount": 1,
+      "name": "Establish formal contact with the principal Goblin Camp"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "goblins_tyranny:liquor_success",
+      "required_amount": 1,
+      "name": "Purchase Goblin liquor from a bartender"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
