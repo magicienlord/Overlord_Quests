@@ -7,6 +7,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import org.infernalstudios.questlog.client.gui.SpeakerPortraitTextures;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestAddedToast;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestCompletedToast;
 import org.infernalstudios.questlog.client.gui.screen.OverlordSpeakerScreen;
@@ -57,6 +58,7 @@ public class QuestlogClientEvents {
         QuestlogClient.isEditModeActive = false;
         ClientPacketHandler.clearDeferredState();
         QuestlogClient.destroyLocal();
+        SpeakerPortraitTextures.clear();
         // DefinitionUtil's caches and Questlog.EVENTS are static and therefore
         // shared with the integrated server in single-player. Client quest objects
         // never register the private Objective listeners, so the client logout hook
