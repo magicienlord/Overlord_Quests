@@ -1,0 +1,44 @@
+{
+  "title": "Prepare the Forge",
+  "description": "The Dark Tower already contains a chamber shaped for a forge, but architecture alone does not make it useful. Acquire the core Hot Iron smithing equipment needed to furnish that chamber and begin restoring the Tower's practical infrastructure.",
+  "description_completed": "The essential smithing equipment is ready. The Tower now has the material basis for a working forge facility, even though later progression may still expand what that forge can accomplish.",
+  "icon": {
+    "item": "hot_iron:smithing_anvil"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 30,
+  "prerequisites": [
+    {
+      "type": "questlog:or",
+      "objectives": [
+        {
+          "type": "questlog:quest_complete",
+          "quest": "questlog:campaign/opening/browns_return",
+          "required_amount": 1,
+          "name": "Begin restoring the machinery of rule"
+        },
+        {
+          "type": "questlog:quest_complete",
+          "quest": "questlog:campaign/opening/make_an_impression",
+          "required_amount": 1,
+          "name": "Make the first personal mark upon the world"
+        }
+      ],
+      "name": "Complete either opening direction"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "hot_iron:local_smithery",
+      "required_amount": 1,
+      "name": "Establish a local smithery"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
