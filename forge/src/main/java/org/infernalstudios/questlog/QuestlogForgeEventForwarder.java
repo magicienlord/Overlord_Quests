@@ -18,6 +18,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
+import org.infernalstudios.questlog.client.ending.OverlordEndingScreens;
 import org.infernalstudios.questlog.commands.OverlordNarrativeCommands;
 import org.infernalstudios.questlog.overlord.provider.QuestAnchorProtection;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
@@ -111,6 +112,7 @@ public class QuestlogForgeEventForwarder {
     public static void onScreenOpening(ScreenEvent.Opening event) {
         var current = event.getNewScreen();
         var replacement = OverlordDeathScreens.replace(current);
+        replacement = OverlordEndingScreens.replace(replacement);
         if (replacement != current) {
             event.setNewScreen(replacement);
         }
