@@ -3,7 +3,8 @@
     "campaign/opening/a_new_master.json",
     "campaign/opening/restore_browns.json",
     "campaign/opening/browns_return.json",
-    "campaign/opening/make_an_impression.json"
+    "campaign/opening/make_an_impression.json",
+    "campaign/tower/prepare_the_forge.json"
   ],
   "chapters": [
     "main.json"
