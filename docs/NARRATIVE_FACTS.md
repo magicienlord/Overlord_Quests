@@ -335,6 +335,30 @@ This fact does NOT mean:
 
 Unlike the other current civilization contact facts, this audience also writes the designated Grove's disposition to `overlord_reign:neutral` because the newer Umvuthana decisions explicitly define first-audience completion as the transition to local neutrality. The historical contact fact and the current disposition remain separate state dimensions. See `docs/CIVILIZATION_DISPOSITIONS.md` and `docs/UMVUTHI_AUDIENCE_INTEGRATION.md`.
 
+### `overlord_reign:civilizations/illagers/authority_established`
+
+Category: local civilization authority milestone.
+
+Set by `campaign/civilizations/illagers/break_the_bastille` after the Overlord has entered the designated Take a Pillage Bastille and personally killed the one `takesapillage:legioner` marked as that Bastille's authored local commander.
+
+Meaning:
+
+- the designated Bastille's local command has been broken by the Overlord;
+- the local warband has received the hostile demonstration of authority required to move into later Illager political content;
+- later Illager quests may distinguish this specific event from arbitrary combat against patrols, raids, outposts, mansions, unrelated Bastilles, or unmarked Legioners.
+
+This fact does NOT mean:
+
+- that Illager disposition has been resolved;
+- that the designated Bastille is already NEUTRAL, SUBJUGATED, HOSTILE as a resolved political state, destroyed, or otherwise settled;
+- that `takesapillage:legioner` is a native commander class;
+- that every Legioner or every Illager recognizes the marked NPC's authored local role;
+- that unrelated Illager warbands have been defeated or pacified;
+- that exact Bastille coordinates have been fixed in canon;
+- that later fearful/cowed or submission outcomes have been selected.
+
+The commander role is an OVERLORD REIGN world-integration layer on one source-backed elite Bastille soldier because the exact installed Take a Pillage 1.0.3 implementation exposes no dedicated Bastille-leader entity or native commander role. See `docs/ILLAGER_BASTILLE_INTEGRATION.md`.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.
