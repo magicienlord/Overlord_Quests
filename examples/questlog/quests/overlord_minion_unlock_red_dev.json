@@ -1,6 +1,6 @@
 {
   "title": "[DEV] Unlock Red Minions",
-  "description": "Development-only fixture for the stable OVERLORD Minions progression bridge. This is not campaign content.",
+  "description": "Development-only fixture for the stable OVERLORD Minions progression bridge. This is not story canon.",
   "chapter": "main",
   "icon": {
     "item": "minecraft:debug_stick"
