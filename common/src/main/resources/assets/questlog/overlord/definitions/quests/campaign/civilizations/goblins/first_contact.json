@@ -1,0 +1,57 @@
+{
+  "title": "The Goblin Camp",
+  "description": "A major Goblin camp has a leader willing to deal with you. Hear the creature out before deciding what use, if any, this local polity may have.",
+  "description_completed": "The designated Goblin camp has formally entered the Overlord's notice. Its political outcome remains unresolved.",
+  "icon": {
+    "item": "minecraft:iron_sword"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 100,
+  "provider": {
+    "entity_types": [
+      "goblins_tyranny:leader_goblin"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:goblin_main"
+    ],
+    "civilization": "overlord_reign:goblins",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "Big boss comes to Goblin camp. Good. Goblins have ears, knives, and business. Mostly knives. You want to know this camp, you talk to me.",
+      "in_progress": "Still thinking? Goblins do not usually wait this long unless something is on fire.",
+      "ready_to_turn_in": "There. You listened. Now you know who speaks for this camp, and I know the new Overlord can hear words as well as screaming.",
+      "completed": "This camp remembers you, big boss. That can be useful. Or expensive. Usually both."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Consider the Goblin leader's position"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/goblins/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated Goblin camp"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
