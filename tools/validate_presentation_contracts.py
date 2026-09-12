@@ -2,8 +2,8 @@
 """Validate OVERLORD QUESTS speaker/provider presentation boundaries.
 
 This is an implementation contract, not a story-canon validator. It keeps the
-five semantic reaction states stable and prevents in-world provider definitions
-from accidentally acquiring the incorporeal Questlog portrait system.
+five semantic reaction states stable, keeps the two NPC presentation classes
+separate, and guards the shared parchment/layout foundation used by both.
 """
 from __future__ import annotations
 
@@ -19,7 +19,9 @@ QUEST_ROOTS = (
 SPEAKER_PRESENTATION = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/display/SpeakerPresentation.java"
 CLIENT_EVENTS = ROOT / "common/src/main/java/org/infernalstudios/questlog/QuestlogClientEvents.java"
 PROVIDER_SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/provider/QuestProviderScreen.java"
+SPEAKER_SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/gui/screen/OverlordSpeakerScreen.java"
 PORTRAIT_TEXTURES = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/gui/SpeakerPortraitTextures.java"
+PRESENTATION_THEME = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/gui/OverlordPresentationTheme.java"
 
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 REACTIONS = {"neutral", "directive", "mocking", "approving", "severe"}
@@ -106,6 +108,37 @@ def collect_errors() -> list[str]:
         errors.append(f"SpeakerPortraitTextures.java: unreadable: {exc}")
 
     try:
+        theme = PRESENTATION_THEME.read_text(encoding="utf-8")
+        required_theme_tokens = (
+            "PANEL_CONTENT_INSET",
+            "TITLE_Y",
+            "TITLE_HEIGHT",
+            "BELOW_PANEL_GAP",
+            "renderHeaderSeparator",
+            "centeredX",
+        )
+        for token in required_theme_tokens:
+            if token not in theme:
+                errors.append(f"OverlordPresentationTheme.java: missing shared token {token}")
+    except OSError as exc:
+        errors.append(f"OverlordPresentationTheme.java: unreadable: {exc}")
+
+    try:
+        speaker_screen = SPEAKER_SCREEN.read_text(encoding="utf-8")
+        required_speaker_tokens = (
+            "configureSplitWidth",
+            "OverlordPresentationTheme.centeredX",
+            "OverlordPresentationTheme.renderHeaderSeparator",
+            "laneLeft",
+            "laneRight",
+        )
+        for token in required_speaker_tokens:
+            if token not in speaker_screen:
+                errors.append(f"OverlordSpeakerScreen.java: missing presentation contract token {token}")
+    except OSError as exc:
+        errors.append(f"OverlordSpeakerScreen.java: unreadable: {exc}")
+
+    try:
         events = CLIENT_EVENTS.read_text(encoding="utf-8")
         if "hasSpeakerPresentation()" not in events or "new OverlordSpeakerScreen(currentQuest)" not in events:
             errors.append("QuestlogClientEvents.java: speaker quests are not routed to the dedicated popup surface")
@@ -118,6 +151,8 @@ def collect_errors() -> list[str]:
             errors.append("QuestProviderScreen.java: provider surface must not depend on incorporeal reaction visuals")
         if "QuestlogWideButton" not in provider or "detailBackgroundLeft.blit" not in provider:
             errors.append("QuestProviderScreen.java: shared Questlog parchment/button visual language is missing")
+        if "OverlordPresentationTheme" not in provider or "renderHeaderSeparator" not in provider:
+            errors.append("QuestProviderScreen.java: provider surface is not using shared OVERLORD presentation tokens")
     except OSError as exc:
         errors.append(f"QuestProviderScreen.java: unreadable: {exc}")
 
@@ -134,6 +169,7 @@ def main() -> int:
 
     print("OVERLORD presentation contracts: PASS")
     print("reaction states: " + ", ".join(sorted(REACTIONS)))
+    print("shared visual foundation: parchment geometry/header/action tokens are common")
     print("provider boundary: in-world provider UI remains portrait-roster independent")
     return 0
 
