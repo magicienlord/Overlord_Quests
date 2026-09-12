@@ -1,0 +1,52 @@
+{
+  "title": "Sea Village Barter",
+  "description": "Formal introductions are finished; now the Sea Village wants to know whether the ruler from the dark tower understands the economy beneath the waves. Complete an aquamarine barter through the Sea Dwellers' native system and report back to the village trader who made the offer.",
+  "description_completed": "The Overlord has completed an aquamarine barter with a Mermorph and demonstrated practical knowledge of Sea Dweller trade.",
+  "icon": {
+    "item": "seadwellers:aquamarine"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 141,
+  "provider": {
+    "entity_type_tags": [
+      "seadwellers:mermorphs"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:sea_dweller_main_trader"
+    ],
+    "civilization": "overlord_reign:sea_dwellers",
+    "required_facts": [
+      "overlord_reign:civilizations/sea_dwellers/contact_established"
+    ],
+    "dialogue": {
+      "offer": "An audience is words. Trade is easier to measure. Make an aquamarine bargain with our people and then we will know whether you understand how business moves through these waters.",
+      "in_progress": "No aquamarine bargain yet? The currents are patient. Traders are less so.",
+      "ready_to_turn_in": "Good. You have seen how value changes hands beneath the surface. That is more useful than another speech.",
+      "completed": "You have traded in our waters once. If you return with something worth bargaining over, there will always be someone listening."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/sea_dwellers/contact_established",
+      "required_amount": 1,
+      "name": "Establish formal contact with the designated Sea Village"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "seadwellers:adv_barter_aquamarine",
+      "required_amount": 1,
+      "name": "Complete an aquamarine barter with a Mermorph"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
