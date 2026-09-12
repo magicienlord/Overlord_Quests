@@ -1,0 +1,37 @@
+{
+  "title": "[DEV] Unlock Red Minions",
+  "description": "Development-only fixture for the stable OVERLORD Minions progression bridge. This is not campaign content.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:debug_stick"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:stat",
+      "stat": "minecraft:play_time",
+      "required_amount": 1,
+      "retroactive": true,
+      "name": "[DEV] Enter the test world"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain a debug stick"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "red",
+      "auto_claim": true,
+      "name": "[DEV] Unlock Red Minions"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
