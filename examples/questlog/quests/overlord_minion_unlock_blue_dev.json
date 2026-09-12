@@ -11,6 +11,12 @@
       "quest": "questlog:overlord_minion_unlock_green_dev",
       "required_amount": 1,
       "name": "[DEV] Green unlock fixture complete"
+    },
+    {
+      "type": "questlog:minion_unlocked",
+      "slot": "green",
+      "required_amount": 1,
+      "name": "[DEV] Green owner state confirmed"
     }
   ],
   "objectives": [
