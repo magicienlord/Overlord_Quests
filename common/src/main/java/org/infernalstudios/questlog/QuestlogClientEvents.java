@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestAddedToast;
 import org.infernalstudios.questlog.client.gui.components.toasts.QuestCompletedToast;
+import org.infernalstudios.questlog.client.gui.screen.OverlordSpeakerScreen;
 import org.infernalstudios.questlog.client.gui.screen.QuestDetails;
 import org.infernalstudios.questlog.client.gui.screen.QuestlogScreen;
 import org.infernalstudios.questlog.core.quests.Quest;
@@ -189,12 +190,17 @@ public class QuestlogClientEvents {
             return;
         }
 
-        minecraft.setScreen(new QuestDetails(null, currentQuest));
+        if (currentQuest.getDisplay().hasSpeakerPresentation()) {
+            minecraft.setScreen(new OverlordSpeakerScreen(currentQuest));
+        } else {
+            minecraft.setScreen(new QuestDetails(null, currentQuest));
+        }
         QuestToastState.resetCheckDelay();
     }
 
     private static void displayQueuedToasts() {
-        if (Minecraft.getInstance().screen instanceof QuestDetails) {
+        if (Minecraft.getInstance().screen instanceof QuestDetails
+                || Minecraft.getInstance().screen instanceof OverlordSpeakerScreen) {
             return;
         }
 
