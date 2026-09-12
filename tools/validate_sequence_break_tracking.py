@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 
 import validate_campaign_opening_contracts as opening_contracts
+import validate_statistic_trigger_contracts as statistic_contracts
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTITY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
@@ -120,6 +121,9 @@ def main() -> int:
         return 1
 
     print("OVERLORD sequence-break tracking contracts: PASS")
+    statistic_result = statistic_contracts.main()
+    if statistic_result != 0:
+        return statistic_result
     return opening_contracts.main()
 
 
