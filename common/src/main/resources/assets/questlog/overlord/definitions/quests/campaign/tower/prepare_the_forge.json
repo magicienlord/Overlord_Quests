@@ -36,7 +36,14 @@
       "name": "Establish a local smithery"
     }
   ],
-  "rewards": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/forge_prepared",
+      "auto_claim": true,
+      "name": "Record the prepared Tower forge"
+    }
+  ],
   "show_popup_on_unlock": false,
   "toast_on_unlock": true,
   "toast_on_complete": true,
