@@ -13,6 +13,7 @@ import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.packet.QuestCompletedPacket;
 import org.infernalstudios.questlog.network.packet.QuestTriggeredPacket;
+import org.infernalstudios.questlog.overlord.minions.UnlockMinionReward;
 import org.infernalstudios.questlog.platform.Services;
 import org.infernalstudios.questlog.util.QuestlogMigrator;
 
@@ -91,10 +92,24 @@ public class QuestlogEvents {
             Questlog.EVENTS.post(event);
             Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestCompletedPacket(event.quest.getId()));
 
+            boolean minionProgressionCommitted = false;
             for (Reward reward : event.quest.rewards) {
                 if (reward.isAutoClaim() && !reward.hasRewarded()) {
                     reward.applyReward(serverPlayer);
+                    if (reward instanceof UnlockMinionReward && reward.hasRewarded()) {
+                        minionProgressionCommitted = true;
+                    }
                 }
+            }
+
+            // QuestComplete listeners run before auto-claimed rewards. A later
+            // Minion recovery quest can therefore observe the completed campaign
+            // milestone while its owner-state prerequisite is still false. Once a
+            // Minion unlock actually commits, refresh the active graph so those
+            // owner-backed prerequisites become visible immediately instead of
+            // waiting for a relog or unrelated quest update.
+            if (minionProgressionCommitted && ServerPlayerManager.INSTANCE != null) {
+                ServerPlayerManager.INSTANCE.syncAllQuestState();
             }
         } else {
             QuestlogClientEvents.onQuestCompleted(event);
