@@ -197,6 +197,29 @@ This fact does NOT mean:
 
 The fact intentionally records contact only. Political state remains a separate authored disposition or consequence when later campaign content actually resolves it.
 
+### `overlord_reign:civilizations/gnumus/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/gnumus/first_contact` after the Overlord completes the first formal interaction with the designated Elder Shaman at the principal Gnumu settlement.
+
+Meaning:
+
+- the designated Gnumu anchor polity has formally entered the current Overlord's campaign history;
+- later Gnumu content may distinguish established contact from unrelated procedural Gnumu settlements;
+- the Elder Shaman is an authored political role layered onto the source-backed `gnumus:gnumus_shaman` entity at the selected main settlement.
+
+This fact does NOT mean:
+
+- that the Gnumu civilization disposition has been resolved;
+- that the settlement is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that every Gnumu settlement shares the anchor's later political state;
+- that the Gnumus know their hidden Halfling ancestry;
+- that exact settlement coordinates have been fixed in canon;
+- that later Gnumu branch outcomes have been selected.
+
+The ancestry boundary is deliberate. Formal contact does not reveal information that the current Gnumus canonically do not know.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.
