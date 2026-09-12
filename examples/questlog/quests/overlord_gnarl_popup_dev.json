@@ -1,6 +1,6 @@
 {
   "title": "[DEV] Gnarl Popup Prototype",
-  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate the Gnarl portrait overlay, parchment placement, text readability, popup-on-unlock behavior, GUI scaling, and unlock-cue reliability. It is not an OVERLORD REIGN story quest.",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate the Gnarl portrait reaction lane, parchment placement, text readability, popup-on-unlock behavior, GUI scaling, and unlock-cue reliability. It is not an OVERLORD REIGN story quest.",
   "icon": {
     "item": "minecraft:knowledge_book"
   },
@@ -28,14 +28,17 @@
   "triggered_sound": "minecraft:entity.experience_orb.pickup",
   "disable_details_button": true,
   "details_open_by_default": false,
-  "left_panel_width": 300,
+  "left_panel_width": 360,
   "right_panel_width": 170,
-  "panel_height": 190,
-  "left_panel_x_offset": 70,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
   "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "neutral",
+  "speaker_pane_width": 176,
   "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
-  "overlay_width": 160,
-  "overlay_height": 160,
-  "overlay_x_offset": -140,
-  "overlay_y_offset": 18
+  "overlay_width": 168,
+  "overlay_height": 168,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 4
 }
