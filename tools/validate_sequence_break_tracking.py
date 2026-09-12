@@ -3,6 +3,8 @@
 from pathlib import Path
 import sys
 
+import validate_campaign_opening_contracts as opening_contracts
+
 ROOT = Path(__file__).resolve().parents[1]
 ENTITY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
 ITEM_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.java"
@@ -61,7 +63,7 @@ def main() -> int:
         return 1
 
     print("OVERLORD sequence-break tracking contracts: PASS")
-    return 0
+    return opening_contracts.main()
 
 
 if __name__ == "__main__":
