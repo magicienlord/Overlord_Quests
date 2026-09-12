@@ -11,6 +11,12 @@
       "quest": "questlog:overlord_minion_unlock_red_dev",
       "required_amount": 1,
       "name": "[DEV] Red unlock fixture complete"
+    },
+    {
+      "type": "questlog:minion_unlocked",
+      "slot": "red",
+      "required_amount": 1,
+      "name": "[DEV] Red owner state confirmed"
     }
   ],
   "objectives": [
