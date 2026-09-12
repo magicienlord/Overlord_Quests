@@ -66,6 +66,19 @@ def main() -> int:
     )
 
     require_valid(
+        objective_errors({"type": "questlog:minion_unlocked", "slot": "red", "required_amount": 1}),
+        "valid Minion owner-state prerequisite",
+    )
+    require_invalid(
+        objective_errors({"type": "questlog:minion_unlocked", "slot": "brown", "required_amount": 1}),
+        "Brown must not use later-tier Minion owner-state prerequisite",
+    )
+    require_invalid(
+        objective_errors({"type": "questlog:minion_unlocked", "slot": "green", "required_amount": 2}),
+        "Minion owner-state prerequisite amount",
+    )
+
+    require_valid(
         reward_errors({"type": "questlog:command", "command": "say test", "permission_level": 2}),
         "valid command reward",
     )
@@ -76,6 +89,19 @@ def main() -> int:
     require_invalid(
         reward_errors({"type": "questlog:command", "command": "say test", "permission_level": 5}),
         "overpowered command reward permission",
+    )
+
+    require_valid(
+        reward_errors({"type": "questlog:unlock_minion", "slot": "blue", "auto_claim": True}),
+        "valid Minion unlock reward",
+    )
+    require_invalid(
+        reward_errors({"type": "questlog:unlock_minion", "slot": "brown", "auto_claim": True}),
+        "Brown Minion unlock reward",
+    )
+    require_invalid(
+        reward_errors({"type": "questlog:unlock_minion", "slot": "red", "auto_claim": False}),
+        "manual Minion unlock reward",
     )
 
     require_valid(
