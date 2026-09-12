@@ -1,0 +1,43 @@
+{
+  "title": "[DEV] Anchor Death Consequence Prototype",
+  "description": "[DEV] This is not an OVERLORD REIGN story quest. It validates exact tagged-anchor death detection and persistent failure consequence output.",
+  "description_completed": "[DEV] The success path is not the target of this fixture.",
+  "chapter": "main",
+  "include_in_main": false,
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "questlog:dev_anchor_death_gate",
+      "required_amount": 1,
+      "name": "[DEV] Open the anchor-death test gate"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "[DEV] Optional success control"
+    }
+  ],
+  "failures": [
+    {
+      "type": "questlog:entity_died",
+      "entity": "minecraft:villager",
+      "scoreboard_tag": "oq_anchor_death_target",
+      "required_amount": 1,
+      "name": "[DEV] Tagged anchor dies"
+    }
+  ],
+  "rewards": [],
+  "failure_rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "questlog:dev_anchor_died",
+      "auto_claim": true
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "hide_when_completed": false
+}
