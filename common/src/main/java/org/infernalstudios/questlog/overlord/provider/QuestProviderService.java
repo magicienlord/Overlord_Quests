@@ -18,13 +18,33 @@ public final class QuestProviderService {
     public static final double MAX_INTERACTION_DISTANCE_SQR = 64.0D;
 
     public enum InteractionState {
-        // Packet encoding uses ordinal values. Keep existing states in this order
-        // and append new states so older ordinals retain their meaning.
-        AVAILABLE,
-        IN_PROGRESS,
-        READY_TO_TURN_IN,
-        FAILED,
-        COMPLETED
+        // These ids are part of the provider-menu wire contract. They remain
+        // explicit so enum declaration refactors cannot silently change packet
+        // meaning. New states must receive a new unused id.
+        AVAILABLE(0),
+        IN_PROGRESS(1),
+        READY_TO_TURN_IN(2),
+        FAILED(3),
+        COMPLETED(4);
+
+        private final int wireId;
+
+        InteractionState(int wireId) {
+            this.wireId = wireId;
+        }
+
+        public int wireId() {
+            return this.wireId;
+        }
+
+        public static InteractionState fromWireId(int wireId) {
+            for (InteractionState state : values()) {
+                if (state.wireId == wireId) {
+                    return state;
+                }
+            }
+            throw new IllegalArgumentException("Unknown provider quest interaction state id: " + wireId);
+        }
     }
 
     public record InteractionEntry(ResourceLocation questId, InteractionState state) {
