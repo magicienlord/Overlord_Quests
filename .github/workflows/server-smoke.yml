@@ -46,8 +46,8 @@ jobs:
           spawn-protection=0
           EOF
 
-      - name: Prepare Forge server run
-        run: ./gradlew :forge:prepareServerRun --no-daemon --stacktrace
+      - name: Prepare Forge server run and runtime classpath
+        run: ./gradlew :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
 
       - name: Boot Forge dedicated server
         id: server
