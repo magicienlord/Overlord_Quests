@@ -17,10 +17,24 @@ import org.lwjgl.glfw.GLFW;
 import java.util.List;
 
 /**
- * Mechanically complete death-screen scaffold awaiting an OVERLORD visual pass.
- * The rejected reference presentation and audio are intentionally absent.
+ * OVERLORD death presentation layered over the mechanically validated death flow.
+ * The presentation remains deliberately text-light: vanilla owns the death title
+ * and cause text, while OVERLORD QUESTS owns only composition and timing.
  */
 public final class OverlordDeathScreen extends DeathScreen {
+    private static final int BACKGROUND = 0xFF050303;
+    private static final int PANEL_FILL = 0xFF0B0808;
+    private static final int FRAME_OUTER = 0xFF241919;
+    private static final int FRAME_INNER = 0xFF120D0D;
+    private static final int ACCENT = 0xFF651818;
+    private static final int ACCENT_DIM = 0xFF321010;
+    private static final int TITLE_COLOR = 0xFFE6DEDA;
+    private static final int CAUSE_COLOR = 0xFFBEB6B2;
+    private static final int PANEL_MAX_WIDTH = 560;
+    private static final int PANEL_MIN_WIDTH = 220;
+    private static final int PANEL_HEIGHT = 112;
+    private static final int CONTENT_INSET = 32;
+
     private final OverlordDeathSceneClock clock;
     private final boolean hardcore;
     private final ClientLevel originalLevel;
@@ -58,7 +72,8 @@ public final class OverlordDeathScreen extends DeathScreen {
             }
         }
 
-        int wrapWidth = Math.max(80, this.width - 64);
+        int panelWidth = this.panelWidth();
+        int wrapWidth = Math.max(80, panelWidth - CONTENT_INSET * 2);
         this.causeLines = this.font.split(this.cause, wrapWidth);
         if (this.causeLines.size() > 4) {
             this.causeLines = List.copyOf(this.causeLines.subList(0, 4));
@@ -116,16 +131,51 @@ public final class OverlordDeathScreen extends DeathScreen {
         this.controlsRevealed = show;
     }
 
+    private int panelWidth() {
+        int available = Math.max(PANEL_MIN_WIDTH, this.width - 64);
+        return Math.min(PANEL_MAX_WIDTH, available);
+    }
+
+    private void renderPresentationFrame(GuiGraphics graphics, int panelX, int panelY, int panelWidth) {
+        int panelRight = panelX + panelWidth;
+        int panelBottom = panelY + PANEL_HEIGHT;
+
+        graphics.fill(panelX, panelY, panelRight, panelBottom, PANEL_FILL);
+
+        graphics.fill(panelX, panelY, panelRight, panelY + 1, FRAME_OUTER);
+        graphics.fill(panelX, panelBottom - 1, panelRight, panelBottom, FRAME_OUTER);
+        graphics.fill(panelX, panelY, panelX + 1, panelBottom, FRAME_OUTER);
+        graphics.fill(panelRight - 1, panelY, panelRight, panelBottom, FRAME_OUTER);
+
+        graphics.fill(panelX + 4, panelY + 4, panelRight - 4, panelY + 5, FRAME_INNER);
+        graphics.fill(panelX + 4, panelBottom - 5, panelRight - 4, panelBottom - 4, FRAME_INNER);
+
+        int centerX = this.width / 2;
+        int accentHalfWidth = Math.min(72, Math.max(24, panelWidth / 6));
+        graphics.fill(centerX - accentHalfWidth, panelY, centerX + accentHalfWidth, panelY + 2, ACCENT);
+        graphics.fill(centerX - accentHalfWidth, panelBottom - 2, centerX + accentHalfWidth, panelBottom, ACCENT_DIM);
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fill(0, 0, this.width, this.height, 0xFF000000);
+        graphics.fill(0, 0, this.width, this.height, BACKGROUND);
 
-        int centerY = this.height / 2;
-        graphics.drawCenteredString(this.font, Component.translatable("deathScreen.title"), this.width / 2, centerY - 42, 0xE8E8E8);
+        int panelWidth = this.panelWidth();
+        int panelX = (this.width - panelWidth) / 2;
+        int panelY = Math.max(18, (this.height - PANEL_HEIGHT) / 2 - 22);
+        this.renderPresentationFrame(graphics, panelX, panelY, panelWidth);
 
-        int lineY = centerY - Math.max(0, (this.causeLines.size() - 1) * 5);
+        int titleY = panelY + 20;
+        graphics.drawCenteredString(this.font, Component.translatable("deathScreen.title"), this.width / 2, titleY, TITLE_COLOR);
+
+        int dividerY = panelY + 39;
+        int dividerInset = Math.max(28, panelWidth / 5);
+        graphics.fill(panelX + dividerInset, dividerY, panelX + panelWidth - dividerInset, dividerY + 1, ACCENT_DIM);
+        graphics.fill(this.width / 2 - 18, dividerY, this.width / 2 + 18, dividerY + 1, ACCENT);
+
+        int lineY = panelY + 55 - Math.max(0, (this.causeLines.size() - 1) * 5);
         for (FormattedCharSequence line : this.causeLines) {
-            graphics.drawCenteredString(this.font, line, this.width / 2, lineY, 0xB8B8B8);
+            graphics.drawCenteredString(this.font, line, this.width / 2, lineY, CAUSE_COLOR);
             lineY += 11;
         }
 
