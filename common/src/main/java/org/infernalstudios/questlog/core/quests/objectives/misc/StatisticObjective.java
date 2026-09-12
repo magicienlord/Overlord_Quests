@@ -19,6 +19,7 @@ public class StatisticObjective extends Objective {
     private final ResourceLocation stat;
     private int statAtStart = 0;
     private boolean retroactive = true;
+    private boolean baselineCaptured = false;
     private int ticksUntilCheck = 0;
 
     public StatisticObjective(JsonObject definition) {
@@ -39,6 +40,18 @@ public class StatisticObjective extends Objective {
         Triggers.EVENTS.addListener(this::onPlayerTick);
     }
 
+    /**
+     * Non-retroactive objective statistics must begin at the quest trigger, not at
+     * manager creation. Otherwise actions performed while a quest is still locked
+     * can be counted as soon as that quest later becomes visible.
+     */
+    @Override
+    public void onQuestTriggered() {
+        if (!this.retroactive && !this.isPartOfPrerequisites() && !this.baselineCaptured) {
+            this.captureBaseline();
+        }
+    }
+
     private void onPlayerTick(TriggerPlayerEvent.Tick event) {
         if (!(event.player instanceof ServerPlayer player)
                 || !this.isActiveForPlayer(player)
@@ -48,13 +61,37 @@ public class StatisticObjective extends Objective {
 
         if (--ticksUntilCheck <= 0) {
             int currentStatValue = this.getStatValue();
-            int progress = this.retroactive ? currentStatValue : Math.max(0, currentStatValue - this.statAtStart);
+
+            if (!this.retroactive && !this.baselineCaptured) {
+                // Prerequisites are themselves the trigger condition, so their
+                // non-retroactive baseline begins when the definition is loaded.
+                // Ordinary objectives wait for the parent quest to trigger.
+                if (this.isPartOfPrerequisites()
+                        || (this.getParent() != null && this.getParent().isTriggered())) {
+                    this.statAtStart = currentStatValue;
+                    this.baselineCaptured = true;
+                }
+                ticksUntilCheck = 20;
+                return;
+            }
+
+            int progress = this.retroactive
+                    ? currentStatValue
+                    : Math.max(0, currentStatValue - this.statAtStart);
 
             if (progress > this.getUnits()) {
                 this.setUnits(progress);
             }
             ticksUntilCheck = 20;
         }
+    }
+
+    private void captureBaseline() {
+        if (this.retroactive || this.baselineCaptured || !this.isActiveQuestInstance()) {
+            return;
+        }
+        this.statAtStart = this.getStatValue();
+        this.baselineCaptured = true;
     }
 
     private Stat<ResourceLocation> getStat() {
@@ -69,8 +106,17 @@ public class StatisticObjective extends Objective {
     public void writeInitialData(CompoundTag data) {
         super.writeInitialData(data);
         if (!this.retroactive) {
-            this.statAtStart = this.getStatValue();
+            // Immediately active quests and prerequisite statistics need a baseline
+            // from their initial authoritative server state. Locked objectives are
+            // deliberately left uncaptured until the trigger transition.
+            if (!this.baselineCaptured
+                    && this.getParent() != null
+                    && !this.getParent().manager.isClient()
+                    && (this.isPartOfPrerequisites() || this.getParent().isTriggered())) {
+                this.captureBaseline();
+            }
             data.putInt("statAtStart", this.statAtStart);
+            data.putBoolean("baselineCaptured", this.baselineCaptured);
         }
     }
 
@@ -79,6 +125,7 @@ public class StatisticObjective extends Objective {
         CompoundTag data = super.serialize();
         if (!this.retroactive) {
             data.putInt("statAtStart", this.statAtStart);
+            data.putBoolean("baselineCaptured", this.baselineCaptured);
         }
         return data;
     }
@@ -86,8 +133,32 @@ public class StatisticObjective extends Objective {
     @Override
     public void deserialize(CompoundTag data) {
         super.deserialize(data);
-        if (!this.retroactive && data.contains("statAtStart")) {
+        if (!this.retroactive) {
             this.statAtStart = Math.max(0, data.getInt("statAtStart"));
+            if (data.contains("baselineCaptured")) {
+                this.baselineCaptured = data.getBoolean("baselineCaptured");
+            } else if (data.contains("statAtStart")) {
+                // Compatibility with saves produced before baselineCaptured was
+                // persisted. Preserve baselines for prerequisite/already-triggered
+                // quests, but discard the old premature baseline of a locked
+                // post-trigger objective so pre-trigger actions cannot leak in.
+                this.baselineCaptured = this.isPartOfPrerequisites()
+                        || (this.getParent() != null && this.getParent().hasSentTrigger);
+                if (!this.baselineCaptured) {
+                    this.statAtStart = 0;
+                }
+            } else {
+                this.baselineCaptured = false;
+            }
+        }
+    }
+
+    @Override
+    public void forceSetUnits(int units) {
+        super.forceSetUnits(units);
+        if (!this.retroactive && units <= 0) {
+            this.statAtStart = 0;
+            this.baselineCaptured = false;
         }
     }
 }
