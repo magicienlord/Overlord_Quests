@@ -198,23 +198,28 @@ public final class QuestProviderRule {
     /**
      * Logical provider roles remain compatible with the existing explicit
      * `overlord_role:<role>` scoreboard-tag bridge. Vanilla and modded Villagers
-     * additionally expose their registered profession directly as a native role,
-     * allowing profession-authored sidequests without per-entity tag setup.
+     * additionally expose their registered profession directly as a native role.
+     * Optional source mods with a stable public profession surface may also be
+     * queried through QuestProviderNativeRoleBridge without becoming hard loader
+     * dependencies.
      *
      * Namespaced profession IDs are preferred for production definitions. A bare
-     * role still matches the profession path for compatibility with existing
-     * simple role strings.
+     * role still matches the owning profession path where the native bridge
+     * supports that entity family.
      */
     private boolean matchesRole(Entity entity) {
         if (this.role.isEmpty()) return true;
         if (entity.getTags().contains("overlord_role:" + this.role)) return true;
-        if (!(entity instanceof Villager villager)) return false;
 
-        ResourceLocation professionId = BuiltInRegistries.VILLAGER_PROFESSION.getKey(
-                villager.getVillagerData().getProfession()
-        );
-        if (professionId == null) return false;
-        return professionId.toString().equals(this.role) || professionId.getPath().equals(this.role);
+        if (entity instanceof Villager villager) {
+            ResourceLocation professionId = BuiltInRegistries.VILLAGER_PROFESSION.getKey(
+                    villager.getVillagerData().getProfession()
+            );
+            if (professionId == null) return false;
+            return professionId.toString().equals(this.role) || professionId.getPath().equals(this.role);
+        }
+
+        return QuestProviderNativeRoleBridge.matches(entity, this.role);
     }
 
     @Nullable public ResourceLocation pool() { return this.pool; }
