@@ -28,6 +28,7 @@ BROWN_ID = "questlog:campaign/opening/restore_browns"
 BROWN_REACTION_ID = "questlog:campaign/opening/browns_return"
 DIRECT_ID = "questlog:campaign/opening/make_an_impression"
 STAFF_ID = "minionsremastered:masters_staff"
+FORGE_FACT = "overlord_reign:tower/forge_prepared"
 
 
 def load(path: Path, errors: list[str]) -> dict[str, Any]:
@@ -173,6 +174,18 @@ def collect_errors() -> list[str]:
         ):
             errors.append("first Tower forge preparation must remain tied to Hot Iron native progression")
 
+    forge_rewards = forge.get("rewards", [])
+    if not isinstance(forge_rewards, list) or len(forge_rewards) != 1:
+        errors.append("first Tower infrastructure quest must write one restoration marker")
+    else:
+        reward = forge_rewards[0]
+        if not isinstance(reward, dict) or not (
+            reward.get("type") == "questlog:set_fact"
+            and reward.get("fact") == FORGE_FACT
+            and reward.get("auto_claim") is True
+        ):
+            errors.append("Tower forge preparation must persist its restoration fact")
+
     return errors
 
 
@@ -188,7 +201,7 @@ def main() -> int:
     print("opening concurrency: preserved")
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
-    print("first Tower convergence: native Hot Iron progression")
+    print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
     return 0
 
 
