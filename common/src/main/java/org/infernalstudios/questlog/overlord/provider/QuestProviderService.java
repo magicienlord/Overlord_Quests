@@ -18,10 +18,13 @@ public final class QuestProviderService {
     public static final double MAX_INTERACTION_DISTANCE_SQR = 64.0D;
 
     public enum InteractionState {
+        // Packet encoding uses ordinal values. Keep existing states in this order
+        // and append new states so older ordinals retain their meaning.
         AVAILABLE,
         IN_PROGRESS,
         READY_TO_TURN_IN,
-        FAILED
+        FAILED,
+        COMPLETED
     }
 
     public record InteractionEntry(ResourceLocation questId, InteractionState state) {
@@ -71,7 +74,19 @@ public final class QuestProviderService {
 
             QuestProviderRule rule = quest.getProviderRule();
             QuestProviderBinding binding = quest.getProviderBinding();
-            if (rule == null || binding == null || quest.isCompleted()) {
+            if (rule == null || binding == null) {
+                continue;
+            }
+
+            if (quest.isCompleted()) {
+                // Completion flavour belongs to the NPC that originally issued the
+                // sidequest. An ANY_ELIGIBLE turn-in does not rewrite that durable
+                // issuer identity, so do not invent a follow-up relationship for a
+                // different eligible provider.
+                if (binding.matches(provider)
+                        && rule.dialogue().hasLinesFor(InteractionState.COMPLETED)) {
+                    result.add(new InteractionEntry(quest.getId(), InteractionState.COMPLETED));
+                }
                 continue;
             }
 
