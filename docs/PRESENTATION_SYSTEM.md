@@ -15,6 +15,7 @@ The source implementation now provides:
 - action-button placement beneath the parchment body;
 - opt-in runtime cleanup for legacy portrait alpha/matte fringes;
 - the locked five-state semantic reaction vocabulary;
+- reaction-aware portrait lookup with a neutral/fallback path;
 - a Villager-Retaliation-derived provider interface restyled into the same Questlog parchment/button family without becoming the same interaction surface;
 - static validators that prevent provider quests from accidentally acquiring the incorporeal portrait system.
 
@@ -68,6 +69,32 @@ speaker_pane_width
 
 The framework can therefore author against the five semantic states before every final character-specific visual asset exists.
 
+## Reaction portrait lookup
+
+`SpeakerPortraitTextures` resolves visual assets from `speaker_id` and `speaker_reaction` through the stable convention:
+
+```text
+assets/questlog/textures/gui/overlord/speakers/<speaker namespace>/<speaker path>/<reaction>.png
+```
+
+Example for a hypothetical completed Gnarl roster:
+
+```text
+assets/questlog/textures/gui/overlord/speakers/overlord_reign/gnarl/neutral.png
+assets/questlog/textures/gui/overlord/speakers/overlord_reign/gnarl/directive.png
+assets/questlog/textures/gui/overlord/speakers/overlord_reign/gnarl/mocking.png
+assets/questlog/textures/gui/overlord/speakers/overlord_reign/gnarl/approving.png
+assets/questlog/textures/gui/overlord/speakers/overlord_reign/gnarl/severe.png
+```
+
+Resolution order is:
+
+1. exact requested reaction asset;
+2. the same speaker's `neutral` asset if the requested reaction art does not yet exist;
+3. the quest's explicit `overlay` resource as the development/legacy fallback.
+
+This means campaign authoring can lock the semantic reaction now. Missing art does not require changing quest state later when the visual roster is produced.
+
 ## Asset-production boundary
 
 A complete visual roster is NOT required for every future incorporeal NPC before campaign authoring begins.
@@ -76,7 +103,7 @@ The reaction-state vocabulary is sufficient for quest implementation. When campa
 
 Do not generate speculative reaction sets for characters that may never use the Questlog incorporeal-speaker surface.
 
-The present implementation retains an explicit portrait resource on the quest as a development/fallback asset. The semantic `speaker_id` and `speaker_reaction` fields are the durable authoring contract; the asset lookup layer can be expanded when the first multi-reaction roster is supplied without changing that vocabulary.
+The present implementation retains an explicit portrait resource on the quest as a development/fallback asset. The semantic `speaker_id` and `speaker_reaction` fields are the durable authoring contract.
 
 ## Portrait alpha cleanup
 
@@ -93,6 +120,8 @@ speaker_alpha_cleanup: true
 This is deliberately opt-in. It must not be applied indiscriminately to future spectral glows, smoke, magical auras, or other artwork where partially transparent colour is intentional.
 
 The Gnarl development fixture enables this cleanup specifically because the current supplied portrait contains a visible red/orange edge matte in its low-alpha pixels.
+
+Generated cleanup textures are released on client logout rather than being retained across sessions.
 
 ## Current Gnarl implementation target
 
