@@ -19,7 +19,7 @@ Supported fields currently include:
 - `entity_types`: exact provider entity IDs;
 - `entity_type_tags`: provider entity tags;
 - `scoreboard_tags`: additional required entity scoreboard tags;
-- `role`: optional logical role, matched through an `overlord_role:<role>` entity scoreboard tag;
+- `role`: optional logical role. It matches an explicit `overlord_role:<role>` entity scoreboard tag and, for Villagers, can also match the Villager's registered profession directly;
 - `dimensions`: optional dimension allow-list;
 - `location`: optional inclusive block-coordinate bounds using `min` and `max` three-integer arrays;
 - `unlock_quests`: quest IDs that must already be complete before this sidequest may be accepted;
@@ -50,6 +50,38 @@ The runtime normalizes reversed coordinate pairs, so `min` and `max` describe th
 `required_facts` and `forbidden_facts` use world-scoped explicit narrative facts described in `docs/NARRATIVE_FACTS.md`. A rule cannot require and forbid the same fact. These fields are for sparse authored consequences, not a replacement reputation score.
 
 `pool` is currently parsed and retained as definition metadata only. There is no random, weighted, rotating, daily, cooldown, or limited-capacity pool scheduler yet. Production quest design must not assume those behaviors until they are explicitly implemented.
+
+## Provider roles and Villager professions
+
+The `role` field has two compatible matching paths.
+
+For a generic provider entity, a role such as:
+
+```json
+"role": "smith"
+```
+
+matches an entity carrying:
+
+```text
+overlord_role:smith
+```
+
+This preserves the explicit scoreboard-tag bridge for custom NPCs, manually authored providers, and entities whose source mod exposes no stable profession registry.
+
+For a `minecraft:villager`, the same field also checks the Villager's registered profession. Production definitions should prefer the full namespaced profession ID:
+
+```json
+"role": "minecraft:farmer"
+```
+
+A bare path such as `farmer` is accepted for compatibility, but namespaced IDs are preferred because modded profession paths may collide.
+
+The lookup uses Minecraft's Villager profession registry rather than a hard-coded vanilla profession list. Compatible modded professions can therefore be targeted through their actual registered IDs without assigning an `overlord_role` tag to every Villager instance.
+
+The native profession path is additive. An explicit `overlord_role:<role>` tag still matches first, so authored NPC roles are not replaced by Villager profession semantics.
+
+This implements the approved REIGN rule that Villager professions, including compatible modded professions, may serve as sidequest-provider roles when the quest fits the profession and location. It does not automatically generate quests for every profession.
 
 ## Authored dialogue and decline flow
 
@@ -83,6 +115,7 @@ Acceptance checks:
 - allowed dimension, if defined;
 - authored location bounds, if defined;
 - required scoreboard tags and logical role, if defined;
+- for Villagers, registered profession matching when the authored role names that profession;
 - completed ordinary prerequisites;
 - completed `unlock_quests` markers;
 - all `required_facts` present;
@@ -176,6 +209,8 @@ Those systems must not be inferred merely because the reference mod contained br
 ## Development fixtures
 
 `examples/questlog/quests/overlord_provider_dev.json` is an implementation-only fixture using a vanilla villager and a debug-stick objective. It exercises provider acceptance, persistence, same-provider turn-in, refresh behavior, authored dialogue overflow scrolling, and interaction safety. Its deliberately long `[DEV]` offer dialogue ends with a sentinel line used only to prove that overflow content remains reachable.
+
+`examples/questlog/quests/overlord_provider_profession_dev.json` is an implementation-only Farmer Villager fixture. It verifies that `role: minecraft:farmer` can match the Villager's native registered profession without requiring an `overlord_role:minecraft:farmer` scoreboard tag.
 
 `examples/questlog/quests/overlord_provider_disposition_dev.json` is an implementation-only fixture gated by the synthetic IDs `questlog:dev_civilization` and `questlog:dev_open`. Those identifiers exist only to validate the disposition bridge and establish no setting canon.
 
