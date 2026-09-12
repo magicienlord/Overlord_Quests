@@ -1,144 +1,114 @@
 # Gnarl Popup Vertical Slice
 
-Status: FOUNDATION B IMPLEMENTATION TEST - APPROVED PORTRAIT INTEGRATED - TECHNICAL BUILD GREEN - IN-GAME ACCEPTANCE PENDING
+Status: FOUNDATION B VISUAL REWORK IMPLEMENTED / IN-GAME ACCEPTANCE PENDING
 
-This document defines the first visual validation pass for Gnarl's quest presentation. It contains no OVERLORD REIGN story canon.
+This document defines the current visual validation pass for Gnarl's Questlog presentation. It contains no OVERLORD REIGN story canon.
 
 ## Purpose
 
-The first vertical slice deliberately uses Questlog 3.3.3's existing per-quest presentation fields rather than adding a custom renderer before one is proven necessary.
+The earlier native-overlay experiment proved the Questlog trigger and popup lifecycle, but direct review exposed two presentation problems:
 
-The development definition is:
+1. Gnarl occupied and visually intruded into the parchment area rather than having a deliberate reaction space;
+2. low-alpha pixels in the supplied portrait carried a visible red/orange matte fringe.
+
+The visual foundation now uses a dedicated incorporeal-speaker screen rather than attempting to force the final composition through ordinary QuestDetails overlay offsets.
+
+The development definition remains:
 
 `examples/questlog/quests/overlord_gnarl_popup_dev.json`
 
-The approved portrait asset is:
+The source portrait remains:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
-The complete manual procedure is recorded in `docs/FOUNDATION_B_TEST_PROTOCOL.md`.
+The source artwork itself has not been redrawn by this pass. Its edge is optionally cleaned into a client-side dynamic texture for presentation.
 
-## Current design decision
+## Dedicated speaker surface
 
-The popup Gnarl character design and exact portrait binary are locked for this milestone.
+`OverlordSpeakerScreen` is used automatically when a popup-enabled quest declares `speaker_id`.
 
-The approved portrait preserves:
+The surface has three locked layout rules:
 
-- square pupils;
-- player-directed gaze;
-- perspective alignment of each pupil to its eye;
-- the original snout geometry, muzzle volume, nostrils, and mouth/jaw relationship;
-- the established sly, amused, non-angry expression without brow, eyelid, grin, or facial-proportion drift.
+1. parchment is the dominant quest-information surface;
+2. the speaker owns a separate lane on the RIGHT and cannot overlap the parchment body;
+3. the quest action remains directly below the parchment, not below the speaker lane.
 
-Do not blend the popup portrait with the current WIP in-game Gnarl model. Full cross-alignment is deferred until the model has a stable face, ears, body silhouette, cloak, and lantern rig. The comparison criteria are recorded in `docs/GNARL_VISUAL_ALIGNMENT.md`.
+Ordinary Questlog entries without speaker metadata continue to use the inherited details screen. In-world Villager-Retaliation-derived providers remain a separate interaction surface.
 
-These decisions lock the portrait, not the parchment placement, portrait scale, or screen composition. Foundation B is now testing presentation only.
+## Reaction metadata
 
-## Approved asset integration
-
-The exact user-supplied main-branch portrait is physically present at the runtime resource path above. The main upload and runtime resource share Git blob:
+The development Gnarl entry currently declares:
 
 ```text
-40c74f6613f0cc23fbf6be0911dedfcfae82865b
+speaker_id: overlord_reign:gnarl
+speaker_reaction: neutral
+speaker_pane_width: 176
+speaker_alpha_cleanup: true
 ```
 
-Mechanical validation records:
+The supported semantic reaction keys are:
 
 ```text
-sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
-size: 1154559 bytes
-dimensions: 1254 x 1254
-PNG color type: RGBA
-fully transparent pixels: 713423
-partially transparent pixels: 858065
+neutral
+directive
+mocking
+approving
+severe
 ```
 
-Questlog renders the texture into the fixture's 160 x 160 overlay rectangle. Source texture resolution and on-screen presentation size are therefore separate concerns.
+Only the semantic contract is required now. A full five-image Gnarl roster is not required before the engine and layout are validated.
 
-## Runtime scope
+## Current composition geometry
 
-Automatic Gnarl popups are an unpublished local single-player feature for OVERLORD REIGN.
-
-LAN-published worlds and dedicated multiplayer are not part of the target runtime and are not Foundation B acceptance cases.
-
-## What this pass validates
-
-The prototype answers only presentation and implementation questions:
-
-1. Does `show_popup_on_unlock` open the quest details screen reliably when a prerequisite transitions to complete?
-2. Does the transparent Gnarl overlay render outside the parchment without clipping or corrupting the panel texture?
-3. Is the left-page text still readable when the portrait overlaps the parchment edge?
-4. Does the composition remain usable across relevant GUI scales and window sizes?
-5. Does the unlock cue play exactly once for the automatic popup?
-6. Does a temporarily blocked popup remain queued until it can safely open?
-7. Is Questlog's native overlay system sufficient, or does OVERLORD QUESTS need a dedicated speaker/portrait rendering field?
-
-## Trigger
-
-The development quest uses one `questlog:item_obtain` prerequisite for `minecraft:debug_stick`.
-
-A prerequisite is required because Questlog initializes quests with no prerequisites as already triggered. The test therefore needs an actual locked-to-unlocked transition in order to exercise popup-on-unlock behavior.
-
-A debug stick is used instead of a common survival item so an ordinary inventory is unlikely to satisfy the prerequisite accidentally before the tester is ready. The intended sequence is:
+The development fixture requests:
 
 ```text
-/clear @s minecraft:debug_stick
-/questlog reset_all_progress_and_reload
-/give @s minecraft:debug_stick 1
+parchment width: 360
+panel height: 200
+speaker lane: 176
+portrait display rectangle: 168 x 168
+speaker gap: 10
+portrait offset inside lane: x=0, y=+4
 ```
 
-The quest uses a `questlog:read` objective so the details screen remains interactive after the popup appears. Rewards and all story-facing progression are intentionally absent.
+The screen contracts the parchment/speaker combination responsively when the scaled GUI becomes narrow. The right-side speaker lane is still treated as a distinct surface even in the compact layout.
 
-A vanilla experience-orb pickup sound is attached only as a development cue. It exists to prove that the trigger sound fires exactly once. It is not a proposed Gnarl production sound.
+The primary action remains below the parchment at every layout size.
 
-## Initial layout
+`tools/check_gnarl_popup_layout.py` statically checks these invariants and reports clipping thresholds across representative scaled GUI sizes.
 
-The first baseline places Gnarl on the left side of a single parchment panel. These values are test coordinates, not a locked visual design:
+## Alpha cleanup
 
-```text
-left panel width: 300
-panel height: 190
-left panel x offset: +70
-Gnarl overlay: 160 x 160
-overlay x offset: -140
-overlay y offset: +18
-```
+The supplied portrait is a valid RGBA PNG, but visual inspection found a coloured matte in translucent boundary pixels.
 
-Static analysis of the current `QuestDetails` placement gives:
+`SpeakerPortraitTextures` provides an opt-in client-side correction for that specific class of source problem:
 
-- 20 px horizontal portrait/parchment overlap;
-- 440 scaled GUI px minimum width for complete horizontal visibility;
-- 229 scaled GUI px minimum height for the panel, portrait, and primary button to remain fully visible;
-- a 2 x 122 px geometric portrait/description intersection before portrait transparency is considered.
+- negligible-alpha pixels are made fully transparent;
+- low/medium-alpha edge pixels keep their original alpha;
+- their RGB is replaced by colour sampled from a nearby opaque source pixel;
+- the source PNG in resources remains unchanged;
+- future speaker assets are NOT cleaned unless their definition explicitly opts in.
 
-The last value is deliberately treated as a warning only. The portrait's transparent pixels may make the actual visual overlap harmless, and title/body readability must be judged from the Minecraft render.
+That last rule is important because intentional spectral glow, smoke, aura, and magical transparency must retain its authored colour.
 
-No conclusion should be drawn from the left-side placement until an in-game comparison has been reviewed.
+## Trigger and runtime scope
 
-## Popup queue behavior
+The development quest still uses a `minecraft:debug_stick` prerequisite and a `questlog:read` objective. It exists only to exercise a genuine locked-to-triggered transition, popup queue behavior, and the action control.
 
-Queued automatic popups store only quest resource IDs. When the retry fires, the client resolves the current quest instance by ID before opening the details screen. The same current-state resolution is used if the session leaves the unpublished-local-single-player scope and the queued event is eligible to fall back to an ordinary unlock toast.
+Automatic full-screen speaker popups remain scoped to an unpublished local single-player world. They wait while another GUI is active rather than replacing an inventory, container, chat screen, or editor.
 
-This prevents an obsolete Quest object or obsolete display definition from being retained across a hot definition reload. Removed or reset quests are discarded rather than opened from stale queue state.
+## Visual acceptance target
 
-## Test installation
+The next direct in-game pass should verify:
 
-The GitHub Actions build publishes a dedicated `overlord-quests-gnarl-popup-test-kit` artifact prepared in an instance-shaped layout.
+- Gnarl appears wholly in the right-side reaction lane;
+- no visible portrait pixel intrudes into the parchment;
+- the coloured alpha fringe is eliminated or reduced below visible concern;
+- the parchment occupies the main visual weight of the screen;
+- title and body remain readable;
+- the Read/Done action appears under parchment only;
+- there is no isolated action beneath Gnarl;
+- the composition remains coherent at the normal OVERLORD REIGN GUI scale and adjacent scale settings;
+- the original exactly-once unlock cue and deferred-popup lifecycle remain intact.
 
-Install the OVERLORD QUESTS JAR, ensure a separate upstream Questlog JAR is not present, place the development quest under `config/questlog/quests/`, and launch an unpublished local single-player test world. Do not use Open to LAN for the acceptance pass.
-
-Use a disposable test world or reset quest state before repeating the unlock test. Remove the debug stick before resetting so the inventory objective cannot immediately retrigger.
-
-## Static validation aids
-
-`tools/check_gnarl_popup_layout.py` mirrors the current `QuestDetails` placement constants and reports horizontal/vertical clipping plus the description-rectangle intersection.
-
-`tools/check_gnarl_popup_asset.py` validates the approved repository PNG's mechanical contract, including dimensions, PNG integrity, alpha content, size, and SHA-256.
-
-Static checks are not acceptance evidence. Minecraft still needs to render the popup directly.
-
-## Acceptance
-
-This vertical slice is accepted after direct in-game review confirms the approved portrait and current presentation behavior.
-
-If native overlay controls remain stable and readable, the renderer should stay unchanged and the presentation can remain data-driven. If clipping, scaling, anchoring, layering, or interaction problems cannot be corrected through the existing fields, the next implementation pass may introduce a dedicated Gnarl speaker/portrait primitive.
+If any of those fail, the failure is still Foundation B presentation work and must be corrected before production campaign content begins.
