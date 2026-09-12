@@ -30,7 +30,7 @@ public final class SpeakerPortraitTextures {
     private static final int TRANSPARENT_CUTOFF = 8;
     private static final int EDGE_ALPHA_CUTOFF = 208;
     private static final int OPAQUE_REFERENCE_ALPHA = 224;
-    private static final int SEARCH_RADIUS = 4;
+    private static final int SEARCH_RADIUS = 6;
 
     private static final Map<ResourceLocation, ResourceLocation> CLEANED = new HashMap<>();
 
@@ -122,6 +122,12 @@ public final class SpeakerPortraitTextures {
         return copy;
     }
 
+    /**
+     * Remove matte RGB from partially transparent edge pixels while retaining the
+     * authored alpha silhouette. Fully transparent boundary pixels receive colour
+     * bleed from the nearest opaque source pixel instead of transparent black.
+     * That second step prevents dark halos if a renderer samples between texels.
+     */
     private static void cleanMatteFringe(NativeImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -137,15 +143,16 @@ public final class SpeakerPortraitTextures {
             for (int x = 0; x < width; x++) {
                 int pixel = source[y * width + x];
                 int alpha = alpha(pixel);
-                if (alpha < TRANSPARENT_CUTOFF) {
-                    image.setPixelRGBA(x, y, 0);
-                    continue;
-                }
                 if (alpha >= EDGE_ALPHA_CUTOFF) {
                     continue;
                 }
 
                 int reference = nearestOpaquePixel(source, width, height, x, y);
+                if (alpha < TRANSPARENT_CUTOFF) {
+                    image.setPixelRGBA(x, y, reference == -1 ? 0 : reference & 0x00FFFFFF);
+                    continue;
+                }
+
                 if (reference != -1) {
                     image.setPixelRGBA(x, y, (pixel & 0xFF000000) | (reference & 0x00FFFFFF));
                 }
