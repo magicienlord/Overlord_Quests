@@ -13,16 +13,20 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions"
-QUESTS = BUNDLED / "quests/campaign/opening"
+OPENING_QUESTS = BUNDLED / "quests/campaign/opening"
+TOWER_QUESTS = BUNDLED / "quests/campaign/tower"
 INDEX = BUNDLED / "index.json"
 
-OPENING = QUESTS / "a_new_master.json"
-BROWN = QUESTS / "restore_browns.json"
-BROWN_REACTION = QUESTS / "browns_return.json"
-DIRECT = QUESTS / "make_an_impression.json"
+OPENING = OPENING_QUESTS / "a_new_master.json"
+BROWN = OPENING_QUESTS / "restore_browns.json"
+BROWN_REACTION = OPENING_QUESTS / "browns_return.json"
+DIRECT = OPENING_QUESTS / "make_an_impression.json"
+FORGE = TOWER_QUESTS / "prepare_the_forge.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
+BROWN_REACTION_ID = "questlog:campaign/opening/browns_return"
+DIRECT_ID = "questlog:campaign/opening/make_an_impression"
 STAFF_ID = "minionsremastered:masters_staff"
 
 
@@ -48,12 +52,30 @@ def has_quest_complete(data: dict[str, Any], quest_id: str) -> bool:
     )
 
 
+def nested_quest_complete_ids(entry: Any) -> set[str]:
+    if not isinstance(entry, dict):
+        return set()
+    if entry.get("type") == "questlog:quest_complete" and isinstance(entry.get("quest"), str):
+        return {entry["quest"]}
+    if entry.get("type") in {"questlog:and", "questlog:or"}:
+        found: set[str] = set()
+        children = entry.get("objectives", [])
+        if isinstance(children, list):
+            for child in children:
+                found.update(nested_quest_complete_ids(child))
+        return found
+    if entry.get("type") == "questlog:not":
+        return nested_quest_complete_ids(entry.get("objective"))
+    return set()
+
+
 def collect_errors() -> list[str]:
     errors: list[str] = []
     opening = load(OPENING, errors)
     brown = load(BROWN, errors)
     brown_reaction = load(BROWN_REACTION, errors)
     direct = load(DIRECT, errors)
+    forge = load(FORGE, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -62,9 +84,10 @@ def collect_errors() -> list[str]:
         "campaign/opening/restore_browns.json",
         "campaign/opening/browns_return.json",
         "campaign/opening/make_an_impression.json",
+        "campaign/tower/prepare_the_forge.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
-        errors.append("bundled definition index is missing one or more opening campaign definitions")
+        errors.append("bundled definition index is missing one or more first-slice campaign definitions")
 
     if opening.get("show_popup_on_unlock") is not True:
         errors.append("opening campaign entry must remain an automatic speaker popup")
@@ -87,7 +110,7 @@ def collect_errors() -> list[str]:
         errors.append("Brown recovery branch must unlock from the opening campaign entry")
     if not has_quest_complete(direct, OPENING_ID):
         errors.append("direct-action branch must unlock from the opening campaign entry")
-    if has_quest_complete(brown, "questlog:campaign/opening/make_an_impression"):
+    if has_quest_complete(brown, DIRECT_ID):
         errors.append("Brown recovery must not be serialized behind the direct-action branch")
     if has_quest_complete(direct, BROWN_ID):
         errors.append("direct action must not be serialized behind Brown recovery")
@@ -126,6 +149,30 @@ def collect_errors() -> list[str]:
         ):
             errors.append("direct-action opening contract changed unexpectedly")
 
+    forge_prerequisites = forge.get("prerequisites", [])
+    if not isinstance(forge_prerequisites, list) or len(forge_prerequisites) != 1:
+        errors.append("first Tower infrastructure quest must retain one OR convergence prerequisite")
+    else:
+        convergence = forge_prerequisites[0]
+        if not isinstance(convergence, dict) or convergence.get("type") != "questlog:or":
+            errors.append("first Tower infrastructure quest must converge through questlog:or")
+        else:
+            dependency_ids = nested_quest_complete_ids(convergence)
+            if dependency_ids != {BROWN_REACTION_ID, DIRECT_ID}:
+                errors.append("first Tower infrastructure quest must remain reachable from either opening direction")
+
+    forge_objectives = forge.get("objectives", [])
+    if not isinstance(forge_objectives, list) or len(forge_objectives) != 1:
+        errors.append("first Tower infrastructure quest must retain one native progression objective")
+    else:
+        objective = forge_objectives[0]
+        if not isinstance(objective, dict) or not (
+            objective.get("type") == "questlog:advancement"
+            and objective.get("advancement") == "hot_iron:local_smithery"
+            and objective.get("required_amount") == 1
+        ):
+            errors.append("first Tower forge preparation must remain tied to Hot Iron native progression")
+
     return errors
 
 
@@ -141,6 +188,7 @@ def main() -> int:
     print("opening concurrency: preserved")
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
+    print("first Tower convergence: native Hot Iron progression")
     return 0
 
 
