@@ -14,6 +14,7 @@ ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/networ
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
 SERVICE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderService.java"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
+NATIVE_ROLE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderNativeRoleBridge.java"
 BINDING = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderBinding.java"
 QUEST = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/Quest.java"
 DIALOGUE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderDialogue.java"
@@ -78,6 +79,15 @@ require(RULE, "entity.getTags().contains(\"overlord_role:\" + this.role)", "expl
 require(RULE, "entity instanceof Villager villager", "native Villager profession provider role bridge")
 require(RULE, "BuiltInRegistries.VILLAGER_PROFESSION.getKey", "registered Villager profession lookup")
 require(RULE, "professionId.toString().equals(this.role)", "namespaced Villager profession role matching")
+require(RULE, "QuestProviderNativeRoleBridge.matches(entity, this.role)", "optional native provider role bridge handoff")
+require(NATIVE_ROLE, 'RIBBIT_ENTITY = new ResourceLocation("ribbits", "ribbit")', "Ribbit native-role entity boundary")
+require(NATIVE_ROLE, 'RIBBIT_ENTITY_CLASS = "com.yungnickyoung.minecraft.ribbits.entity.RibbitEntity"', "reflection-only Ribbit class target")
+require(NATIVE_ROLE, 'ribbitClass.getMethod("getRibbitData")', "Ribbit public data accessor")
+require(NATIVE_ROLE, 'ribbitData.getClass().getMethod("getProfession")', "Ribbit profession accessor")
+require(NATIVE_ROLE, 'profession.getClass().getMethod("getId")', "Ribbit profession ID accessor")
+require(NATIVE_ROLE, 'normalizeRole("ribbits", role)', "Ribbit namespaced profession normalization")
+require(NATIVE_ROLE, "catch (ClassNotFoundException exception)", "optional Ribbits absence handling")
+require(NATIVE_ROLE, "return false;", "native-role fail-closed behavior")
 require(BINDING, 'tag.putUUID("provider_id", this.providerId);', "provider UUID persistence write")
 require(BINDING, 'tag.getUUID("provider_id")', "provider UUID persistence read")
 require(BINDING, "this.providerId.equals(entity.getUUID())", "provider UUID match semantics")
