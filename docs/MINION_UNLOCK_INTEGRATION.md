@@ -4,7 +4,28 @@ Status: ACTIVE CAMPAIGN CONTRACT / QUEST BRIDGE IMPLEMENTED AGAINST VALIDATED BU
 
 This document records the approved gameplay integration boundary between OVERLORD QUESTS and OVERLORD Minions.
 
-The Red, Green, and Blue progression interface is now stable enough for Quest integration. Build #118 is the current validated development dependency. The remaining OVERLORD Minions work is renderer-side and does not change this progression contract.
+The Red, Green, and Blue progression interface is now stable enough for Quest integration. Build #118 is the current validated runtime dependency baseline. The remaining OVERLORD Minions work is renderer-side and does not change this progression contract.
+
+## Live owner source compatibility checkpoint
+
+The current `magicienlord/Overlord_Minions` renderer branch was re-audited at:
+
+```text
+branch: native-renderer-pass
+commit: 0fbf06a395b0206feac49d69bd3889d5ffea041c
+```
+
+At that checkpoint, the public progression surface remains source-compatible with the Build #118 contract:
+
+```text
+OverlordMinionProgression.java blob: f0e541d038eee3e7d7ead5fb26aef527840b4b17
+MinionSlot.java blob:                 b0e3dd9b15122e78ff07a2b209c169fd4cef3472
+MinionUnlockState.java blob:          9be35309bab25edd45455d31b2e374b2f40d47bb
+```
+
+The live slot order is still Brown `0`, Red `1`, Green `2`, Blue `3`; `unlock(...)`, `isUnlocked(...)`, ordered next-slot enforcement, idempotent already-unlocked behavior, Brown staff ownership, and world-scoped SavedData persistence are unchanged.
+
+The current renderer head is three commits beyond its last fully green headless-client/runtime checkpoint `dfbe143bbc1759fbc213628411bd2dd7b4de199a`. Those three commits change only renderer documentation and generated diagnostics, not Java implementation or runtime resources. At `0fbf06a3...`, build #151 and the dedicated-server half of runtime-smoke #120 passed, while the client-smoke half of runtime-smoke #120 failed. Therefore this re-audit establishes live source/API compatibility but does not replace Build #118 as the Quest integration runtime baseline. A newer owner artifact should be promoted only after its relevant runtime validation is green.
 
 ## Stable external progression API
 
@@ -128,7 +149,7 @@ OVERLORD QUESTS remains buildable without shipping OVERLORD Minions as a hard cl
 
 This is not access to private Minions internals. No mixin, private-field access, saved-data mutation, roster mutation, or client-side progression state is used.
 
-Build #118 is the development validation baseline for this API contract. The current source contract confirms the same public API and fixed slot identities while renderer work continues independently.
+Build #118 is the development validation baseline for this API contract. The live owner source checkpoint recorded above confirms the same public API and fixed slot identities while renderer work continues independently.
 
 ## Brown bootstrap exception
 
@@ -225,6 +246,7 @@ IMPLEMENTED in OVERLORD QUESTS:
 - already-unlocked tiers reconcile as success;
 - out-of-order tiers remain unapplied;
 - later development tiers require both the previous Questlog milestone and the previous owner-side Minion slot;
+- successful handoff immediately refreshes the quest graph;
 - completed pending external unlock rewards are retried on player load;
 - Questlog does not manipulate Minions Remastered roster or unlock persistence;
 - the definition validator rejects Brown, unknown slot values, manual-claim usage, choice nesting, and failure-consequence usage;
@@ -235,11 +257,11 @@ STILL TO AUTHOR OR RUNTIME-VALIDATE:
 - the concealed production Red recovery milestone;
 - the concealed production Green recovery milestone;
 - the concealed production Blue recovery milestone;
-- full-modpack runtime validation against the supplied Build #118 development JAR;
+- full-modpack runtime validation against the supplied Build #118 development JAR or a later artifact independently promoted as runtime-compatible;
 - save/reload verification of the complete Red -> Green -> Blue sequence in an integration world;
 - any separate Hive manifestation implementation required by the owning Minions system.
 
-The Minion renderer may continue changing visually without reopening this progression contract unless the owning mod explicitly changes the public API, which the current renderer pass is not expected to do.
+The Minion renderer may continue changing visually without reopening this progression contract unless the owning mod explicitly changes the public API, which the current renderer pass has not done.
 
 ## Repository consistency note
 
