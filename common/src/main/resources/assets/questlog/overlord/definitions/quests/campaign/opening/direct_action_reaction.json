@@ -1,0 +1,46 @@
+{
+  "title": "A Proper Introduction",
+  "description": "Ah, much better, Sire. A little violence does wonders for establishing priorities. The world has now had its first small reminder that the Silence is over. Whenever the mood strikes, we might also make the Tower useful.",
+  "description_completed": "Gnarl has acknowledged the Overlord's first direct act upon the world. The work of rebuilding the machinery of rule remains open.",
+  "icon": {
+    "item": "minecraft:iron_sword"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 21,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/make_an_impression",
+      "required_amount": 1,
+      "name": "Make the first personal mark upon the world"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Gnarl's reaction"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "mocking",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}
