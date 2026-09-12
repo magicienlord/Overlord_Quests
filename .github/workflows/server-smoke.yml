@@ -33,10 +33,21 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Accept test-server EULA
+      - name: Configure disposable test server
         run: |
           mkdir -p forge/run
           printf 'eula=true\n' > forge/run/eula.txt
+          cat > forge/run/server.properties <<'EOF'
+          online-mode=false
+          level-type=minecraft:flat
+          generate-structures=false
+          view-distance=2
+          simulation-distance=2
+          spawn-protection=0
+          EOF
+
+      - name: Prepare Forge server run
+        run: ./gradlew :forge:prepareServerRun --no-daemon --stacktrace
 
       - name: Boot Forge dedicated server
         id: server
