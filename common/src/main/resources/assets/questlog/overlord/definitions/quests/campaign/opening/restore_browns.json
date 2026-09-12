@@ -18,7 +18,7 @@
   ],
   "objectives": [
     {
-      "type": "questlog:item_craft",
+      "type": "questlog:item_craft_stat",
       "item": "minionsremastered:masters_staff",
       "required_amount": 1,
       "name": "Forge the Master's Staff"
