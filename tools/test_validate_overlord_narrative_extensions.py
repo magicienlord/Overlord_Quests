@@ -28,9 +28,14 @@ def reward(entry):
     return errors
 
 
-def provider(value):
+def provider(value, *, development_fixture=False):
     errors = []
-    validator.validate_provider_rule({"provider": value}, TEST_PATH, errors)
+    validator.validate_provider_rule(
+        {"provider": value},
+        TEST_PATH,
+        errors,
+        development_fixture=development_fixture,
+    )
     return errors
 
 
@@ -155,7 +160,29 @@ def main():
         "required_dispositions": {"overlord_reign:test_civilization": []},
     }), "non-empty list")
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (23 cases)")
+    expect_invalid("unscoped production civilization provider", provider({
+        "entity_types": ["minecraft:villager"],
+        "civilization": "overlord_reign:test_civilization",
+    }), "anchor-scoped")
+    expect_valid("tag-scoped production civilization provider", provider({
+        "entity_types": ["minecraft:villager"],
+        "civilization": "overlord_reign:test_civilization",
+        "scoreboard_tags": ["overlord_anchor:test_settlement"],
+    }))
+    expect_valid("location-scoped production civilization provider", provider({
+        "entity_types": ["minecraft:villager"],
+        "civilization": "overlord_reign:test_civilization",
+        "location": {
+            "min": [-16, 48, -16],
+            "max": [16, 128, 16],
+        },
+    }))
+    expect_valid("unscoped development civilization provider", provider({
+        "entity_types": ["minecraft:villager"],
+        "civilization": "questlog:dev_civilization",
+    }, development_fixture=True))
+
+    print("OVERLORD narrative/provider validator self-tests: PASS (27 cases)")
     return 0
 
 
