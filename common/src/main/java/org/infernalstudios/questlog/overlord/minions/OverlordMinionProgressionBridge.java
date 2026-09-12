@@ -5,6 +5,8 @@ import org.infernalstudios.questlog.Questlog;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Bounded optional bridge to the stable OVERLORD Minions progression API.
@@ -12,11 +14,12 @@ import java.util.Locale;
  * The public API contract is owned by the overlord_minions mod. Questlog keeps
  * the dependency optional at class-link time so development and validation can
  * still run without that mod installed. Only the documented public API classes
- * and method are resolved here.
+ * and methods are resolved here.
  */
 public final class OverlordMinionProgressionBridge {
     private static final String API_CLASS = "com.overlordreign.minions.api.OverlordMinionProgression";
     private static final String SLOT_CLASS = "com.overlordreign.minions.progression.MinionSlot";
+    private static final Set<String> REPORTED_QUERY_ERRORS = ConcurrentHashMap.newKeySet();
 
     private OverlordMinionProgressionBridge() {
     }
@@ -87,6 +90,63 @@ public final class OverlordMinionProgressionBridge {
         } catch (ReflectiveOperationException | LinkageError exception) {
             Questlog.LOGGER.error("Failed to invoke OVERLORD Minions progression API for slot {}", slot.serializedName(), exception);
             return UnlockResult.API_ERROR;
+        }
+    }
+
+    /**
+     * Reads the owning mod's persistent slot state without copying it into
+     * Questlog. A missing or incompatible optional API is treated as locked so
+     * later campaign tiers cannot open merely because an earlier quest completed
+     * while its external unlock reward was still pending.
+     */
+    public static boolean isUnlocked(MinecraftServer server, Slot slot) {
+        if (server == null || slot == null) {
+            return false;
+        }
+
+        try {
+            Class<?> slotClass = Class.forName(SLOT_CLASS);
+            Class<?> apiClass = Class.forName(API_CLASS);
+            Object slotValue = findEnumConstant(slotClass, slot.name());
+            if (slotValue == null) {
+                reportQueryErrorOnce(slot, "slot_missing", null);
+                return false;
+            }
+
+            Method isUnlockedMethod = apiClass.getMethod("isUnlocked", MinecraftServer.class, slotClass);
+            Object rawResult = isUnlockedMethod.invoke(null, server, slotValue);
+            if (rawResult instanceof Boolean unlocked) {
+                return unlocked;
+            }
+
+            reportQueryErrorOnce(slot, "non_boolean_result", null);
+            return false;
+        } catch (ClassNotFoundException exception) {
+            return false;
+        } catch (ReflectiveOperationException | LinkageError exception) {
+            reportQueryErrorOnce(slot, "reflection_error", exception);
+            return false;
+        }
+    }
+
+    private static void reportQueryErrorOnce(Slot slot, String reason, Throwable throwable) {
+        String key = slot.name() + ":" + reason;
+        if (!REPORTED_QUERY_ERRORS.add(key)) {
+            return;
+        }
+        if (throwable == null) {
+            Questlog.LOGGER.error(
+                    "Failed to query OVERLORD Minions progression API for slot {} ({})",
+                    slot.serializedName(),
+                    reason
+            );
+        } else {
+            Questlog.LOGGER.error(
+                    "Failed to query OVERLORD Minions progression API for slot {} ({})",
+                    slot.serializedName(),
+                    reason,
+                    throwable
+            );
         }
     }
 
