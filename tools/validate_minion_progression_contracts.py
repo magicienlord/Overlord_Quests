@@ -16,6 +16,7 @@ MANAGER = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/QuestMa
 PLAYER_MANAGER = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/ServerPlayerManager.java"
 MODS_TOML = ROOT / "forge/src/main/resources/META-INF/mods.toml"
 DOC = ROOT / "docs/MINION_UNLOCK_INTEGRATION.md"
+RECOVERY_DOC = ROOT / "docs/MINION_RECOVERY_AUTHORING_CONTRACT.md"
 PROTOCOL = ROOT / "docs/MINION_PROGRESSION_TEST_PROTOCOL.md"
 FIXTURES = {
     "red": ROOT / "examples/questlog/quests/overlord_minion_unlock_red_dev.json",
@@ -73,6 +74,7 @@ def main() -> int:
     player_manager = read(PLAYER_MANAGER, errors)
     mods_toml = read(MODS_TOML, errors)
     doc = read(DOC, errors)
+    recovery_doc = read(RECOVERY_DOC, errors)
     protocol = read(PROTOCOL, errors)
 
     require(
@@ -91,6 +93,7 @@ def main() -> int:
     require('getMethod("isUnlocked", MinecraftServer.class, slotClass)' in bridge, "bridge must query the documented owner-state method", errors)
 
     require("class UnlockMinionReward" in reward, "unlock_minion reward implementation is missing", errors)
+    require('JsonUtils.getString(definition, "slot")' in reward, "unlock_minion reward schema must use the slot field", errors)
     require("if (!this.isAutoClaim())" in reward, "unlock_minion must enforce auto_claim", errors)
     require("case UNLOCKED, ALREADY_UNLOCKED" in reward, "unlock_minion must treat idempotent already-unlocked state as success", errors)
     require("case OUT_OF_ORDER" in reward, "unlock_minion must preserve owner-side sequence rejection", errors)
@@ -113,6 +116,9 @@ def main() -> int:
     require("Build #118" in doc, "Minion integration doc must record the validated Build #118 baseline", errors)
     require("Brown `0`, Red `1`, Green `2`, Blue `3`" in doc, "Minion integration doc must preserve the fixed slot order", errors)
     require("MINION_PROGRESSION_TEST_PROTOCOL.md" in doc, "Minion integration doc must link the runtime validation protocol", errors)
+    require('"type": "questlog:unlock_minion"' in recovery_doc, "Minion recovery contract must document the production unlock reward", errors)
+    require('"slot": "red"' in recovery_doc, "Minion recovery contract must document the canonical slot field", errors)
+    require('"minion": "red"' not in recovery_doc, "Minion recovery contract must not document the obsolete minion field", errors)
     require("/overlord_minions status" in protocol, "runtime protocol must verify owner-side progression state", errors)
 
     fixture_data = {slot: load_json(path, errors) for slot, path in FIXTURES.items()}
