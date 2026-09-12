@@ -17,6 +17,8 @@ public class EntityMatcher {
     @Nullable
     private final String customName;
     @Nullable
+    private final String scoreboardTag;
+    @Nullable
     private final JsonElement predicateJson;
 
     private EntityPredicate cachedEntityPredicate;
@@ -24,6 +26,7 @@ public class EntityMatcher {
 
     public EntityMatcher(@Nullable JsonElement entityElement, @Nullable JsonObject definition) {
         String name = null;
+        String tag = null;
         JsonElement predElement = null;
 
         if (definition != null) {
@@ -31,6 +34,9 @@ public class EntityMatcher {
                 name = definition.get("custom_name").getAsString();
             } else if (definition.has("entity_name")) {
                 name = definition.get("entity_name").getAsString();
+            }
+            if (definition.has("scoreboard_tag")) {
+                tag = definition.get("scoreboard_tag").getAsString();
             }
             if (definition.has("predicate")) {
                 predElement = definition.get("predicate");
@@ -43,7 +49,7 @@ public class EntityMatcher {
                         entityElement.getAsString(),
                         BuiltInRegistries.ENTITY_TYPE,
                         Object::equals,
-                        (tag, entity) -> entity.is(tag)
+                        (entityTag, entity) -> entity.is(entityTag)
                 );
             } else if (entityElement.isJsonObject()) {
                 JsonObject entityObj = entityElement.getAsJsonObject();
@@ -52,7 +58,7 @@ public class EntityMatcher {
                         idStr,
                         BuiltInRegistries.ENTITY_TYPE,
                         Object::equals,
-                        (tag, entity) -> entity.is(tag)
+                        (entityTag, entity) -> entity.is(entityTag)
                 );
 
                 if (entityObj.has("custom_name")) {
@@ -61,6 +67,10 @@ public class EntityMatcher {
                     name = entityObj.get("entity_name").getAsString();
                 } else if (entityObj.has("name")) {
                     name = entityObj.get("name").getAsString();
+                }
+
+                if (entityObj.has("scoreboard_tag")) {
+                    tag = entityObj.get("scoreboard_tag").getAsString();
                 }
 
                 if (entityObj.has("predicate")) {
@@ -74,6 +84,7 @@ public class EntityMatcher {
         }
 
         this.customName = name;
+        this.scoreboardTag = tag;
         this.predicateJson = predElement;
     }
 
@@ -97,6 +108,9 @@ public class EntityMatcher {
             if (!entity.hasCustomName() || !this.customName.equals(entity.getCustomName().getString())) {
                 return false;
             }
+        }
+        if (this.scoreboardTag != null && !this.scoreboardTag.isEmpty() && !entity.getTags().contains(this.scoreboardTag)) {
+            return false;
         }
         if (this.predicateJson != null && !this.predicateJson.isJsonNull()) {
             EntityPredicate predicate = getEntityPredicate();
