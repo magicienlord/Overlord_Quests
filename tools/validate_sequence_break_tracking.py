@@ -8,6 +8,7 @@ import validate_statistic_trigger_contracts as statistic_contracts
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTITY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.java"
+ENTITY_HISTORY_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillHistoryObjective.java"
 ITEM_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.java"
 DIMENSION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitDimensionHistoryObjective.java"
 POSITION_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/objectives/misc/VisitPositionHistoryObjective.java"
@@ -16,6 +17,7 @@ DRAGON_OBJECTIVE = ROOT / "common/src/main/java/org/infernalstudios/questlog/cor
 REGISTRY = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/QuestObjectiveRegistry.java"
 VALIDATOR = ROOT / "tools/validate_overlord_quest_examples.py"
 ENTITY_FIXTURE = ROOT / "examples/questlog/quests/overlord_sequence_break_dev.json"
+ENTITY_HISTORY_FIXTURE = ROOT / "examples/questlog/quests/overlord_entity_kill_history_dev.json"
 ITEM_FIXTURE = ROOT / "examples/questlog/quests/overlord_item_craft_sequence_break_dev.json"
 DIMENSION_FIXTURE = ROOT / "examples/questlog/quests/overlord_dimension_history_dev.json"
 POSITION_FIXTURE = ROOT / "examples/questlog/quests/overlord_position_history_dev.json"
@@ -37,6 +39,16 @@ def collect_errors() -> list[str]:
     require(ENTITY_OBJECTIVE, "!this.isActiveForPlayer(player)", "active entity objective lifecycle guard")
     require(ENTITY_OBJECTIVE, "entityText.startsWith(\"#\")", "entity-tag rejection")
     require(ENTITY_OBJECTIVE, "BuiltInRegistries.ENTITY_TYPE.containsKey(entityId)", "exact registered entity validation")
+
+    require(ENTITY_HISTORY_OBJECTIVE, "class EntityKillHistoryObjective", "tagged entity-kill history implementation")
+    require(ENTITY_HISTORY_OBJECTIVE, "event.damageSource.getEntity() instanceof ServerPlayer player", "player-attributed tagged kill authority")
+    require(ENTITY_HISTORY_OBJECTIVE, "!this.isActiveForPlayer(player)", "active tagged history lifecycle guard")
+    require(ENTITY_HISTORY_OBJECTIVE, "this.test(event.entity)", "full EntityMatcher tagged kill test")
+    require(ENTITY_HISTORY_OBJECTIVE, "private boolean seen = false", "persistent tagged kill observation state")
+    require(ENTITY_HISTORY_OBJECTIVE, 'data.putBoolean("seen", this.seen)', "tagged kill history persistence")
+    require(ENTITY_HISTORY_OBJECTIVE, 'data.getBoolean("seen")', "tagged kill history reload")
+    require(ENTITY_HISTORY_OBJECTIVE, "this.isPartOfOptionalObjective()", "optional tagged kill history membership check")
+    require(ENTITY_HISTORY_OBJECTIVE, "this.getParent().hasSentCompletion", "optional tagged kill post-completion freeze")
 
     require(ITEM_OBJECTIVE, "Stats.ITEM_CRAFTED.get(this.item)", "vanilla persistent item-craft statistic lookup")
     require(ITEM_OBJECTIVE, "player.getStats().getValue", "server-player item statistics authority")
@@ -87,6 +99,8 @@ def collect_errors() -> list[str]:
     require(DRAGON_OBJECTIVE, "!this.isActiveForPlayer(player)", "active Dragon objective lifecycle guard")
     require(DRAGON_OBJECTIVE, "this.setUnits(1)", "ordinary Questlog completion handoff")
 
+    require(REGISTRY, 'new ResourceLocation("questlog", "entity_kill_history")', "entity_kill_history objective registration")
+    require(REGISTRY, 'new EditorMetadata("entity", "Entity ID / Matcher:"', "tagged entity matcher editor metadata")
     require(REGISTRY, 'new ResourceLocation("questlog", "entity_kill_stat")', "entity_kill_stat objective registration")
     require(REGISTRY, 'new EditorMetadata("entity", "Exact Entity ID:"', "exact-entity editor metadata")
     require(REGISTRY, 'new ResourceLocation("questlog", "item_craft_stat")', "item_craft_stat objective registration")
@@ -98,6 +112,8 @@ def collect_errors() -> list[str]:
     require(REGISTRY, 'new EditorMetadata("structure", "Exact Structure ID:"', "exact-structure editor metadata")
     require(REGISTRY, 'new ResourceLocation("questlog", "ender_dragon_defeated")', "ender_dragon_defeated objective registration")
 
+    require(VALIDATOR, '"questlog:entity_kill_history"', "tagged kill history definition validator registration")
+    require(VALIDATOR, "must be exactly 1 for questlog:entity_kill_history", "boolean tagged kill history amount guard")
     require(VALIDATOR, '"questlog:entity_kill_stat"', "entity-kill definition validator registration")
     require(VALIDATOR, "core.validate_resource_id(entry[\"entity\"]", "exact entity resource-id schema validation")
     require(VALIDATOR, '"questlog:item_craft_stat"', "item-craft definition validator registration")
@@ -113,6 +129,8 @@ def collect_errors() -> list[str]:
 
     require(ENTITY_FIXTURE, '"type": "questlog:entity_kill_stat"', "entity development fixture objective")
     require(ENTITY_FIXTURE, '"entity": "minecraft:zombie"', "entity development fixture exact entity")
+    require(ENTITY_HISTORY_FIXTURE, '"type": "questlog:entity_kill_history"', "tagged entity history development fixture")
+    require(ENTITY_HISTORY_FIXTURE, '"scoreboard_tag": "questlog_dev_kill_history_target"', "tagged entity history fixture selector")
     require(ITEM_FIXTURE, '"type": "questlog:item_craft_stat"', "item development fixture objective")
     require(ITEM_FIXTURE, '"item": "minecraft:crafting_table"', "item development fixture exact item")
     require(DIMENSION_FIXTURE, '"type": "questlog:visit_dimension_history"', "dimension development fixture objective")
