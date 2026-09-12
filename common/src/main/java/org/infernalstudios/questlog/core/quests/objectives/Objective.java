@@ -82,6 +82,15 @@ public abstract class Objective implements NbtSaveable, WithDisplayData<Objectiv
         return this.isPartOfOptionalObjective;
     }
 
+    /**
+     * Lets specialized objective implementations distinguish trigger conditions
+     * from post-trigger objectives without exposing mutable prerequisite state.
+     * Logic objectives propagate this marker to their descendants.
+     */
+    protected boolean isPartOfPrerequisites() {
+        return this.isPartOfPrerequisites;
+    }
+
     @Nullable
     public final Quest getParent() {
         return this.parent;
