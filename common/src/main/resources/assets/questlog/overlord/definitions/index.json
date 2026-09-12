@@ -2,8 +2,8 @@
   "quests": [
     "campaign/opening/a_new_master.json",
     "campaign/opening/restore_browns.json",
-    "campaign/opening/browns_return.json",
     "campaign/opening/make_an_impression.json",
+    "campaign/opening/browns_return.json",
     "campaign/opening/direct_action_reaction.json",
     "campaign/tower/prepare_the_forge.json",
     "campaign/tower/forge_prepared_reaction.json",
@@ -16,6 +16,7 @@
     "campaign/civilizations/ribbits/first_contact.json",
     "campaign/civilizations/kobolds/first_contact.json",
     "campaign/civilizations/sea_dwellers/first_contact.json",
+    "campaign/civilizations/sea_dwellers/aquamarine_barter.json",
     "campaign/civilizations/dwarves/first_contact.json",
     "campaign/civilizations/umvuthana/first_contact.json"
   ],
