@@ -1,0 +1,64 @@
+{
+  "title": "The Sun's Blessing",
+  "description": "The designated Umvuthi offers a service older than the current reign: satisfy his own terms of exchange and receive the native blessing of the Sun through the Grove's existing ritual trade.",
+  "description_completed": "The Overlord has satisfied Umvuthi's native trade and received the Sun's Blessing from the designated Grove.",
+  "icon": {
+    "item": "mowziesmobs:grant_suns_blessing"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 161,
+  "provider": {
+    "entity_types": [
+      "mowziesmobs:umvuthi"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:umvuthana_main_umvuthi"
+    ],
+    "civilization": "overlord_reign:umvuthana",
+    "required_facts": [
+      "overlord_reign:civilizations/umvuthana/contact_established"
+    ],
+    "required_dispositions": {
+      "overlord_reign:umvuthana": [
+        "overlord_reign:neutral"
+      ]
+    },
+    "dialogue": {
+      "offer": "You have been received in my Grove. If you seek the Sun's favor, bring what I desire and make the exchange according to my law. The blessing is not given for empty words.",
+      "in_progress": "The Sun waits for no boast. Fulfill the exchange, and its power will answer.",
+      "ready_to_turn_in": "The bargain is fulfilled. You carry the Sun's mark now; even the dark tower cannot pretend otherwise.",
+      "completed": "You have received what this Grove grants. Use it well, ruler of shadows."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/umvuthana/contact_established",
+      "required_amount": 1,
+      "name": "Complete formal audience with the designated Umvuthi"
+    },
+    {
+      "type": "questlog:disposition",
+      "civilization": "overlord_reign:umvuthana",
+      "state": "overlord_reign:neutral",
+      "required_amount": 1,
+      "name": "Remain in neutral standing with the designated Grove"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "mowziesmobs:suns_blessing",
+      "required_amount": 1,
+      "name": "Receive the Sun's Blessing through Umvuthi's native trade"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
