@@ -89,6 +89,18 @@ When that happens, the campaign should recognize reliable surviving evidence rat
 
 Native progression remains authoritative where possible. Questlog frames, records, and reacts to installed-mod progression rather than replacing it without cause.
 
+## Native-mod integration depth
+
+Compatibility investigation scales with the gameplay importance and state complexity of the mod rather than applying a full forensic audit indiscriminately.
+
+Use the LIGHTWEIGHT, STANDARD, and DEEP classes defined in `docs/NATIVE_MOD_INTEGRATION_POLICY.md`.
+
+A simple boss, structure, advancement, or isolated capability normally needs only the narrow authoritative milestone and sequence-break check. A multi-stage system that may become campaign backbone, Tower infrastructure, magic progression, dimension progression, civilization state, or cross-mod persistent progression receives a deeper state/ownership audit.
+
+Evidence quality does not scale down with audit depth. Every production hook still requires a verified installed mechanic or stable owning-mod contract. The depth class determines how much of the surrounding system must be understood before the hook is safe.
+
+Stop a deep audit when the relevant capability graph, ownership boundary, persistence model, and safe integration surface are understood. Do not inspect unrelated internals merely because source is available.
+
 ## Sidequest rule
 
 Sidequests should have self-interested motives appropriate to the world and the Overlord. They are not a generic heroic-help system.
