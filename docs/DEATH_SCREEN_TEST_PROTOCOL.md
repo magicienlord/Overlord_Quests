@@ -1,15 +1,16 @@
 # OVERLORD QUESTS Death-Screen Runtime Test Protocol
 
-Status: TECHNICAL VALIDATION / NEUTRAL IMPLEMENTATION SCAFFOLD / NOT STORY CANON
+Status: TECHNICAL VALIDATION / RESTRAINED OVERLORD VISUAL PASS / NOT STORY CANON
 
-This protocol validates the client-side death-screen mechanics integrated from the approved Epic Death Screen boundary. It does not approve a final OVERLORD REIGN visual design, dialogue, imagery, soundscape, or lore treatment.
+This protocol validates the client-side death-screen mechanics integrated from the approved Epic Death Screen boundary and the current restrained OVERLORD presentation pass. It does not establish dialogue, imagery, soundscape, or story canon.
 
 ## Test scope
 
 The pass verifies:
 
 - only the exact vanilla `DeathScreen` is replaced;
-- the neutral OVERLORD QUESTS scaffold displays the actual Minecraft cause of death;
+- the OVERLORD composition displays the actual Minecraft cause of death;
+- the central framed presentation remains legible across normal GUI scales;
 - the configured scene delay hides and disables vanilla death controls until release;
 - manual skip releases the controls when enabled;
 - non-hardcore automatic respawn occurs only when enabled and after the delay;
@@ -33,7 +34,7 @@ For the primary pass:
 
 The death-screen settings are client configuration owned by OVERLORD QUESTS. Use the generated Questlog client configuration or its configuration UI rather than adding a second death-screen mod/config surface.
 
-## Pass A: exact vanilla replacement and delayed controls
+## Pass A: presentation, exact vanilla replacement, delayed controls
 
 With automatic respawn disabled, run:
 
@@ -43,11 +44,16 @@ With automatic respawn disabled, run:
 
 Expected behavior:
 
-- the vanilla death screen is replaced by the current neutral OVERLORD QUESTS scaffold;
-- the displayed cause remains the actual Minecraft death message;
+- the vanilla death screen is replaced by the OVERLORD QUESTS presentation;
+- the background is near-black rather than a copied VHS treatment;
+- a bounded charcoal central panel is visible with thin frame lines and restrained dark-red accents;
+- the localized vanilla death title remains centered in the upper part of the panel;
+- the displayed cause remains the actual Minecraft death message and wraps within the same central panel geometry;
 - respawn/title controls are not visible or usable before the configured scene delay expires;
-- no VHS grain, scanlines, chromatic separation, cassette imagery, heartbeat, breathing, tape ambience, stock joke line, or invented OVERLORD dialogue is introduced;
-- once the delay expires, the ordinary death controls become visible and usable.
+- no custom quotation, Gnarl dialogue, faction emblem, lore symbol, VHS grain, scanlines, chromatic separation, cassette imagery, heartbeat, breathing, tape ambience, or stock joke line is introduced;
+- once the delay expires, the ordinary death controls become visible and usable below the presentation area.
+
+Repeat this pass at a second GUI scale if practical. The framed panel must remain centered and bounded, and the cause text must remain readable without escaping the frame.
 
 Use the respawn control and confirm normal survival gameplay resumes.
 
@@ -76,7 +82,7 @@ Enable automatic respawn, retain the non-hardcore world, and die again.
 
 Expected behavior:
 
-- the neutral scaffold remains active for the configured delay;
+- the OVERLORD presentation remains active for the configured delay;
 - the player is not automatically respawned before the delay completes;
 - once the delay completes, the client issues the normal respawn action once;
 - the death screen closes after the live player state returns;
@@ -90,7 +96,7 @@ Use a disposable hardcore test world. Keep automatic respawn enabled in configur
 
 Expected behavior:
 
-- the neutral death presentation may still replace the exact vanilla screen;
+- the OVERLORD death presentation may still replace the exact vanilla screen;
 - automatic respawn must not occur in hardcore;
 - the hardcore-safe vanilla control flow remains available after the scene delay or manual skip;
 - no survival-world respawn action is forced by OVERLORD QUESTS.
@@ -101,7 +107,7 @@ Do not use the production world for this test.
 
 The screen is required to relinquish control when the client no longer represents the original dead player/world.
 
-At minimum, confirm an ordinary respawn closes the scaffold. If Hardcore Revival or PlayerRevive is installed in the validation instance, perform that mod's normal knocked-out/bleeding flow as a separate compatibility pass.
+At minimum, confirm an ordinary respawn closes the presentation. If Hardcore Revival or PlayerRevive is installed in the validation instance, perform that mod's normal knocked-out/bleeding flow as a separate compatibility pass.
 
 Expected behavior with a supported revival mod:
 
@@ -130,12 +136,13 @@ Retain:
 - `latest.log` covering the complete test session;
 - one screenshot before death controls are released;
 - one screenshot after manual skip or natural release;
+- one screenshot at an alternate GUI scale if the visual pass is being reviewed for acceptance;
 - one screenshot from the hardcore pass if performed;
 - any warning mentioning an unavailable revival compatibility API;
 - any crash report or unexpected screen-transition log.
 
 ## Acceptance criteria
 
-The mechanical death-screen milestone passes only when the actual Forge 1.20.1 instance confirms delayed controls, skip, non-hardcore auto-respawn, hardcore safety, exact-vanilla-screen ownership, lifecycle cleanup, and quest-system non-interference.
+The death-screen implementation passes technical validation only when the actual Forge 1.20.1 instance confirms the framed presentation, delayed controls, skip, non-hardcore auto-respawn, hardcore safety, exact-vanilla-screen ownership, lifecycle cleanup, and quest-system non-interference.
 
-Passing this protocol does not approve the final OVERLORD REIGN death-screen visual design. The final presentation remains a separate DESIGN milestone.
+The current code establishes an implemented DESIGN candidate, not accepted final presentation. Promotion to an accepted visual baseline requires direct in-game review of the rendered composition.
