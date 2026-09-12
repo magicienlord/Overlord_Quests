@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 import validate_campaign_opening_contracts as campaign_contract
+import validate_minion_progression_contracts as minion_contract
 import validate_optional_objectives as optional_contract
 import validate_overlord_quest_examples_core as core
 import validate_presentation_contracts as presentation_contract
@@ -389,7 +390,11 @@ def main() -> int:
     if presentation_result != 0:
         return presentation_result
 
-    return campaign_contract.main()
+    campaign_result = campaign_contract.main()
+    if campaign_result != 0:
+        return campaign_result
+
+    return minion_contract.main()
 
 
 if __name__ == "__main__":
