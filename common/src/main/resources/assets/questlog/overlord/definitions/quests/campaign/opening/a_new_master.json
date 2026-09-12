@@ -8,7 +8,15 @@
   "chapter": "main",
   "include_in_main": true,
   "sort_order": 0,
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "type": "questlog:stat",
+      "stat": "minecraft:play_time",
+      "required_amount": 1,
+      "retroactive": true,
+      "name": "Enter the new reign"
+    }
+  ],
   "objectives": [
     {
       "type": "questlog:read",
