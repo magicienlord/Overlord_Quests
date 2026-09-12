@@ -339,7 +339,7 @@ Unlike the other current civilization contact facts, this audience also writes t
 
 Category: local civilization authority milestone.
 
-Set by `campaign/civilizations/illagers/break_the_bastille` after the Overlord has entered the designated Take a Pillage Bastille and personally killed the one `takesapillage:legioner` marked as that Bastille's authored local commander.
+Set by `campaign/civilizations/illagers/break_the_bastille` after the Overlord personally kills the one `takesapillage:legioner` marked as the designated Bastille's authored local commander.
 
 Meaning:
 
@@ -354,6 +354,7 @@ This fact does NOT mean:
 - that `takesapillage:legioner` is a native commander class;
 - that every Legioner or every Illager recognizes the marked NPC's authored local role;
 - that unrelated Illager warbands have been defeated or pacified;
+- that the player necessarily earned Take a Pillage's global Bastille advancement at the designated REIGN Bastille;
 - that exact Bastille coordinates have been fixed in canon;
 - that later fearful/cowed or submission outcomes have been selected.
 

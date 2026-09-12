@@ -27,7 +27,7 @@ SHA-256 b8ebc7ea467637dc918ffa9c8eaa273f8723e6e81be93cf5f69618f8072baa11
 The exact installed JAR confirms:
 
 - structure ID `takesapillage:bastille`;
-- advancement ID `takesapillage:bastille`, awarded by the vanilla `minecraft:location` trigger while the player is inside that structure;
+- advancement ID `takesapillage:bastille`, awarded by the vanilla `minecraft:location` trigger while the player is inside a Bastille;
 - native entity types `takesapillage:legioner`, `takesapillage:skirmisher`, and `takesapillage:archer`;
 - the Bastille `illager` template pool delegates to `takesapillage:mob_feature_soldier`;
 - that soldier feature draws from the mod's `BASTILLE_LIST`;
@@ -58,14 +58,27 @@ It does not mean:
 
 The local command role is an OVERLORD REIGN authoring layer on a source-backed elite Bastille soldier.
 
+## Bastille advancement boundary
+
+The native `takesapillage:bastille` advancement is valid source evidence that a player entered a Bastille. It does not identify which Bastille was entered.
+
+Because REIGN intentionally distinguishes one designated Bastille from unrelated Bastilles, the production main-arc opener does not use that global advancement as proof of the designated anchor. Doing so would let an unrelated Bastille satisfy part of the principal civilization quest and would overstate what the native signal actually proves.
+
+The advancement remains untouched and continues to function as Take a Pillage intended. A later sidequest, optional objective, or world-integration layer may use it where the distinction between Bastilles is irrelevant.
+
 ## Sequence-breaking
 
 The commander is intentionally killable before the formal campaign quest becomes visible. Therefore it must not rely on `overlord_quest_protected` during the legitimate hostile opening window.
 
-The production quest uses two persistent signals:
+The production quest uses one exact historical signal:
 
-1. native `takesapillage:bastille` advancement evidence that the player entered a Bastille;
-2. `questlog:entity_kill_history` matching both `takesapillage:legioner` and `overlord_anchor:illager_bastille_commander`.
+```text
+questlog:entity_kill_history
+entity = takesapillage:legioner
+scoreboard_tag = overlord_anchor:illager_bastille_commander
+```
+
+The scoreboard tag supplies the local identity that the native advancement cannot.
 
 `entity_kill_history` observes the real player-attributed death event from the moment the bundled definition is loaded, even while its parent quest remains locked, and persists the observation. It does not reconstruct kills from before OVERLORD QUESTS was installed or before the definition existed.
 
@@ -79,7 +92,7 @@ Bundled quest:
 questlog:campaign/civilizations/illagers/break_the_bastille
 ```
 
-It requires the initial reign foundation fact and then confirms both Bastille entry and the marked commander kill.
+It requires the initial reign foundation fact and then recognizes the exact marked commander kill. The selected commander's authored identity ties that event to the designated Bastille polity without pretending a global structure advancement can identify one generated instance.
 
 On completion it sets:
 

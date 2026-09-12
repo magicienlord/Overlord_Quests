@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 QUEST = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/quests/campaign/civilizations/illagers/break_the_bastille.json"
 INDEX = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/index.json"
 DOC = ROOT / "docs/ILLAGER_BASTILLE_INTEGRATION.md"
+FACTS = ROOT / "docs/NARRATIVE_FACTS.md"
+SEQUENCE = ROOT / "docs/SEQUENCE_BREAK_TRACKING.md"
 
 QUEST_INDEX_PATH = "campaign/civilizations/illagers/break_the_bastille.json"
 FOUNDATION_FACT = "overlord_reign:reign/initial_foundation_established"
@@ -41,14 +43,9 @@ def collect_errors() -> list[str]:
         errors.append(f"{QUEST.relative_to(ROOT)}: must require only the initial reign foundation fact")
 
     objectives = quest.get("objectives", [])
-    advancement = [entry for entry in objectives if entry.get("type") == "questlog:advancement"]
     history = [entry for entry in objectives if entry.get("type") == "questlog:entity_kill_history"]
-
-    if len(advancement) != 1 or advancement[0].get("advancement") != "takesapillage:bastille" or advancement[0].get("required_amount", 1) != 1:
-        errors.append(f"{QUEST.relative_to(ROOT)}: must require exact native takesapillage:bastille advancement")
-
-    if len(history) != 1:
-        errors.append(f"{QUEST.relative_to(ROOT)}: must contain exactly one tagged entity_kill_history objective")
+    if len(objectives) != 1 or len(history) != 1:
+        errors.append(f"{QUEST.relative_to(ROOT)}: opening must rely only on the exact marked commander history signal")
     else:
         entry = history[0]
         if entry.get("entity") != "takesapillage:legioner":
@@ -57,6 +54,9 @@ def collect_errors() -> list[str]:
             errors.append(f"{QUEST.relative_to(ROOT)}: commander must use exact authored local anchor tag")
         if entry.get("required_amount", 1) != 1:
             errors.append(f"{QUEST.relative_to(ROOT)}: commander kill history must remain boolean")
+
+    if any(entry.get("type") == "questlog:advancement" for entry in objectives):
+        errors.append(f"{QUEST.relative_to(ROOT)}: global takesapillage:bastille advancement cannot prove the designated REIGN Bastille")
 
     rewards = quest.get("rewards", [])
     fact_rewards = [entry for entry in rewards if entry.get("type") == "questlog:set_fact"]
@@ -75,11 +75,22 @@ def collect_errors() -> list[str]:
         "b8ebc7ea467637dc918ffa9c8eaa273f8723e6e81be93cf5f69618f8072baa11": "installed artifact SHA-256",
         "No dedicated Bastille-leader entity type or native commander role was found": "native leader absence boundary",
         COMMANDER_TAG: "authored commander anchor tag",
+        "does not identify which Bastille was entered": "global advancement scope boundary",
         "does not set civilization disposition": "unresolved disposition boundary",
     }
     for fragment, label in required_doc_fragments.items():
         if fragment not in doc:
             errors.append(f"{DOC.relative_to(ROOT)}: missing {label}")
+
+    facts = FACTS.read_text(encoding="utf-8")
+    if AUTHORITY_FACT not in facts:
+        errors.append(f"{FACTS.relative_to(ROOT)}: missing Illager authority fact registry entry")
+    if "does NOT mean" not in facts[facts.find(AUTHORITY_FACT):]:
+        errors.append(f"{FACTS.relative_to(ROOT)}: Illager authority fact lacks negative semantic boundary")
+
+    sequence = SEQUENCE.read_text(encoding="utf-8")
+    if "questlog:entity_kill_history" not in sequence or "cannot reconstruct" not in sequence:
+        errors.append(f"{SEQUENCE.relative_to(ROOT)}: missing bounded entity_kill_history documentation")
 
     return errors
 

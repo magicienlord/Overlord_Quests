@@ -58,25 +58,23 @@ Expected:
 - no Illager authority fact is written;
 - unrelated Illager populations remain native and unchanged.
 
-## Test B: Bastille discovery is source-native
+## Test B: native Bastille advancement remains independent
 
-With the production quest available:
-
-1. Enter the designated `takesapillage:bastille` structure.
-2. Confirm the native Take a Pillage Bastille advancement is granted normally.
-3. Leave the Bastille and save/reload.
+1. Enter any `takesapillage:bastille` structure and confirm the native Take a Pillage Bastille advancement is granted normally.
+2. On a clean quest-state setup, enter an unrelated Bastille while leaving the marked commander alive.
 
 Expected:
 
-- the Bastille objective remains satisfied through the native advancement;
-- OVERLORD QUESTS does not replace or duplicate Take a Pillage structure discovery.
+- Take a Pillage awards its native advancement normally;
+- the production REIGN opener does not complete merely because any Bastille was entered;
+- the native advancement is not treated as identity proof for the designated REIGN Bastille.
 
 ## Test C: normal-order commander defeat
 
 With the foundation fact present:
 
-1. Enter the designated Bastille.
-2. Kill the marked `takesapillage:legioner` directly as the player.
+1. Locate the marked `takesapillage:legioner` assigned to the designated Bastille.
+2. Kill that Legioner directly as the player.
 3. Allow Questlog to process the completion.
 
 Expected:
@@ -92,18 +90,17 @@ This is the critical sequence-break test.
 
 1. Ensure the foundation fact is absent, so `Break the Bastille` remains locked.
 2. Ensure the Questlog definition is already loaded for the player.
-3. Enter the designated Bastille so the native Bastille advancement is obtained.
-4. Kill the marked Legioner directly as the player while the quest is still locked.
-5. Save and quit.
-6. Reload the same world.
-7. Establish or administratively set the initial foundation fact.
+3. Kill the marked Legioner directly as the player while the quest is still locked.
+4. Save and quit.
+5. Reload the same world.
+6. Establish or administratively set the initial foundation fact.
 
 Expected:
 
 - Questlog does not require a replacement commander;
 - the persisted `entity_kill_history` observation survives reload;
-- once the foundation prerequisite becomes true, the Illager opener recognizes both prior Bastille entry and the prior marked commander kill;
-- the quest can complete without repeating either event;
+- once the foundation prerequisite becomes true, the Illager opener recognizes the prior marked commander kill;
+- the quest completes without repeating the event;
 - the authority fact is written exactly once.
 
 ## Test E: non-player death does not satisfy player authority
