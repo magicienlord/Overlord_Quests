@@ -20,6 +20,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:fact",
     "questlog:minion_unlocked",
     "questlog:entity_died",
+    "questlog:entity_kill_history",
     "questlog:entity_kill_stat",
     "questlog:item_craft_stat",
     "questlog:visit_dimension_history",
@@ -27,9 +28,10 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:visit_structure_history",
     "questlog:ender_dragon_defeated",
 })
-# entity_died deliberately reuses the source-faithful EntityMatcher payload while
-# changing only which entity in a death event is treated as the objective target.
-core.ENTITY_OBJECTIVES.add("questlog:entity_died")
+# entity_died and entity_kill_history deliberately reuse the source-faithful
+# EntityMatcher payload while changing only the lifecycle semantics around the
+# observed death event.
+core.ENTITY_OBJECTIVES.update({"questlog:entity_died", "questlog:entity_kill_history"})
 core.KNOWN_QUESTLOG_REWARDS.update({
     "questlog:set_disposition",
     "questlog:set_fact",
@@ -45,9 +47,6 @@ def validate_scoreboard_tag(value: Any, field: str, path: Path, errors: list[str
     if not isinstance(value, str) or not value.strip():
         core.fail(path, f"'{field}' must be a non-empty scoreboard tag string", errors)
     elif len(value) > 1024:
-        # Entity scoreboard tags are persisted strings. Keep configuration input
-        # bounded well below arbitrary definition abuse while preserving Minecraft's
-        # normal practical tag use.
         core.fail(path, f"'{field}' must not exceed 1024 characters", errors)
 
 
@@ -70,16 +69,22 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
                 errors,
             )
 
-        if objective_type == "questlog:entity_died":
+        if objective_type in {"questlog:entity_died", "questlog:entity_kill_history"}:
             has_selector = any(
                 key in entry for key in ("entity", "custom_name", "entity_name", "scoreboard_tag", "predicate")
             )
             if not has_selector:
                 core.fail(
                     path,
-                    f"'{field}' questlog:entity_died requires an explicit entity matcher selector",
+                    f"'{field}' {objective_type} requires an explicit entity matcher selector",
                     errors,
                 )
+
+        if objective_type == "questlog:entity_kill_history":
+            amount = entry.get("required_amount")
+            if amount is not None and amount != 1:
+                core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:entity_kill_history", errors)
+            return
 
     if objective_type == "questlog:disposition":
         for key in ("civilization", "state"):
