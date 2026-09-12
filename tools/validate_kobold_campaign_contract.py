@@ -2,10 +2,15 @@
 """Backward-compatible entry point for civilization campaign contract validation."""
 import validate_civilization_campaign_contracts as civilization
 import validate_goblin_sidequest_contracts as goblin_sidequest
+import validate_goblin_engineer_sidequest_contracts as goblin_engineer
 
 
 def collect_errors() -> list[str]:
-    return civilization.collect_errors() + goblin_sidequest.collect_errors()
+    return (
+        civilization.collect_errors()
+        + goblin_sidequest.collect_errors()
+        + goblin_engineer.collect_errors()
+    )
 
 
 def main() -> int:
@@ -16,7 +21,7 @@ def main() -> int:
             print(f"  * {error}")
         return 1
     print("Civilization production contracts: PASS")
-    print("first-contact slices and Goblin merchant sidequest are source-backed and guarded")
+    print("first-contact slices and source-backed Goblin merchant/engineer sidequests are guarded")
     return 0
 
 
