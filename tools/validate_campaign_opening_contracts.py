@@ -23,12 +23,14 @@ BROWN_REACTION = OPENING_QUESTS / "browns_return.json"
 DIRECT = OPENING_QUESTS / "make_an_impression.json"
 DIRECT_REACTION = OPENING_QUESTS / "direct_action_reaction.json"
 FORGE = TOWER_QUESTS / "prepare_the_forge.json"
+FORGE_REACTION = TOWER_QUESTS / "forge_prepared_reaction.json"
 
 OPENING_ID = "questlog:campaign/opening/a_new_master"
 BROWN_ID = "questlog:campaign/opening/restore_browns"
 BROWN_REACTION_ID = "questlog:campaign/opening/browns_return"
 DIRECT_ID = "questlog:campaign/opening/make_an_impression"
 DIRECT_REACTION_ID = "questlog:campaign/opening/direct_action_reaction"
+FORGE_ID = "questlog:campaign/tower/prepare_the_forge"
 STAFF_ID = "minionsremastered:masters_staff"
 FORGE_FACT = "overlord_reign:tower/forge_prepared"
 
@@ -80,6 +82,7 @@ def collect_errors() -> list[str]:
     direct = load(DIRECT, errors)
     direct_reaction = load(DIRECT_REACTION, errors)
     forge = load(FORGE, errors)
+    forge_reaction = load(FORGE_REACTION, errors)
     index = load(INDEX, errors)
 
     bundled_quests = index.get("quests", [])
@@ -90,6 +93,7 @@ def collect_errors() -> list[str]:
         "campaign/opening/make_an_impression.json",
         "campaign/opening/direct_action_reaction.json",
         "campaign/tower/prepare_the_forge.json",
+        "campaign/tower/forge_prepared_reaction.json",
     }
     if not isinstance(bundled_quests, list) or not required_paths.issubset(set(bundled_quests)):
         errors.append("bundled definition index is missing one or more first-slice campaign definitions")
@@ -197,6 +201,15 @@ def collect_errors() -> list[str]:
         ):
             errors.append("Tower forge preparation must persist its restoration fact")
 
+    if not has_quest_complete(forge_reaction, FORGE_ID):
+        errors.append("Tower forge reaction must depend on completed forge preparation")
+    if forge_reaction.get("speaker_id") != "overlord_reign:gnarl":
+        errors.append("Tower forge reaction must remain a Gnarl speaker entry")
+    if forge_reaction.get("speaker_reaction") != "approving":
+        errors.append("Tower forge reaction semantic state changed unexpectedly")
+    if forge_reaction.get("show_popup_on_unlock") is not True:
+        errors.append("Tower forge reaction must remain an automatic popup")
+
     return errors
 
 
@@ -210,7 +223,7 @@ def main() -> int:
 
     print("OVERLORD opening campaign contracts: PASS")
     print("opening concurrency: preserved")
-    print("Gnarl lifecycle reactions: preserved for both opening directions")
+    print("Gnarl lifecycle reactions: preserved for both opening directions and first Tower restoration")
     print("Brown bootstrap authority: Minions Remastered")
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
