@@ -22,13 +22,21 @@ with fixed slot identity from:
 com.overlordreign.minions.progression.MinionSlot
 ```
 
-The quest-side calls are:
+The quest-side transition calls are:
 
 ```java
 OverlordMinionProgression.unlock(server, MinionSlot.RED);
 OverlordMinionProgression.unlock(server, MinionSlot.GREEN);
 OverlordMinionProgression.unlock(server, MinionSlot.BLUE);
 ```
+
+Questlog also uses the public read operation:
+
+```java
+OverlordMinionProgression.isUnlocked(server, slot);
+```
+
+This read is used only to confirm owner-side progression before opening a later campaign tier. Questlog does not mirror that state into its own persistence.
 
 The fixed slot order is part of the cross-mod contract:
 
@@ -53,7 +61,7 @@ Red, Green, and Blue are quest-earned capabilities and must be unlocked sequenti
 
 ## Quest-side reward
 
-OVERLORD QUESTS now exposes the bounded reward type:
+OVERLORD QUESTS exposes the bounded reward type:
 
 ```json
 {
@@ -75,6 +83,28 @@ The reward delegates the state transition to the public OVERLORD Minions progres
 
 The reward is required to use `auto_claim: true` and is not valid inside a choice reward or as a failure consequence.
 
+## Owner-state prerequisite
+
+Quest completion and successful external progression are deliberately separate states. A quest can reach its completion boundary while its optional external owner is temporarily unavailable, so later Minion recovery content must not rely on `questlog:quest_complete` alone.
+
+OVERLORD QUESTS therefore exposes the server-authoritative objective/prerequisite:
+
+```json
+{
+  "type": "questlog:minion_unlocked",
+  "slot": "red",
+  "required_amount": 1
+}
+```
+
+Valid `slot` values are only Red, Green, and Blue. Brown is excluded because Brown availability is owned by the Master's Staff bootstrap rather than the later-tier progression state.
+
+For a later tier, production authoring must require both the intended campaign milestone and the authoritative preceding owner state. For example, Green recovery should not become available merely because the Red recovery quest completed. The public Minion API must also confirm that Red is actually unlocked.
+
+The objective does not write progression state. On the server it queries `OverlordMinionProgression.isUnlocked(...)`; the client receives only the derived one-unit completion snapshot needed for Questlog presentation.
+
+If the optional API is absent or incompatible, this objective remains unsatisfied. This fail-closed behavior prevents campaign sequence drift.
+
 ## Runtime result handling
 
 The external API returns one of four progression results:
@@ -94,7 +124,7 @@ If the external API is temporarily unavailable or incompatible, the reward also 
 
 ## Linkage boundary
 
-OVERLORD QUESTS remains buildable without shipping OVERLORD Minions as a hard class-link dependency. The bounded compatibility adapter resolves only the documented public API class, documented slot enum, and documented `unlock(MinecraftServer, MinionSlot)` method.
+OVERLORD QUESTS remains buildable without shipping OVERLORD Minions as a hard class-link dependency. The bounded compatibility adapter resolves only the documented public API class, documented slot enum, and documented `unlock(MinecraftServer, MinionSlot)` and `isUnlocked(MinecraftServer, MinionSlot)` methods.
 
 This is not access to private Minions internals. No mixin, private-field access, saved-data mutation, roster mutation, or client-side progression state is used.
 
@@ -120,13 +150,14 @@ For each later tier:
 
 - the relevant authored quest milestone decides that the type has been earned;
 - the milestone uses `questlog:unlock_minion` with the correct slot;
+- the following tier checks `questlog:minion_unlocked` for the preceding owner-side slot as well as the intended quest milestone;
 - OVERLORD Minions remains authoritative for persistent slot ownership;
 - repeated application is harmless;
 - current spawned-Minions counts do not affect ownership;
 - temporary inventory state does not affect ownership;
 - provider disposition does not substitute for the unlock state.
 
-The external API independently rejects sequence skipping, while campaign quest prerequisites must also preserve the same order.
+The external API independently rejects sequence skipping, while campaign quest prerequisites preserve the same order and fail closed when an earlier external handoff is still pending.
 
 ## REIGN Minion retrieval model
 
@@ -165,11 +196,21 @@ The API is idempotent by contract, so an already-open tier may safely receive th
 
 Questlog itself does not duplicate the Minion unlock state. Its only local persistence is the normal quest reward-application flag that records whether the campaign milestone successfully handed the transition to the owning mod.
 
-If the API is absent or rejects the tier as out of order, that reward is left pending rather than falsely recorded as applied.
+If the API is absent or rejects the tier as out of order, that reward is left pending rather than falsely recorded as applied. Completed pending Minion rewards are retried on player load.
+
+The owner-state prerequisite prevents the next recovery tier from opening until the owning Minions system confirms the previous slot is actually available.
 
 The campaign must still author later recovery quests in fixed order so ordinary gameplay reaches:
 
 `0 Brown -> 1 Red -> 2 Green -> 3 Blue`
+
+## Runtime validation
+
+The dedicated integration procedure is recorded in `docs/MINION_PROGRESSION_TEST_PROTOCOL.md`.
+
+That protocol uses the non-canon Red, Green, and Blue development fixtures together with `/overlord_minions status` to verify owner-side sequence rejection, Questlog handoff, save/reload persistence, and idempotent reconciliation. It requires a fresh disposable integration world because the production progression state is intentionally irreversible.
+
+Static and build validation do not substitute for that full-modpack runtime pass.
 
 ## Current implementation boundary
 
@@ -177,13 +218,17 @@ IMPLEMENTED in OVERLORD QUESTS:
 
 - Brown recovery remains staff-owned and is observed through the exact Master's Staff craft statistic;
 - stable slot order is recorded as Brown `0`, Red `1`, Green `2`, Blue `3`;
-- a bounded public-API bridge targets `OverlordMinionProgression.unlock`;
+- a bounded public-API bridge targets `OverlordMinionProgression.unlock` and `OverlordMinionProgression.isUnlocked`;
 - `questlog:unlock_minion` is registered for Red, Green, and Blue only;
-- auto-claim is mandatory;
+- `questlog:minion_unlocked` confirms authoritative later-tier owner state for Red, Green, and Blue only;
+- auto-claim is mandatory for the unlock reward;
 - already-unlocked tiers reconcile as success;
 - out-of-order tiers remain unapplied;
+- later development tiers require both the previous Questlog milestone and the previous owner-side Minion slot;
+- completed pending external unlock rewards are retried on player load;
 - Questlog does not manipulate Minions Remastered roster or unlock persistence;
-- the definition validator rejects Brown, unknown slot values, manual-claim usage, choice nesting, and failure-consequence usage.
+- the definition validator rejects Brown, unknown slot values, manual-claim usage, choice nesting, and failure-consequence usage;
+- Minion progression integration contracts now run through the standard definition-validation path.
 
 STILL TO AUTHOR OR RUNTIME-VALIDATE:
 
