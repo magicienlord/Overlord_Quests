@@ -125,7 +125,13 @@ def validate_reward_entry(
             core.validate_resource_id(entry["fact"], f"{field}.fact", path, errors)
 
 
-def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+def validate_provider_rule(
+    data: dict[str, Any],
+    path: Path,
+    errors: list[str],
+    *,
+    development_fixture: bool = False,
+) -> None:
     provider = data.get("provider")
     if provider is None:
         return
@@ -176,17 +182,17 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
     if not isinstance(entity_types, list) or not isinstance(entity_tags, list) or (not entity_types and not entity_tags):
         core.fail(path, "provider requires at least one entity_types or entity_type_tags selector", errors)
 
+    scoreboard_tags = provider.get("scoreboard_tags", [])
     if "scoreboard_tags" in provider:
-        values = provider["scoreboard_tags"]
-        if not isinstance(values, list):
+        if not isinstance(scoreboard_tags, list):
             core.fail(path, "'provider.scoreboard_tags' must be a list", errors)
         else:
-            for index, value in enumerate(values):
+            for index, value in enumerate(scoreboard_tags):
                 if not isinstance(value, str) or not value.strip():
                     core.fail(path, f"'provider.scoreboard_tags[{index}]' must be a non-empty string", errors)
 
+    location = provider.get("location")
     if "location" in provider:
-        location = provider["location"]
         if not isinstance(location, dict):
             core.fail(path, "'provider.location' must be an object", errors)
         else:
@@ -200,6 +206,18 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
                     continue
                 if any(value < -2147483648 or value > 2147483647 for value in coordinates):
                     core.fail(path, f"'provider.location.{key}' values must fit signed 32-bit integers", errors)
+
+    if not development_fixture and provider.get("civilization") is not None:
+        has_tag_scope = isinstance(scoreboard_tags, list) and any(
+            isinstance(value, str) and value.strip() for value in scoreboard_tags
+        )
+        has_location_scope = isinstance(location, dict)
+        if not has_tag_scope and not has_location_scope:
+            core.fail(
+                path,
+                "production civilization provider must be anchor-scoped by scoreboard_tags or location",
+                errors,
+            )
 
     if "dialogue" in provider:
         dialogue = provider["dialogue"]
@@ -252,7 +270,7 @@ def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) 
     _CORE_VALIDATE_QUEST(path, errors, development_fixture=development_fixture)
     data = core.load_json_object(path, errors)
     if data is not None:
-        validate_provider_rule(data, path, errors)
+        validate_provider_rule(data, path, errors, development_fixture=development_fixture)
 
 
 # Install wrappers into the retained core module so its recursive validation and
