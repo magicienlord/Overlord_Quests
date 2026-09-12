@@ -1,0 +1,24 @@
+OVERLORD QUESTS CONVERSATION RESTART POINT
+
+Repository: magicienlord/Overlord_Quests
+Active implementation branch at packaging: gnarl-bootstrap
+Exact preserved implementation checkpoint: 423ab3290b743633be22580e01629af1dd3c74e1
+Checkpoint message: Match development fixture canon boundary
+Preservation branch: conversation-handoff-2026-09-12-run565
+
+Exact green validation:
+Workflow: Build Forge 1.20.1
+Run number: 565
+Run ID: 34687293557
+Attempt: 2
+Result: SUCCESS
+
+Attempt 1 was not a code failure. NeoForged Maven returned HTTP 502 while Gradle requested org.jetbrains:annotations metadata. Failed jobs were rerun unchanged and attempt 2 passed completely.
+
+NEXT CONVERSATION MUST FIRST RE-FETCH gnarl-bootstrap AND COMPARE IT TO THE PRESERVED CHECKPOINT. THE LIVE REPOSITORY MAY BE NEWER THAN THIS HANDOFF.
+
+Do not resume ordinary implementation on the preservation branch by default.
+Do not expose hidden campaign material in ordinary status reporting.
+Do not invent missing lore or production meanings for technical mod milestones.
+
+No implementation work was performed during packaging.
