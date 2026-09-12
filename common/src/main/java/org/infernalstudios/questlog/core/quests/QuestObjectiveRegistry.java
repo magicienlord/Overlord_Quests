@@ -88,6 +88,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("biome", "Biome ID:", "required_amount", EditorMetadata.SuggestionType.BIOME));
         register(new ResourceLocation("questlog", "visit_dimension"), VisitDimensionObjective::new,
                 new EditorMetadata("dimension", "Dimension:", "required_amount", EditorMetadata.SuggestionType.DIMENSION));
+        register(new ResourceLocation("questlog", "visit_dimension_history"), VisitDimensionHistoryObjective::new,
+                new EditorMetadata("dimension", "Exact Dimension ID:", null, EditorMetadata.SuggestionType.DIMENSION));
         register(new ResourceLocation("questlog", "visit_position"), VisitPositionObjective::new,
                 new EditorMetadata("bounds", "Position / Bounds:", null));
         register(new ResourceLocation("questlog", "visit_structure"), VisitStructureObjective::new,
