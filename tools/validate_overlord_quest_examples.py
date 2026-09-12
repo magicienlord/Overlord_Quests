@@ -27,7 +27,11 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
 # entity_died deliberately reuses the source-faithful EntityMatcher payload while
 # changing only which entity in a death event is treated as the objective target.
 core.ENTITY_OBJECTIVES.add("questlog:entity_died")
-core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
+core.KNOWN_QUESTLOG_REWARDS.update({
+    "questlog:set_disposition",
+    "questlog:set_fact",
+    "questlog:unlock_minion",
+})
 
 _CORE_OBJECTIVE_ENTRY = core.validate_objective_entry
 _CORE_REWARD_ENTRY = core.validate_reward_entry
@@ -170,6 +174,17 @@ def validate_reward_entry(
             core.fail(path, f"'{field}.fact' is required by questlog:set_fact", errors)
         else:
             core.validate_resource_id(entry["fact"], f"{field}.fact", path, errors)
+        return
+
+    if reward_type == "questlog:unlock_minion":
+        slot = entry.get("slot")
+        if slot not in {"red", "green", "blue"}:
+            core.fail(path, f"'{field}.slot' must be one of: red, green, blue", errors)
+        if entry.get("auto_claim") is not True:
+            core.fail(path, f"'{field}.auto_claim' must be true for questlog:unlock_minion", errors)
+        if inside_choice:
+            core.fail(path, f"'{field}' questlog:unlock_minion cannot be nested inside a choice reward", errors)
+        return
 
 
 def validate_failure_rewards(data: dict[str, Any], path: Path, errors: list[str]) -> None:
@@ -188,6 +203,8 @@ def validate_failure_rewards(data: dict[str, Any], path: Path, errors: list[str]
             continue
         if entry.get("type") == "questlog:choice":
             core.fail(path, f"'{field}' cannot be a choice reward because quest failure has no claim-selection flow", errors)
+        if entry.get("type") == "questlog:unlock_minion":
+            core.fail(path, f"'{field}' cannot unlock a Minion tier as a failure consequence", errors)
         if entry.get("auto_claim") is not True:
             core.fail(path, f"'{field}.auto_claim' must be true for an automatic failure consequence", errors)
 
