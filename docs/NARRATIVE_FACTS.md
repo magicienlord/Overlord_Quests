@@ -110,7 +110,7 @@ Permission-gated commands are available for authoring and test recovery:
 
 ## Authoring rules
 
-Use a named narrative fact when the truth is materially reusable outside the quest that first established it. Examples of legitimate categories from the approved architecture include discovery, local-ruler outcomes, crisis resolution, Tower restoration milestones, NPC survival/death, branch outputs, and other persistent consequences.
+Use a named narrative fact when the truth is materially reusable outside the quest that first established it. Examples of legitimate categories from the approved architecture include discovery, local-ruler outcomes, crisis resolution, Tower restoration milestones, NPC survival/death, branch outputs, persistent capability unlocks, and other persistent consequences.
 
 Do not create facts for:
 
@@ -121,6 +121,24 @@ Do not create facts for:
 - information already represented cleanly by an ordinary completed quest and never queried independently.
 
 Where simple quest completion is sufficient, `questlog:quest_complete` remains the smaller representation.
+
+## Cross-mod capability markers
+
+Narrative facts may also serve as the quest-side representation of a permanent capability that another OVERLORD REIGN mod owns, provided the external integration contract treats the fact as a durable, idempotent marker rather than reaching directly into Questlog internals.
+
+The approved first use is Minion-type progression. The planned Minions Remastered fork owns four Minion-type slots. Crafting its staff unlocks Brown directly. Red, Green, and Blue remain locked until campaign quests establish three later unlock markers.
+
+On the Questlog side, those later unlocks fit the narrative-fact model because they are:
+
+- boolean;
+- monotonic in normal gameplay;
+- persistent across save/reload;
+- reusable by later quests if campaign design needs to know which Minion types have been acquired;
+- materially meaningful outside the quest that first grants them.
+
+The exact production fact/marker IDs are currently UNKNOWN and must not be invented until the Minions Remastered fork exposes its final integration surface and campaign authoring identifies the relevant unlock quests.
+
+See `docs/MINION_UNLOCK_INTEGRATION.md` for the cross-mod ownership and reconciliation contract.
 
 ## Development fixtures
 
