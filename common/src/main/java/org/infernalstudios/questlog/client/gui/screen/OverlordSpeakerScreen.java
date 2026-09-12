@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.QuestlogClientEvents;
+import org.infernalstudios.questlog.client.gui.OverlordPresentationTheme;
 import org.infernalstudios.questlog.client.gui.QuestlogGuiSet;
 import org.infernalstudios.questlog.client.gui.SpeakerPortraitTextures;
 import org.infernalstudios.questlog.client.gui.components.QuestlogButton;
@@ -26,19 +27,14 @@ import org.jetbrains.annotations.Nullable;
  * Ordinary in-world quest providers use QuestProviderScreen instead.
  */
 public final class OverlordSpeakerScreen extends Screen {
-    private static final int OUTER_MARGIN = 12;
-    private static final int SPEAKER_GAP = 10;
-    private static final int MIN_PANEL_WIDTH = 220;
+    private static final int SPEAKER_GAP = 14;
     private static final int MIN_SPEAKER_WIDTH = 72;
     private static final int MIN_PANEL_HEIGHT = 110;
-    private static final int TITLE_Y = 13;
-    private static final int TITLE_WIDTH = 180;
-    private static final int TITLE_HEIGHT = 16;
-    private static final int CONTENT_X = 18;
+    private static final int TITLE_WIDTH = 240;
     private static final int CONTENT_Y = 36;
-    private static final int CONTENT_WIDTH_INSET = 38;
+    private static final int CONTENT_WIDTH_INSET = OverlordPresentationTheme.PANEL_CONTENT_INSET * 2 + 2;
     private static final int CONTENT_HEIGHT_INSET = 68;
-    private static final int BUTTON_GAP = 2;
+    private static final int SPEAKER_INSET = 2;
 
     private final Quest quest;
     private int panelX;
@@ -71,37 +67,40 @@ public final class OverlordSpeakerScreen extends Screen {
 
         int availablePanelHeight = Math.max(MIN_PANEL_HEIGHT, this.height - 54);
         this.panelHeight = Math.max(MIN_PANEL_HEIGHT, Math.min(display.getPanelHeight(), availablePanelHeight));
-        this.speakerWidth = requestedSpeakerWidth;
 
-        int desiredPanelWidth = display.getLeftPanelWidth();
-        int desiredTotal = desiredPanelWidth + (this.speakerWidth > 0 ? SPEAKER_GAP + this.speakerWidth : 0);
-        int availableWidth = Math.max(MIN_PANEL_WIDTH, this.width - OUTER_MARGIN * 2);
-
-        if (desiredTotal > availableWidth && this.speakerWidth > 0) {
-            int speakerBudget = availableWidth - desiredPanelWidth - SPEAKER_GAP;
-            this.speakerWidth = Math.max(MIN_SPEAKER_WIDTH, Math.min(this.speakerWidth, speakerBudget));
+        int desiredPanelWidth = Math.max(OverlordPresentationTheme.PANEL_MIN_WIDTH, display.getLeftPanelWidth());
+        if (requestedSpeakerWidth > 0) {
+            this.configureSplitWidth(desiredPanelWidth, requestedSpeakerWidth);
+        } else {
+            int availableWidth = Math.max(
+                    OverlordPresentationTheme.PANEL_MIN_WIDTH,
+                    this.width - OverlordPresentationTheme.OUTER_MARGIN * 2
+            );
+            this.speakerWidth = 0;
+            this.panelWidth = Math.max(
+                    OverlordPresentationTheme.PANEL_MIN_WIDTH,
+                    Math.min(desiredPanelWidth, availableWidth)
+            );
         }
-
-        int panelBudget = availableWidth - (this.speakerWidth > 0 ? SPEAKER_GAP + this.speakerWidth : 0);
-        this.panelWidth = Math.max(MIN_PANEL_WIDTH, Math.min(desiredPanelWidth, panelBudget));
 
         int totalWidth = this.panelWidth + (this.speakerWidth > 0 ? SPEAKER_GAP + this.speakerWidth : 0);
         this.panelX = (this.width - totalWidth) / 2;
-        this.panelY = Math.max(8, (this.height - this.panelHeight - 22) / 2);
+        this.panelY = Math.max(
+                OverlordPresentationTheme.PANEL_TOP_MIN,
+                (this.height - this.panelHeight - 22) / 2
+        );
         this.speakerX = this.panelX + this.panelWidth + SPEAKER_GAP;
 
         QuestlogGuiSet base = display.getGuiSet();
-        this.guiSet = new QuestlogGuiSet(
-                base.backgroundLoc,
-                base.rightPanelLoc,
-                base.peripheralLoc,
+        this.guiSet = OverlordPresentationTheme.resize(
+                base,
                 this.panelWidth,
                 display.getRightPanelWidth(),
                 this.panelHeight
         );
 
         this.description = new ScrollableComponent(
-                this.panelX + CONTENT_X,
+                this.panelX + OverlordPresentationTheme.PANEL_CONTENT_INSET,
                 this.panelY + CONTENT_Y,
                 Math.max(40, this.panelWidth - CONTENT_WIDTH_INSET),
                 Math.max(24, this.panelHeight - CONTENT_HEIGHT_INSET),
@@ -115,15 +114,57 @@ public final class OverlordSpeakerScreen extends Screen {
                 : Component.translatable("gui.done");
         this.primaryButton = new QuestlogButton(
                 0,
-                this.panelY + this.panelHeight + BUTTON_GAP,
+                this.panelY + this.panelHeight + OverlordPresentationTheme.BELOW_PANEL_GAP,
                 display.getPalette().textColor(),
                 display.getPalette().hoveredTextColor(),
                 buttonText,
                 this::handlePrimaryAction,
                 this.guiSet
         );
-        this.primaryButton.setX(this.panelX + this.panelWidth - 12 - this.primaryButton.getExpectedWidth());
+        this.primaryButton.setX(OverlordPresentationTheme.centeredX(
+                this.panelX,
+                this.panelWidth,
+                this.primaryButton.getExpectedWidth()
+        ));
         this.addRenderableWidget(this.primaryButton);
+    }
+
+    /**
+     * Preserve both surfaces when GUI scale becomes tight instead of collapsing the
+     * speaker lane first. The authored widths are kept when they fit; otherwise the
+     * remaining width is divided proportionally and then clamped to the parchment
+     * minimum. This keeps reaction art readable while parchment remains dominant.
+     */
+    private void configureSplitWidth(int desiredPanelWidth, int requestedSpeakerWidth) {
+        int minimumComposition = OverlordPresentationTheme.PANEL_MIN_WIDTH + SPEAKER_GAP + MIN_SPEAKER_WIDTH;
+        int availableComposition = Math.max(
+                minimumComposition,
+                this.width - OverlordPresentationTheme.OUTER_MARGIN * 2
+        );
+        int desiredTotal = desiredPanelWidth + SPEAKER_GAP + requestedSpeakerWidth;
+
+        if (desiredTotal <= availableComposition) {
+            this.panelWidth = desiredPanelWidth;
+            this.speakerWidth = requestedSpeakerWidth;
+            return;
+        }
+
+        int usable = availableComposition - SPEAKER_GAP;
+        float speakerShare = (float) requestedSpeakerWidth / (float) (desiredPanelWidth + requestedSpeakerWidth);
+        int proportionalSpeaker = Math.round(usable * speakerShare);
+        int maximumSpeaker = Math.max(MIN_SPEAKER_WIDTH, usable - OverlordPresentationTheme.PANEL_MIN_WIDTH);
+
+        this.speakerWidth = Math.max(
+                MIN_SPEAKER_WIDTH,
+                Math.min(requestedSpeakerWidth, Math.min(proportionalSpeaker, maximumSpeaker))
+        );
+        this.panelWidth = usable - this.speakerWidth;
+
+        if (this.panelWidth < OverlordPresentationTheme.PANEL_MIN_WIDTH) {
+            int deficit = OverlordPresentationTheme.PANEL_MIN_WIDTH - this.panelWidth;
+            this.panelWidth += deficit;
+            this.speakerWidth = Math.max(MIN_SPEAKER_WIDTH, this.speakerWidth - deficit);
+        }
     }
 
     private boolean needsRead() {
@@ -163,19 +204,21 @@ public final class OverlordSpeakerScreen extends Screen {
         int iconWidth = display.getIcon() != null ? display.getIcon().width() + 4 : 0;
         float totalTitleWidth = this.font.width(display.getTitle()) + iconWidth;
         float x = this.panelX + titleAreaX + (titleAreaWidth - totalTitleWidth) / 2.0F;
-        float y = this.panelY + TITLE_Y;
+        float y = this.panelY + OverlordPresentationTheme.TITLE_Y;
 
         if (display.getIcon() != null) {
-            display.getIcon().blit(graphics, (int) x, this.panelY + TITLE_Y);
+            display.getIcon().blit(graphics, (int) x, this.panelY + OverlordPresentationTheme.TITLE_Y);
             x += iconWidth;
         }
 
-        y += (float) (TITLE_HEIGHT - this.font.lineHeight + 2) / 2.0F;
+        y += (float) (OverlordPresentationTheme.TITLE_HEIGHT - this.font.lineHeight + 2) / 2.0F;
         graphics.drawString(this.font, display.getTitle(), (int) x, (int) y, display.getPalette().titleColor(), false);
-        this.guiSet.smallHR.blit(
+        OverlordPresentationTheme.renderHeaderSeparator(
                 graphics,
-                this.panelX + (this.panelWidth - this.guiSet.smallHR.width()) / 2,
-                this.panelY + TITLE_Y + TITLE_HEIGHT - 2
+                this.guiSet,
+                this.panelX,
+                this.panelY,
+                this.panelWidth
         );
     }
 
@@ -190,15 +233,30 @@ public final class OverlordSpeakerScreen extends Screen {
         ResourceLocation texture = SpeakerPortraitTextures.resolve(speaker, fallbackTexture);
         int sourceWidth = Math.max(1, display.getOverlayWidth());
         int sourceHeight = Math.max(1, display.getOverlayHeight());
-        int maxWidth = Math.max(1, this.speakerWidth);
-        int maxHeight = Math.max(1, this.panelHeight + 18);
+        int maxWidth = Math.max(1, this.speakerWidth - SPEAKER_INSET * 2);
+        int maxHeight = Math.max(1, this.panelHeight);
         float scale = Math.min(1.0F, Math.min((float) maxWidth / sourceWidth, (float) maxHeight / sourceHeight));
         int drawWidth = Math.max(1, Math.round(sourceWidth * scale));
         int drawHeight = Math.max(1, Math.round(sourceHeight * scale));
 
-        int x = this.speakerX + (this.speakerWidth - drawWidth) / 2 + display.getOverlayXOffset();
-        int y = this.panelY + (this.panelHeight - drawHeight) / 2 + display.getOverlayYOffset();
+        int laneLeft = this.speakerX + SPEAKER_INSET;
+        int laneRight = this.speakerX + this.speakerWidth - SPEAKER_INSET;
+        int baseX = laneLeft + (maxWidth - drawWidth) / 2;
+        int x = clamp(baseX + display.getOverlayXOffset(), laneLeft, laneRight - drawWidth);
+
+        // Bottom anchoring gives character portraits a stable visual footing beside
+        // the parchment instead of making them appear to float over its midpoint.
+        int baseY = this.panelY + this.panelHeight - drawHeight;
+        int y = baseY + display.getOverlayYOffset();
+
         graphics.blit(texture, x, y, 0, 0, drawWidth, drawHeight, drawWidth, drawHeight);
+    }
+
+    private static int clamp(int value, int min, int max) {
+        if (max < min) {
+            return min;
+        }
+        return Math.max(min, Math.min(max, value));
     }
 
     @Override
