@@ -58,7 +58,7 @@ jobs:
 
           set +e
           timeout --signal=TERM --kill-after=15s 120s \
-            ./gradlew :forge:runServer --no-daemon --stacktrace \
+            ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
             >"$LOG" 2>&1
           STATUS=$?
           set -e
