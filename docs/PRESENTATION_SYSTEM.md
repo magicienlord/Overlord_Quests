@@ -1,23 +1,24 @@
 # OVERLORD QUESTS Presentation System
 
-Status: PLANNED IMPLEMENTATION / VISUAL FOUNDATION
+Status: IMPLEMENTED VISUAL FOUNDATION / DIRECT IN-GAME ACCEPTANCE PENDING
 
 This document records the presentation boundary that must be stabilized before production campaign content is authored into OVERLORD QUESTS.
 
 ## Visual-foundation gate
 
-Production campaign implementation is blocked on a coherent visual and interaction baseline.
+Production campaign implementation remains blocked on direct acceptance of the coherent visual and interaction baseline.
 
-Before real campaign content is added, the project should stabilize:
+The source implementation now provides:
 
-- the Questlog parchment layout;
-- the right-side incorporeal speaker reaction area;
+- a dedicated Questlog parchment layout for remotely presented speakers;
+- a disjoint right-side incorporeal speaker reaction lane;
 - action-button placement beneath the parchment body;
-- clean portrait alpha/silhouette rendering;
-- shared spacing, framing, typography, and control hierarchy;
-- the Villager-Retaliation-derived provider interface so it belongs to the same visual family without becoming the same interaction surface.
+- opt-in runtime cleanup for legacy portrait alpha/matte fringes;
+- the locked five-state semantic reaction vocabulary;
+- a Villager-Retaliation-derived provider interface restyled into the same Questlog parchment/button family without becoming the same interaction surface;
+- static validators that prevent provider quests from accidentally acquiring the incorporeal portrait system.
 
-Development fixtures remain non-canon scaffolding until this gate is satisfied.
+Development fixtures remain non-canon scaffolding until the visual gate is accepted in Minecraft.
 
 ## Two presentation surfaces
 
@@ -27,9 +28,11 @@ OVERLORD QUESTS has two deliberately different NPC presentation classes.
 
 This surface is for non-corporeal or remotely presented personnel who communicate through the Questlog framework, such as Gnarl and other future characters assigned to that presentation model.
 
-The main parchment quest body occupies most of the screen. A dedicated area on the right is reserved for the active speaker reaction visual. The reaction visual must not overlap the parchment body.
+The main parchment quest body occupies most of the screen. A dedicated area on the right is reserved for the active speaker reaction visual. The reaction visual is laid out as a separate surface and does not overlap the parchment body.
 
-Quest action controls remain grouped beneath the parchment body. Controls must not be stranded beneath the reaction pane.
+Quest action controls remain grouped beneath the parchment body. Controls are never anchored beneath the reaction pane.
+
+Automatic popup delivery routes any quest with speaker presentation metadata to `OverlordSpeakerScreen`; ordinary Questlog entries without that metadata continue to use the inherited quest-details presentation.
 
 Only characters using this incorporeal Questlog presentation receive a reaction-visual roster.
 
@@ -39,7 +42,7 @@ The generalized NPC-provider system derived from the Villager Retaliation fork i
 
 Those providers do NOT receive the five-state reaction-visual roster merely because they can provide dialogue or quests. Their presentation is grounded in the actual in-world entity plus the provider interface.
 
-The provider screen should share the broader OVERLORD QUESTS visual language with the Questlog parchment, including framing, typography, spacing, button treatment, and hierarchy, but it remains a distinct interaction surface.
+`QuestProviderScreen` now shares the broader OVERLORD QUESTS visual language with Questlog through parchment framing, title hierarchy, spacing, separators, and stretchable parchment-style buttons. It remains a distinct server-authoritative interaction surface and has no dependency on `SpeakerPresentation`.
 
 ## Reaction-state contract
 
@@ -55,28 +58,69 @@ These are semantic speaker states, not assumptions about human facial animation.
 
 Each incorporeal speaker may later map the five keys to character-specific visuals through posture, expression, eye intensity, aura, gesture, lighting, props, or other appropriate treatment.
 
-The framework may author quests against these five reaction keys before every final character-specific visual asset exists.
+Quest definitions can already carry:
+
+```text
+speaker_id
+speaker_reaction
+speaker_pane_width
+```
+
+The framework can therefore author against the five semantic states before every final character-specific visual asset exists.
 
 ## Asset-production boundary
 
 A complete visual roster is NOT required for every future incorporeal NPC before campaign authoring begins.
 
-The reaction-state vocabulary is sufficient for quest implementation. When campaign work establishes that a specific incorporeal speaker is actually required, that character can be added to a visual-production list and supplied with the needed reaction assets.
+The reaction-state vocabulary is sufficient for quest implementation. When campaign work establishes that a specific incorporeal speaker is actually required, that character is added to the visual-production list and receives the necessary reaction assets.
 
 Do not generate speculative reaction sets for characters that may never use the Questlog incorporeal-speaker surface.
 
-## Current Gnarl correction target
+The present implementation retains an explicit portrait resource on the quest as a development/fallback asset. The semantic `speaker_id` and `speaker_reaction` fields are the durable authoring contract; the asset lookup layer can be expanded when the first multi-reaction roster is supplied without changing that vocabulary.
 
-The current Gnarl development popup is not a final visual baseline.
+## Portrait alpha cleanup
 
-Required corrections include:
+Speaker artwork should normally be delivered with clean transparency and requires no runtime processing.
 
-- eliminate visible alpha fringe/halo artifacts around the portrait silhouette;
-- move Gnarl out of the parchment-body overlap;
-- reserve the right side for reaction presentation;
-- preserve the parchment as the dominant quest-information surface;
-- preserve action controls beneath the parchment body;
-- validate the composition at supported GUI scales before treating the layout as locked.
+For a legacy/source portrait whose transparent edge pixels contain a visible matte colour, an entry may opt into:
+
+```text
+speaker_alpha_cleanup: true
+```
+
+`SpeakerPortraitTextures` then creates a client-side dynamic texture once for that source resource. Fully negligible alpha is removed and RGB on low/medium-alpha boundary pixels is borrowed from nearby opaque source pixels while the original alpha value is retained.
+
+This is deliberately opt-in. It must not be applied indiscriminately to future spectral glows, smoke, magical auras, or other artwork where partially transparent colour is intentional.
+
+The Gnarl development fixture enables this cleanup specifically because the current supplied portrait contains a visible red/orange edge matte in its low-alpha pixels.
+
+## Current Gnarl implementation target
+
+The previous left-side overlapping prototype has been retired.
+
+The current development definition uses:
+
+```text
+parchment width: 360
+panel height: 200
+speaker: overlord_reign:gnarl
+reaction: neutral
+speaker lane width: 176
+portrait display rectangle: 168 x 168
+speaker alpha cleanup: enabled
+```
+
+The dedicated speaker screen keeps Gnarl in the right-side lane, preserves the parchment as the dominant quest-information surface, and keeps the Read/Done action under parchment.
+
+Direct Minecraft review still has authority over final spacing, scale, edge quality, and GUI-scale behavior. Passing CI establishes build correctness, not visual acceptance.
+
+## Presentation validation boundary
+
+`tools/validate_presentation_contracts.py` guards the structural contract. In particular it rejects a definition that combines an in-world `provider` with the incorporeal speaker reaction pane.
+
+`tools/check_gnarl_popup_layout.py` audits the current parchment/speaker-lane geometry and checks that the declared portrait fits its lane.
+
+The Forge workflow still requires an actual build and JAR smoke pass after these checks.
 
 ## Minion visual-identity dependency
 
