@@ -1,0 +1,24 @@
+{
+  "title": "[DEV] Optional Objective Contract",
+  "description": "Development-only fixture for required versus optional completion behavior. This is not an OVERLORD REIGN story quest.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:stick"
+  },
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:stick",
+      "name": "[DEV] Required stick probe",
+      "required_amount": 1
+    },
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:diamond",
+      "name": "[DEV] Optional diamond probe",
+      "required_amount": 1,
+      "optional": true
+    }
+  ],
+  "rewards": []
+}
