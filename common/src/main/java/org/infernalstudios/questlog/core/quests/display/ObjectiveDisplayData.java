@@ -105,7 +105,9 @@ public class ObjectiveDisplayData {
     }
 
     public Component getName() {
-        return this.name;
+        return this.objective != null && this.objective.isOptional()
+                ? Component.translatable("questlog.objective.optional", this.name)
+                : this.name;
     }
 
     public boolean isCompleted() {
