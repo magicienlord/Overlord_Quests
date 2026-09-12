@@ -1,0 +1,36 @@
+{
+  "title": "[DEV] Unlock Blue Minions",
+  "description": "Development-only fixture for ordered OVERLORD Minions progression. This is not campaign content.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:prismarine_crystals"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:overlord_minion_unlock_green_dev",
+      "required_amount": 1,
+      "name": "[DEV] Green unlock fixture complete"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:prismarine_crystals",
+      "required_amount": 1,
+      "name": "[DEV] Obtain prismarine crystals"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "blue",
+      "auto_claim": true,
+      "name": "[DEV] Unlock Blue Minions"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
