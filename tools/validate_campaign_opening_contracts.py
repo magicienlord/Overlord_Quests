@@ -282,6 +282,15 @@ def collect_errors() -> list[str]:
             errors.append("Goblin first contact must remain gated behind the semi-open campaign foundation")
         if provider.get("lock_to_provider") is not True or provider.get("turn_in") != "same_provider":
             errors.append("Goblin first contact must remain bound to the exact designated Goblin leader")
+        dialogue = provider.get("dialogue")
+        if not isinstance(dialogue, dict):
+            errors.append("Goblin first contact must retain authored provider dialogue")
+        else:
+            for phase in ("offer", "ready_to_turn_in", "completed"):
+                if not isinstance(dialogue.get(phase), str) or not dialogue.get(phase, "").strip():
+                    errors.append(f"Goblin first contact must retain non-empty {phase} provider dialogue")
+            if "in_progress" in dialogue:
+                errors.append("Goblin first contact must not expose a fake in-progress phase when no intervening gameplay objective exists")
 
     goblin_prerequisites = goblin_contact.get("prerequisites", [])
     if not isinstance(goblin_prerequisites, list) or len(goblin_prerequisites) != 1:
@@ -295,16 +304,9 @@ def collect_errors() -> list[str]:
         ):
             errors.append("Goblin first contact must remain gated by the established reign foundation fact")
 
-    goblin_objectives = goblin_contact.get("objectives", [])
-    if not isinstance(goblin_objectives, list) or len(goblin_objectives) != 1:
-        errors.append("Goblin first contact must retain one bounded provider interaction objective")
-    else:
-        objective = goblin_objectives[0]
-        if not isinstance(objective, dict) or not (
-            objective.get("type") == "questlog:read"
-            and objective.get("required_amount") == 1
-        ):
-            errors.append("Goblin first contact must remain an explicit interaction/read milestone")
+    goblin_objectives = goblin_contact.get("objectives")
+    if goblin_objectives != []:
+        errors.append("Goblin first contact must remain a provider-native conversation with no artificial journal objective")
 
     goblin_rewards = goblin_contact.get("rewards", [])
     if not isinstance(goblin_rewards, list) or len(goblin_rewards) != 1:
@@ -342,7 +344,7 @@ def main() -> int:
     print("Brown craft observation: retrospective exact-item statistic")
     print("first Tower convergence: native Hot Iron progression with persistent restoration fact")
     print("early-recovery convergence: Brown recovery plus first Tower restoration records the semi-open campaign foundation")
-    print("first civilization anchor: designated Goblin leader contact only, no disposition resolution")
+    print("first civilization anchor: provider-native designated Goblin leader contact only, no disposition resolution")
     return 0
 
 
