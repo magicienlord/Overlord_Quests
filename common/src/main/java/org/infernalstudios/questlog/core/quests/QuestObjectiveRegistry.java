@@ -103,6 +103,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("structure", "Structure ID:", "required_amount", EditorMetadata.SuggestionType.STRUCTURE));
         register(new ResourceLocation("questlog", "visit_structure_history"), VisitStructureHistoryObjective::new,
                 new EditorMetadata("structure", "Exact Structure ID:", null, EditorMetadata.SuggestionType.STRUCTURE));
+        register(new ResourceLocation("questlog", "ender_dragon_defeated"), EnderDragonDefeatedObjective::new,
+                new EditorMetadata(null, null, null));
         register(new ResourceLocation("questlog", "quest_complete"), QuestCompleteObjective::new,
                 new EditorMetadata("quest", "Quest ID:", "required_amount", EditorMetadata.SuggestionType.QUEST));
         register(new ResourceLocation("questlog", "read"), ReadObjective::new,
