@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: overlord-quests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   forge-build:
     runs-on: ubuntu-latest
@@ -93,6 +97,8 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreens.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/commands/OverlordNarrativeCommands.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/FactObjective.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/SetFactReward.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/provider/QuestProviderScreen.class'
@@ -191,8 +197,11 @@ jobs:
           cp "$JAR" "$KIT/mods/"
           cp examples/questlog/quests/overlord_provider_dev.json "$KIT/config/questlog/quests/"
           cp examples/questlog/quests/overlord_provider_disposition_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_provider_fact_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_narrative_fact_dev.json "$KIT/config/questlog/quests/"
           cp docs/NPC_PROVIDER_SYSTEM.md "$KIT/docs/"
           cp docs/NPC_PROVIDER_TEST_PROTOCOL.md "$KIT/docs/"
+          cp docs/NARRATIVE_FACTS.md "$KIT/docs/"
 
           cat > "$KIT/INSTALL.txt" <<'EOF'
           OVERLORD QUESTS - NPC PROVIDER TEST KIT
@@ -204,7 +213,7 @@ jobs:
           5. Launch an unpublished local single-player test world with commands available.
           6. Follow docs/NPC_PROVIDER_TEST_PROTOCOL.md exactly.
 
-          This kit contains development-only provider quest content. It establishes no OVERLORD REIGN story canon.
+          This kit contains development-only provider and narrative-state quest content. It establishes no OVERLORD REIGN story canon.
           EOF
 
           cat > "$KIT/BUILD_INFO.txt" <<EOF
@@ -217,13 +226,15 @@ jobs:
           java=17
           development_quest=config/questlog/quests/overlord_provider_dev.json
           disposition_development_quest=config/questlog/quests/overlord_provider_disposition_dev.json
+          fact_provider_development_quest=config/questlog/quests/overlord_provider_fact_dev.json
+          narrative_fact_development_quest=config/questlog/quests/overlord_narrative_fact_dev.json
           interaction_scaffold=sneak_main_hand_entity_interact
           provider_authority=server
           EOF
 
           (
             cd "$KIT"
-            sha256sum mods/* config/questlog/quests/overlord_provider_dev.json config/questlog/quests/overlord_provider_disposition_dev.json > SHA256SUMS.txt
+            sha256sum mods/* config/questlog/quests/overlord_provider_dev.json config/questlog/quests/overlord_provider_disposition_dev.json config/questlog/quests/overlord_provider_fact_dev.json config/questlog/quests/overlord_narrative_fact_dev.json > SHA256SUMS.txt
           )
 
       - name: Prepare death-screen test kit
