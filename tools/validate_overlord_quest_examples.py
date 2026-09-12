@@ -18,6 +18,7 @@ import validate_presentation_contracts as presentation_contract
 core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:disposition",
     "questlog:fact",
+    "questlog:minion_unlocked",
     "questlog:entity_died",
     "questlog:entity_kill_stat",
     "questlog:item_craft_stat",
@@ -100,6 +101,15 @@ def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[st
         amount = entry.get("required_amount")
         if amount is not None and amount != 1:
             core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:fact", errors)
+        return
+
+    if objective_type == "questlog:minion_unlocked":
+        slot = entry.get("slot")
+        if slot not in {"red", "green", "blue"}:
+            core.fail(path, f"'{field}.slot' must be one of: red, green, blue", errors)
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:minion_unlocked", errors)
         return
 
     if objective_type == "questlog:entity_kill_stat":
