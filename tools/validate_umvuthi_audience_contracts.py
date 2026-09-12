@@ -12,6 +12,7 @@ QUEST = DEFINITIONS / "quests/campaign/civilizations/umvuthana/first_contact.jso
 INDEX = DEFINITIONS / "index.json"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
 SERVICE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderService.java"
+INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
 BRIDGE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/UmvuthiAudienceBridge.java"
 FORWARDER = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java"
 INTEGRATION = ROOT / "docs/UMVUTHI_AUDIENCE_INTEGRATION.md"
@@ -126,6 +127,7 @@ def collect_errors() -> list[str]:
     require(SERVICE, "UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)", "source-native Umvuthi offence eligibility bridge", errors)
     if SERVICE.exists() and SERVICE.read_text(encoding="utf-8").count("UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)") < 2:
         errors.append("QuestProviderService.java: Umvuthi offence gate must protect both acceptance and turn-in")
+    require(INTERACTION, "!UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)", "offender rejection before provider-menu snapshot", errors)
 
     require(BRIDGE, 'UMVUTHI = new ResourceLocation("mowziesmobs", "umvuthi")', "exact Umvuthi registry boundary", errors)
     require(BRIDGE, 'ANCHOR_TAG = "overlord_anchor:umvuthana_main_umvuthi"', "canonical Grove anchor boundary", errors)
@@ -136,7 +138,7 @@ def collect_errors() -> list[str]:
     require(FORWARDER, "UmvuthiAudienceBridge.shouldSuppressPlayerTarget", "narrow Umvuthi target suppression handoff", errors)
     require(FORWARDER, "event.setCanceled(true)", "cancelable ordinary target acquisition", errors)
 
-    for java_path in (RULE, SERVICE, BRIDGE, FORWARDER):
+    for java_path in (RULE, SERVICE, INTERACTION, BRIDGE, FORWARDER):
         if java_path.exists() and "com.bobmowzie" in java_path.read_text(encoding="utf-8"):
             errors.append(f"{java_path.relative_to(ROOT)}: Mowzie compatibility must not introduce a hard class-link dependency")
 
@@ -166,7 +168,7 @@ def main() -> int:
 
     print("Umvuthi peaceful-audience contracts: PASS")
     print("pre-audience: exact native mask gate and native hostility preserved")
-    print("offender state: Mowzie getMisbehavedPlayerId remains authoritative")
+    print("offender state: Mowzie getMisbehavedPlayerId remains authoritative for menu, acceptance, turn-in, and targeting")
     print("post-audience: only designated Grove Umvuthi ordinary targeting is suppressed in NEUTRAL/SUBJUGATED state")
     print("dependency boundary: reflection/registry only, no hard Mowzie class link")
     return 0
