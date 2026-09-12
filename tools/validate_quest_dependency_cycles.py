@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Reject cyclic quest_complete dependencies in repository-controlled definitions.
+"""Reject cyclic completion-gating dependencies in repository definitions.
 
 The runtime has an identity-based recursion guard so arbitrary external config
-cannot overflow the stack. This static check catches authoring mistakes earlier
-for OVERLORD development fixtures and approved bundled quest definitions.
+cannot overflow the stack through quest_complete objectives. Provider
+``unlock_quests`` gates do not recurse at runtime, but a cycle among those gates,
+or a mixed cycle between provider gates and quest_complete dependencies, creates
+an impossible sidequest graph. This static check catches both classes of
+repository authoring mistake before they reach a pack build.
 
 Only dependencies between definitions visible to this repository are considered.
-A quest_complete target supplied by a future external compatibility package is
-therefore not assumed missing or invalid here.
+A target supplied by a future external compatibility package is therefore not
+assumed missing or invalid here.
 """
 
 from __future__ import annotations
@@ -38,6 +41,7 @@ def normalize_quest_id(value: Any) -> str | None:
 
 
 def collect_dependencies(entry: Any, found: set[str]) -> None:
+    """Collect quest_complete targets recursively from one objective tree."""
     if not isinstance(entry, dict):
         return
 
@@ -54,6 +58,22 @@ def collect_dependencies(entry: Any, found: set[str]) -> None:
                 collect_dependencies(child, found)
     elif objective_type == "questlog:not":
         collect_dependencies(entry.get("objective"), found)
+
+
+def collect_provider_dependencies(data: Any, found: set[str]) -> None:
+    """Collect completion gates declared through provider.unlock_quests."""
+    if not isinstance(data, dict):
+        return
+    provider = data.get("provider")
+    if not isinstance(provider, dict):
+        return
+    unlocks = provider.get("unlock_quests", [])
+    if not isinstance(unlocks, list):
+        return
+    for value in unlocks:
+        target = normalize_quest_id(value)
+        if target is not None:
+            found.add(target)
 
 
 def read_json(path: Path) -> dict[str, Any] | None:
@@ -172,12 +192,13 @@ def main() -> int:
             if isinstance(entries, list):
                 for entry in entries:
                     collect_dependencies(entry, dependencies)
+        collect_provider_dependencies(data, dependencies)
         graph[quest_id] = dependencies
         locations[quest_id] = path
 
     cycle = find_cycle(graph)
     if cycle is not None:
-        print("Cyclic quest_complete dependency detected:", file=sys.stderr)
+        print("Cyclic quest completion-gating dependency detected:", file=sys.stderr)
         print(" -> ".join(cycle), file=sys.stderr)
         for quest_id in dict.fromkeys(cycle):
             path = locations.get(quest_id)
@@ -188,7 +209,7 @@ def main() -> int:
     edge_count = sum(len(edges) for edges in graph.values())
     print(
         f"Quest dependency graph valid across {len(graph)} repository-controlled quest(s); "
-        f"{edge_count} quest_complete edge(s), no cycles; runtime recursion guard intact."
+        f"{edge_count} completion-gating edge(s), no cycles; runtime recursion guard intact."
     )
     return 0
 
