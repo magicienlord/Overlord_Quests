@@ -4,6 +4,14 @@
   "description_completed": "[DEV] The success path is not the target of this fixture.",
   "chapter": "main",
   "include_in_main": false,
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "questlog:dev_failure_gate",
+      "required_amount": 1,
+      "name": "[DEV] Open the failure test gate"
+    }
+  ],
   "objectives": [
     {
       "type": "questlog:read",
