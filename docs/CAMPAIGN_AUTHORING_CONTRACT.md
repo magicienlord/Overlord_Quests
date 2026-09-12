@@ -121,6 +121,8 @@ Provider selectors and compatibility hooks must therefore be narrow enough to di
 
 Quest-critical NPC anchors that must survive until an authored transition may use the explicit `overlord_quest_protected` scoreboard tag. Protection is separate from provider identity and must be removed by authored integration when a valid destructive route makes that NPC killable. See `docs/QUEST_ANCHOR_PROTECTION.md`.
 
+When the death of a specific authored anchor is itself meaningful campaign state, use `questlog:entity_died` with that anchor's unique identity tag. Do not repurpose the inherited `questlog:entity_death` objective, because its historical meaning is that the player died to the matching entity. `entity_died` is event-driven, so the relevant quest or persistent tracking state must be active before a legitimate kill window opens unless another surviving signal records an earlier death. See `docs/ENTITY_DEATH_TRACKING.md`.
+
 Exact coordinates remain a world-integration concern unless the lore authority has explicitly established them.
 
 ## Campaign concurrency
