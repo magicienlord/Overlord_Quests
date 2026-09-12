@@ -9,6 +9,8 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -17,6 +19,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.commands.OverlordNarrativeCommands;
+import org.infernalstudios.questlog.overlord.provider.QuestAnchorProtection;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
 
 public class QuestlogForgeEventForwarder {
@@ -48,6 +51,31 @@ public class QuestlogForgeEventForwarder {
     public static void registerCommands(RegisterCommandsEvent event) {
         QuestlogEvents.registerCommands(event.getDispatcher());
         OverlordNarrativeCommands.register(event.getDispatcher());
+    }
+
+    /**
+     * A deliberately marked quest anchor is protected from ordinary damage while
+     * its opt-in scoreboard tag remains present. Campaign/world integration owns
+     * removal of that tag when an authored destructive route makes the NPC
+     * intentionally killable.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onQuestAnchorAttack(LivingAttackEvent event) {
+        if (!event.getEntity().level().isClientSide() && QuestAnchorProtection.isProtected(event.getEntity())) {
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * Protected Mob anchors also become persistent whenever they load so an
+     * explicitly authored quest giver cannot silently disappear through normal
+     * despawn rules. This does not affect unmarked procedural mobs.
+     */
+    @SubscribeEvent
+    public static void onQuestAnchorJoin(EntityJoinLevelEvent event) {
+        if (!event.getLevel().isClientSide()) {
+            QuestAnchorProtection.applyPersistence(event.getEntity());
+        }
     }
 
     /**
