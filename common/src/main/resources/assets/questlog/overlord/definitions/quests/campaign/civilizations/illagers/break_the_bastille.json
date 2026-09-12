@@ -1,6 +1,6 @@
 {
   "title": "Break the Bastille",
-  "description": "One designated Bastille is the principal Illager warband anchor. Enter it and kill the marked Legioner who commands this local force. Breaking this Bastille establishes authority over its warband, not over every Illager band in the world.",
+  "description": "One designated Bastille is the principal Illager warband anchor. Find its marked Legioner commander and break the local command through force. This establishes authority over that warband, not over every Illager band in the world.",
   "description_completed": "The designated Bastille has lost its marked commander. The local warband has been forced to recognize that the new Overlord can reach and break its command structure. Its political outcome remains unresolved, and unrelated Illager bands remain independent.",
   "icon": {
     "item": "minecraft:crossbow"
@@ -17,12 +17,6 @@
     }
   ],
   "objectives": [
-    {
-      "type": "questlog:advancement",
-      "advancement": "takesapillage:bastille",
-      "required_amount": 1,
-      "name": "Enter the designated Bastille"
-    },
     {
       "type": "questlog:entity_kill_history",
       "entity": "takesapillage:legioner",
