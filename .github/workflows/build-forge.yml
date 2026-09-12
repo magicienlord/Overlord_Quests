@@ -96,6 +96,10 @@ jobs:
           echo "Inspecting $JAR"
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/Questlog.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/gui/OverlordPresentationTheme.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/gui/SpeakerPortraitTextures.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/gui/screen/OverlordSpeakerScreen.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/gui/components/QuestlogWideButton.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreen.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/death/OverlordDeathScreens.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/commands/OverlordNarrativeCommands.class'
