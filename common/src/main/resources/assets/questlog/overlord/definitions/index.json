@@ -5,7 +5,8 @@
     "campaign/opening/browns_return.json",
     "campaign/opening/make_an_impression.json",
     "campaign/opening/direct_action_reaction.json",
-    "campaign/tower/prepare_the_forge.json"
+    "campaign/tower/prepare_the_forge.json",
+    "campaign/tower/forge_prepared_reaction.json"
   ],
   "chapters": [
     "main.json"
