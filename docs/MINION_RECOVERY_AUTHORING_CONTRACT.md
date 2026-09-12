@@ -105,7 +105,7 @@ The final Red recovery milestone must grant:
 ```json
 {
   "type": "questlog:unlock_minion",
-  "minion": "red",
+  "slot": "red",
   "auto_claim": true
 }
 ```
