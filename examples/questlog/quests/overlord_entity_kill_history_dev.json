@@ -1,6 +1,6 @@
 {
   "title": "[DEV] Tagged Kill History",
-  "description": "Development-only fixture for recognizing a player-attributed kill of an explicitly tagged entity before formal quest activation. This is not OVERLORD REIGN story content.",
+  "description": "Development-only fixture for recognizing a player-attributed kill of an explicitly tagged entity before formal quest activation. This is not story canon.",
   "chapter": "main",
   "icon": {
     "item": "minecraft:iron_sword"
