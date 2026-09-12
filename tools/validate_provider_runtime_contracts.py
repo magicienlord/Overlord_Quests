@@ -14,6 +14,8 @@ ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/networ
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
 SERVICE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderService.java"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
+BINDING = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderBinding.java"
+QUEST = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/Quest.java"
 DIALOGUE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderDialogue.java"
 SCREEN = ROOT / "common/src/main/java/org/infernalstudios/questlog/client/provider/QuestProviderScreen.java"
 PROVIDER_FIXTURE = ROOT / "examples/questlog/quests/overlord_provider_dev.json"
@@ -46,6 +48,9 @@ require(OPEN_PACKET, "MAX_PROVIDER_NAME = 128", "bounded provider display name")
 require(OPEN_PACKET, "InteractionState.fromWireId", "explicit provider state packet decoding")
 require(OPEN_PACKET, "buf.writeByte(entry.state().wireId())", "explicit provider state packet encoding")
 require(ACTION_PACKET, "QuestProviderInteraction.sendMenu(player, provider, true)", "authoritative menu refresh after provider action")
+require(ACTION_PACKET, "!packet.providerId.equals(provider.getUUID())", "provider action UUID identity check")
+require(ACTION_PACKET, "!QuestProviderService.isWithinInteractionRange(player, provider)", "server-side provider action distance rejection")
+require(INTERACTION, "!QuestProviderService.isWithinInteractionRange(player, provider)", "server-side provider-menu distance guard")
 require(INTERACTION, "List.copyOf(entries.subList(0, QuestProviderOpenPacket.MAX_ENTRIES))", "server-side provider snapshot truncation")
 require(SERVICE, "AVAILABLE(0),\n        IN_PROGRESS(1),\n        READY_TO_TURN_IN(2),\n        FAILED(3),\n        COMPLETED(4)", "stable provider interaction wire ids")
 require(SERVICE, "public static InteractionState fromWireId", "provider interaction wire-id decoder")
@@ -54,7 +59,12 @@ require(SERVICE, ".thenComparing(entry -> entry.questId().toString())", "provide
 require(SERVICE, "for (ResourceLocation fact : rule.requiredFacts())", "required narrative fact provider gating")
 require(SERVICE, "for (ResourceLocation fact : rule.forbiddenFacts())", "forbidden narrative fact provider gating")
 require(SERVICE, "narrative.hasFact(fact)", "world narrative fact eligibility lookup")
+require(SERVICE, "for (Map.Entry<ResourceLocation, Set<ResourceLocation>> requirement : rule.requiredDispositions().entrySet())", "required disposition provider gating")
+require(SERVICE, "narrative.getDisposition(requirement.getKey())", "world narrative disposition eligibility lookup")
 require(SERVICE, "binding.matches(provider)", "durable provider identity matching")
+require(SERVICE, "case SAME_PROVIDER -> binding.matches(provider);", "same-provider turn-in enforcement")
+require(SERVICE, "case ANY_ELIGIBLE -> rule.matchesEntity(provider);", "any-eligible turn-in enforcement")
+require(SERVICE, "player.distanceToSqr(provider) <= MAX_INTERACTION_DISTANCE_SQR", "shared provider interaction distance contract")
 require(SERVICE, "rule.dialogue().hasLinesFor(InteractionState.COMPLETED)", "authored completion follow-up eligibility")
 require(SERVICE, "new InteractionEntry(quest.getId(), InteractionState.COMPLETED)", "provider completion follow-up snapshot state")
 require(RULE, "record LocationBounds", "authored provider location contract")
@@ -68,6 +78,14 @@ require(RULE, "entity.getTags().contains(\"overlord_role:\" + this.role)", "expl
 require(RULE, "entity instanceof Villager villager", "native Villager profession provider role bridge")
 require(RULE, "BuiltInRegistries.VILLAGER_PROFESSION.getKey", "registered Villager profession lookup")
 require(RULE, "professionId.toString().equals(this.role)", "namespaced Villager profession role matching")
+require(BINDING, 'tag.putUUID("provider_id", this.providerId);', "provider UUID persistence write")
+require(BINDING, 'tag.getUUID("provider_id")', "provider UUID persistence read")
+require(BINDING, "this.providerId.equals(entity.getUUID())", "provider UUID match semantics")
+require(QUEST, 'tag.put("provider_binding", this.providerBinding.save());', "provider binding persistence write")
+require(QUEST, 'this.providerBinding = QuestProviderBinding.load(data.getCompound("provider_binding"));', "provider binding persistence read")
+require(QUEST, 'tag.putBoolean("provider_turned_in", this.providerTurnedIn);', "provider turn-in persistence write")
+require(QUEST, 'this.providerTurnedIn = this.providerBinding != null && data.getBoolean("provider_turned_in");', "provider turn-in persistence read")
+require(QUEST, "this.providerBinding = null;", "provider reset clears durable binding")
 require(DIALOGUE, "case READY_TO_TURN_IN -> this.readyToTurnIn", "state-specific provider dialogue mapping")
 require(DIALOGUE, "case COMPLETED -> this.completed", "completed provider dialogue mapping")
 require(DIALOGUE, 'parseLines(dialogue, "completed")', "completed provider dialogue parsing")
@@ -81,6 +99,7 @@ require(SCREEN, "Component.literal(\"Up\")", "explicit provider dialogue scroll-
 require(SCREEN, "Component.literal(\"Down\")", "explicit provider dialogue scroll-down control")
 require(SCREEN, 'case COMPLETED -> Component.literal("Completed: ")', "completed provider list presentation")
 require(SCREEN, "case IN_PROGRESS, FAILED, COMPLETED -> null", "completed provider follow-up is presentation-only")
+require(SCREEN, "minecraft.player.distanceToSqr(provider) > MAX_DISTANCE_SQR", "client provider screen distance closure")
 require(SCREEN, "QuestlogWideButton", "shared Questlog provider button treatment")
 require(SCREEN, "detailBackgroundLeft.blit", "shared Questlog provider parchment treatment")
 require(PROVIDER_FIXTURE, '"completed": "[DEV]', "development completed provider dialogue fixture")
