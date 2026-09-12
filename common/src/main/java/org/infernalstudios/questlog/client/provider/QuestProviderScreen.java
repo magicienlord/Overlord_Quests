@@ -42,7 +42,9 @@ public final class QuestProviderScreen extends Screen {
     private static final int DIALOGUE_LINE_SPACING = 11;
     private static final int DIALOGUE_PARAGRAPH_SPACING = 4;
     private static final int DIALOGUE_SCROLL_STEP = 33;
-    private static final int DIALOGUE_BOTTOM_INSET = 38;
+    private static final int DIALOGUE_FULL_BOTTOM_INSET = 18;
+    private static final int DIALOGUE_SCROLL_CONTROL_BAND = 72;
+    private static final int SCROLL_BUTTON_HEIGHT = 20;
     private static final int BUTTON_GAP = 6;
     private static final double MAX_DISTANCE_SQR = QuestProviderService.MAX_INTERACTION_DISTANCE_SQR;
     private static final Palette DEFAULT_PALETTE = new Palette(null, null, null, null, null);
@@ -222,7 +224,9 @@ public final class QuestProviderScreen extends Screen {
             int scrollWidth = Math.min(88, (this.panelWidth - inset * 2 - BUTTON_GAP) / 2);
             int totalScrollWidth = scrollWidth * 2 + BUTTON_GAP;
             int scrollX = OverlordPresentationTheme.centeredX(this.panelX, this.panelWidth, totalScrollWidth);
-            int scrollY = this.panelY + this.panelHeight - 27;
+            int viewportBottom = this.dialogueViewportBottom(entry);
+            int availableBand = Math.max(SCROLL_BUTTON_HEIGHT, this.panelY + this.panelHeight - viewportBottom);
+            int scrollY = viewportBottom + (availableBand - SCROLL_BUTTON_HEIGHT) / 2;
 
             QuestlogWideButton up = new QuestlogWideButton(
                     scrollX,
@@ -309,10 +313,19 @@ public final class QuestProviderScreen extends Screen {
         return this.panelY + DIALOGUE_TOP;
     }
 
-    private int dialogueViewportBottom() {
+    private int dialogueViewportBottom(QuestProviderService.InteractionEntry entry) {
+        int fullBottom = Math.max(
+                this.dialogueViewportTop() + this.font.lineHeight,
+                this.panelY + this.panelHeight - DIALOGUE_FULL_BOTTOM_INSET
+        );
+        DialogueLayout layout = this.dialogueLayout(entry);
+        int fullHeight = Math.max(this.font.lineHeight, fullBottom - this.dialogueViewportTop());
+        if (layout.contentHeight() <= fullHeight) {
+            return fullBottom;
+        }
         return Math.max(
                 this.dialogueViewportTop() + this.font.lineHeight,
-                this.panelY + this.panelHeight - DIALOGUE_BOTTOM_INSET
+                this.panelY + this.panelHeight - DIALOGUE_SCROLL_CONTROL_BAND
         );
     }
 
@@ -352,7 +365,7 @@ public final class QuestProviderScreen extends Screen {
         DialogueLayout layout = this.dialogueLayout(entry);
         int viewportHeight = Math.max(
                 this.font.lineHeight,
-                this.dialogueViewportBottom() - this.dialogueViewportTop()
+                this.dialogueViewportBottom(entry) - this.dialogueViewportTop()
         );
         return Math.max(0, layout.contentHeight() - viewportHeight);
     }
@@ -442,8 +455,8 @@ public final class QuestProviderScreen extends Screen {
         QuestProviderService.InteractionEntry selected = this.selectedEntry();
         if (selected == null) {
             if (this.entries.isEmpty()) {
-                graphics.drawCenteredString(
-                        this.font,
+                this.drawCenteredNoShadow(
+                        graphics,
                         Component.literal("No quests available."),
                         this.panelX + this.panelWidth / 2,
                         this.panelY + this.panelHeight / 2,
@@ -468,7 +481,7 @@ public final class QuestProviderScreen extends Screen {
         int titleY = this.panelY
                 + OverlordPresentationTheme.TITLE_Y
                 + (OverlordPresentationTheme.TITLE_HEIGHT - this.font.lineHeight + 2) / 2;
-        graphics.drawCenteredString(this.font, providerTitle, centerX, titleY, DEFAULT_PALETTE.titleColor());
+        this.drawCenteredNoShadow(graphics, providerTitle, centerX, titleY, DEFAULT_PALETTE.titleColor());
         OverlordPresentationTheme.renderHeaderSeparator(
                 graphics,
                 this.guiSet,
@@ -479,8 +492,8 @@ public final class QuestProviderScreen extends Screen {
 
         QuestProviderService.InteractionEntry selected = this.selectedEntry();
         if (selected == null) {
-            graphics.drawCenteredString(
-                    this.font,
+            this.drawCenteredNoShadow(
+                    graphics,
                     Component.literal("Quests"),
                     centerX,
                     this.panelY + 33,
@@ -491,8 +504,8 @@ public final class QuestProviderScreen extends Screen {
             Component questTitle = quest == null
                     ? Component.literal(selected.questId().toString())
                     : quest.getDisplay().getTitle();
-            graphics.drawCenteredString(
-                    this.font,
+            this.drawCenteredNoShadow(
+                    graphics,
                     questTitle,
                     centerX,
                     this.panelY + 35,
@@ -506,7 +519,7 @@ public final class QuestProviderScreen extends Screen {
         if (layout.lines().isEmpty()) return;
 
         int viewportTop = this.dialogueViewportTop();
-        int viewportBottom = this.dialogueViewportBottom();
+        int viewportBottom = this.dialogueViewportBottom(entry);
         int maxScroll = this.maxDialogueScroll(entry);
         int scroll = Math.max(0, Math.min(this.dialogueScrollPixels, maxScroll));
         int centerX = this.panelX + this.panelWidth / 2;
@@ -522,9 +535,43 @@ public final class QuestProviderScreen extends Screen {
             int y = viewportTop + line.yOffset() - scroll;
             if (y + this.font.lineHeight < viewportTop) continue;
             if (y > viewportBottom) continue;
-            graphics.drawCenteredString(this.font, line.text(), centerX, y, DEFAULT_PALETTE.textColor());
+            this.drawCenteredNoShadow(graphics, line.text(), centerX, y, DEFAULT_PALETTE.textColor());
         }
         graphics.disableScissor();
+    }
+
+    private void drawCenteredNoShadow(
+            GuiGraphics graphics,
+            Component text,
+            int centerX,
+            int y,
+            int color
+    ) {
+        graphics.drawString(
+                this.font,
+                text,
+                centerX - this.font.width(text) / 2,
+                y,
+                color,
+                false
+        );
+    }
+
+    private void drawCenteredNoShadow(
+            GuiGraphics graphics,
+            FormattedCharSequence text,
+            int centerX,
+            int y,
+            int color
+    ) {
+        graphics.drawString(
+                this.font,
+                text,
+                centerX - this.font.width(text) / 2,
+                y,
+                color,
+                false
+        );
     }
 
     @Override
