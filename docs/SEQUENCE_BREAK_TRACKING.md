@@ -4,19 +4,17 @@ Status: TECHNICAL IMPLEMENTATION OF APPROVED CAMPAIGN RULE
 
 ## Authority
 
-`magicienlord/Overlord_Lore_and_Canon` establishes that Minecraft exploration may let the player complete content before Gnarl or Questlog formally directs them toward it. Legitimate prior accomplishments should be recognized whenever technically possible, and completed bosses or world events must not be duplicated merely because their corresponding REIGN quest was not active yet.
+`magicienlord/Overlord_Lore_and_Canon` establishes that Minecraft exploration may let the player complete content before Gnarl or Questlog formally directs them toward it. Legitimate prior accomplishments should be recognized whenever technically possible, and completed bosses, crafts, or world events must not be duplicated merely because their corresponding REIGN quest was not active yet.
 
 The same authority requires native-mod progression to be tracked through the cleanest reliable signal available, preferring advancements, boss/world state, items, structure discovery, capabilities, documented APIs, and similarly stable hooks.
 
-This document records one narrow Questlog fallback for entity kills. It does not authorize any particular boss, quest, sequence, or story reaction.
+This document records narrow Questlog fallbacks for exact entity kills and exact item crafts when vanilla statistics are the best persistent evidence available. It does not authorize any particular boss, item, quest, sequence, or story reaction.
 
-## Existing event-based kill objective
+## Event-based objectives
 
-`questlog:entity_kill` remains the general event-driven kill objective.
+`questlog:entity_kill` and `questlog:item_craft` remain the general event-driven objectives.
 
-It can use Questlog's full entity matcher surface, including exact entity IDs, tags, names, and vanilla entity-predicate data. Its progress begins only when the objective can receive and accept kill events for the active quest state.
-
-That makes it appropriate for authored tasks such as "kill several matching enemies after this quest begins", but it is not a historical-accomplishment detector.
+They support the ordinary matcher behavior appropriate to events that must occur while the quest is active. Their progress begins only when the active objective can receive and accept the relevant event, so they are not historical-accomplishment detectors.
 
 ## Retrospective exact-entity objective
 
@@ -32,28 +30,33 @@ OVERLORD QUESTS adds:
 
 `questlog:entity_kill_stat` reads Minecraft's persistent `Stats.ENTITY_KILLED` counter for one exact registered entity type. The objective polls the server player's statistic at a one-second cadence and projects the historical count into ordinary Questlog objective progress.
 
-Consequences:
+This allows a qualifying player-attributed kill from before formal quest activation to satisfy the objective without recreating the encounter.
 
-- a qualifying player-attributed kill from before formal quest activation can satisfy the objective;
-- the same objective can be used as a prerequisite to recognize an already-accomplished fact;
-- progress survives normal Minecraft stat persistence independently of Questlog's activation timing;
-- `required_amount` may be greater than one if an authored quest genuinely cares about a historical kill count.
+## Retrospective exact-item craft objective
+
+OVERLORD QUESTS also adds:
+
+```json
+{
+  "type": "questlog:item_craft_stat",
+  "item": "minecraft:crafting_table",
+  "required_amount": 1
+}
+```
+
+`questlog:item_craft_stat` reads Minecraft's persistent `Stats.ITEM_CRAFTED` counter for one exact registered item. Like the entity variant, it polls at a one-second cadence and can recognize a craft that happened before the quest became active.
+
+This is intended for campaign milestones where forcing the player to manufacture a second copy would be false to what already happened. It is particularly useful when the crafted item is itself the durable proof of a native progression step but possession cannot be guaranteed because the item may have been moved, consumed, lost, or stored elsewhere after crafting.
 
 ## Deliberate limitations
 
-The retrospective objective accepts only one exact namespaced entity ID.
+Both retrospective objectives accept one exact namespaced registry ID.
 
-It does not accept:
+They do not support tag predicates or arbitrary matcher payloads because vanilla statistics are keyed by exact registry entries. `entity_kill_stat` also does not support NBT, custom-name filters, or entity predicates. `item_craft_stat` does not support NBT-sensitive crafting distinctions.
 
-- entity tags;
-- NBT predicates;
-- custom-name filters;
-- arbitrary vanilla entity predicates;
-- a synthetic list of several entity types.
+Use the ordinary event objectives when rich matching matters more than retrospective recognition.
 
-Those features cannot be mapped honestly onto one vanilla per-entity kill statistic. Use the ordinary `questlog:entity_kill` objective when rich matching matters more than retrospective recognition.
-
-Minecraft's `ENTITY_KILLED` statistic also reflects kills credited to the player by Minecraft. A boss death caused exclusively by another actor or by a mod-specific mechanic may not increment that statistic. In particular, authors must not assume this fallback recognizes every Minion-attributed or scripted boss death.
+Minecraft's kill statistic reflects kills credited to the player. A boss death caused exclusively by another actor or by a mod-specific mechanic may not increment it. Likewise, a mod may create an item through a machine, ritual, scripted transformation, or custom recipe path without incrementing vanilla `ITEM_CRAFTED`. Authors must verify the actual native signal before selecting either fallback.
 
 ## Signal selection rule
 
@@ -63,26 +66,21 @@ For an actual REIGN milestone, choose the most authoritative available signal in
 2. a stable native advancement or comparable persistent milestone;
 3. an explicit persistent world or campaign fact produced by a reliable compatibility hook;
 4. a reliable item, structure, or other existing state signal when it uniquely proves the accomplishment;
-5. `questlog:entity_kill_stat` when an exact player-attributed entity kill statistic is genuinely sufficient;
+5. a matching vanilla persistent statistic such as `questlog:entity_kill_stat` or `questlog:item_craft_stat` when that statistic honestly proves the event;
 6. event-only tracking when the design specifically requires the event to happen after activation.
 
 The order is a technical preference, not a story hierarchy. The objective is to recognize what actually happened without rewriting another mod's native progression.
 
-## No boss duplication
+## No event duplication
 
-Retrospective recognition does not respawn, recreate, or replay an already completed boss encounter. It only allows the REIGN quest graph to observe a surviving persistent signal and advance or select the appropriate authored response.
+Retrospective recognition does not respawn, recreate, re-craft, or replay an already completed encounter or milestone. It only allows the REIGN quest graph to observe surviving persistent evidence and advance or select the appropriate authored response.
 
-If a native mod does not expose any trustworthy evidence that a unique event happened, that compatibility gap must be handled deliberately. The quest system must not infer a historical event from unrelated circumstantial state merely to avoid an unresolved technical limitation.
+If a native mod does not expose trustworthy evidence that a unique event happened, that compatibility gap must be handled deliberately. The quest system must not infer a historical event from unrelated circumstantial state merely to avoid an unresolved technical limitation.
 
-## Development fixture
+## Development fixtures
 
-`examples/questlog/quests/overlord_sequence_break_dev.json` is a non-canon development fixture. It checks whether the current player has ever killed at least one vanilla zombie.
+`examples/questlog/quests/overlord_sequence_break_dev.json` checks retrospective exact-entity kills with a vanilla zombie.
 
-A useful direct runtime test is:
+`examples/questlog/quests/overlord_item_craft_sequence_break_dev.json` checks retrospective exact-item crafting with a vanilla crafting table.
 
-1. kill a zombie before installing or activating the fixture;
-2. load/reload the fixture;
-3. verify that its objective becomes complete without killing another zombie;
-4. repeat with a fresh player/world statistic state and verify that the objective stays incomplete until the first player-credited zombie kill.
-
-The fixture exists only to validate the mechanism and establishes no OVERLORD REIGN quest content.
+Both are non-canon development fixtures. A useful runtime check is to perform the target action before exposing the fixture, then verify that the objective completes from the already-persisted vanilla statistic without repeating the action.
