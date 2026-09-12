@@ -21,6 +21,7 @@ BUNDLED_ROOT = ROOT / "common" / "src" / "main" / "resources" / "assets" / "ques
 BUNDLED_INDEX = BUNDLED_ROOT / "index.json"
 RESOURCE_ID = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 EQUIPMENT_SLOTS = {"mainhand", "offhand", "feet", "legs", "chest", "head"}
+MINION_SLOTS = {"red", "green", "blue"}
 MAX_CHOICE_SELECTIONS = 256
 
 
@@ -81,6 +82,17 @@ def validate_objective(entry: Any, location: str, errors: list[str]) -> None:
         if not isinstance(dimension, str) or not RESOURCE_ID.fullmatch(dimension):
             errors.append(f"{location}: visit_position dimension must be a namespaced resource id")
 
+    if objective_type == "questlog:minion_unlocked":
+        slot = entry.get("slot")
+        if not isinstance(slot, str) or slot not in MINION_SLOTS:
+            errors.append(
+                f"{location}: minion_unlocked requires slot to be one of "
+                + ", ".join(sorted(MINION_SLOTS))
+            )
+        amount = entry.get("required_amount", 1)
+        if isinstance(amount, bool) or not isinstance(amount, int) or amount != 1:
+            errors.append(f"{location}: minion_unlocked required_amount must be exactly 1")
+
     if objective_type in {"questlog:and", "questlog:or"}:
         children = entry.get("objectives", [])
         if isinstance(children, list):
@@ -103,6 +115,16 @@ def validate_reward(entry: Any, location: str, errors: list[str]) -> None:
         permission_level = entry.get("permission_level", 2)
         if isinstance(permission_level, bool) or not isinstance(permission_level, int) or not 0 <= permission_level <= 4:
             errors.append(f"{location}: command reward permission_level must be an integer from 0 through 4")
+
+    if reward_type == "questlog:unlock_minion":
+        slot = entry.get("slot")
+        if not isinstance(slot, str) or slot not in MINION_SLOTS:
+            errors.append(
+                f"{location}: unlock_minion requires slot to be one of "
+                + ", ".join(sorted(MINION_SLOTS))
+            )
+        if entry.get("auto_claim") is not True:
+            errors.append(f"{location}: unlock_minion requires auto_claim=true")
 
     if reward_type == "questlog:choice":
         choices = entry.get("choices", [])
