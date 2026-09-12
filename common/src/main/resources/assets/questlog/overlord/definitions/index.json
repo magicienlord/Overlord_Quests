@@ -10,7 +10,8 @@
     "campaign/expansion/the_reign_takes_shape.json",
     "campaign/civilizations/goblins/first_contact.json",
     "campaign/civilizations/gnumus/first_contact.json",
-    "campaign/civilizations/ribbits/first_contact.json"
+    "campaign/civilizations/ribbits/first_contact.json",
+    "campaign/civilizations/kobolds/first_contact.json"
   ],
   "chapters": [
     "main.json"

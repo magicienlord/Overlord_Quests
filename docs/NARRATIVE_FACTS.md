@@ -243,6 +243,30 @@ This fact does NOT mean:
 
 The fact records local formal contact only and preserves the source mod's ordinary Ribbit identity outside the authored anchor.
 
+### `overlord_reign:civilizations/kobolds/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/kobolds/first_contact` after the Overlord completes the first formal interaction with the designated Captain of the principal Kobold Den.
+
+Meaning:
+
+- the designated Kobold anchor polity has formally entered the current Overlord's campaign history;
+- the provider is the exact installed `kobolds:kobold_captain` entity selected for the principal Den and marked with the authored local anchor identity;
+- later Kobold content may distinguish established contact with that Den from unrelated Kobold Dens, ordinary Captains, and Pirate Kobolds.
+
+This fact does NOT mean:
+
+- that the Kobold civilization disposition has been resolved;
+- that the Den is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that the selected Captain has authority over every Kobold population;
+- that Pirate Kobolds have entered the same political relationship;
+- that exact Den coordinates have been fixed in canon;
+- that later Kobold branch outcomes have been selected;
+- that Kobolds 2.12.0 native trade or combat behavior has been globally rewritten.
+
+The fact records formal contact with one designated Den only. Political state and later consequences remain separate authored systems.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.

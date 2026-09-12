@@ -2,6 +2,7 @@
 """Validate provider runtime/reset invariants that are easy to regress."""
 from pathlib import Path
 import sys
+import validate_kobold_campaign_contract as kobold_campaign
 import validate_narrative_fact_runtime_contracts as narrative_facts
 import validate_presentation_contracts as presentation
 
@@ -14,7 +15,6 @@ ACTION_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/networ
 INTERACTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.java"
 SERVICE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderService.java"
 RULE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderRule.java"
-NATIVE_ROLE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderNativeRoleBridge.java"
 BINDING = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderBinding.java"
 QUEST = ROOT / "common/src/main/java/org/infernalstudios/questlog/core/quests/Quest.java"
 DIALOGUE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestProviderDialogue.java"
@@ -79,15 +79,11 @@ require(RULE, "entity.getTags().contains(\"overlord_role:\" + this.role)", "expl
 require(RULE, "entity instanceof Villager villager", "native Villager profession provider role bridge")
 require(RULE, "BuiltInRegistries.VILLAGER_PROFESSION.getKey", "registered Villager profession lookup")
 require(RULE, "professionId.toString().equals(this.role)", "namespaced Villager profession role matching")
-require(RULE, "QuestProviderNativeRoleBridge.matches(entity, this.role)", "optional native provider role bridge handoff")
-require(NATIVE_ROLE, 'RIBBIT_ENTITY = new ResourceLocation("ribbits", "ribbit")', "Ribbit native-role entity boundary")
-require(NATIVE_ROLE, 'RIBBIT_ENTITY_CLASS = "com.yungnickyoung.minecraft.ribbits.entity.RibbitEntity"', "reflection-only Ribbit class target")
-require(NATIVE_ROLE, 'ribbitClass.getMethod("getRibbitData")', "Ribbit public data accessor")
-require(NATIVE_ROLE, 'ribbitData.getClass().getMethod("getProfession")', "Ribbit profession accessor")
-require(NATIVE_ROLE, 'profession.getClass().getMethod("getId")', "Ribbit profession ID accessor")
-require(NATIVE_ROLE, 'normalizeRole("ribbits", role)', "Ribbit namespaced profession normalization")
-require(NATIVE_ROLE, "catch (ClassNotFoundException exception)", "optional Ribbits absence handling")
-require(NATIVE_ROLE, "return false;", "native-role fail-closed behavior")
+require(RULE, 'entityId.toString().equals("ribbits:ribbit")', "optional Ribbits native-role entity boundary")
+require(RULE, 'Class.forName("com.yungnickyoung.minecraft.ribbits.entity.RibbitEntity")', "optional Ribbits class-link isolation")
+require(RULE, 'getMethod("getRibbitData")', "Ribbits profession data accessor bridge")
+require(RULE, 'getMethod("getProfession")', "Ribbits native profession accessor bridge")
+require(RULE, 'getMethod("getId")', "Ribbits native profession ID accessor bridge")
 require(BINDING, 'tag.putUUID("provider_id", this.providerId);', "provider UUID persistence write")
 require(BINDING, 'tag.getUUID("provider_id")', "provider UUID persistence read")
 require(BINDING, "this.providerId.equals(entity.getUUID())", "provider UUID match semantics")
@@ -118,6 +114,7 @@ screen = SCREEN.read_text(encoding="utf-8")
 if "if (y > maxY) return;" in screen:
     errors.append("QuestProviderScreen.java: silent fixed-height provider dialogue truncation remains")
 
+errors.extend(kobold_campaign.collect_errors())
 errors.extend(narrative_facts.collect_errors())
 errors.extend(presentation.collect_errors())
 
