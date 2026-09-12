@@ -169,6 +169,13 @@ public class ServerPlayerManager {
             }
         }
 
+        // External progression owners may appear or recover between sessions.
+        // Reconcile only the explicitly idempotent Minion unlock reward after all
+        // Questlog save data has been restored, before the initial client snapshot.
+        if (questManager.player instanceof ServerPlayer serverPlayer) {
+            questManager.reconcileExternalProgressionRewards(serverPlayer);
+        }
+
         if (shouldSave) {
             this.save(questManager);
         }
