@@ -1,0 +1,29 @@
+{
+  "title": "[DEV] Retrospective Item Craft Prototype",
+  "description": "DEVELOPMENT CONTENT ONLY. This quest exists solely to validate retrospective exact-item crafting statistics for sequence-break-safe campaign milestones. It is not an OVERLORD REIGN story quest.",
+  "icon": {
+    "item": "minecraft:crafting_table"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "prerequisites": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one debug stick to expose the objective"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:crafting_table",
+      "required_amount": 1,
+      "name": "[DEV] Have crafted a crafting table at least once"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
