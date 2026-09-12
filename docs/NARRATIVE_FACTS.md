@@ -220,6 +220,29 @@ This fact does NOT mean:
 
 The ancestry boundary is deliberate. Formal contact does not reveal information that the current Gnumus canonically do not know.
 
+### `overlord_reign:civilizations/ribbits/contact_established`
+
+Category: civilization-anchor contact milestone.
+
+Set by `campaign/civilizations/ribbits/first_contact` after the Overlord completes the first formal interaction with the designated Gardener Elder at the principal Ribbit Village.
+
+Meaning:
+
+- the designated Ribbit anchor polity has formally entered the current Overlord's campaign history;
+- the provider is both the authored local Elder and an actual native `ribbits:gardener` profession in the installed Ribbits 3.0.5 implementation;
+- later Ribbit content may distinguish established contact from unrelated procedural Ribbit Villages and Gardeners.
+
+This fact does NOT mean:
+
+- that the Ribbit civilization disposition has been resolved;
+- that the village is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
+- that every Ribbit Village recognizes the Overlord's authority;
+- that exact village coordinates have been fixed in canon;
+- that later Ribbit branch outcomes have been selected;
+- that Ribbits' native peaceful behavior or trade systems have been globally rewritten.
+
+The fact records local formal contact only and preserves the source mod's ordinary Ribbit identity outside the authored anchor.
+
 ## Cross-mod capability ownership
 
 Not every persistent capability should be mirrored as a Questlog narrative fact.
