@@ -101,11 +101,25 @@ Optional objectives are appropriate when the optional action has a concrete auth
 
 They are not arbitrary bonus-score tasks. `docs/OPTIONAL_OBJECTIVES.md` defines the runtime semantics.
 
+## Failure-consequence rule
+
+Meaningful failure should normally become explicit authored history rather than a generic dead-end state.
+
+Use top-level `failures` to detect the condition and `failure_rewards` only for the automatic persistent outputs that genuinely follow from that condition. Every `failure_rewards` entry must use `auto_claim: true`; choice rewards are not valid failure outputs because a failed quest has no success-reward selection flow.
+
+Failure consequences are applied only after the quest has triggered. This prevents locked content from writing campaign history prematurely.
+
+Typical outputs are sparse facts, a politically justified disposition change, or a narrowly controlled world transition. A retryable mechanical mistake should not be converted into permanent history merely because the engine can write a fact.
+
+See `docs/FAILURE_CONSEQUENCES.md` for runtime, persistence, reset, and save-compatibility semantics.
+
 ## Civilization scope rule
 
 Civilization questlines target the deliberately authored anchor polity defined by the lore authority. A disposition outcome for one anchor settlement, Den, Grove, Village, Camp, or equivalent does not automatically rewrite every naturally generated member of that species or culture across the world.
 
 Provider selectors and compatibility hooks must therefore be narrow enough to distinguish the authored anchor population from unrelated procedural populations.
+
+Quest-critical NPC anchors that must survive until an authored transition may use the explicit `overlord_quest_protected` scoreboard tag. Protection is separate from provider identity and must be removed by authored integration when a valid destructive route makes that NPC killable. See `docs/QUEST_ANCHOR_PROTECTION.md`.
 
 Exact coordinates remain a world-integration concern unless the lore authority has explicitly established them.
 
