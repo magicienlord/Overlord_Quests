@@ -192,12 +192,12 @@ public class QuestManager {
     public void sync(ResourceLocation id) {
         if (!this.isActive()) return;
 
-        if (!this.isClient() && this.player instanceof ServerPlayer) {
+        if (!this.isClient() && this.player instanceof ServerPlayer serverPlayer) {
             Questlog.LOGGER.trace("Syncing quest data for {} to client", id);
             Quest quest = this.quests.get(id);
             if (quest == null) {
                 // This will only be called if a definition has been deleted while reloading the server
-                Services.PLATFORM.sendPacketToClient((ServerPlayer) this.player, new QuestRemovePacket(id));
+                Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestRemovePacket(id));
                 Questlog.LOGGER.warn("Quest {} not found in manager, removing from client", id);
             } else {
                 boolean newlyTriggered = !quest.hasSentTrigger && quest.isTriggered();
@@ -210,8 +210,14 @@ public class QuestManager {
                     quest.hasSentTrigger = true;
                 }
 
+                // Failure consequence outputs are server-authoritative and may
+                // write durable world facts or other state. Apply them before the
+                // outgoing snapshot so the client sees the failed quest only after
+                // its persistent consequence state has crossed the same boundary.
+                quest.applyFailureConsequences(serverPlayer);
+
                 CompoundTag data = this.getQuest(id).serialize();
-                Services.PLATFORM.sendPacketToClient((ServerPlayer) this.player, new QuestDataPacket(id, data));
+                Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestDataPacket(id, data));
                 Questlog.LOGGER.trace("Sent quest data for {} to client", id);
 
                 if (newlyTriggered) {
