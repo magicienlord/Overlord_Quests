@@ -134,6 +134,26 @@ def validate_reward_entry(
             core.validate_resource_id(entry["fact"], f"{field}.fact", path, errors)
 
 
+def validate_failure_rewards(data: dict[str, Any], path: Path, errors: list[str]) -> None:
+    if "failure_rewards" not in data:
+        return
+
+    values = data.get("failure_rewards")
+    if not isinstance(values, list):
+        core.fail(path, "'failure_rewards' must be a list", errors)
+        return
+
+    for index, entry in enumerate(values):
+        field = f"failure_rewards[{index}]"
+        validate_reward_entry(entry, field, path, errors)
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("type") == "questlog:choice":
+            core.fail(path, f"'{field}' cannot be a choice reward because quest failure has no claim-selection flow", errors)
+        if entry.get("auto_claim") is not True:
+            core.fail(path, f"'{field}.auto_claim' must be true for an automatic failure consequence", errors)
+
+
 def validate_provider_rule(
     data: dict[str, Any],
     path: Path,
@@ -279,6 +299,7 @@ def validate_quest(path: Path, errors: list[str], *, development_fixture: bool) 
     _CORE_VALIDATE_QUEST(path, errors, development_fixture=development_fixture)
     data = core.load_json_object(path, errors)
     if data is not None:
+        validate_failure_rewards(data, path, errors)
         validate_provider_rule(data, path, errors, development_fixture=development_fixture)
 
 
