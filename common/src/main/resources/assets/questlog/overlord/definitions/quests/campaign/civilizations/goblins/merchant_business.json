@@ -1,0 +1,52 @@
+{
+  "title": "Goblin Business",
+  "description": "One of the principal camp's merchants has decided that formal recognition is worthless unless it produces business. Complete a successful deal through the Goblins' own trading system and return to the merchant who made the offer.",
+  "description_completed": "A successful Goblin deal has been made and the camp merchant has seen enough to count the Overlord as a customer worth remembering.",
+  "icon": {
+    "item": "minecraft:chest"
+  },
+  "chapter": "main",
+  "include_in_main": false,
+  "sort_order": 105,
+  "provider": {
+    "entity_types": [
+      "goblins_tyranny:merchant"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:goblin_main_merchant"
+    ],
+    "civilization": "overlord_reign:goblins",
+    "required_facts": [
+      "overlord_reign:civilizations/goblins/contact_established"
+    ],
+    "dialogue": {
+      "offer": "Leader says you are important. Important is nice. Buying is better. Do proper Goblin business, then come back and I will know whether you are important and useful.",
+      "in_progress": "No deal yet? Goblins understand many things, but a customer who does not buy is a difficult mystery.",
+      "ready_to_turn_in": "Ah! A real deal. Much better. Talking makes promises. Trading makes proof.",
+      "completed": "You buy, Goblins sell, everybody understands each other. Very civilized."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/goblins/contact_established",
+      "required_amount": 1,
+      "name": "Establish formal contact with the principal Goblin Camp"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "goblins_tyranny:merchant_success",
+      "required_amount": 1,
+      "name": "Complete a successful Goblin merchant transaction"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
