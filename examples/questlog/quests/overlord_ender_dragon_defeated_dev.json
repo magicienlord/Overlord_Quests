@@ -1,0 +1,19 @@
+{
+  "title": "[DEV] Ender Dragon World State",
+  "description": "Development-only fixture for recognizing Minecraft's persistent Ender Dragon first-defeat state. This is not an OVERLORD REIGN story quest or ending.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:dragon_head"
+  },
+  "objectives": [
+    {
+      "type": "questlog:ender_dragon_defeated",
+      "required_amount": 1,
+      "name": "[DEV] Ender Dragon has previously been defeated"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
