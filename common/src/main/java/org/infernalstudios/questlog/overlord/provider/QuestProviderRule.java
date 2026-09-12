@@ -7,9 +7,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.npc.Villager;
 import org.infernalstudios.questlog.Questlog;
 
@@ -26,7 +28,8 @@ import java.util.Set;
  * The rule is intentionally generic. Civilization is narrative metadata, while
  * concrete provider eligibility is expressed through entity ids/tags, optional
  * roles, dimensions, authored location bounds, quest completion markers,
- * explicit narrative facts, and authored disposition requirements.
+ * explicit narrative facts, authored disposition requirements, and narrowly
+ * defined player-state gates required by approved campaign mechanics.
  */
 public final class QuestProviderRule {
     public enum TurnInMode {
@@ -86,6 +89,7 @@ public final class QuestProviderRule {
     private final Set<ResourceLocation> requiredFacts;
     private final Set<ResourceLocation> forbiddenFacts;
     private final Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions;
+    private final Set<ResourceLocation> requiredHeadItems;
     private final boolean lockToProvider;
     private final TurnInMode turnInMode;
 
@@ -103,6 +107,7 @@ public final class QuestProviderRule {
             Set<ResourceLocation> requiredFacts,
             Set<ResourceLocation> forbiddenFacts,
             Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions,
+            Set<ResourceLocation> requiredHeadItems,
             boolean lockToProvider,
             TurnInMode turnInMode
     ) {
@@ -121,6 +126,7 @@ public final class QuestProviderRule {
         Map<ResourceLocation, Set<ResourceLocation>> copy = new LinkedHashMap<>();
         requiredDispositions.forEach((key, value) -> copy.put(key, Set.copyOf(value)));
         this.requiredDispositions = Collections.unmodifiableMap(copy);
+        this.requiredHeadItems = Set.copyOf(requiredHeadItems);
         this.lockToProvider = lockToProvider;
         this.turnInMode = turnInMode;
     }
@@ -148,6 +154,7 @@ public final class QuestProviderRule {
         Set<ResourceLocation> requiredFacts = idSet(json, "required_facts");
         Set<ResourceLocation> forbiddenFacts = idSet(json, "forbidden_facts");
         Map<ResourceLocation, Set<ResourceLocation>> dispositions = dispositionMap(json);
+        Set<ResourceLocation> requiredHeadItems = idSet(json, "required_head_items");
         boolean lockToProvider = optionalBoolean(json, "lock_to_provider", true);
         TurnInMode turnInMode = TurnInMode.parse(optionalString(json, "turn_in", "same_provider"));
 
@@ -163,7 +170,7 @@ public final class QuestProviderRule {
         return new QuestProviderRule(
                 pool, civilization, role, entityTypes, entityTypeTags, scoreboardTags,
                 dimensions, location, dialogue, unlockQuests, requiredFacts, forbiddenFacts,
-                dispositions, lockToProvider, turnInMode
+                dispositions, requiredHeadItems, lockToProvider, turnInMode
         );
     }
 
@@ -193,6 +200,19 @@ public final class QuestProviderRule {
             return false;
         }
         return this.matchesRole(entity);
+    }
+
+    /**
+     * Player-side provider gates are evaluated only for acceptance and turn-in.
+     * Completed follow-up dialogue remains available after the gate's narrative
+     * purpose has been fulfilled. The current surface is intentionally narrow:
+     * one of the authored item ids must be equipped in the head slot.
+     */
+    public boolean matchesPlayer(ServerPlayer player) {
+        if (this.requiredHeadItems.isEmpty()) return true;
+        if (player == null) return false;
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(player.getItemBySlot(EquipmentSlot.HEAD).getItem());
+        return itemId != null && this.requiredHeadItems.contains(itemId);
     }
 
     /**
@@ -231,6 +251,7 @@ public final class QuestProviderRule {
     public Set<ResourceLocation> requiredFacts() { return this.requiredFacts; }
     public Set<ResourceLocation> forbiddenFacts() { return this.forbiddenFacts; }
     public Map<ResourceLocation, Set<ResourceLocation>> requiredDispositions() { return this.requiredDispositions; }
+    public Set<ResourceLocation> requiredHeadItems() { return this.requiredHeadItems; }
     public boolean lockToProvider() { return this.lockToProvider; }
     public TurnInMode turnInMode() { return this.turnInMode; }
     public boolean requiresTurnIn() { return this.turnInMode != TurnInMode.NONE; }

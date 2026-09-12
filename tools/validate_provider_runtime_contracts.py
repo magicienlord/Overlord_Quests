@@ -5,6 +5,7 @@ import sys
 import validate_kobold_campaign_contract as kobold_campaign
 import validate_narrative_fact_runtime_contracts as narrative_facts
 import validate_presentation_contracts as presentation
+import validate_umvuthi_audience_contracts as umvuthi_audience
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = ROOT / "common/src/main/java/org/infernalstudios/questlog/commands/QuestlogCommands.java"
@@ -120,6 +121,7 @@ if "if (y > maxY) return;" in screen:
     errors.append("QuestProviderScreen.java: silent fixed-height provider dialogue truncation remains")
 
 errors.extend(kobold_campaign.collect_errors())
+errors.extend(umvuthi_audience.collect_errors())
 errors.extend(narrative_facts.collect_errors())
 errors.extend(presentation.collect_errors())
 

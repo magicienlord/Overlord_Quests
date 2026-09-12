@@ -1,0 +1,65 @@
+{
+  "title": "Audience of the Sun",
+  "description": "The Umvuthi of the designated Grove will not receive an unrecognized intruder. Approach beneath an Umvuthana mask and claim a legitimate audience with the Grove's living creator-god.",
+  "description_completed": "The designated Umvuthi has received the Overlord in formal audience. The Grove is now neutral unless the Overlord gives it cause to become hostile again.",
+  "icon": {
+    "item": "minecraft:sunflower"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 160,
+  "provider": {
+    "entity_types": [
+      "mowziesmobs:umvuthi"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:umvuthana_main_umvuthi"
+    ],
+    "civilization": "overlord_reign:umvuthana",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "required_head_items": [
+      "mowziesmobs:umvuthana_mask_fury",
+      "mowziesmobs:umvuthana_mask_fear",
+      "mowziesmobs:umvuthana_mask_rage",
+      "mowziesmobs:umvuthana_mask_bliss",
+      "mowziesmobs:umvuthana_mask_misery",
+      "mowziesmobs:umvuthana_mask_faith"
+    ],
+    "dialogue": {
+      "offer": "You enter beneath the faces of my children, ruler of the dark tower. The mask grants you audience. Speak, and let this Grove learn what has returned to the world.",
+      "ready_to_turn_in": "I have heard your claim. My children will not strike at your shadow merely for crossing our Grove. Do not mistake restraint for surrender.",
+      "completed": "The Grove remembers this audience. So long as you remember its terms, you may stand before me without hiding behind another face."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/umvuthana/contact_established",
+      "auto_claim": true,
+      "name": "Record formal audience with the designated Umvuthi"
+    },
+    {
+      "type": "questlog:set_disposition",
+      "civilization": "overlord_reign:umvuthana",
+      "state": "overlord_reign:neutral",
+      "auto_claim": true,
+      "name": "Establish neutrality with the designated Grove"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}

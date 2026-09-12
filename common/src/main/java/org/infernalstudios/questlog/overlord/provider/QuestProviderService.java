@@ -18,9 +18,6 @@ public final class QuestProviderService {
     public static final double MAX_INTERACTION_DISTANCE_SQR = 64.0D;
 
     public enum InteractionState {
-        // These ids are part of the provider-menu wire contract. They remain
-        // explicit so enum declaration refactors cannot silently change packet
-        // meaning. New states must receive a new unused id.
         AVAILABLE(0),
         IN_PROGRESS(1),
         READY_TO_TURN_IN(2),
@@ -39,9 +36,7 @@ public final class QuestProviderService {
 
         public static InteractionState fromWireId(int wireId) {
             for (InteractionState state : values()) {
-                if (state.wireId == wireId) {
-                    return state;
-                }
+                if (state.wireId == wireId) return state;
             }
             throw new IllegalArgumentException("Unknown provider quest interaction state id: " + wireId);
         }
@@ -60,27 +55,17 @@ public final class QuestProviderService {
 
     public static List<Quest> availableQuests(QuestManager manager, Entity provider) {
         List<Quest> result = new ArrayList<>();
-        if (manager == null || provider == null || manager.isClient() || !manager.isActive()) {
-            return result;
-        }
+        if (manager == null || provider == null || manager.isClient() || !manager.isActive()) return result;
         for (Quest quest : manager.getAllQuests()) {
-            if (canAccept(quest, provider)) {
-                result.add(quest);
-            }
+            if (canAccept(quest, provider)) result.add(quest);
         }
         result.sort(questOrder());
         return result;
     }
 
-    /**
-     * Server-owned view of the quests that are meaningful for one provider interaction.
-     * The client receives only this compact status surface and cannot decide eligibility.
-     */
     public static List<InteractionEntry> interactionEntries(QuestManager manager, Entity provider) {
         List<InteractionEntry> result = new ArrayList<>();
-        if (manager == null || provider == null || manager.isClient() || !manager.isActive()) {
-            return result;
-        }
+        if (manager == null || provider == null || manager.isClient() || !manager.isActive()) return result;
 
         for (Quest quest : manager.getAllQuests()) {
             if (canTurnIn(quest, provider)) {
@@ -94,17 +79,10 @@ public final class QuestProviderService {
 
             QuestProviderRule rule = quest.getProviderRule();
             QuestProviderBinding binding = quest.getProviderBinding();
-            if (rule == null || binding == null) {
-                continue;
-            }
+            if (rule == null || binding == null) continue;
 
             if (quest.isCompleted()) {
-                // Completion flavour belongs to the NPC that originally issued the
-                // sidequest. An ANY_ELIGIBLE turn-in does not rewrite that durable
-                // issuer identity, so do not invent a follow-up relationship for a
-                // different eligible provider.
-                if (binding.matches(provider)
-                        && rule.dialogue().hasLinesFor(InteractionState.COMPLETED)) {
+                if (binding.matches(provider) && rule.dialogue().hasLinesFor(InteractionState.COMPLETED)) {
                     result.add(new InteractionEntry(quest.getId(), InteractionState.COMPLETED));
                 }
                 continue;
@@ -113,9 +91,7 @@ public final class QuestProviderService {
             boolean relatedProvider = binding.matches(provider)
                     || ((!rule.lockToProvider() || rule.turnInMode() == QuestProviderRule.TurnInMode.ANY_ELIGIBLE)
                     && rule.matchesEntity(provider));
-            if (!relatedProvider) {
-                continue;
-            }
+            if (!relatedProvider) continue;
 
             result.add(new InteractionEntry(
                     quest.getId(),
@@ -123,9 +99,6 @@ public final class QuestProviderService {
             ));
         }
 
-        // Definition-cache map iteration is not an authoring order contract. Keep
-        // provider menus stable by using the same quest sort_order semantics as the
-        // journal, with quest id as a deterministic tie-breaker.
         result.sort(Comparator
                 .comparingInt((InteractionEntry entry) -> questSortOrder(manager, entry.questId()))
                 .thenComparing(entry -> entry.questId().toString()));
@@ -138,6 +111,8 @@ public final class QuestProviderService {
         if (rule == null || quest.getProviderBinding() != null || quest.isFailed()) return false;
         if (!rule.matchesEntity(provider) || !quest.arePrerequisitesComplete()) return false;
         if (!(quest.manager.player instanceof ServerPlayer player)) return false;
+        if (!rule.matchesPlayer(player)) return false;
+        if (!UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)) return false;
 
         for (ResourceLocation unlockId : rule.unlockQuests()) {
             Quest unlock = quest.manager.getQuest(unlockId);
@@ -152,9 +127,7 @@ public final class QuestProviderService {
             if (narrative.hasFact(fact)) return false;
         }
         for (Map.Entry<ResourceLocation, Set<ResourceLocation>> requirement : rule.requiredDispositions().entrySet()) {
-            if (!requirement.getValue().contains(narrative.getDisposition(requirement.getKey()))) {
-                return false;
-            }
+            if (!requirement.getValue().contains(narrative.getDisposition(requirement.getKey()))) return false;
         }
         return true;
     }
@@ -171,6 +144,9 @@ public final class QuestProviderService {
         QuestProviderBinding binding = quest.getProviderBinding();
         if (rule == null || binding == null || !rule.requiresTurnIn()) return false;
         if (!quest.isReadyForProviderTurnIn()) return false;
+        if (!(quest.manager.player instanceof ServerPlayer player)) return false;
+        if (!rule.matchesPlayer(player)) return false;
+        if (!UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)) return false;
 
         return switch (rule.turnInMode()) {
             case NONE -> false;
