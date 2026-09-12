@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Foundation B Handoff
 
-Status: ACTIVE IMPLEMENTATION MILESTONE - TECHNICAL BUILD GATE GREEN - APPROVED PORTRAIT INTEGRATED - MANUAL IN-GAME ACCEPTANCE PENDING
+Status: ACTIVE VISUAL-FOUNDATION MILESTONE / SOURCE IMPLEMENTATION COMPLETE / MANUAL IN-GAME ACCEPTANCE PENDING
 
 This handoff records repository-local development state, not OVERLORD REIGN world or story canon.
 
@@ -10,11 +10,34 @@ Foundation A is complete and validated on Java 17, Minecraft 1.20.1, and Forge 4
 
 ## Foundation B objective
 
-Foundation B validates Gnarl's quest-popup presentation using Questlog's existing data-driven overlay controls before any dedicated portrait renderer is introduced.
+Foundation B now validates the shared OVERLORD QUESTS presentation baseline before production campaign authoring begins.
+
+The earlier native QuestDetails overlay prototype was sufficient to prove popup delivery, but direct in-game review rejected its final composition because Gnarl intruded into the parchment and the source alpha edge showed a coloured matte.
+
+The replacement foundation therefore uses a dedicated Questlog incorporeal-speaker screen with a separate right-side reaction lane while preserving the inherited quest state machine and popup lifecycle.
+
+## Locked presentation boundary
+
+For Questlog-delivered incorporeal speakers:
+
+- parchment is the dominant quest-information surface;
+- the active speaker occupies a dedicated right-side reaction lane;
+- portrait pixels must not intrude into parchment;
+- action controls remain centered beneath parchment;
+- no action control is placed beneath the reaction lane;
+- the semantic reaction vocabulary is `neutral`, `directive`, `mocking`, `approving`, and `severe`;
+- complete reaction art is produced only for incorporeal speakers the campaign actually uses.
+
+For Villager-Retaliation-derived in-world providers:
+
+- the actual world entity remains the visual NPC;
+- providers do not receive an incorporeal five-image reaction roster;
+- the provider screen shares parchment, title/separator, spacing, and button language with the speaker surface through `OverlordPresentationTheme`;
+- provider interaction remains server-authoritative and mechanically distinct.
 
 ## Locked character-design target
 
-The following target is decided for this milestone:
+The following Gnarl target is decided for this milestone:
 
 - preserve the established popup Gnarl design;
 - square pupils;
@@ -24,15 +47,15 @@ The following target is decided for this milestone:
 - preserve the original sly, amused, non-angry expression, including brows, eyelids, grin, and facial proportions;
 - do not merge WIP in-game-model traits into the popup automatically.
 
-These are approved design constraints, and the exact approved portrait binary is now integrated.
+The source portrait binary is retained unchanged. Presentation cleanup is performed at runtime only when the definition opts in.
 
-## Approved repository portrait
+## Repository portrait
 
-The user-supplied portrait uploaded to `main` is present unchanged at:
+The source portrait is present at:
 
 `common/src/main/resources/assets/questlog/textures/gui/overlord/gnarl_popup.png`
 
-The main-branch upload and runtime asset resolve to the same Git blob:
+Mechanical identity:
 
 ```text
 git blob: 40c74f6613f0cc23fbf6be0911dedfcfae82865b
@@ -40,17 +63,48 @@ bytes: 1154559
 sha256: 699140666288f84fea0e916c0f77ad719e25acdec60f65d3f8838a0e616444ed
 dimensions: 1254 x 1254
 PNG color type: RGBA
-fully transparent pixels: 713423
-partially transparent pixels: 858065
 ```
 
-Mechanical validation proves the file is intact and alpha-capable. Portrait-binary approval is no longer a separate Foundation B blocker. The remaining visual question is whether this approved image composes correctly inside Minecraft at the intended GUI scales.
+The remaining visual question is how the portrait composes after the current runtime edge cleanup and right-side layout inside Minecraft.
+
+## Current composition
+
+The development fixture requests:
+
+```text
+parchment width: 480
+panel height: 200
+speaker lane width: 184
+portrait display rectangle: 176 x 176
+speaker gap: 14
+speaker reaction: neutral
+speaker alpha cleanup: enabled
+```
+
+`OverlordSpeakerScreen` uses those dimensions when space permits. At narrower GUI widths it contracts parchment and reaction lane proportionally, preserving a minimum parchment width while preventing the reaction lane from collapsing immediately to its minimum.
+
+The portrait is bottom-anchored beside the parchment. Its horizontal draw position is clamped to the reaction lane, so an authored portrait offset cannot recreate the old overlap defect.
+
+The Read/Done control is centered beneath parchment only.
+
+## Portrait alpha handling
+
+The source PNG remains untouched in resources.
+
+When `speaker_alpha_cleanup: true` is present, `SpeakerPortraitTextures` creates a client-side dynamic texture for the selected reaction/fallback source:
+
+- low/medium-alpha boundary pixels borrow RGB from nearby opaque source pixels while preserving their alpha;
+- fully transparent boundary pixels receive nearby opaque RGB with alpha zero rather than transparent black;
+- generated textures are cached for the session and released on logout;
+- cleanup remains opt-in so future spectral glow, smoke, aura, or other intentional translucent colour is not destroyed.
+
+The current Gnarl development definition opts in because direct review identified a visible red/orange edge matte.
 
 ## Runtime scope: DECIDED
 
-OVERLORD REIGN is a single-player project. Automatic full-screen Gnarl quest popups are intentionally limited to an unpublished local single-player world.
+OVERLORD REIGN is a single-player project. Automatic full-screen Questlog speaker popups are intentionally limited to an unpublished local single-player world.
 
-LAN-published worlds and dedicated multiplayer remain outside the target runtime for automatic full-screen presentation. If a queued popup becomes ineligible because the integrated server is published, the client may fall back to an ordinary unlock toast only when the current quest definition already permits that toast.
+LAN-published worlds and dedicated multiplayer remain outside the target runtime for automatic full-screen presentation. Any fallback behavior continues to respect the current quest definition rather than inventing new story presentation.
 
 ## Development fixture
 
@@ -70,22 +124,9 @@ Primary reset/trigger sequence:
 
 The fixture is development content and is deliberately excluded from the bundled production definition manifest.
 
-## Current layout facts
-
-The prototype uses a 300 x 190 left panel and a 160 x 160 portrait with x offsets of +70 for the panel and -140 for the overlay.
-
-Static source-derived geometry currently yields:
-
-- 20 px horizontal portrait/parchment overlap;
-- 440 scaled GUI px minimum width for full horizontal visibility;
-- 229 scaled GUI px minimum height for the panel, portrait, and primary button to remain fully visible;
-- a 2 x 122 px geometric portrait/description intersection before alpha is considered.
-
-The intersection is only a static warning. Direct Minecraft rendering determines whether visible portrait pixels actually obstruct text.
-
 ## Popup reliability state
 
-The automatic-popup path now follows these lifecycle rules:
+The automatic-popup path follows these lifecycle rules:
 
 - popup entries are queued by quest resource ID rather than by retaining Quest objects;
 - duplicate IDs are not queued simultaneously;
@@ -93,64 +134,56 @@ The automatic-popup path now follows these lifecycle rules:
 - each retry resolves the current quest instance and current display data by ID;
 - removed or reset quests are discarded before display;
 - the unpublished-local-single-player scope is checked again at consumption time;
-- the LAN fallback path also resolves current quest state rather than using stale queued display data;
 - logout clears the popup queue and retry state;
 - unlock audio is emitted at the trigger event and is not replayed when a deferred popup eventually opens.
 
-These are implementation safeguards. They still require runtime validation through the Foundation B protocol.
+These safeguards still require the focused runtime regression described in `FOUNDATION_B_TEST_PROTOCOL.md`.
 
 ## Technical gate
 
-The authoritative Forge pipeline has reached green state with the current engine-hardening baseline. It covers:
+The authoritative Forge pipeline covers:
 
 - definition-validator self-tests;
 - OVERLORD quest-definition validation;
+- presentation-contract validation, including the provider/incorporeal split and shared theme tokens;
 - specialized runtime-required objective/reward field validation;
 - definition wire-size and loader-boundary validation;
 - definition-cache authority validation;
 - private event-bus lifecycle validation;
 - Gnarl PNG integrity and alpha checks;
-- static popup-layout reporting;
+- responsive static popup-layout reporting;
 - Java 17 Forge compilation and reobfuscation;
 - assembled-JAR resource/class inspection;
-- Foundation B test-kit preparation;
-- Forge artifact and test-kit artifact upload.
+- Foundation B, provider, and death-screen test-kit preparation;
+- Forge artifact and test-kit upload.
 
-Subsequent source and documentation corrections continue through the same workflow. A green workflow is necessary but cannot close Foundation B by itself.
+A green workflow is necessary but cannot close Foundation B by itself.
 
-## Fork closure boundary
+## Visual gate still under test
 
-Generic Questlog refactoring is now out of scope. The fork retains Questlog's underlying quest engine and should receive additional engine changes only when one of the following is true:
+The following remain subject to direct Minecraft acceptance:
 
-- a concrete OVERLORD REIGN quest requirement cannot be represented correctly with the current engine;
-- the Foundation B in-game test exposes a reproducible defect;
-- a modpack integration exposes a concrete compatibility failure.
+- final perceived portrait scale in the reaction lane;
+- parchment/reaction balance at the normal OVERLORD REIGN GUI scale;
+- alpha-edge quality after runtime cleanup;
+- neighboring GUI-scale behavior;
+- title/body readability;
+- whether the shared provider and speaker presentation now reads as one coherent UI family.
 
-The fork has also removed inherited CurseForge, Modrinth, and external wiki publication tooling. Builds are private/local or GitHub Actions artifacts unless the Overlord explicitly establishes a publication target.
-
-## Still under test
-
-The following remain implementation-test values rather than locked design:
-
-- portrait scale;
-- parchment placement;
-- portrait-to-parchment overlap;
-- minimum supported scaled GUI width and height;
-- whether left-side placement is final;
-- whether the native Questlog overlay path is sufficient.
+The underlying surface split, five reaction-state vocabulary, and action-button ownership are no longer open design questions.
 
 ## Canon boundary
 
-Do not author story quests, chronology, rewards, settlement assumptions, final Dark Tower coordinates/geometry, or faction outcomes during Foundation B unless separately approved.
+Do not author production story quests, chronology, rewards, settlement assumptions, final Dark Tower coordinates/geometry, or faction outcomes during Foundation B.
 
 The bundled production definition manifest remains intentionally empty.
 
 ## Remaining Foundation B gate
 
-Foundation B now has one direct acceptance gate:
+Foundation B has one direct acceptance gate:
 
-1. install a green Foundation B test kit in an OVERLORD REIGN test instance and perform the unpublished-local-single-player presentation protocol, retaining screenshots and relevant logs.
+1. install the latest green Gnarl popup test kit in the OVERLORD REIGN test instance and perform `docs/FOUNDATION_B_TEST_PROTOCOL.md`, retaining screenshots and relevant logs.
 
-The runtime review must cover transparency, clipping, anchoring, text readability, GUI-scale behavior, exactly-once unlock audio, deferred-popup reliability, and current-state resolution after queue deferral.
+The runtime review must cover right-side placement, alpha edge, parchment hierarchy, text readability, GUI-scale behavior, exactly-once unlock audio, and deferred-popup reliability.
 
-Do not introduce a dedicated Gnarl renderer unless direct in-game evidence shows that Questlog's native overlay controls cannot satisfy the presentation requirements.
+If the current dedicated speaker surface passes that review, production campaign authoring can proceed against the already-implemented semantic reaction system without requiring every future incorporeal speaker asset in advance.
