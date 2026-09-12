@@ -51,6 +51,19 @@ def main():
         "civilization": "overlord_reign:test_civilization",
     }), ".state")
 
+    expect_valid("fact objective", objective({
+        "type": "questlog:fact",
+        "fact": "overlord_reign:test_fact",
+    }))
+    expect_invalid("fact amount", objective({
+        "type": "questlog:fact",
+        "fact": "overlord_reign:test_fact",
+        "required_amount": 2,
+    }), "exactly 1")
+    expect_invalid("missing fact id", objective({
+        "type": "questlog:fact",
+    }), ".fact")
+
     expect_valid("set disposition reward", reward({
         "type": "questlog:set_disposition",
         "civilization": "overlord_reign:test_civilization",
@@ -60,6 +73,15 @@ def main():
         "type": "questlog:set_disposition",
         "state": "overlord_reign:dominated",
     }), ".civilization")
+
+    expect_valid("set fact reward", reward({
+        "type": "questlog:set_fact",
+        "fact": "overlord_reign:test_fact",
+        "auto_claim": True,
+    }))
+    expect_invalid("missing set fact id", reward({
+        "type": "questlog:set_fact",
+    }), ".fact")
 
     expect_valid("provider entity selector", provider({
         "entity_types": ["minecraft:villager"],
@@ -71,6 +93,16 @@ def main():
             ]
         },
     }))
+    expect_valid("provider fact gates", provider({
+        "entity_types": ["minecraft:villager"],
+        "required_facts": ["overlord_reign:gate_open"],
+        "forbidden_facts": ["overlord_reign:provider_dead"],
+    }))
+    expect_invalid("contradictory provider fact gates", provider({
+        "entity_types": ["minecraft:villager"],
+        "required_facts": ["overlord_reign:gate_open"],
+        "forbidden_facts": ["overlord_reign:gate_open"],
+    }), "both require and forbid")
     expect_valid("provider tag selector", provider({
         "entity_type_tags": ["forge:villagers"],
         "turn_in": "any_eligible",
@@ -123,7 +155,7 @@ def main():
         "required_dispositions": {"overlord_reign:test_civilization": []},
     }), "non-empty list")
 
-    print("OVERLORD narrative/provider validator self-tests: PASS (16 cases)")
+    print("OVERLORD narrative/provider validator self-tests: PASS (23 cases)")
     return 0
 
 
