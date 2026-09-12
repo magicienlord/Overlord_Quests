@@ -6,7 +6,8 @@
     "campaign/opening/make_an_impression.json",
     "campaign/opening/direct_action_reaction.json",
     "campaign/tower/prepare_the_forge.json",
-    "campaign/tower/forge_prepared_reaction.json"
+    "campaign/tower/forge_prepared_reaction.json",
+    "campaign/expansion/the_reign_takes_shape.json"
   ],
   "chapters": [
     "main.json"
