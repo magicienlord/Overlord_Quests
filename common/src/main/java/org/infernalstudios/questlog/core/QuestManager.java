@@ -182,7 +182,7 @@ public class QuestManager {
     }
 
     /**
-     * This method is used to sync specific quest data to the client.
+     * This method is used to sync specific quests data to the client.
      * If the quest does not exist, it sends a QuestRemovePacket to the client.
      * If the quest exists, it serializes the quest data and sends a QuestDataPacket to the client.
      * It also checks if the quest has been triggered or completed and sends the corresponding event to the client.
@@ -200,11 +200,21 @@ public class QuestManager {
                 Services.PLATFORM.sendPacketToClient((ServerPlayer) this.player, new QuestRemovePacket(id));
                 Questlog.LOGGER.warn("Quest {} not found in manager, removing from client", id);
             } else {
+                boolean newlyTriggered = !quest.hasSentTrigger && quest.isTriggered();
+                if (newlyTriggered) {
+                    // Give specialized objectives an exact trigger boundary before
+                    // the state snapshot is serialized. This is required for
+                    // non-retroactive statistic baselines and remains a no-op for
+                    // ordinary objectives.
+                    quest.objectives.forEach(objective -> objective.onQuestTriggered());
+                    quest.hasSentTrigger = true;
+                }
+
                 CompoundTag data = this.getQuest(id).serialize();
                 Services.PLATFORM.sendPacketToClient((ServerPlayer) this.player, new QuestDataPacket(id, data));
                 Questlog.LOGGER.trace("Sent quest data for {} to client", id);
-                if (!quest.hasSentTrigger && quest.isTriggered()) {
-                    quest.hasSentTrigger = true;
+
+                if (newlyTriggered) {
                     QuestlogEvents.onQuestTriggered(new QuestEvent.Triggered(this.player, quest, true)); // This handles sending of packet
                     Questlog.LOGGER.trace("Sent quest triggered event for {}", id);
                 }
