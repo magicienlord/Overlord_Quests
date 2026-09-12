@@ -1,0 +1,59 @@
+{
+  "title": "The Reign Takes Shape",
+  "description": "That will do for a beginning, Sire. Browns answer your call, and the Tower possesses at least one room whose purpose extends beyond echoing impressively. We have enough of a foundation now to stop pretending the world will arrange itself for our convenience. Pursue whatever strengthens your rule. Opportunities need not be taken in the order they present themselves, and I shall interrupt when one becomes important enough to deserve you.",
+  "description_completed": "The Overlord has restored the Brown Minions and the Tower's first practical infrastructure. Several major opportunities may now be pursued as their real prerequisites become available.",
+  "icon": {
+    "item": "minecraft:nether_star"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 40,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/browns_return",
+      "required_amount": 1,
+      "name": "Restore the Brown Minions"
+    },
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/tower/forge_prepared_reaction",
+      "required_amount": 1,
+      "name": "Establish the Tower's first practical infrastructure"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Gnarl's strategic assessment"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "auto_claim": true,
+      "name": "Record the initial foundation of the reign"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "directive",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}
