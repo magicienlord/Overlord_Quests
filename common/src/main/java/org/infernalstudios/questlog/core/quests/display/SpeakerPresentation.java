@@ -17,7 +17,8 @@ import java.util.Locale;
 public record SpeakerPresentation(
         ResourceLocation speakerId,
         Reaction reaction,
-        int paneWidth
+        int paneWidth,
+        boolean alphaCleanup
 ) {
     public static final int DEFAULT_PANE_WIDTH = 170;
     private static final int MIN_PANE_WIDTH = 96;
@@ -65,6 +66,7 @@ public record SpeakerPresentation(
         );
         int requestedPaneWidth = JsonUtils.getOrDefault(data, "speaker_pane_width", DEFAULT_PANE_WIDTH);
         int paneWidth = Math.max(MIN_PANE_WIDTH, Math.min(MAX_PANE_WIDTH, requestedPaneWidth));
-        return new SpeakerPresentation(speakerId, reaction, paneWidth);
+        boolean alphaCleanup = JsonUtils.getOrDefault(data, "speaker_alpha_cleanup", false);
+        return new SpeakerPresentation(speakerId, reaction, paneWidth, alphaCleanup);
     }
 }
