@@ -65,6 +65,29 @@ def main() -> int:
     )
     require(found == {"questlog:alpha", "other:beta"}, f"nested dependency collection failed: {found}")
 
+    provider_found: set[str] = set()
+    module.collect_provider_dependencies(
+        {
+            "provider": {
+                "unlock_quests": ["campaign/main_gate", "other:external_gate"]
+            }
+        },
+        provider_found,
+    )
+    require(
+        provider_found == {"questlog:campaign/main_gate", "other:external_gate"},
+        f"provider unlock dependency collection failed: {provider_found}",
+    )
+
+    mixed_cycle = module.find_cycle(
+        {
+            "questlog:main": {"questlog:side"},
+            "questlog:side": {"questlog:main"},
+        }
+    )
+    require(mixed_cycle is not None, "mixed prerequisite/provider-style cycle was not detected")
+    require(mixed_cycle[0] == mixed_cycle[-1], f"mixed cycle path should close: {mixed_cycle}")
+
     print("Quest dependency cycle validator self-test passed.")
     return 0
 
