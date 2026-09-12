@@ -42,7 +42,8 @@ public final class VisitDimensionHistoryObjective extends Objective {
     private void onPlayerTick(TriggerPlayerEvent.Tick event) {
         if (!(event.player instanceof ServerPlayer player)
                 || !this.isActiveForPlayer(player)
-                || this.seen) {
+                || this.seen
+                || this.optionalProgressFrozen()) {
             return;
         }
 
@@ -57,6 +58,12 @@ public final class VisitDimensionHistoryObjective extends Objective {
                 this.getParent().markForUpdate();
             }
         }
+    }
+
+    private boolean optionalProgressFrozen() {
+        return this.isPartOfOptionalObjective()
+                && this.getParent() != null
+                && this.getParent().hasSentCompletion;
     }
 
     @Override
