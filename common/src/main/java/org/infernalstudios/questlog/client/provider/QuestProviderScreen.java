@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.Entity;
 import org.infernalstudios.questlog.QuestlogClient;
+import org.infernalstudios.questlog.client.gui.OverlordPresentationTheme;
 import org.infernalstudios.questlog.client.gui.QuestlogGuiSet;
 import org.infernalstudios.questlog.client.gui.components.QuestlogWideButton;
 import org.infernalstudios.questlog.core.quests.Quest;
@@ -27,18 +28,14 @@ import java.util.UUID;
  *
  * Provider authority remains server-side. This screen only presents the bounded
  * server snapshot. Its parchment, spacing and controls intentionally share the
- * Questlog visual language, while provider NPCs remain ordinary in-world entities
- * and do not use the incorporeal five-reaction portrait roster.
+ * OVERLORD QUESTS presentation theme, while provider NPCs remain ordinary
+ * in-world entities and do not use the incorporeal five-reaction portrait roster.
  */
 public final class QuestProviderScreen extends Screen {
     private static final int MAX_PAGE_SIZE = 7;
-    private static final int OUTER_MARGIN = 18;
     private static final int PANEL_MAX_WIDTH = 430;
-    private static final int PANEL_MIN_WIDTH = 220;
     private static final int PANEL_MAX_HEIGHT = 286;
     private static final int PANEL_MIN_HEIGHT = 190;
-    private static final int TITLE_Y = 13;
-    private static final int TITLE_HEIGHT = 16;
     private static final int LIST_TOP = 45;
     private static final int LIST_ROW_STEP = 24;
     private static final int DIALOGUE_TOP = 54;
@@ -115,17 +112,20 @@ public final class QuestProviderScreen extends Screen {
     }
 
     private void configurePanel() {
-        this.panelWidth = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, this.width - OUTER_MARGIN * 2));
+        this.panelWidth = Math.max(
+                OverlordPresentationTheme.PANEL_MIN_WIDTH,
+                Math.min(PANEL_MAX_WIDTH, this.width - OverlordPresentationTheme.OUTER_MARGIN * 2)
+        );
         this.panelHeight = Math.max(PANEL_MIN_HEIGHT, Math.min(PANEL_MAX_HEIGHT, this.height - 58));
         this.panelX = (this.width - this.panelWidth) / 2;
-        this.panelY = Math.max(8, (this.height - this.panelHeight - 22) / 2);
+        this.panelY = Math.max(
+                OverlordPresentationTheme.PANEL_TOP_MIN,
+                (this.height - this.panelHeight - 22) / 2
+        );
         this.pageSize = Math.max(3, Math.min(MAX_PAGE_SIZE, (this.panelHeight - 102) / LIST_ROW_STEP));
 
-        QuestlogGuiSet base = QuestlogGuiSet.DEFAULT;
-        this.guiSet = new QuestlogGuiSet(
-                base.backgroundLoc,
-                base.rightPanelLoc,
-                base.peripheralLoc,
+        this.guiSet = OverlordPresentationTheme.resize(
+                QuestlogGuiSet.DEFAULT,
                 this.panelWidth,
                 170,
                 this.panelHeight
@@ -138,8 +138,9 @@ public final class QuestProviderScreen extends Screen {
 
         int from = this.page * this.pageSize;
         int to = Math.min(this.entries.size(), from + this.pageSize);
-        int rowX = this.panelX + 18;
-        int rowWidth = this.panelWidth - 36;
+        int inset = OverlordPresentationTheme.PANEL_CONTENT_INSET;
+        int rowX = this.panelX + inset;
+        int rowWidth = this.panelWidth - inset * 2;
         int firstY = this.panelY + LIST_TOP;
 
         for (int i = from; i < to; i++) {
@@ -166,7 +167,7 @@ public final class QuestProviderScreen extends Screen {
         if (maxPage > 0) {
             int navWidth = 54;
             QuestlogWideButton previous = new QuestlogWideButton(
-                    this.panelX + 18,
+                    this.panelX + inset,
                     navY,
                     navWidth,
                     DEFAULT_PALETTE.textColor(),
@@ -182,7 +183,7 @@ public final class QuestProviderScreen extends Screen {
             this.addRenderableWidget(previous);
 
             QuestlogWideButton next = new QuestlogWideButton(
-                    this.panelX + this.panelWidth - 18 - navWidth,
+                    this.panelX + this.panelWidth - inset - navWidth,
                     navY,
                     navWidth,
                     DEFAULT_PALETTE.textColor(),
@@ -198,10 +199,10 @@ public final class QuestProviderScreen extends Screen {
             this.addRenderableWidget(next);
         }
 
-        int doneWidth = Math.min(126, this.panelWidth - 36);
+        int doneWidth = Math.min(126, this.panelWidth - inset * 2);
         this.addRenderableWidget(new QuestlogWideButton(
-                this.panelX + (this.panelWidth - doneWidth) / 2,
-                this.panelY + this.panelHeight + 2,
+                OverlordPresentationTheme.centeredX(this.panelX, this.panelWidth, doneWidth),
+                this.panelY + this.panelHeight + OverlordPresentationTheme.BELOW_PANEL_GAP,
                 doneWidth,
                 DEFAULT_PALETTE.textColor(),
                 DEFAULT_PALETTE.hoveredTextColor(),
@@ -212,14 +213,15 @@ public final class QuestProviderScreen extends Screen {
     }
 
     private void initDialogueControls(QuestProviderService.InteractionEntry entry) {
-        int actionY = this.panelY + this.panelHeight + 2;
+        int inset = OverlordPresentationTheme.PANEL_CONTENT_INSET;
+        int actionY = this.panelY + this.panelHeight + OverlordPresentationTheme.BELOW_PANEL_GAP;
         int maxScroll = this.maxDialogueScroll(entry);
         this.dialogueScrollPixels = Math.max(0, Math.min(this.dialogueScrollPixels, maxScroll));
 
         if (maxScroll > 0) {
-            int scrollWidth = Math.min(88, (this.panelWidth - 42 - BUTTON_GAP) / 2);
+            int scrollWidth = Math.min(88, (this.panelWidth - inset * 2 - BUTTON_GAP) / 2);
             int totalScrollWidth = scrollWidth * 2 + BUTTON_GAP;
-            int scrollX = this.panelX + (this.panelWidth - totalScrollWidth) / 2;
+            int scrollX = OverlordPresentationTheme.centeredX(this.panelX, this.panelWidth, totalScrollWidth);
             int scrollY = this.panelY + this.panelHeight - 27;
 
             QuestlogWideButton up = new QuestlogWideButton(
@@ -253,8 +255,8 @@ public final class QuestProviderScreen extends Screen {
                 || entry.state() == QuestProviderService.InteractionState.READY_TO_TURN_IN;
 
         if (actionable) {
-            int actionWidth = (this.panelWidth - 36 - BUTTON_GAP) / 2;
-            int actionX = this.panelX + 18;
+            int actionWidth = (this.panelWidth - inset * 2 - BUTTON_GAP) / 2;
+            int actionX = this.panelX + inset;
             Component actionText = entry.state() == QuestProviderService.InteractionState.AVAILABLE
                     ? Component.literal("Accept")
                     : Component.literal("Turn In");
@@ -287,9 +289,9 @@ public final class QuestProviderScreen extends Screen {
             back.active = !this.pendingAction;
             this.addRenderableWidget(back);
         } else {
-            int backWidth = Math.min(126, this.panelWidth - 36);
+            int backWidth = Math.min(126, this.panelWidth - inset * 2);
             QuestlogWideButton back = new QuestlogWideButton(
-                    this.panelX + (this.panelWidth - backWidth) / 2,
+                    OverlordPresentationTheme.centeredX(this.panelX, this.panelWidth, backWidth),
                     actionY,
                     backWidth,
                     DEFAULT_PALETTE.textColor(),
@@ -308,7 +310,10 @@ public final class QuestProviderScreen extends Screen {
     }
 
     private int dialogueViewportBottom() {
-        return Math.max(this.dialogueViewportTop() + this.font.lineHeight, this.panelY + this.panelHeight - DIALOGUE_BOTTOM_INSET);
+        return Math.max(
+                this.dialogueViewportTop() + this.font.lineHeight,
+                this.panelY + this.panelHeight - DIALOGUE_BOTTOM_INSET
+        );
     }
 
     private int dialogueWrapWidth() {
@@ -328,7 +333,10 @@ public final class QuestProviderScreen extends Screen {
         int yOffset = 0;
         int wrapWidth = this.dialogueWrapWidth();
         for (int paragraphIndex = 0; paragraphIndex < dialogue.size(); paragraphIndex++) {
-            List<FormattedCharSequence> wrapped = this.font.split(Component.literal(dialogue.get(paragraphIndex)), wrapWidth);
+            List<FormattedCharSequence> wrapped = this.font.split(
+                    Component.literal(dialogue.get(paragraphIndex)),
+                    wrapWidth
+            );
             for (FormattedCharSequence line : wrapped) {
                 lines.add(new DialogueLine(line, yOffset));
                 yOffset += DIALOGUE_LINE_SPACING;
@@ -342,7 +350,10 @@ public final class QuestProviderScreen extends Screen {
 
     private int maxDialogueScroll(QuestProviderService.InteractionEntry entry) {
         DialogueLayout layout = this.dialogueLayout(entry);
-        int viewportHeight = Math.max(this.font.lineHeight, this.dialogueViewportBottom() - this.dialogueViewportTop());
+        int viewportHeight = Math.max(
+                this.font.lineHeight,
+                this.dialogueViewportBottom() - this.dialogueViewportTop()
+        );
         return Math.max(0, layout.contentHeight() - viewportHeight);
     }
 
@@ -374,7 +385,9 @@ public final class QuestProviderScreen extends Screen {
 
     private Component messageFor(QuestProviderService.InteractionEntry entry) {
         Quest quest = QuestlogClient.getLocal().getQuest(entry.questId());
-        Component title = quest == null ? Component.literal(entry.questId().toString()) : quest.getDisplay().getTitle();
+        Component title = quest == null
+                ? Component.literal(entry.questId().toString())
+                : quest.getDisplay().getTitle();
         return switch (entry.state()) {
             case AVAILABLE -> Component.literal("Available: ").append(title.copy());
             case IN_PROGRESS -> Component.literal("In Progress: ").append(title.copy());
@@ -452,12 +465,16 @@ public final class QuestProviderScreen extends Screen {
     private void renderHeader(GuiGraphics graphics) {
         Component providerTitle = this.providerName.isBlank() ? this.title : Component.literal(this.providerName);
         int centerX = this.panelX + this.panelWidth / 2;
-        int titleY = this.panelY + TITLE_Y + (TITLE_HEIGHT - this.font.lineHeight + 2) / 2;
+        int titleY = this.panelY
+                + OverlordPresentationTheme.TITLE_Y
+                + (OverlordPresentationTheme.TITLE_HEIGHT - this.font.lineHeight + 2) / 2;
         graphics.drawCenteredString(this.font, providerTitle, centerX, titleY, DEFAULT_PALETTE.titleColor());
-        this.guiSet.smallHR.blit(
+        OverlordPresentationTheme.renderHeaderSeparator(
                 graphics,
-                this.panelX + (this.panelWidth - this.guiSet.smallHR.width()) / 2,
-                this.panelY + TITLE_Y + TITLE_HEIGHT - 2
+                this.guiSet,
+                this.panelX,
+                this.panelY,
+                this.panelWidth
         );
 
         QuestProviderService.InteractionEntry selected = this.selectedEntry();
@@ -493,8 +510,14 @@ public final class QuestProviderScreen extends Screen {
         int maxScroll = this.maxDialogueScroll(entry);
         int scroll = Math.max(0, Math.min(this.dialogueScrollPixels, maxScroll));
         int centerX = this.panelX + this.panelWidth / 2;
+        int inset = OverlordPresentationTheme.PANEL_CONTENT_INSET;
 
-        graphics.enableScissor(this.panelX + 18, viewportTop, this.panelX + this.panelWidth - 18, viewportBottom);
+        graphics.enableScissor(
+                this.panelX + inset,
+                viewportTop,
+                this.panelX + this.panelWidth - inset,
+                viewportBottom
+        );
         for (DialogueLine line : layout.lines()) {
             int y = viewportTop + line.yOffset() - scroll;
             if (y + this.font.lineHeight < viewportTop) continue;
@@ -508,7 +531,10 @@ public final class QuestProviderScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         QuestProviderService.InteractionEntry selected = this.selectedEntry();
         if (selected != null && this.maxDialogueScroll(selected) > 0 && delta != 0.0D) {
-            this.scrollDialogue(selected, delta > 0.0D ? -DIALOGUE_SCROLL_STEP : DIALOGUE_SCROLL_STEP);
+            this.scrollDialogue(
+                    selected,
+                    delta > 0.0D ? -DIALOGUE_SCROLL_STEP : DIALOGUE_SCROLL_STEP
+            );
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
