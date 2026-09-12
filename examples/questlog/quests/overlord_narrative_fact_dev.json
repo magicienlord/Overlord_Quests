@@ -1,0 +1,34 @@
+{
+  "title": "[DEV] Narrative Fact Contract",
+  "description": "Development-only fixture for explicit world narrative facts. This is not an OVERLORD REIGN story quest.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:paper"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "questlog:dev_fact_open",
+      "name": "[DEV] questlog:dev_fact_open is present"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain one stick"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "questlog:dev_fact_completed",
+      "auto_claim": true,
+      "name": "[DEV] Record questlog:dev_fact_completed"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
