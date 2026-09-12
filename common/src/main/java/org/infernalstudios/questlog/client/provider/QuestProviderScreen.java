@@ -406,6 +406,7 @@ public final class QuestProviderScreen extends Screen {
             case IN_PROGRESS -> Component.literal("In Progress: ").append(title.copy());
             case READY_TO_TURN_IN -> Component.literal("Ready: ").append(title.copy());
             case FAILED -> Component.literal("Failed: ").append(title.copy());
+            case COMPLETED -> Component.literal("Completed: ").append(title.copy());
         };
     }
 
@@ -415,7 +416,7 @@ public final class QuestProviderScreen extends Screen {
         QuestProviderActionPacket.Action action = switch (entry.state()) {
             case AVAILABLE -> QuestProviderActionPacket.Action.ACCEPT;
             case READY_TO_TURN_IN -> QuestProviderActionPacket.Action.TURN_IN;
-            case IN_PROGRESS, FAILED -> null;
+            case IN_PROGRESS, FAILED, COMPLETED -> null;
         };
         if (action == null) return;
 
