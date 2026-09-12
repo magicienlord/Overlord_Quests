@@ -1,31 +1,33 @@
-# NPC Provider Runtime Test Protocol
+# NPC Provider Runtime and Visual Test Protocol
 
-Status: TECHNICAL VALIDATION / DEVELOPMENT CONTENT ONLY
+Status: TECHNICAL + VISUAL FOUNDATION VALIDATION / DEVELOPMENT CONTENT ONLY
 
-This protocol validates the temporary NPC sidequest provider scaffold. The fixtures and commands below are not OVERLORD REIGN story canon.
+This protocol validates the NPC sidequest provider scaffold. The fixtures and commands below are not OVERLORD REIGN story canon.
+
+The core server-authoritative provider behavior has already received a successful direct runtime pass. The current rerun is primarily required because the formerly bare provider screen has been moved into the shared Questlog parchment/button visual language.
 
 ## Test scope
 
 The test verifies:
 
 - the provider quest is unavailable as an accepted quest before provider interaction;
-- sneak + main-hand interaction opens the temporary provider menu;
+- sneak + main-hand interaction opens the provider menu;
 - ordinary non-sneaking villager interaction is not consumed by OVERLORD QUESTS;
 - selecting an available quest opens its authored offer dialogue before acceptance;
 - authored offer dialogue that exceeds the detail-view height remains reachable through bounded scrolling rather than being silently truncated;
 - explicit decline returns to the provider list without accepting or persisting a rejection state;
 - acceptance binds the exact issuing NPC;
-- authored in-progress and ready-to-turn-in dialogue follows the server-derived quest state;
-- the provider menu refreshes without remaining action-locked;
+- authored in-progress and ready-to-turn-in dialogue follows server-derived quest state;
 - provider binding survives save/quit/reload;
 - a second eligible villager cannot satisfy `same_provider` turn-in;
 - the original provider can complete the turn-in after the objective is complete;
-- authored disposition state can gate provider eligibility without a numeric reputation system;
-- clearing a disposition removes eligibility for an unaccepted gated sidequest;
+- authored disposition/fact state can gate provider eligibility without a numeric reputation system;
 - the provider menu closes when the player leaves the interaction boundary;
-- completed provider quests disappear from that provider's actionable menu;
-- command resets clear provider binding rather than leaving a stale accepted state;
-- no story quest, canonical civilization state, or production reward is introduced by the fixtures.
+- command resets clear provider binding rather than leaving stale accepted state;
+- the screen uses the same parchment, separator, typography hierarchy, and parchment-style controls as Questlog;
+- the screen remains visibly distinct from the incorporeal speaker popup;
+- no five-state reaction portrait pane appears for an ordinary in-world provider;
+- action controls remain associated with the parchment interface rather than appearing as disconnected vanilla buttons.
 
 ## Installation
 
@@ -53,23 +55,44 @@ Run:
 
 Keep both villagers within easy reach for the initial acceptance test.
 
+## Visual baseline pass
+
+Sneak and interact with Provider A using the main hand.
+
+Before testing quest-state behavior, inspect the presentation itself.
+
+Expected visual result:
+
+1. the provider name is centered in a Questlog-style parchment header;
+2. a separator visually divides the header from provider content;
+3. available quest rows use parchment-style Questlog controls rather than vanilla gray buttons;
+4. list spacing is regular and does not collide with the parchment border;
+5. page navigation, when present, belongs visually to the same control family;
+6. selecting a quest preserves the same parchment frame and places the quest title beneath the provider heading;
+7. Accept/Decline, Turn In/Back, and dialogue Up/Down controls use the same visual family;
+8. provider text remains readable at the normal OVERLORD REIGN GUI scale;
+9. there is NO right-side incorporeal reaction portrait lane for the villager;
+10. the screen clearly feels related to Questlog without pretending the in-world villager is an incorporeal Questlog speaker.
+
+Repeat the provider list and one dialogue view at one adjacent GUI scale or a narrower window configuration. Report clipping, text collisions, undersized parchment, or controls leaving the visible screen.
+
 ## Ordinary acceptance and dialogue pass
 
-First interact normally with Provider A without sneaking. OVERLORD QUESTS must not open its provider screen. This confirms the temporary scaffold is not stealing the ordinary non-sneaking entity interaction path.
+First interact normally with Provider A without sneaking. OVERLORD QUESTS must not open its provider screen.
 
-Then sneak and interact with Provider A using the main hand. The provider screen must open and show `[DEV] NPC Provider Prototype` as available. `[DEV] Disposition-Gated Provider Prototype` must not be present while `questlog:dev_civilization` is unresolved.
+Then sneak and interact with Provider A. The provider screen must show `[DEV] NPC Provider Prototype` as available. `[DEV] Disposition-Gated Provider Prototype` must not be present while `questlog:dev_civilization` is unresolved.
 
-Select `[DEV] NPC Provider Prototype`. Selection must open a neutral detail view before any server-side acceptance occurs. The first visible offer dialogue must include the fixture's initial `[DEV]` lines, including the line stating that declining must not alter quest state.
+Select `[DEV] NPC Provider Prototype`. The first visible offer dialogue must include the fixture's initial `[DEV]` lines, including the line stating that declining must not alter quest state.
 
-Before choosing an action, validate dialogue overflow. Use the neutral `Down` control or the mouse wheel to move through the authored offer text. The final line `[DEV] DIALOGUE SCROLL END.` must become visible. Use `Up` or the mouse wheel in the opposite direction and confirm earlier lines can be reached again. Reaching the sentinel is the runtime proof that long authored dialogue is no longer silently truncated by the fixed detail-view height.
+Use `Down` or the mouse wheel to move through the authored offer text. The final line `[DEV] DIALOGUE SCROLL END.` must become visible. Use `Up` or the wheel in the opposite direction and confirm earlier lines can be reached again.
 
-Choose `Decline`. The screen must return to the provider list and the quest must still be available. Close and reopen the provider screen once to confirm decline did not create a hidden rejection state, cooldown, or binding.
+Choose `Decline`. The screen must return to the provider list and the quest must still be available. Close and reopen once to confirm decline created no hidden rejection state, cooldown, or binding.
 
-Select the quest again. The dialogue must reopen at the beginning rather than inheriting the previous detail-view scroll offset. Choose `Accept`. The same screen should refresh from the server and show the quest as in progress. Selecting the in-progress entry must show the fixture's `[DEV]` in-progress response. The controls must not remain permanently disabled after the server response.
+Select the quest again. Dialogue must reopen at the beginning. Choose `Accept`. The screen should refresh from the server and show the quest as in progress. Selecting the in-progress entry must show the fixture's `[DEV]` in-progress response, with controls still responsive after the refresh.
 
-Close the screen and sneak-interact with Provider A again. The quest must still show as in progress.
+## Reset and persistence spot-check
 
-## Reset contract pass
+The older runtime pass already established the broader provider contract, but the visual rewrite must not have regressed it.
 
 Before completing the accepted quest, run:
 
@@ -77,24 +100,11 @@ Before completing the accepted quest, run:
 /questlog progress reset questlog:overlord_provider_dev
 ```
 
-Sneak-interact with Provider A again. The quest must be available for acceptance again, not remain bound to the previous provider. This validates that administrative reset delegates to the provider-aware quest reset contract.
+The quest must become available again rather than remaining bound.
 
-Accept the quest again before proceeding with the persistence pass.
+Accept it again, save/quit, reload the world, and reopen Provider A. The quest must remain bound and in progress.
 
-## Persistence pass
-
-After accepting but before obtaining the debug stick:
-
-1. save and quit to the title screen;
-2. reload the same world;
-3. locate Provider A;
-4. sneak-interact again.
-
-The quest must remain bound and in progress. Provider A's UUID-backed identity must survive the save/load cycle.
-
-If the villager is missing after reload, treat that as an invalid test environment rather than a provider-binding failure. The setup deliberately uses `PersistenceRequired:1b` to prevent ordinary despawn.
-
-## Same-provider turn-in pass
+## Same-provider turn-in spot-check
 
 Give the objective item:
 
@@ -102,65 +112,48 @@ Give the objective item:
 /give @s minecraft:debug_stick 1
 ```
 
-Sneak-interact with Provider B first. Provider B must not present the accepted quest as ready for turn-in. The development definition uses `lock_to_provider=true` and `turn_in=same_provider`.
+Provider B must not present the accepted quest as ready for `same_provider` turn-in.
 
-Sneak-interact with Provider A. The quest must now appear as ready for turn-in. Select it. The detail view must display the fixture's `[DEV]` ready-to-turn-in response before the player chooses the final action.
+Provider A must present it as ready. Select it, confirm the authored ready-to-turn-in response, then choose `Turn In`. The completed quest should disappear from actionable provider entries after the authoritative refresh.
 
-Select `Turn In`. The server should refresh the provider screen. The completed quest should no longer appear as an actionable provider entry.
+## Disposition-gating spot-check
 
-## Disposition-gating pass
-
-Clear the synthetic development state and reset quest progress:
+Run:
 
 ```text
 /questlog narrative disposition clear questlog:dev_civilization
 /questlog progress reset questlog:overlord_provider_disposition_dev
-/questlog narrative disposition get questlog:dev_civilization
 ```
 
-The `get` command must report `questlog:unresolved`. Sneak-interact with either development villager. `[DEV] Disposition-Gated Provider Prototype` must not be offered.
+The disposition-gated prototype must be absent.
 
-Set the synthetic development state:
+Then run:
 
 ```text
 /questlog narrative disposition set questlog:dev_civilization questlog:dev_open
-/questlog narrative disposition get questlog:dev_civilization
 ```
 
-The `get` command must report `questlog:dev_open`. On the next sneak-interaction, `[DEV] Disposition-Gated Provider Prototype` must appear as available.
+The gated prototype must appear on the next provider interaction.
 
-Do not accept it yet. Clear the state again:
+The IDs in this fixture are synthetic test identifiers only and establish no civilization canon.
 
-```text
-/questlog narrative disposition clear questlog:dev_civilization
-```
+## Distance/lifecycle spot-check
 
-On the next provider interaction, the unaccepted disposition-gated quest must disappear. This confirms provider eligibility is evaluated from the authoritative world-scoped disposition fact rather than cached as a client-side reputation value.
-
-Finally, set the state again, accept the gated quest, and obtain the debug stick. Because this fixture uses `turn_in=none`, provider turn-in must not be required for final quest completion.
-
-The IDs `questlog:dev_civilization` and `questlog:dev_open` are synthetic test identifiers only. They establish no OVERLORD REIGN civilization or disposition canon.
-
-## Distance/lifecycle pass
-
-Reset the ordinary fixture and accept it again if necessary. Open Provider A's menu, then move more than 8 blocks away while the screen remains open. The menu must close automatically.
-
-Repeat with the provider killed or otherwise removed in a disposable test world if desired. The menu must not remain active against a stale entity identity.
+Open Provider A's menu and move more than 8 blocks away. The menu must close automatically rather than remaining attached to a stale remote entity interaction.
 
 ## Evidence to retain
 
 Retain:
 
-- `latest.log` from the complete pass;
-- one screenshot of the authored offer dialogue with the Accept/Decline choice;
-- one screenshot with `[DEV] DIALOGUE SCROLL END.` visible after scrolling;
-- one screenshot of the in-progress dialogue state;
-- one screenshot of the ready-to-turn-in dialogue state;
-- one screenshot showing the disposition-gated quest absent while unresolved and present while `questlog:dev_open` is set;
-- any unexpected packet rejection or quest load error from the log.
+- `latest.log` from the pass;
+- one screenshot of the provider quest LIST at normal GUI scale;
+- one screenshot of the selected offer with Accept/Decline visible;
+- one screenshot with `[DEV] DIALOGUE SCROLL END.` visible;
+- one screenshot at the adjacent/narrower GUI configuration if its composition differs materially;
+- any visual clipping, text collision, packet rejection, or quest-load error.
 
 ## Acceptance criteria
 
-The provider scaffold passes this milestone only when the server-authoritative offer selection, explicit decline, accept, reset, persistence, same-provider turn-in, complete authored dialogue reachability, authored state dialogue, disposition gating, refresh, ordinary-interaction preservation, and distance lifecycle behaviors all work in the actual Forge 1.20.1 instance.
+The provider visual foundation passes when the parchment hierarchy and controls are coherent in the actual Forge 1.20.1 instance, ordinary provider NPCs remain free of the incorporeal reaction-portrait system, and the previously validated server-authoritative behavior remains intact after the visual rewrite.
 
-Visual styling of this temporary provider screen is not an acceptance target. Final NPC quest-giver presentation remains a separate DESIGN pass.
+Failure of the new visual baseline keeps the overall presentation gate open and blocks production campaign content.
