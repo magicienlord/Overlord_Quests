@@ -2,6 +2,7 @@
 """Validate provider runtime/reset invariants that are easy to regress."""
 from pathlib import Path
 import sys
+import validate_narrative_fact_runtime_contracts as narrative_facts
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = ROOT / "common/src/main/java/org/infernalstudios/questlog/commands/QuestlogCommands.java"
@@ -64,10 +65,12 @@ screen = SCREEN.read_text(encoding="utf-8")
 if "if (y > maxY) return;" in screen:
     errors.append("QuestProviderScreen.java: silent fixed-height provider dialogue truncation remains")
 
+errors.extend(narrative_facts.collect_errors())
+
 if errors:
-    print(f"Provider runtime contract validation failed with {len(errors)} error(s):", file=sys.stderr)
+    print(f"Provider/narrative runtime contract validation failed with {len(errors)} error(s):", file=sys.stderr)
     for error in errors:
         print(f"  * {error}", file=sys.stderr)
     raise SystemExit(1)
 
-print("OVERLORD provider runtime contracts: PASS")
+print("OVERLORD provider and narrative-fact runtime contracts: PASS")
