@@ -39,6 +39,9 @@ jobs:
       - name: Validate provider runtime contracts
         run: python3 tools/validate_provider_runtime_contracts.py
 
+      - name: Validate sequence-break tracking contracts
+        run: python3 tools/validate_sequence_break_tracking.py
+
       - name: Validate Overlord quest definitions
         run: python3 tools/validate_overlord_quest_examples.py
 
@@ -99,6 +102,7 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/FactObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/SetFactReward.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderService.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/provider/QuestProviderInteraction.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/client/provider/QuestProviderScreen.class'
