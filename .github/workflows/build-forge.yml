@@ -45,6 +45,9 @@ jobs:
       - name: Validate failure consequence contracts
         run: python3 tools/validate_failure_consequence_contracts.py
 
+      - name: Validate targeted entity death tracking contracts
+        run: python3 tools/validate_entity_death_tracking_contracts.py
+
       - name: Validate sequence-break tracking contracts
         run: python3 tools/validate_sequence_break_tracking.py
 
@@ -112,6 +115,7 @@ jobs:
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/OverlordNarrativeState.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/FactObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/overlord/narrative/SetFactReward.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/entity/EntityDiedObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/entity/EntityKillStatObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/item/ItemCraftStatObjective.class'
           jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/core/quests/objectives/misc/VisitDimensionHistoryObjective.class'
@@ -261,6 +265,59 @@ jobs:
             sha256sum mods/* config/questlog/quests/overlord_provider_dev.json config/questlog/quests/overlord_provider_profession_dev.json config/questlog/quests/overlord_provider_disposition_dev.json config/questlog/quests/overlord_provider_fact_dev.json config/questlog/quests/overlord_narrative_fact_dev.json > SHA256SUMS.txt
           )
 
+      - name: Prepare consequence-state test kit
+        run: |
+          set -euo pipefail
+          KIT='build/consequence-test-kit'
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p "$KIT/mods" "$KIT/config/questlog/quests" "$KIT/docs"
+
+          cp "$JAR" "$KIT/mods/"
+          cp examples/questlog/quests/overlord_failure_consequence_dev.json "$KIT/config/questlog/quests/"
+          cp examples/questlog/quests/overlord_anchor_death_dev.json "$KIT/config/questlog/quests/"
+          cp docs/FAILURE_CONSEQUENCES.md "$KIT/docs/"
+          cp docs/FAILURE_CONSEQUENCE_TEST_PROTOCOL.md "$KIT/docs/"
+          cp docs/ENTITY_DEATH_TRACKING.md "$KIT/docs/"
+          cp docs/ANCHOR_DEATH_TEST_PROTOCOL.md "$KIT/docs/"
+          cp docs/QUEST_ANCHOR_PROTECTION.md "$KIT/docs/"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - CONSEQUENCE STATE TEST KIT
+
+          1. Back up the test instance.
+          2. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          3. Copy the contents of this kit's mods/ directory into the instance mods/ directory.
+          4. Copy the contents of this kit's config/ directory into the instance config/ directory.
+          5. Launch an unpublished local single-player world with commands available.
+          6. Follow docs/FAILURE_CONSEQUENCE_TEST_PROTOCOL.md and docs/ANCHOR_DEATH_TEST_PROTOCOL.md separately, cleaning synthetic state between protocols.
+
+          This kit contains development-only consequence fixtures. It establishes no OVERLORD REIGN story canon.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS consequence-state test kit
+          commit=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          failure_consequences=automatic_server_authoritative
+          entity_death_tracking=explicit_scoreboard_tag_target
+          anchor_protection=explicit_scoreboard_tag
+          EOF
+
+          (
+            cd "$KIT"
+            sha256sum mods/* config/questlog/quests/overlord_failure_consequence_dev.json config/questlog/quests/overlord_anchor_death_dev.json > SHA256SUMS.txt
+          )
+
       - name: Prepare death-screen test kit
         run: |
           set -euo pipefail
@@ -338,6 +395,13 @@ jobs:
         with:
           name: overlord-quests-provider-test-kit
           path: build/provider-test-kit/
+          if-no-files-found: error
+
+      - name: Upload consequence-state test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-consequence-test-kit
+          path: build/consequence-test-kit/
           if-no-files-found: error
 
       - name: Upload death-screen test kit
