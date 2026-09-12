@@ -31,7 +31,6 @@ public final class OverlordDeathScreen extends DeathScreen {
     private static final int TITLE_COLOR = 0xFFE6DEDA;
     private static final int CAUSE_COLOR = 0xFFBEB6B2;
     private static final int PANEL_MAX_WIDTH = 560;
-    private static final int PANEL_MIN_WIDTH = 220;
     private static final int PANEL_HEIGHT = 112;
     private static final int CONTENT_INSET = 32;
 
@@ -132,8 +131,7 @@ public final class OverlordDeathScreen extends DeathScreen {
     }
 
     private int panelWidth() {
-        int available = Math.max(PANEL_MIN_WIDTH, this.width - 64);
-        return Math.min(PANEL_MAX_WIDTH, available);
+        return Math.min(PANEL_MAX_WIDTH, Math.max(80, this.width - 64));
     }
 
     private void renderPresentationFrame(GuiGraphics graphics, int panelX, int panelY, int panelWidth) {
