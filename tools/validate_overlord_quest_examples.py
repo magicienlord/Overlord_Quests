@@ -12,8 +12,8 @@ from typing import Any
 import validate_optional_objectives as optional_contract
 import validate_overlord_quest_examples_core as core
 
-core.KNOWN_QUESTLOG_OBJECTIVES.add("questlog:disposition")
-core.KNOWN_QUESTLOG_REWARDS.add("questlog:set_disposition")
+core.KNOWN_QUESTLOG_OBJECTIVES.update({"questlog:disposition", "questlog:fact"})
+core.KNOWN_QUESTLOG_REWARDS.update({"questlog:set_disposition", "questlog:set_fact"})
 
 _CORE_OBJECTIVE_ENTRY = core.validate_objective_entry
 _CORE_REWARD_ENTRY = core.validate_reward_entry
@@ -22,18 +22,31 @@ _CORE_VALIDATE_QUEST = core.validate_quest
 
 def validate_objective_entry(entry: Any, field: str, path: Path, errors: list[str]) -> None:
     _CORE_OBJECTIVE_ENTRY(entry, field, path, errors)
-    if not isinstance(entry, dict) or entry.get("type") != "questlog:disposition":
+    if not isinstance(entry, dict):
         return
 
-    for key in ("civilization", "state"):
-        if key not in entry:
-            core.fail(path, f"'{field}.{key}' is required by questlog:disposition", errors)
-        else:
-            core.validate_resource_id(entry[key], f"{field}.{key}", path, errors)
+    objective_type = entry.get("type")
+    if objective_type == "questlog:disposition":
+        for key in ("civilization", "state"):
+            if key not in entry:
+                core.fail(path, f"'{field}.{key}' is required by questlog:disposition", errors)
+            else:
+                core.validate_resource_id(entry[key], f"{field}.{key}", path, errors)
 
-    amount = entry.get("required_amount")
-    if amount is not None and amount != 1:
-        core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:disposition", errors)
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:disposition", errors)
+        return
+
+    if objective_type == "questlog:fact":
+        if "fact" not in entry:
+            core.fail(path, f"'{field}.fact' is required by questlog:fact", errors)
+        else:
+            core.validate_resource_id(entry["fact"], f"{field}.fact", path, errors)
+
+        amount = entry.get("required_amount")
+        if amount is not None and amount != 1:
+            core.fail(path, f"'{field}.required_amount' must be exactly 1 for questlog:fact", errors)
 
 
 def validate_reward_entry(
@@ -45,14 +58,23 @@ def validate_reward_entry(
     inside_choice: bool = False,
 ) -> None:
     _CORE_REWARD_ENTRY(entry, field, path, errors, inside_choice=inside_choice)
-    if not isinstance(entry, dict) or entry.get("type") != "questlog:set_disposition":
+    if not isinstance(entry, dict):
         return
 
-    for key in ("civilization", "state"):
-        if key not in entry:
-            core.fail(path, f"'{field}.{key}' is required by questlog:set_disposition", errors)
+    reward_type = entry.get("type")
+    if reward_type == "questlog:set_disposition":
+        for key in ("civilization", "state"):
+            if key not in entry:
+                core.fail(path, f"'{field}.{key}' is required by questlog:set_disposition", errors)
+            else:
+                core.validate_resource_id(entry[key], f"{field}.{key}", path, errors)
+        return
+
+    if reward_type == "questlog:set_fact":
+        if "fact" not in entry:
+            core.fail(path, f"'{field}.fact' is required by questlog:set_fact", errors)
         else:
-            core.validate_resource_id(entry[key], f"{field}.{key}", path, errors)
+            core.validate_resource_id(entry["fact"], f"{field}.fact", path, errors)
 
 
 def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) -> None:
@@ -70,7 +92,14 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
     if "role" in provider and (not isinstance(provider["role"], str) or not provider["role"].strip()):
         core.fail(path, "'provider.role' must be a non-empty string", errors)
 
-    for key in ("entity_types", "entity_type_tags", "dimensions", "unlock_quests"):
+    for key in (
+        "entity_types",
+        "entity_type_tags",
+        "dimensions",
+        "unlock_quests",
+        "required_facts",
+        "forbidden_facts",
+    ):
         if key not in provider:
             continue
         values = provider[key]
@@ -79,6 +108,20 @@ def validate_provider_rule(data: dict[str, Any], path: Path, errors: list[str]) 
             continue
         for index, value in enumerate(values):
             core.validate_resource_id(value, f"provider.{key}[{index}]", path, errors)
+
+    required_facts = provider.get("required_facts", [])
+    forbidden_facts = provider.get("forbidden_facts", [])
+    if isinstance(required_facts, list) and isinstance(forbidden_facts, list):
+        overlap = {
+            value for value in required_facts
+            if isinstance(value, str) and value in forbidden_facts
+        }
+        if overlap:
+            core.fail(
+                path,
+                "provider cannot both require and forbid narrative fact(s): " + ", ".join(sorted(overlap)),
+                errors,
+            )
 
     entity_types = provider.get("entity_types", [])
     entity_tags = provider.get("entity_type_tags", [])
