@@ -15,24 +15,27 @@ import java.util.List;
  */
 public final class QuestProviderDialogue {
     public static final QuestProviderDialogue EMPTY = new QuestProviderDialogue(
-            List.of(), List.of(), List.of(), List.of()
+            List.of(), List.of(), List.of(), List.of(), List.of()
     );
 
     private final List<String> offer;
     private final List<String> inProgress;
     private final List<String> readyToTurnIn;
     private final List<String> failed;
+    private final List<String> completed;
 
     private QuestProviderDialogue(
             List<String> offer,
             List<String> inProgress,
             List<String> readyToTurnIn,
-            List<String> failed
+            List<String> failed,
+            List<String> completed
     ) {
         this.offer = List.copyOf(offer);
         this.inProgress = List.copyOf(inProgress);
         this.readyToTurnIn = List.copyOf(readyToTurnIn);
         this.failed = List.copyOf(failed);
+        this.completed = List.copyOf(completed);
     }
 
     public static QuestProviderDialogue fromProviderDefinition(JsonObject provider) {
@@ -48,7 +51,8 @@ public final class QuestProviderDialogue {
                 parseLines(dialogue, "offer"),
                 parseLines(dialogue, "in_progress"),
                 parseLines(dialogue, "ready_to_turn_in"),
-                parseLines(dialogue, "failed")
+                parseLines(dialogue, "failed"),
+                parseLines(dialogue, "completed")
         );
     }
 
@@ -59,7 +63,12 @@ public final class QuestProviderDialogue {
             case IN_PROGRESS -> this.inProgress;
             case READY_TO_TURN_IN -> this.readyToTurnIn;
             case FAILED -> this.failed;
+            case COMPLETED -> this.completed;
         };
+    }
+
+    public boolean hasLinesFor(QuestProviderService.InteractionState state) {
+        return !this.linesFor(state).isEmpty();
     }
 
     private static List<String> parseLines(JsonObject dialogue, String key) {
