@@ -1,0 +1,20 @@
+{
+  "title": "A Castle Off the Map",
+  "description": "A cartographer's map points toward a fortress far beyond the ordinary roads. Find the Lost Castle and enter it. Questlog records the native `tlc:lost_castle` structure visit rather than inventing a separate discovery token.",
+  "description_completed": "The Lost Castle has been found. Whatever claim its dead court once held now depends on the defenders still occupying its halls.",
+  "icon": {"item": "minecraft:filled_map"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 350,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}
+  ],
+  "objectives": [
+    {"type":"questlog:visit_structure_history","structure":"tlc:lost_castle","required_amount":1,"name":"Enter the Lost Castle"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
