@@ -24,4 +24,6 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Validate mandatory adventure wrappers
-        run: python3 tools/validate_adventure_questlines.py
+        run: |
+          python3 tools/validate_adventure_questlines.py
+          python3 tools/validate_lost_castle_questline.py
