@@ -122,11 +122,24 @@ The broader sidequest-provider architecture already supports vanilla and modded 
 
 ## Illagers
 
-Civilization arc opening: PLANNED / HOSTILE TRANSITION UNRESOLVED.
+Civilization hostile opening: IMPLEMENTED.
 
-The exact Take a Pillage integration provides the designated Bastille structure/discovery signal but no unique source-native ruler class. The lore requires authority to be established through force before peaceful providers open.
+Current source-backed opening:
 
-Do not promote Legioner, Archer, Skirmisher, or another arbitrary subtype into the canonical Bastille ruler without an authored decision.
+- `campaign/civilizations/illagers/break_the_bastille`
+  - target: one exact `takesapillage:legioner` selected as the designated Bastille's local command figure;
+  - authored local identity: `overlord_anchor:illager_bastille_commander`;
+  - objective: persistent `questlog:entity_kill_history` for a player-attributed kill of that exact tagged Legioner;
+  - result: `overlord_reign:civilizations/illagers/authority_established`;
+  - political disposition: intentionally unresolved.
+
+The exact Take a Pillage 1.0.3 audit found no native Bastille ruler or commander role. The marked Legioner is therefore an authored local REIGN command figure layered onto a source-backed elite Bastille soldier, not a universal Illager leader class.
+
+The generic native `takesapillage:bastille` advancement is not used as proof of the designated polity because it can be awarded in any Bastille.
+
+Post-authority fearful/cowed provider phase: AUTHORING / TECHNICAL BOUNDARY UNRESOLVED.
+
+Lore permits peaceful interaction after the designated Bastille is overpowered, but no surviving Bastille NPC has yet been explicitly selected as the first fearful provider. Do not arbitrarily promote Legioner, Archer, Skirmisher, or another Illager subtype into that role. The existing `authority_established` fact can gate the later phase once its provider identity and political transition are explicitly authored.
 
 ## Piglins
 
