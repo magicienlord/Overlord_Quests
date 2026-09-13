@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PROTECTION = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/provider/QuestAnchorProtection.java"
 FORGE = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java"
 DOC = ROOT / "docs/QUEST_ANCHOR_PROTECTION.md"
+RUNTIME_PROTOCOL = ROOT / "docs/ANCHOR_DEATH_TEST_PROTOCOL.md"
+SMOKE = ROOT / ".github/workflows/anchor-protection-smoke.yml"
 
 
 def collect_errors() -> list[str]:
@@ -36,6 +38,20 @@ def collect_errors() -> list[str]:
     require(DOC, "Protection is not a universal rule", "destructive-route boundary")
     require(DOC, "must not be used as a provider identity selector", "anchor identity separation")
     require(DOC, "soft-lock", "sequence-break boundary")
+    require(DOC, "Quest Anchor Protection Smoke", "automated runtime-smoke evidence")
+    require(DOC, "operator-level entity removal", "administrative removal boundary")
+
+    require(RUNTIME_PROTOCOL, "/damage", "normal gameplay-damage validation path")
+    require(RUNTIME_PROTOCOL, "remove overlord_quest_protected", "authored release analogue")
+    require(RUNTIME_PROTOCOL, "raw entity removal", "non-damage removal boundary")
+
+    require(SMOKE, "Quest Anchor Protection Smoke", "dedicated runtime smoke workflow")
+    require(SMOKE, "tools/rcon_smoke_client.py", "server-authoritative RCON command transport")
+    require(SMOKE, "overlord_quest_protected", "runtime protection tag exercise")
+    require(SMOKE, "damage @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] 100 minecraft:generic", "protected and released damage exercise")
+    require(SMOKE, "remove overlord_quest_protected", "runtime authored-release boundary")
+    require(SMOKE, "AFTER_PROTECTED_RESPONSE", "protected health assertion")
+    require(SMOKE, "AFTER_RELEASE_RESPONSE", "released damage assertion")
 
     return errors
 
@@ -51,6 +67,7 @@ def main() -> int:
     print("OVERLORD quest-anchor protection contracts: PASS")
     print("protection scope: explicit scoreboard tag only")
     print("protected Mob persistence: enabled")
+    print("runtime damage/release smoke: guarded")
     print("destructive-route transition ownership: authored integration")
     return 0
 
