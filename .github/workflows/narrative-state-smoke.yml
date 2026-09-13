@@ -1,0 +1,147 @@
+name: Narrative State Persistence Smoke
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-narrative-state-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  narrative-state-persistence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Configure disposable test server
+        run: |
+          mkdir -p forge/run
+          printf 'eula=true\n' > forge/run/eula.txt
+          cat > forge/run/server.properties <<'EOF'
+          online-mode=false
+          level-type=minecraft:flat
+          generate-structures=false
+          view-distance=2
+          simulation-distance=2
+          spawn-protection=0
+          EOF
+
+      - name: Prepare Forge server run and runtime classpath
+        run: ./gradlew :common:createMinecraftArtifacts :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
+
+      - name: First boot writes narrative state
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG="$GITHUB_WORKSPACE/narrative-state-write.log"
+
+          (
+            sleep 55
+            printf '%s\n' \
+              'questlog narrative fact set overlord_reign:validation/runtime_fact' \
+              'questlog narrative disposition set overlord_reign:validation_civilization overlord_reign:neutral' \
+              'save-all flush'
+            sleep 5
+            printf '%s\n' 'stop'
+          ) | timeout --signal=TERM --kill-after=15s 150s \
+            ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
+            >"$LOG" 2>&1 || STATUS=$?
+
+          cat "$LOG"
+
+          if ! grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG"; then
+            echo '::error::First narrative-state server boot never reached ready state.'
+            exit 1
+          fi
+          if ! grep -Fq 'Set narrative fact overlord_reign:validation/runtime_fact' "$LOG"; then
+            echo '::error::Narrative fact set command did not complete.'
+            exit 1
+          fi
+          if ! grep -Fq 'Set narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral' "$LOG"; then
+            echo '::error::Narrative disposition set command did not complete.'
+            exit 1
+          fi
+          if grep -Eiq 'Exception in thread|\[[^]]*/FATAL\]|Failed to complete lifecycle event|Mod Loading has failed' "$LOG"; then
+            echo '::error::First narrative-state boot contains a fatal runtime marker.'
+            exit 1
+          fi
+
+      - name: Second boot verifies persistence and cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG="$GITHUB_WORKSPACE/narrative-state-read.log"
+
+          (
+            sleep 45
+            printf '%s\n' \
+              'questlog narrative fact get overlord_reign:validation/runtime_fact' \
+              'questlog narrative disposition get overlord_reign:validation_civilization'
+            sleep 3
+            printf '%s\n' \
+              'questlog narrative fact clear overlord_reign:validation/runtime_fact' \
+              'questlog narrative disposition clear overlord_reign:validation_civilization' \
+              'save-all flush'
+            sleep 3
+            printf '%s\n' 'stop'
+          ) | timeout --signal=TERM --kill-after=15s 135s \
+            ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
+            >"$LOG" 2>&1 || STATUS=$?
+
+          cat "$LOG"
+
+          if ! grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG"; then
+            echo '::error::Second narrative-state server boot never reached ready state.'
+            exit 1
+          fi
+          if ! grep -Fq 'Narrative fact overlord_reign:validation/runtime_fact = true' "$LOG"; then
+            echo '::error::Narrative fact did not survive the server restart.'
+            exit 1
+          fi
+          if ! grep -Fq 'Narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral' "$LOG"; then
+            echo '::error::Narrative disposition did not survive the server restart.'
+            exit 1
+          fi
+          if ! grep -Fq 'Cleared narrative fact overlord_reign:validation/runtime_fact' "$LOG"; then
+            echo '::error::Narrative fact cleanup command did not complete.'
+            exit 1
+          fi
+          if ! grep -Fq 'Cleared narrative disposition overlord_reign:validation_civilization = questlog:unresolved' "$LOG"; then
+            echo '::error::Narrative disposition cleanup command did not complete.'
+            exit 1
+          fi
+          if grep -Eiq 'Exception in thread|\[[^]]*/FATAL\]|Failed to complete lifecycle event|Mod Loading has failed' "$LOG"; then
+            echo '::error::Second narrative-state boot contains a fatal runtime marker.'
+            exit 1
+          fi
+
+      - name: Upload narrative state smoke logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-narrative-state-smoke-${{ github.run_number }}
+          path: |
+            narrative-state-write.log
+            narrative-state-read.log
+          if-no-files-found: error
+          retention-days: 14
