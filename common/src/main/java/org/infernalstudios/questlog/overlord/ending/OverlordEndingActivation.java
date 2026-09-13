@@ -69,8 +69,8 @@ public final class OverlordEndingActivation {
         OverlordEndingPresentationState presentation = OverlordEndingPresentationState.get(server);
 
         // Production facts are monotonic. Clearing the arm fact is an
-        // administrative/testing action, so a subsequent relog is the safe point
-        // at which to make another presentation test possible.
+        // administrative/testing action; disarming resets the presentation latch
+        // so a later re-arm starts a clean validation cycle.
         if (!armed && presentation.isPresented()) {
             presentation.reset();
         }
