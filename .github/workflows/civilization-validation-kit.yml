@@ -1,0 +1,177 @@
+name: Civilization Validation Kit
+
+on:
+  workflow_run:
+    workflows:
+      - Build Forge 1.20.1
+    types:
+      - completed
+    branches:
+      - gnarl-bootstrap
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: overlord-quests-civilization-validation-${{ github.event.workflow_run.head_sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve source commit
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+            echo "build_run=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+            echo "build_run=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout exact source commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+
+      - name: Download exact Forge artifact from triggering build
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-forge-1.20.1
+          path: downloaded-forge
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.source.outputs.build_run }}
+
+      - name: Set up Java 17 for manual dispatch build
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Build exact Forge artifact for manual dispatch
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :forge:build --stacktrace
+          mkdir -p downloaded-forge
+          find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' -exec cp {} downloaded-forge/ \;
+
+      - name: Prepare civilization full-instance validation kit
+        shell: bash
+        run: |
+          set -euo pipefail
+          KIT='build/civilization-validation-kit'
+          JAR="$(find downloaded-forge -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was available for the civilization validation kit."
+            exit 1
+          fi
+
+          rm -rf "$KIT"
+          mkdir -p "$KIT/mods" "$KIT/docs"
+          cp "$JAR" "$KIT/mods/"
+
+          PROTOCOLS=(
+            DWARVEN_CIVILIZATION_TEST_PROTOCOL.md
+            GNUMU_CIVILIZATION_TEST_PROTOCOL.md
+            GOBLIN_CIVILIZATION_TEST_PROTOCOL.md
+            ILLAGER_CIVILIZATION_TEST_PROTOCOL.md
+            KOBOLD_CIVILIZATION_TEST_PROTOCOL.md
+            RIBBIT_CIVILIZATION_TEST_PROTOCOL.md
+            SEA_DWELLER_CIVILIZATION_TEST_PROTOCOL.md
+            UMVUTHANA_CIVILIZATION_TEST_PROTOCOL.md
+            GNUMU_MERCHANT_SIDEQUEST_TEST_PROTOCOL.md
+            GOBLIN_ENGINEER_SIDEQUEST_TEST_PROTOCOL.md
+            GOBLIN_MERCHANT_SIDEQUEST_TEST_PROTOCOL.md
+            GOBLIN_TAVERN_SIDEQUEST_TEST_PROTOCOL.md
+            SEA_DWELLER_BARTER_SIDEQUEST_TEST_PROTOCOL.md
+            UMVUTHI_BLESSING_SIDEQUEST_TEST_PROTOCOL.md
+          )
+
+          SUPPORTING_DOCS=(
+            CIVILIZATION_VALIDATION_MATRIX.md
+            CIVILIZATION_DISPOSITIONS.md
+            CIVILIZATION_SIDEQUEST_STATUS.md
+            CURRENT_IMPLEMENTATION_STATUS.md
+            NARRATIVE_FACTS.md
+            NPC_PROVIDER_TEST_PROTOCOL.md
+            QUEST_ANCHOR_PROTECTION_TEST_PROTOCOL.md
+          )
+
+          for DOC in "${PROTOCOLS[@]}" "${SUPPORTING_DOCS[@]}"; do
+            test -f "docs/$DOC"
+            cp "docs/$DOC" "$KIT/docs/"
+          done
+
+          printf '%s\n' "${PROTOCOLS[@]}" > "$KIT/PROTOCOLS.txt"
+
+          cat > "$KIT/INSTALL.txt" <<'EOF'
+          OVERLORD QUESTS - CIVILIZATION FULL-INSTANCE VALIDATION KIT
+
+          Purpose:
+          Validate the source-backed production civilization slices against the complete OVERLORD REIGN 1.20.1 Forge instance using the exact Quest JAR that passed the triggering Forge build.
+
+          1. Back up the target test instance and use a disposable validation world.
+          2. Keep the target instance's required civilization/native-mod JARs installed at their validated versions.
+          3. Remove any separate upstream Questlog JAR. Exactly one mod with technical id questlog must remain.
+          4. Copy this kit's mods/ JAR into the instance mods/ directory.
+          5. Do not copy development quest fixtures. The civilization quests covered here are bundled production definitions.
+          6. Read docs/CIVILIZATION_VALIDATION_MATRIX.md before testing.
+          7. Run the protocols listed in PROTOCOLS.txt one at a time, resetting synthetic test state when each protocol requires it.
+          8. Record the exact native-mod versions and any divergence from the protocol.
+
+          Villager and Piglin civilization main-entry validation is intentionally absent because those production entry mechanics remain unresolved. This kit does not authorize speculative providers, political outcomes, or disposition consequences.
+          EOF
+
+          cat > "$KIT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS civilization full-instance validation kit
+          source_commit=${{ steps.source.outputs.sha }}
+          package_workflow=$GITHUB_WORKFLOW
+          package_run_id=$GITHUB_RUN_ID
+          forge_build_run_id=${{ steps.source.outputs.build_run }}
+          minecraft=1.20.1
+          forge=47.4.10
+          java=17
+          production_definitions=bundled_in_runtime_jar
+          civilization_entry_protocols=8
+          production_sidequest_protocols=6
+          unresolved_main_entries=Villagers,Piglins
+          unresolved_minion_recovery=Red,Green,Blue
+          unresolved_final_central_setter=true
+          EOF
+
+          (
+            cd "$KIT"
+            find . -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt
+          )
+
+      - name: Verify packaged source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fxq "source_commit=${{ steps.source.outputs.sha }}" build/civilization-validation-kit/BUILD_INFO.txt
+          test "$(wc -l < build/civilization-validation-kit/PROTOCOLS.txt)" -eq 14
+          test -n "$(find build/civilization-validation-kit/mods -maxdepth 1 -type f -name '*.jar' | head -n 1)"
+          (
+            cd build/civilization-validation-kit
+            sha256sum -c SHA256SUMS.txt
+          )
+
+      - name: Upload civilization validation kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-civilization-validation-kit
+          path: build/civilization-validation-kit/
+          if-no-files-found: error
