@@ -1,0 +1,77 @@
+name: Inspect Civilization Native Progression
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+    paths:
+      - '.github/workflows/inspect-civilization-progression.yml'
+      - 'tools/inspect_civilization_progression.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download exact target releases
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-all-errors \
+            'https://edge.forgecdn.net/files/6749/815/dwarven_forge-1.0.0.jar' \
+            -o /tmp/dwarven_forge-1.0.0.jar
+          curl --fail --location --retry 3 --retry-all-errors \
+            'https://edge.forgecdn.net/files/7354/928/Ribbits-1.20.1-Forge-3.0.5.jar' \
+            -o /tmp/Ribbits-1.20.1-Forge-3.0.5.jar
+          curl --fail --location --retry 3 --retry-all-errors \
+            'https://edge.forgecdn.net/files/5605/622/Kobolds-2.12.0.jar' \
+            -o /tmp/Kobolds-2.12.0.jar
+          test -s /tmp/dwarven_forge-1.0.0.jar
+          test -s /tmp/Ribbits-1.20.1-Forge-3.0.5.jar
+          test -s /tmp/Kobolds-2.12.0.jar
+
+      - name: Verify pinned binary identities
+        run: |
+          set -euo pipefail
+          echo 'f43bbe67330f7e92756b4665f6d24fd2d267aeca35cfeb4d4c9ee3cb5423d85b  /tmp/dwarven_forge-1.0.0.jar' | sha256sum --check --strict
+          echo 'f5f5dd31ab42e3bda1a1148b91ae62c07daafb9e52905d263c0bbcfbdf9cbabe  /tmp/Kobolds-2.12.0.jar' | sha256sum --check --strict
+          sha256sum /tmp/Ribbits-1.20.1-Forge-3.0.5.jar
+
+      - name: Inspect Dwarven Forge progression candidates
+        run: |
+          set -euo pipefail
+          python3 tools/inspect_civilization_progression.py \
+            /tmp/dwarven_forge-1.0.0.jar dwarven_forge \
+            dwarven_forge_progression_report.txt \
+            --keyword dwarven --keyword metal --keyword toolsmith
+
+      - name: Inspect Ribbits progression candidates
+        run: |
+          set -euo pipefail
+          python3 tools/inspect_civilization_progression.py \
+            /tmp/Ribbits-1.20.1-Forge-3.0.5.jar ribbits \
+            ribbits_progression_report.txt \
+            --keyword sorcerer --keyword fisherman --keyword home
+
+      - name: Inspect Kobolds progression candidates
+        run: |
+          set -euo pipefail
+          python3 tools/inspect_civilization_progression.py \
+            /tmp/Kobolds-2.12.0.jar kobolds \
+            kobolds_progression_report.txt \
+            --keyword engineer --keyword pirate --keyword warrior
+
+      - name: Upload source audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: civilization-native-progression-source-audit
+          path: |
+            dwarven_forge_progression_report.txt
+            ribbits_progression_report.txt
+            kobolds_progression_report.txt
+          if-no-files-found: error
