@@ -2,13 +2,13 @@
 
 Status: TECHNICAL SOURCE AUDIT / PRODUCTION PROVIDER SUPPORT
 
-Date: 2026-09-12
+Date: 2026-09-13
 
 ## Authority
 
 The current OVERLORD REIGN lore authority establishes a Golden Hills successor hold led by a local Forge-Thane. Forge-Thane is a political title layered onto an existing Dwarven Forger rather than a new mob class or new profession. Ordinary Dwarves elsewhere must not automatically become civilization quest starters.
 
-This document records the exact installed The Dwarven Forge 1.0.0 behavior relevant to that provider. It does not define later Dwarven political branches or disposition outcomes.
+This document records the exact installed The Dwarven Forge 1.0.0 behavior relevant to that provider and to the planned use of native pricing behavior. It does not define later Dwarven political branches or disposition outcomes.
 
 ## Installed artifact authority
 
@@ -104,9 +104,25 @@ sneak + main-hand entity interaction
 
 The provider event is consumed only when the selected entity currently exposes relevant Questlog provider content. Ordinary non-sneaking Dwarf trading remains the responsibility of The Dwarven Forge 1.0.0.
 
+## Native reputation and price support
+
+A later source/bytecode pass resolves the technical question left open by the Dwarven civilization decision set.
+
+The installed `DwarfEntity` trade path does not bypass vanilla Villager reputation pricing. Its custom trade opener uses the inherited Villager reputation state for the interacting player and adjusts each `MerchantOffer` through the normal special-price mechanism. It also applies Hero of the Village discounts as a separate native path.
+
+This establishes the following TECHNICAL capability:
+
+- Dwarves retain player-specific Villager reputation state through their inherited `Villager` implementation;
+- that reputation is consulted by the Dwarven trade path;
+- resulting modifiers are applied to the mod's own MerchantOffers;
+- Hero of the Village remains a separate vanilla-style discount source;
+- a future authored subjugation outcome can therefore reuse native reputation/pricing behavior instead of introducing a parallel continuous Dwarven price simulation.
+
+This is source-backed mechanism support, not a completed political branch. OVERLORD QUESTS currently does not assign Dwarven reputation as a consequence of any production disposition or quest. The exact authored event, magnitude and scope of any later reputation change remain campaign decisions and must be validated in the full target instance before production content depends on them.
+
 ## Production boundary
 
-The installed 1.0.0 audit establishes enough technical support for a first-contact provider:
+The installed 1.0.0 audit establishes technical support for the current first-contact provider and for a future native-price consequence if one is explicitly authored:
 
 - exact installed version and JAR identity are known;
 - exact Dwarf registry ID is known;
@@ -114,6 +130,7 @@ The installed 1.0.0 audit establishes enough technical support for a first-conta
 - the mod explicitly maps vanilla `toolsmith` to `Dwarven Forger`;
 - the existing Questlog Villager-profession bridge can enforce that profession;
 - native amethyst-centered Dwarf trading remains mechanically authoritative;
+- the installed trade path reads inherited Villager reputation and applies it to native MerchantOffers;
 - one authored anchor tag can narrow the provider to the designated Forge-Thane before final coordinates exist.
 
 It does NOT establish:
@@ -121,7 +138,9 @@ It does NOT establish:
 - exact final successor-hold coordinates;
 - a new Forge-Thane entity or profession;
 - later Dwarven disposition outcomes;
-- destruction, subjugation, tribute, rune rewards, price changes, or branch rewards;
+- which political resolution should alter Villager reputation;
+- the magnitude or duration of any future reputation/price change;
+- destruction, subjugation, tribute, rune rewards or branch rewards not otherwise authored;
 - global political authority over all Dwarves;
 - that ordinary Dwarves possess complete historical knowledge of Goldo or the old Golden Hills state.
 
