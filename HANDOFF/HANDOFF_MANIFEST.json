@@ -23,15 +23,15 @@
     "exact_head_in_progress": 0,
     "build_forge": {
       "run_id": 34788700194,
-      "artifact_id": 5914204399,
-      "artifact_name": "Overlord_Quests-Forge-1.20.1",
-      "artifact_service_digest": "sha256:8cb6ef0d0681a114aef441a47aa17a15556736737770432185e6f086b3ece177"
+      "artifact_id": 10326674468,
+      "artifact_name": "overlord-quests-forge-1.20.1",
+      "artifact_service_digest": "sha256:4e208bbf9f84153878e95b3f680783182fe3e8acbee8c19a6671a14cb148e384"
     },
     "civilization_validation": {
       "run_id": 34788700165,
-      "artifact_id": 5914204313,
-      "artifact_name": "civilization-validation-kit",
-      "artifact_service_digest": "sha256:cc3ea27fa435c4e87ed0a27d399332accebbe412418d4ea82135c10b11979f17"
+      "artifact_id": 10327029218,
+      "artifact_name": "overlord-quests-civilization-validation-kit",
+      "artifact_service_digest": "sha256:bd8867fa26a815b54719cc9e13e4b5bd90d925167a083247119205bc2c7076aa"
     }
   },
   "preserved_decisions": {

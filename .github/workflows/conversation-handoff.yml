@@ -56,7 +56,7 @@ jobs:
       - name: Download exact Forge build artifact
         uses: actions/download-artifact@v4
         with:
-          name: Overlord_Quests-Forge-1.20.1
+          name: overlord-quests-forge-1.20.1
           path: package/validation-artifacts/build-forge
           github-token: ${{ github.token }}
           repository: magicienlord/Overlord_Quests
@@ -65,7 +65,7 @@ jobs:
       - name: Download exact civilization validation kit
         uses: actions/download-artifact@v4
         with:
-          name: civilization-validation-kit
+          name: overlord-quests-civilization-validation-kit
           path: package/validation-artifacts/civilization-validation-kit
           github-token: ${{ github.token }}
           repository: magicienlord/Overlord_Quests

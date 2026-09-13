@@ -22,23 +22,25 @@ At handoff capture time, GitHub reported 13 workflow runs for this exact head SH
 
 ## Preserved validation artifacts
 
+These identities were re-read directly from the exact source-head run artifact listings during handoff packaging.
+
 ### Forge build
 - Workflow run ID: `34788700194`
-- Artifact ID: `5914204399`
-- Artifact name: `Overlord_Quests-Forge-1.20.1`
-- Artifact size reported by GitHub: `841777` bytes
-- Artifact-service digest: `sha256:8cb6ef0d0681a114aef441a47aa17a15556736737770432185e6f086b3ece177`
-- Artifact expiry reported by GitHub: `2026-12-13T23:29:12Z`
+- Artifact ID: `10326674468`
+- Artifact name: `overlord-quests-forge-1.20.1`
+- Artifact size reported by GitHub: `1940555` bytes
+- Artifact-service digest: `sha256:4e208bbf9f84153878e95b3f680783182fe3e8acbee8c19a6671a14cb148e384`
+- Artifact expiry reported by GitHub: `2026-12-12T23:05:52Z`
 
 ### Civilization validation kit
 - Workflow run ID: `34788700165`
-- Artifact ID: `5914204313`
-- Artifact name: `civilization-validation-kit`
-- Artifact size reported by GitHub: `15322` bytes
-- Artifact-service digest: `sha256:cc3ea27fa435c4e87ed0a27d399332accebbe412418d4ea82135c10b11979f17`
-- Artifact expiry reported by GitHub: `2026-12-13T23:29:12Z`
+- Artifact ID: `10327029218`
+- Artifact name: `overlord-quests-civilization-validation-kit`
+- Artifact size reported by GitHub: `2001315` bytes
+- Artifact-service digest: `sha256:bd8867fa26a815b54719cc9e13e4b5bd90d925167a083247119205bc2c7076aa`
+- Artifact expiry reported by GitHub: `2026-12-12T23:05:52Z`
 
-The handoff packaging workflow downloads those artifacts by exact run ID and includes their extracted contents beside an exact `git archive` of the preserved implementation commit. The artifact-service digests above identify GitHub's stored artifacts; they are not incorrectly treated as hashes of individual extracted files.
+The handoff packaging workflow downloads those artifacts by exact run ID and includes their extracted contents beside an exact `git archive` of the preserved implementation commit. The artifact-service digests above identify GitHub's stored artifact archives; they are not incorrectly treated as hashes of individual extracted files.
 
 ## Preservation gate
 
