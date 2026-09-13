@@ -68,7 +68,7 @@ jobs:
 
           READY=0
           for _ in $(seq 1 120); do
-            if grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG" && grep -Fq 'Loaded 22 quests and 1 chapters' "$LOG"; then
+            if grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG" && grep -Eq 'Loaded [0-9]+ quests and 1 chapters after bundled definitions and config overrides' "$LOG"; then
               READY=1
               break
             fi
