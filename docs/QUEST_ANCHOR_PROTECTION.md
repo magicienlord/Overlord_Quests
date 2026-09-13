@@ -1,6 +1,6 @@
 # OVERLORD QUESTS quest-anchor protection
 
-Status: TECHNICAL IMPLEMENTATION CONTRACT
+Status: TECHNICAL IMPLEMENTATION CONTRACT / STANDALONE RUNTIME QUALIFIED
 
 This document defines the narrow runtime protection used for deliberately authored quest-critical NPC anchors. It does not establish any new character, settlement, civilization outcome, or campaign event.
 
@@ -23,6 +23,22 @@ The tag is persistent entity NBT through vanilla scoreboard-tag storage.
 When a tagged entity is a `Mob`, OVERLORD QUESTS also calls `setPersistenceRequired()` whenever that entity joins a server level. This prevents ordinary Mob despawn from silently removing a deliberately authored quest anchor.
 
 The Forge runtime cancels the normal `LivingAttackEvent` damage path for protected living entities. The check is server-side and does not alter unmarked entities.
+
+## Standalone runtime qualification
+
+The repository includes a dedicated GitHub Actions workflow named `Quest Anchor Protection Smoke`.
+
+That smoke boots the actual Forge development server and drives the test through authenticated localhost RCON. It creates an explicitly tagged living test anchor, verifies that ordinary `/damage ... minecraft:generic` leaves its health unchanged while `overlord_quest_protected` is present, removes only that protection tag, then verifies the same ordinary damage path can kill the released entity.
+
+This qualifies the intended gameplay boundary in the standalone Quest runtime:
+
+- opt-in protected gameplay damage is canceled server-side;
+- removing the protection tag immediately restores the normal damage path;
+- the release does not require replacing or globally weakening the protection system.
+
+This smoke does not claim that an operator-level entity removal command such as `/kill`, raw entity discard, or another mod's direct removal API is ordinary gameplay damage. Those are administrative or compatibility removal paths outside the `LivingAttackEvent` protection contract and must not be used as the primary assertion that normal quest-anchor protection works.
+
+Full target-instance validation still matters where another installed mod can directly discard, transform, replace, or otherwise remove a quest-critical entity without passing through normal Forge living-attack damage events.
 
 ## What protection does not mean
 
@@ -48,6 +64,8 @@ Provider definitions should continue to use the unique anchor identity tag or a 
 ## Deliberate removal
 
 The existing server-authoritative `questlog:command` reward can remove the protection tag from a loaded, explicitly targeted anchor when a production quest genuinely requires that transition. World integration may also remove it during controlled setup or another purpose-built compatibility hook.
+
+The standalone runtime smoke demonstrates the mechanical release boundary by removing only `overlord_quest_protected` and then proving normal damage resumes. It does not define which production quest should perform that release.
 
 Raw command use is not automatically preferred for every campaign transition. If repeated production content demonstrates the need for a stronger cross-dimension or unloaded-entity protection state API, that should be implemented as a dedicated quest contract rather than hidden inside provider eligibility.
 
