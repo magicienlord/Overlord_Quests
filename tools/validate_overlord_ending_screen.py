@@ -20,6 +20,9 @@ SET_FACT = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/na
 FORGE_EVENTS = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java"
 FORGE_PACKETS = ROOT / "forge/src/main/java/org/infernalstudios/questlog/networking/QuestlogPacketsForge.java"
 DEV_QUEST = ROOT / "examples/questlog/quests/overlord_ending_arm_dev.json"
+PRODUCTION_QUESTS = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/quests"
+PRODUCTION_INDEX = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/index.json"
+ENDING_ARM_FACT = "overlord_reign:campaign/ending_armed"
 DOC = ROOT / "docs/OVERLORD_ENDING_SCREEN_INTEGRATION.md"
 PROTOCOL = ROOT / "docs/ENDING_SCREEN_TEST_PROTOCOL.md"
 
@@ -35,6 +38,32 @@ def read(path: Path, errors: list[str]) -> str:
 def require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
         errors.append(message)
+
+
+def validate_dormant_production_activation(errors: list[str]) -> None:
+    """Fail closed until the hidden production ending gate is explicitly authored."""
+    if not PRODUCTION_QUESTS.is_dir():
+        errors.append(f"{PRODUCTION_QUESTS.relative_to(ROOT)}: production quest directory is missing")
+        return
+
+    for quest_path in sorted(PRODUCTION_QUESTS.rglob("*.json")):
+        try:
+            quest_text = quest_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"{quest_path.relative_to(ROOT)}: {exc}")
+            continue
+        if ENDING_ARM_FACT in quest_text:
+            errors.append(
+                f"{quest_path.relative_to(ROOT)}: production ending activation is still dormant; "
+                f"remove {ENDING_ARM_FACT!r} until the authoritative final campaign gate is approved"
+            )
+
+    index_text = read(PRODUCTION_INDEX, errors)
+    require(
+        "overlord_ending_arm_dev" not in index_text,
+        "bundled production index must never reference the development ending-arm fixture",
+        errors,
+    )
 
 
 def main() -> int:
@@ -104,8 +133,9 @@ def main() -> int:
     require("OverlordEndingScreens.tick();" in forge_events, "Forge client tick must service direct sequence-break presentation", errors)
     require("OverlordEndingScreens.resetClientState();" in forge_events, "client logout must clear connection-scoped ending state", errors)
 
-    require('"overlord_reign:campaign/ending_armed"' in dev_quest, "development ending fixture must arm only the reserved fact", errors)
+    require(f'"{ENDING_ARM_FACT}"' in dev_quest, "development ending fixture must arm only the reserved fact", errors)
     require("[DEV]" in dev_quest, "ending arm fixture must remain visibly development-only", errors)
+    validate_dormant_production_activation(errors)
 
     require("TECHNICAL ACTIVATION INFRASTRUCTURE IMPLEMENTED" in doc, "ending integration doc must record the implemented activation boundary", errors)
     require("Prior-Dragon sequence-break path" in doc, "ending integration doc must describe prior-Dragon delivery", errors)
@@ -119,7 +149,7 @@ def main() -> int:
         return 1
 
     print("OVERLORD ending-screen contracts: PASS")
-    print("activation: server-authoritative arm fact, no bundled production setter")
+    print("activation: server-authoritative arm fact, production setter remains CI-forbidden")
     print("sequence break: persistent Dragon state can request direct one-time presentation")
     print("world continuity: vanilla callback preserved on normal End-poem path")
     return 0
