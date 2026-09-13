@@ -1,0 +1,57 @@
+{
+  "title": "The Tower Stands Ready",
+  "description": "The Dark Tower no longer merely exists; it functions. Its seat of rule, forge, Minion infrastructure, Gates Room, Treasury, Storage Room, Armory, and selected magical facilities are operational. Hear Gnarl's assessment and mark the end of formal Tower Restoration. Later upgrades, mastery, personnel comforts, trophies, and specialist work remain free to continue without holding the campaign hostage.",
+  "description_completed": "Formal Dark Tower Restoration is complete. The Tower is a functioning seat of Overlord rule, while its systems and inhabitants may continue to develop throughout the reign.",
+  "icon": {"item": "minecraft:nether_star"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 99,
+  "prerequisites": [
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/claim_the_throne", "required_amount": 1, "name": "Restore the Throne Room"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/prepare_the_forge", "required_amount": 1, "name": "Restore the Forge"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/wake_minion_infrastructure", "required_amount": 1, "name": "Restore Minion infrastructure"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/open_gates_room", "required_amount": 1, "name": "Open the Gates Room"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/secure_treasury", "required_amount": 1, "name": "Restore the Treasury"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/provision_storage_room", "required_amount": 1, "name": "Restore the Storage Room"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/establish_armory", "required_amount": 1, "name": "Restore the Armory"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/open_alchemy_laboratory", "required_amount": 1, "name": "Open the Alchemy Laboratory"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/establish_theurgy_laboratory", "required_amount": 1, "name": "Establish the Theurgy facility"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/open_gluttony_kitchen", "required_amount": 1, "name": "Open the Gluttony Kitchen"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/establish_spell_study", "required_amount": 1, "name": "Establish spell study and making"},
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/prepare_eidolon_chamber", "required_amount": 1, "name": "Prepare the Eidolon chamber"}
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Gnarl declare the Tower operational"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/restoration_complete",
+      "auto_claim": true,
+      "name": "Record formal Dark Tower Restoration"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "approving",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}

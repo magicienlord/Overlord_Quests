@@ -23,6 +23,10 @@ ROOMS = {
         "fact": "overlord_reign:tower/minion_infrastructure_operational",
         "objective": ("questlog:read", None, None),
     },
+    "campaign/tower/open_gates_room.json": {
+        "fact": "overlord_reign:tower/gates_operational",
+        "crafts": {"waystones:waystone"},
+    },
     "campaign/tower/provision_storage_room.json": {
         "fact": "overlord_reign:tower/storage_room_operational",
         "crafts": {"minecraft:chest", "minecraft:barrel"},
@@ -55,6 +59,25 @@ ROOMS = {
         "fact": "overlord_reign:tower/eidolon_room_operational",
         "objective": ("questlog:advancement", "advancement", "eidolon:worktable"),
     },
+}
+
+FORGE_REL = "campaign/tower/prepare_the_forge.json"
+COMPLETION_REL = "campaign/tower/restoration_complete.json"
+COMPLETION_FACT = "overlord_reign:tower/restoration_complete"
+
+REQUIRED_COMPLETION_QUESTS = {
+    "questlog:campaign/tower/claim_the_throne",
+    "questlog:campaign/tower/prepare_the_forge",
+    "questlog:campaign/tower/wake_minion_infrastructure",
+    "questlog:campaign/tower/open_gates_room",
+    "questlog:campaign/tower/secure_treasury",
+    "questlog:campaign/tower/provision_storage_room",
+    "questlog:campaign/tower/establish_armory",
+    "questlog:campaign/tower/magic/open_alchemy_laboratory",
+    "questlog:campaign/tower/magic/establish_theurgy_laboratory",
+    "questlog:campaign/tower/magic/open_gluttony_kitchen",
+    "questlog:campaign/tower/magic/establish_spell_study",
+    "questlog:campaign/tower/magic/prepare_eidolon_chamber",
 }
 
 
@@ -114,10 +137,8 @@ def collect_errors() -> list[str]:
             elif key is not None and matches[0].get(key) != value:
                 errors.append(f"{rel}: expected {key}={value!r}")
 
-    # Existing Forge is part of the same Tower contract.
-    forge_rel = "campaign/tower/prepare_the_forge.json"
-    forge = load(QUEST_ROOT / forge_rel, errors)
-    if forge_rel not in indexed:
+    forge = load(QUEST_ROOT / FORGE_REL, errors)
+    if FORGE_REL not in indexed:
         errors.append("Tower Forge definition is not indexed")
     forge_objectives = forge.get("objectives", [])
     if not any(
@@ -130,18 +151,31 @@ def collect_errors() -> list[str]:
     if not has_auto_fact(forge, "overlord_reign:tower/forge_prepared"):
         errors.append("Tower Forge must keep overlord_reign:tower/forge_prepared")
 
+    completion = load(QUEST_ROOT / COMPLETION_REL, errors)
+    if COMPLETION_REL not in indexed:
+        errors.append("Formal Tower Restoration completion definition is not indexed")
+    if not has_auto_fact(completion, COMPLETION_FACT):
+        errors.append(f"Formal Tower Restoration must auto-claim {COMPLETION_FACT}")
+    completion_prereqs = completion.get("prerequisites", [])
+    actual_completion_quests = {
+        p.get("quest") for p in completion_prereqs
+        if isinstance(p, dict)
+        and p.get("type") == "questlog:quest_complete"
+        and p.get("required_amount") == 1
+    } if isinstance(completion_prereqs, list) else set()
+    if actual_completion_quests != REQUIRED_COMPLETION_QUESTS:
+        missing = sorted(REQUIRED_COMPLETION_QUESTS - actual_completion_quests)
+        extra = sorted(actual_completion_quests - REQUIRED_COMPLETION_QUESTS)
+        errors.append(f"Formal Tower Restoration prerequisites mismatch; missing={missing}, extra={extra}")
+
     production_text = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted((QUEST_ROOT / "campaign").rglob("*.json"))
     )
-    if "overlord_reign:tower/gates_operational" in production_text:
-        errors.append("Tower Gates must remain explicitly deferred until a real transport hook exists")
     if "overlord_reign:tower/biomancy" in production_text or "tower/magic/biomancy" in production_text:
         errors.append("Biomancy must not acquire a Tower room without later explicit authority")
-    if "tower/restoration_complete" in production_text:
-        errors.append("Formal Tower Restoration completion must remain absent while Gates are deferred")
 
-    # All non-opening room branches should remain semi-open from the common foundation.
     for rel in (
+        "campaign/tower/open_gates_room.json",
         "campaign/tower/provision_storage_room.json",
         "campaign/tower/establish_armory.json",
         "campaign/tower/secure_treasury.json",
@@ -171,7 +205,7 @@ def main() -> int:
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
-    print("Tower restoration contract OK: implemented facilities are bounded; Gates remain explicit technical deferment.")
+    print("Tower restoration contract OK: Waystones Gates Room and formal completion are implemented within bounded Tower ownership.")
     return 0
 
 

@@ -1,0 +1,37 @@
+{
+  "title": "Open the Gates Room",
+  "description": "The Tower's Gates Room is its long-distance transit chamber. Establish a Waystone there as the room's first operational anchor. The installed Waystones network supplies the travel infrastructure; this restoration does not pretend that Waystones are recovered Minion Gate machinery, nor does it create a separate Waystones progression chain.",
+  "description_completed": "A Waystone anchor can now serve the Dark Tower's Gates Room. Further network discovery and ordinary travel remain normal Waystones gameplay.",
+  "icon": {"item": "waystones:waystone"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 65,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "waystones:waystone",
+      "required_amount": 1,
+      "name": "Prepare a Waystone anchor for the Gates Room"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/gates_operational",
+      "auto_claim": true,
+      "name": "Record the operational Gates Room"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
