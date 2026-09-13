@@ -2,9 +2,9 @@
 
 Status: PRODUCTION QUEST CONTENT / NATIVE-PROGRESSION WRAPPERS
 
-The four mandatory adventure integrations implemented here are Twilight Forest, L_Ender's Cataclysm, The Graveyard, and The Bumblezone.
+The five mandatory adventure integrations implemented here are Twilight Forest, L_Ender's Cataclysm, The Graveyard, The Bumblezone, and Knight Quest.
 
-They are full REIGN questlines in the sense that each has an authored beginning, progression, and capstone. They are not replacement progression systems. Questlog observes durable native advancements retrospectively and supplies only REIGN framing and sparse completion facts.
+They are full REIGN questlines in the sense that each has an authored beginning, progression, and capstone. They are not replacement progression systems. Questlog observes durable native milestones where available and supplies REIGN framing plus sparse completion facts.
 
 ## Twilight Forest
 
@@ -45,6 +45,23 @@ The wrapper intentionally samples major native progression rather than requiring
 
 Final marker: `overlord_reign:adventure/bumblezone_essence_reached`.
 
+## Knight Quest
+
+Knight Quest exposes a large recipe-advancement surface but only one useful non-recipe entry advancement: `knightquest:knightquest`, granted when Small Essence is obtained. REIGN therefore does not pretend the recipe book is a native campaign.
+
+The authored progression follows mechanics verified in Knight Quest and Knight-Lib:
+
+1. acquire Small Essence and trigger the native Knight Quest root;
+2. secure `knightlib:great_chalice` and `knightlib:great_essence` for the Chalice progression;
+3. obtain `knightquest:radiant_essence`, whose native recipe uses Small Essence and a Nether Star;
+4. fill the Great Chalice through Knight-Lib's native essence interaction, use Radiant Essence on the full vessel to summon `knightquest:netherman`, and defeat it.
+
+Questlog does not simulate Chalice charge state. The final `questlog:entity_kill_history` objective records the Netherman kill retrospectively, so the capstone itself proves the player reached the native summoning outcome without requiring a fragile duplicate state machine.
+
+Final marker: `overlord_reign:adventure/knight_quest_completed`.
+
 ## Sequence breaks
 
-All four integrations use `questlog:advancement`. It polls the player's real advancement completion state and is retrospective. Legitimate native progress made before a REIGN wrapper activates therefore counts automatically.
+Twilight Forest, Cataclysm, Graveyard, and Bumblezone primarily use `questlog:advancement`, which polls the player's real advancement completion state retrospectively.
+
+Knight Quest uses its persistent native root advancement for entry and the persistent Questlog kill-history bridge for the Netherman capstone. The intermediate Great Chalice, Great Essence, and Radiant Essence objectives are inventory observations; their completion is persisted by Questlog once observed.

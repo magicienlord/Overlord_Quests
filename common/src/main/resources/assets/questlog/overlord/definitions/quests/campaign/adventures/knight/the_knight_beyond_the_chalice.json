@@ -1,0 +1,22 @@
+{
+  "title": "The Knight Beyond the Chalice",
+  "description": "Fill the Great Chalice through its native essence mechanic, then use Radiant Essence on the full vessel. That interaction calls the Netherman; defeat what answers. Questlog observes only the resulting kill and does not replace Knight Quest's summoning sequence.",
+  "description_completed": "The Netherman has answered the Great Chalice and fallen. Knight Quest's authored REIGN arc is complete; its remaining equipment and encounters stay native progression rather than becoming a duplicate checklist.",
+  "icon": {"item": "minecraft:wither_skeleton_skull"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 343,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/knight/radiance_for_the_vessel","required_amount":1,"name":"Prepare Radiant Essence"}
+  ],
+  "objectives": [
+    {"type":"questlog:entity_kill_history","entity":"knightquest:netherman","required_amount":1,"name":"Defeat the Netherman"}
+  ],
+  "rewards": [
+    {"type":"questlog:set_fact","fact":"overlord_reign:adventure/knight_quest_completed","auto_claim":true,"name":"Record Knight Quest's Netherman climax"}
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

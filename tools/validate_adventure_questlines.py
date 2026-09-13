@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the four mandatory native adventure questline wrappers."""
+"""Validate mandatory native adventure questline wrappers."""
 from __future__ import annotations
 
 import json
@@ -45,6 +45,11 @@ ARCS = {
             "the_bumblezone:root", "the_bumblezone:beehemoth/tamed_beehemoth", "the_bumblezone:beehemoth/queen_beehemoth", "the_bumblezone:essence/bee_essence_infusion",
         },
         "fact": "overlord_reign:adventure/bumblezone_essence_reached",
+    },
+    "knight": {
+        "files": ["essence_in_the_dust.json", "the_great_chalice.json", "radiance_for_the_vessel.json", "the_knight_beyond_the_chalice.json"],
+        "advancements": {"knightquest:knightquest"},
+        "fact": "overlord_reign:adventure/knight_quest_completed",
     },
 }
 
@@ -121,12 +126,30 @@ def main() -> int:
     if "the_bumblezone:the_bumblezone/" in bumble_text:
         errors.append("Bumblezone wrapper must not use the obsolete duplicated namespace path")
 
+    knight_docs = [load(QUEST_ROOT / "knight" / f, errors) for f in ARCS["knight"]["files"]]
+    knight_items = {
+        o.get("item")
+        for doc in knight_docs
+        for o in walk(doc.get("objectives", []))
+        if o.get("type") == "questlog:item_obtain"
+    }
+    expected_knight_items = {"knightlib:great_chalice", "knightlib:great_essence", "knightquest:radiant_essence"}
+    if knight_items != expected_knight_items:
+        errors.append(f"Knight Quest item progression mismatch; expected={sorted(expected_knight_items)}, actual={sorted(x for x in knight_items if x)}")
+
+    knight_final = knight_docs[-1] if knight_docs else {}
+    knight_kills = [o for o in walk(knight_final.get("objectives", [])) if o.get("type") == "questlog:entity_kill_history"]
+    if len(knight_kills) != 1 or knight_kills[0].get("entity") != "knightquest:netherman" or knight_kills[0].get("required_amount") != 1:
+        errors.append("Knight Quest capstone must use one retrospective knightquest:netherman kill-history objective")
+    if any(o.get("type") == "questlog:entity_died" for o in walk(knight_final.get("objectives", []))):
+        errors.append("Knight Quest capstone must not use non-retroactive questlog:entity_died")
+
     if errors:
         print("Adventure questline contract FAILED:", file=sys.stderr)
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
-    print("Adventure questline contract OK: four full REIGN wrappers preserve native progression ownership.")
+    print("Adventure questline contract OK: five full REIGN wrappers preserve native progression ownership.")
     return 0
 
 

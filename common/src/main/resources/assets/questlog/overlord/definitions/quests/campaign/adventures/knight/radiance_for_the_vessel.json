@@ -1,0 +1,20 @@
+{
+  "title": "Radiance for the Vessel",
+  "description": "Refine the next key in Knight Quest's sequence: Radiant Essence. Its native recipe demands Small Essence and a Nether Star, and the resulting key is what the full Great Chalice recognizes when the Netherman is to be called.",
+  "description_completed": "Radiant Essence is ready for the Great Chalice's final native interaction.",
+  "icon": {"item": "minecraft:nether_star"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 342,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/knight/the_great_chalice","required_amount":1,"name":"Prepare the Great Chalice progression"}
+  ],
+  "objectives": [
+    {"type":"questlog:item_obtain","item":"knightquest:radiant_essence","required_amount":1,"name":"Obtain Radiant Essence"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

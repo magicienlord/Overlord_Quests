@@ -1,0 +1,21 @@
+{
+  "title": "The Great Chalice",
+  "description": "The lesser essence is only the beginning. Secure a Great Chalice and a Great Essence. Knight-Lib's own mechanics govern how essence is fed into the vessel; Questlog records the preparation without replacing that native interaction.",
+  "description_completed": "The Overlord possesses the Great Chalice and the stronger essence used by its native charging system.",
+  "icon": {"item": "minecraft:glass_bottle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 341,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/knight/essence_in_the_dust","required_amount":1,"name":"Begin Knight Quest's essence progression"}
+  ],
+  "objectives": [
+    {"type":"questlog:item_obtain","item":"knightlib:great_chalice","required_amount":1,"name":"Obtain the Great Chalice"},
+    {"type":"questlog:item_obtain","item":"knightlib:great_essence","required_amount":1,"name":"Obtain a Great Essence"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

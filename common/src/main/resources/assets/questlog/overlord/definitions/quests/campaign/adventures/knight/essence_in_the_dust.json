@@ -1,0 +1,20 @@
+{
+  "title": "Essence in the Dust",
+  "description": "Knight Quest's native progression begins when Small Essence first enters your hands. Secure that first trace and let the mod's own opening advancement establish that this branch of the reign has begun.",
+  "description_completed": "Small Essence has entered the Overlord's keeping, and Knight Quest's native progression has begun.",
+  "icon": {"item": "minecraft:experience_bottle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 340,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}
+  ],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"knightquest:knightquest","required_amount":1,"name":"Acquire Small Essence and enter Knight Quest's progression"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
