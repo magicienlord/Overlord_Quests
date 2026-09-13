@@ -1,0 +1,25 @@
+OVERLORD REIGN / Overlord_Quests conversation handoff
+Created: 2026-09-14
+
+Implementation repository: magicienlord/Overlord_Quests
+Implementation branch: gnarl-bootstrap
+Preserved source SHA: 18dd600ddbde3a12b5776d1c9998c5799c7f138d
+Preserved source tree: ea5a75025c09ffd4e5a2faa7dc156e58a4159264
+
+Lore authority repository: magicienlord/Overlord_Lore_and_Canon
+Lore authority branch: main
+Observed lore authority SHA: 235845c4985b61cba9c106b2f4c4af8894bb98ae
+
+ROLLBACK WARNING:
+The live repositories were treated as authoritative when this package was created. Do not resume from stale conversation memory.
+
+FIRST ACTION NEXT CONVERSATION:
+Re-fetch gnarl-bootstrap and lore main. If either is newer, newer live repository state overrides this package.
+
+PRESERVED BOUNDARY NOTES:
+- Gristle is already the proper name of the Tower cook; “Minion Cook” is his role.
+- Lost Castle is already authored, documented, indexed, and CI-validated.
+- Exact source SHA had 13/13 successful GitHub Actions workflows at capture time.
+- docs/CURRENT_IMPLEMENTATION_STATUS.md is stale/incomplete at this checkpoint; use definitions/index.json + focused contracts/docs + Git history + CI.
+
+HANDOFF PACKAGING MUST NOT ALTER IMPLEMENTATION FILES.

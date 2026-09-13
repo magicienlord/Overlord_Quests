@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "package_kind": "conversation_handoff",
+  "created_date": "2026-09-14",
+  "source": {
+    "repository": "magicienlord/Overlord_Quests",
+    "branch": "gnarl-bootstrap",
+    "commit": "18dd600ddbde3a12b5776d1c9998c5799c7f138d",
+    "tree": "ea5a75025c09ffd4e5a2faa7dc156e58a4159264",
+    "commit_message": "Make narrative smoke quest-count agnostic"
+  },
+  "lore_authority": {
+    "repository": "magicienlord/Overlord_Lore_and_Canon",
+    "branch": "main",
+    "observed_commit": "235845c4985b61cba9c106b2f4c4af8894bb98ae",
+    "commit_message": "Add Silent Order clarification authority",
+    "read_only": true
+  },
+  "validation": {
+    "exact_head_workflows_total": 13,
+    "exact_head_workflows_success": 13,
+    "exact_head_failures": 0,
+    "exact_head_in_progress": 0,
+    "build_forge": {
+      "run_id": 34788700194,
+      "artifact_id": 5914204399,
+      "artifact_name": "Overlord_Quests-Forge-1.20.1",
+      "artifact_service_digest": "sha256:8cb6ef0d0681a114aef441a47aa17a15556736737770432185e6f086b3ece177"
+    },
+    "civilization_validation": {
+      "run_id": 34788700165,
+      "artifact_id": 5914204313,
+      "artifact_name": "civilization-validation-kit",
+      "artifact_service_digest": "sha256:cc3ea27fa435c4e87ed0a27d399332accebbe412418d4ea82135c10b11979f17"
+    }
+  },
+  "preserved_decisions": {
+    "tower_cook_name": "Gristle",
+    "tower_cook_role": "Minion Cook",
+    "lost_castle_state": "authored_documented_indexed_ci_validated",
+    "waystones_gates_room": "Tower Restoration substrate exception; not a standalone Waystones questline"
+  },
+  "status_caveats": [
+    "docs/CURRENT_IMPLEMENTATION_STATUS.md is stale/incomplete at the preserved source SHA.",
+    "Use common/src/main/resources/assets/questlog/overlord/definitions/index.json for concrete production quest presence.",
+    "Future work must re-fetch live implementation and lore branches; newer live state overrides this snapshot."
+  ],
+  "package_scope": {
+    "production_changes": false,
+    "allowed_paths": [
+      "HANDOFF/**",
+      ".github/workflows/conversation-handoff.yml"
+    ],
+    "required_handoff_files": [
+      "HANDOFF/README_FIRST.md",
+      "HANDOFF/NEXT_CONVERSATION_HANDOFF.md",
+      "HANDOFF/VALIDATION_STATE.md",
+      "HANDOFF/RECENT_WORK_LEDGER.md",
+      "HANDOFF/RESTART_POINT.txt",
+      "HANDOFF/HANDOFF_MANIFEST.json"
+    ]
+  },
+  "restart_policy": "Re-fetch live gnarl-bootstrap and lore main first. Newer live repository state overrides this package."
+}
