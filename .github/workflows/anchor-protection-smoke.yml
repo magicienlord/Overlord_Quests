@@ -53,7 +53,7 @@ jobs:
       - name: Prepare Forge server run and runtime classpath
         run: ./gradlew :common:createMinecraftArtifacts :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
 
-      - name: Verify protected damage and authored release boundary
+      - name: Verify protected persistence, damage and authored release boundary
         shell: bash
         run: |
           set -euo pipefail
@@ -99,15 +99,21 @@ jobs:
           fi
 
           SUMMON_RESPONSE=$("${RCON[@]}" "summon minecraft:pig 0 80 0 {Tags:[\"overlord_quest_protected\",\"overlord_test_anchor\"],CustomName:'{\"text\":\"OverlordTestAnchor\"}',NoAI:1b,NoGravity:1b}")
+          PERSISTENCE_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] PersistenceRequired')
           BEFORE_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
           DAMAGE_PROTECTED_RESPONSE=$("${RCON[@]}" 'damage @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] 100 minecraft:generic')
           AFTER_PROTECTED_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
 
           printf '%s\n' "$SUMMON_RESPONSE"
+          printf '%s\n' "$PERSISTENCE_RESPONSE"
           printf '%s\n' "$BEFORE_RESPONSE"
           printf '%s\n' "$DAMAGE_PROTECTED_RESPONSE"
           printf '%s\n' "$AFTER_PROTECTED_RESPONSE"
 
+          if [[ "$PERSISTENCE_RESPONSE" != *'1b'* && "$PERSISTENCE_RESPONSE" != *': 1'* ]]; then
+            echo '::error::Protected Mob was not marked PersistenceRequired after joining the level.'
+            exit 1
+          fi
           if [[ "$BEFORE_RESPONSE" != *'10.0f'* ]]; then
             echo '::error::Protected anchor did not begin the smoke at normal pig health.'
             exit 1
