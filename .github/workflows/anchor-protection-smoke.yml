@@ -98,7 +98,7 @@ jobs:
             exit 1
           fi
 
-          SUMMON_RESPONSE=$("${RCON[@]}" "summon minecraft:pig 0 80 0 {Tags:[\"overlord_quest_protected\",\"overlord_test_anchor\"],CustomName:'{\"text\":\"OverlordTestAnchor\"}',NoAI:1b}")
+          SUMMON_RESPONSE=$("${RCON[@]}" "summon minecraft:pig 0 80 0 {Tags:[\"overlord_quest_protected\",\"overlord_test_anchor\"],CustomName:'{\"text\":\"OverlordTestAnchor\"}',NoAI:1b,NoGravity:1b}")
           BEFORE_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
           DAMAGE_PROTECTED_RESPONSE=$("${RCON[@]}" 'damage @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] 100 minecraft:generic')
           AFTER_PROTECTED_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
@@ -125,9 +125,6 @@ jobs:
           printf '%s\n' "$DAMAGE_RELEASED_RESPONSE"
           printf '%s\n' "$AFTER_RELEASE_RESPONSE"
 
-          if [[ "$RELEASE_RESPONSE" != *'Removed tag'*-or-* ]]; then
-            :
-          fi
           if [[ "$AFTER_RELEASE_RESPONSE" == *'10.0f'* ]]; then
             echo '::error::Released anchor remained protected after overlord_quest_protected was removed.'
             exit 1
