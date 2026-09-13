@@ -17,6 +17,7 @@ ACK_PACKET = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/p
 PACKETS = ROOT / "common/src/main/java/org/infernalstudios/questlog/network/QuestlogPackets.java"
 EVENTS = ROOT / "common/src/main/java/org/infernalstudios/questlog/QuestlogEvents.java"
 SET_FACT = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/narrative/SetFactReward.java"
+NARRATIVE_COMMANDS = ROOT / "common/src/main/java/org/infernalstudios/questlog/commands/OverlordNarrativeCommands.java"
 FORGE_EVENTS = ROOT / "forge/src/main/java/org/infernalstudios/questlog/QuestlogForgeEventForwarder.java"
 FORGE_PACKETS = ROOT / "forge/src/main/java/org/infernalstudios/questlog/networking/QuestlogPacketsForge.java"
 DEV_QUEST = ROOT / "examples/questlog/quests/overlord_ending_arm_dev.json"
@@ -80,6 +81,7 @@ def main() -> int:
     packets = read(PACKETS, errors)
     events = read(EVENTS, errors)
     set_fact = read(SET_FACT, errors)
+    narrative_commands = read(NARRATIVE_COMMANDS, errors)
     forge_events = read(FORGE_EVENTS, errors)
     forge_packets = read(FORGE_PACKETS, errors)
     dev_quest = read(DEV_QUEST, errors)
@@ -115,6 +117,11 @@ def main() -> int:
 
     require("OverlordEndingActivation.onPlayerLogin(player);" in events, "server login must synchronize ending state", errors)
     require("OverlordEndingActivation.onNarrativeFactChanged(player.server, this.fact);" in set_fact, "set_fact must synchronize the ending arm transition", errors)
+    require(
+        narrative_commands.count("OverlordEndingActivation.onNarrativeFactChanged(ctx.getSource().getServer(), fact);") >= 2,
+        "administrative fact set and clear commands must synchronize ending activation state",
+        errors,
+    )
 
     require("instanceof WinScreen winScreen" in router, "ending router must only consider vanilla WinScreen", errors)
     require("serverArmed && !serverPresented" in router, "ending replacement must require server-projected production state", errors)
