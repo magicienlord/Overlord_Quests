@@ -22,6 +22,7 @@ core.KNOWN_QUESTLOG_OBJECTIVES.update({
     "questlog:entity_died",
     "questlog:entity_kill_history",
     "questlog:entity_kill_stat",
+    "questlog:elixirum_mastery",
     "questlog:item_craft_stat",
     "questlog:visit_dimension_history",
     "questlog:visit_position_history",
