@@ -1,0 +1,43 @@
+{
+  "title": "Establish the Armory",
+  "description": "Weapons thrown into whichever chest happens to be closest are not an armory, Sire. Prepare the basic fittings needed to store and display equipment deliberately. The room only needs to become functional; collecting every weapon in the world is someone else's obsession.",
+  "description_completed": "The Dark Tower has the basic equipment fittings required for an operational Armory.",
+  "icon": {"item": "minecraft:armor_stand"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 61,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:armor_stand",
+      "required_amount": 1,
+      "name": "Prepare an armor stand"
+    },
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:item_frame",
+      "required_amount": 1,
+      "name": "Prepare an equipment display"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/armory_operational",
+      "auto_claim": true,
+      "name": "Record the operational Armory"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

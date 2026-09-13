@@ -1,0 +1,36 @@
+{
+  "title": "Open the Alchemy Laboratory",
+  "description": "The Tower has a chamber intended for alchemy, but shelves and stonework do not make a laboratory. Demonstrate working command of Ars Elixirum's own pharmacological system. Once its persisted mastery recognizes your first level of practical competence, the Tower's Alchemy facility can be treated as operational; deeper mastery belongs to the Alchemy questline itself.",
+  "description_completed": "The Dark Tower's Alchemy Laboratory is operational. Further Ars Elixirum mastery remains part of the dedicated alchemy-pharmacology progression.",
+  "icon": {"item": "minecraft:brewing_stand"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 70,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:elixirum_mastery",
+      "required_amount": 1,
+      "name": "Reach Ars Elixirum mastery level 1"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/alchemy_room_operational",
+      "auto_claim": true,
+      "name": "Record the operational Alchemy Laboratory"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

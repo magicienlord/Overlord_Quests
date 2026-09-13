@@ -1,0 +1,46 @@
+{
+  "title": "Wake the Minion Infrastructure",
+  "description": "The first Minion tribe is back under your command. That is enough to make the Tower's Minion infrastructure more than empty architecture. Put that recovered capability back into the Tower's working order; later tribe recoveries expand the horde, but they are not required to pretend the basic Minion function does not exist until every colour has returned.",
+  "description_completed": "The Dark Tower's core Minion infrastructure is operational with the restored Brown Minions. Later tribe recoveries remain part of broader Minion progression.",
+  "icon": {"item": "minionsremastered:masters_staff"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 22,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/browns_return",
+      "required_amount": 1,
+      "name": "Recover the Brown Minions"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Return Minion command to the Tower's working infrastructure"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/minion_infrastructure_operational",
+      "auto_claim": true,
+      "name": "Record operational Minion infrastructure"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "approving",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}

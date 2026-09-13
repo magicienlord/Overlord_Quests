@@ -1,0 +1,46 @@
+{
+  "title": "Take the Throne",
+  "description": "A Tower may rise by magic, Sire, but a throne room becomes useful only when there is an Overlord willing to use it as the seat of rule. Claim the chamber formally. The furniture is not the point; authority is.",
+  "description_completed": "The Dark Tower's throne room has been claimed as the operational seat of the new reign.",
+  "icon": {"item": "minecraft:nether_star"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 20,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/opening/a_new_master",
+      "required_amount": 1,
+      "name": "Begin the new reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Claim the throne room as the seat of rule"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/throne_room_operational",
+      "auto_claim": true,
+      "name": "Record the operational throne room"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "directive",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}

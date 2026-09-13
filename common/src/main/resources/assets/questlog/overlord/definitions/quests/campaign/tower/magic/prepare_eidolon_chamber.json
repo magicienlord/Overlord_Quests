@@ -1,0 +1,37 @@
+{
+  "title": "Prepare the Eidolon Chamber",
+  "description": "Rites, souls, occult binding, and necromantic work require a room prepared for deliberate practice rather than incidental unpleasantness. Establish Eidolon's first working apparatus in the Tower. This makes the facility usable; sacred and wicked paths, sacrifices, soul work, and later rites remain part of Eidolon's dedicated progression and are not swallowed by Tower Restoration.",
+  "description_completed": "The Dark Tower's Eidolon facility is operational. Deeper ritual and occult progression remains outside Tower Restoration.",
+  "icon": {"item": "minecraft:soul_lantern"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 74,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "eidolon:worktable",
+      "required_amount": 1,
+      "name": "Establish Eidolon's worktable milestone"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/eidolon_room_operational",
+      "auto_claim": true,
+      "name": "Record the operational Eidolon facility"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

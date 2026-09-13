@@ -1,0 +1,43 @@
+{
+  "title": "Provision the Storage Room",
+  "description": "A proper Tower accumulates loot, materials, tribute, spare parts, and things nobody remembers stealing. Prepare basic storage furniture so the dedicated room can function as infrastructure rather than an architectural promise. Later capacity upgrades and organization are ordinary Tower management, not restoration tiers.",
+  "description_completed": "The Dark Tower has the basic storage furniture required for an operational Storage Room.",
+  "icon": {"item": "minecraft:chest"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 60,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:chest",
+      "required_amount": 1,
+      "name": "Prepare a chest for the Storage Room"
+    },
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:barrel",
+      "required_amount": 1,
+      "name": "Prepare a barrel for the Storage Room"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/storage_room_operational",
+      "auto_claim": true,
+      "name": "Record the operational Storage Room"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

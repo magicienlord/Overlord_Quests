@@ -1,0 +1,37 @@
+{
+  "title": "Establish the Theurgy Laboratory",
+  "description": "Theurgy concerns matter, minerals, replication, and transmutation—not potion brewing with a more impressive vocabulary. Bring its material-processing apparatus into practical use. The native liquefaction-cauldron milestone is enough to establish the Tower facility; the rest of Theurgy remains its own progression.",
+  "description_completed": "The Dark Tower's Theurgy facility is operational. Further transmutation and material mastery remain outside Tower Restoration.",
+  "icon": {"item": "minecraft:amethyst_shard"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 71,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "theurgy:has_liquefaction_cauldron",
+      "required_amount": 1,
+      "name": "Bring a Liquefaction Cauldron into Theurgy progression"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/theurgy_room_operational",
+      "auto_claim": true,
+      "name": "Record the operational Theurgy facility"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

@@ -1,0 +1,37 @@
+{
+  "title": "Establish the Spell Study",
+  "description": "If the Tower is going to house serious spellcraft, it needs somewhere better suited to study and inscription than whichever table happens to have the fewest Minion bite marks. Bring Iron's spell-making infrastructure into working use. Later spell schools, books, inks, and mastery remain part of the dedicated spell progression.",
+  "description_completed": "The Dark Tower's spell-study and spell-making facility is operational. Deeper Iron's progression remains outside Tower Restoration.",
+  "icon": {"item": "minecraft:enchanted_book"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 73,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "irons_spellbooks:irons_spellbooks/make_inscription_table",
+      "required_amount": 1,
+      "name": "Establish an Inscription Table"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/spell_study_operational",
+      "auto_claim": true,
+      "name": "Record the operational spell-study facility"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

@@ -1,0 +1,27 @@
+name: Tower Restoration Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-tower-restoration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tower-restoration-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate Dark Tower restoration contract
+        run: python3 tools/validate_tower_restoration_contract.py

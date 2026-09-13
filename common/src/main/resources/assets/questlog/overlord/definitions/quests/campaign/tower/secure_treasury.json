@@ -1,0 +1,43 @@
+{
+  "title": "Secure the Treasury",
+  "description": "A Treasury should be capable of holding wealth before it becomes impressive enough to justify counting it. Prepare a secured entrance and a dedicated container. There will be no absurd requirement to heap up arbitrary blocks of gold merely so the room can be called restored.",
+  "description_completed": "The Dark Tower Treasury has the basic secure fittings required to operate as a vault. Accumulated wealth remains an expression of the reign, not a restoration grind.",
+  "icon": {"item": "minecraft:trapped_chest"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 62,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:iron_door",
+      "required_amount": 1,
+      "name": "Prepare a secure Treasury entrance"
+    },
+    {
+      "type": "questlog:item_craft_stat",
+      "item": "minecraft:trapped_chest",
+      "required_amount": 1,
+      "name": "Prepare a dedicated Treasury container"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:tower/treasury_operational",
+      "auto_claim": true,
+      "name": "Record the operational Treasury"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
