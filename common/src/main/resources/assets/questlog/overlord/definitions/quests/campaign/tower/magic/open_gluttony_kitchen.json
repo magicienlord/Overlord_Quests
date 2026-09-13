@@ -1,7 +1,7 @@
 {
   "title": "Open the Gluttony Kitchen",
-  "description": "Gluttony magic deserves a kitchen capable of more than roasting whatever the Browns drag home. Establish Farmer's Spell's magical cooking apparatus in practical use. This restores the Tower facility; discovering and mastering the wider Gluttony repertoire remains its own progression.",
-  "description_completed": "The Dark Tower's Gluttony Kitchen is operational. Further magical-cuisine progression remains outside Tower Restoration.",
+  "description": "Gluttony magic deserves a kitchen capable of more than roasting whatever the Browns drag home. Put Gristle, the Tower's Minion Cook, in charge of a proper Farmer's Spell magical kitchen and establish its apparatus in practical use. This restores the Tower facility; discovering and mastering the wider Gluttony repertoire remains its own progression.",
+  "description_completed": "Gristle's Gluttony Kitchen is operational in the Dark Tower. Further magical-cuisine progression remains outside Tower Restoration.",
   "icon": {"item": "minecraft:cake"},
   "chapter": "main",
   "include_in_main": true,
