@@ -34,9 +34,14 @@ Implemented and repository-validated:
 - Gnarl/incorporeal speaker presentation and provider presentation split;
 - OVERLORD death-screen compatibility boundary;
 - server-authoritative central-ending activation transport, one-time presentation persistence and prior-Dragon sequence-break delivery;
-- dedicated static contracts for Illager campaign behavior, ending activation and optional-objective semantics.
+- dedicated static contracts for Illager campaign behavior, ending activation and optional-objective semantics;
+- Forge development dedicated-server bootstrap smoke;
+- Forge development client bootstrap smoke under a virtual display;
+- two-boot real-server narrative-state persistence smoke driven through authenticated localhost RCON, covering fact and disposition write, save, restart, read, cleanup and second clean shutdown.
 
-Manual in-game qualification is still required for player-facing presentation details and several exact full-modpack interaction paths. Static validation and dedicated-server smoke do not replace those checks.
+The current standalone Quest checkpoint has therefore exercised both client and server bootstrap and has proved narrative fact/disposition SavedData round-tripping across a real server restart. These checks remain narrower than the complete OVERLORD REIGN instance.
+
+Manual in-game qualification is still required for player-facing presentation details and several exact full-modpack interaction paths. Standalone static validation, Forge development client/server bootstrap and the narrative-state persistence smoke do not replace those checks.
 
 ## Bundled production campaign
 
@@ -98,6 +103,7 @@ The repository contains selective integration work for exact mechanics already j
 - Ribbits native profession role matching;
 - Kobolds Captain provider identity;
 - Dwarven Forge Dwarf/Forger provider identity through the inherited vanilla Villager profession channel;
+- Dwarven Forge price-path source support through inherited Villager reputation, MerchantOffer special-price adjustment and separate Hero of the Village discounts, with no authored political price-change trigger bundled yet;
 - Realm RPG Sea Dwellers Mermorph provider/barter surfaces;
 - Mowzie's Mobs Umvuthi audience and blessing behavior;
 - vanilla/structure-backed Illager Bastille campaign observation.
@@ -137,7 +143,7 @@ Canon establishes one designated Nether Village and one protected marked Piglin 
 
 ### Red, Green and Blue Minion recovery
 
-The progression API and unlock bridge exist, but the diegetic recovery routes for Red, Green and Blue remain unresolved. Do not invent biome, boss, item or unrelated-mod mappings.
+The four-slot Brown/Red/Green/Blue progression ownership, summon gating and Questlog unlock bridge exist, but the diegetic recovery routes for Red, Green and Blue remain unresolved. Do not invent biome, boss, item or unrelated-mod mappings.
 
 ### Final central quest
 
@@ -145,7 +151,15 @@ The technical ending transport exists, but the actual hidden prerequisite chain 
 
 ## Validation boundary
 
-A green repository workflow means the checked contracts compiled and/or passed their static/runtime-smoke boundary. It does not by itself mean that every modpack interaction has been manually reproduced in Minecraft.
+A green repository workflow means the checked contracts compiled and/or passed their stated standalone static/runtime boundary. It does not by itself mean that every interaction has been reproduced in the full OVERLORD REIGN modpack.
+
+The current standalone validation surface includes:
+
+- exact Forge build and assembled-JAR validation;
+- dedicated Forge server bootstrap;
+- Forge client bootstrap under a virtual display;
+- real two-boot narrative fact/disposition persistence through server commands and SavedData;
+- focused static contracts for provider/civilization integrations, ending activation, optional objectives and sequence-break behavior.
 
 Manual full-instance validation still matters particularly for:
 
@@ -154,6 +168,7 @@ Manual full-instance validation still matters particularly for:
 - Umvuthi native hostility/misbehaviour transitions;
 - full Brown -> Red -> Green -> Blue Minion progression and reload reconciliation;
 - central ending normal-victory and prior-Dragon presentation paths;
+- Dwarven reputation-driven price behavior in the complete target instance before an authored political branch relies on it;
 - local civilization disposition consequences once production writers are authored.
 
 ## Maintenance rule
