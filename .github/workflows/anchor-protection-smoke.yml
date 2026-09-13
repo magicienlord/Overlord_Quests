@@ -1,0 +1,160 @@
+name: Quest Anchor Protection Smoke
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-anchor-protection-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  anchor-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Configure disposable test server with RCON
+        run: |
+          mkdir -p forge/run
+          printf 'eula=true\n' > forge/run/eula.txt
+          cat > forge/run/server.properties <<'EOF'
+          online-mode=false
+          level-type=minecraft:flat
+          generate-structures=false
+          view-distance=2
+          simulation-distance=2
+          spawn-protection=0
+          enable-rcon=true
+          rcon.port=25575
+          rcon.password=overlord-quests-ci
+          broadcast-rcon-to-ops=false
+          EOF
+
+      - name: Prepare Forge server run and runtime classpath
+        run: ./gradlew :common:createMinecraftArtifacts :forge:prepareServerRun :forge:resolveServerSmokeRuntime --no-daemon --stacktrace
+
+      - name: Verify protected damage and authored release boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG="$GITHUB_WORKSPACE/anchor-protection-smoke.log"
+          RCON=(python3 "$GITHUB_WORKSPACE/tools/rcon_smoke_client.py" --password overlord-quests-ci)
+
+          timeout --signal=TERM --kill-after=15s 150s \
+            ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
+            >"$LOG" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true; wait "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          READY=0
+          for _ in $(seq 1 120); do
+            if grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG" && grep -Fq 'Loaded 22 quests and 1 chapters' "$LOG"; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::Anchor-protection server boot never reached Questlog-ready state.'
+            exit 1
+          fi
+
+          RCON_READY=0
+          for _ in $(seq 1 30); do
+            if "${RCON[@]}" 'list' >/dev/null 2>&1; then
+              RCON_READY=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$RCON_READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::RCON did not become available.'
+            exit 1
+          fi
+
+          SUMMON_RESPONSE=$("${RCON[@]}" "summon minecraft:pig 0 80 0 {Tags:[\"overlord_quest_protected\",\"overlord_test_anchor\"],CustomName:'{\"text\":\"OverlordTestAnchor\"}',NoAI:1b}")
+          BEFORE_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
+          DAMAGE_PROTECTED_RESPONSE=$("${RCON[@]}" 'damage @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] 100 minecraft:generic')
+          AFTER_PROTECTED_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health')
+
+          printf '%s\n' "$SUMMON_RESPONSE"
+          printf '%s\n' "$BEFORE_RESPONSE"
+          printf '%s\n' "$DAMAGE_PROTECTED_RESPONSE"
+          printf '%s\n' "$AFTER_PROTECTED_RESPONSE"
+
+          if [[ "$BEFORE_RESPONSE" != *'10.0f'* ]]; then
+            echo '::error::Protected anchor did not begin the smoke at normal pig health.'
+            exit 1
+          fi
+          if [[ "$AFTER_PROTECTED_RESPONSE" != *'10.0f'* ]]; then
+            echo '::error::Protected anchor took gameplay damage while overlord_quest_protected was present.'
+            exit 1
+          fi
+
+          RELEASE_RESPONSE=$("${RCON[@]}" 'tag @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] remove overlord_quest_protected')
+          DAMAGE_RELEASED_RESPONSE=$("${RCON[@]}" 'damage @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] 100 minecraft:generic')
+          AFTER_RELEASE_RESPONSE=$("${RCON[@]}" 'data get entity @e[type=minecraft:pig,tag=overlord_test_anchor,limit=1] Health' || true)
+
+          printf '%s\n' "$RELEASE_RESPONSE"
+          printf '%s\n' "$DAMAGE_RELEASED_RESPONSE"
+          printf '%s\n' "$AFTER_RELEASE_RESPONSE"
+
+          if [[ "$RELEASE_RESPONSE" != *'Removed tag'*-or-* ]]; then
+            :
+          fi
+          if [[ "$AFTER_RELEASE_RESPONSE" == *'10.0f'* ]]; then
+            echo '::error::Released anchor remained protected after overlord_quest_protected was removed.'
+            exit 1
+          fi
+
+          "${RCON[@]}" 'stop' >/dev/null 2>&1 || true
+          set +e
+          wait "$SERVER_PID"
+          STATUS=$?
+          set -e
+          trap - EXIT
+
+          cat "$LOG"
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::error::Anchor-protection server exited with status $STATUS."
+            exit 1
+          fi
+          if grep -Eiq 'Exception in thread|\[[^]]*/FATAL\]|Failed to complete lifecycle event|Mod Loading has failed' "$LOG"; then
+            echo '::error::Anchor-protection smoke contains a fatal runtime marker.'
+            exit 1
+          fi
+
+      - name: Upload anchor protection smoke log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-anchor-protection-smoke-${{ github.run_number }}
+          path: anchor-protection-smoke.log
+          if-no-files-found: error
+          retention-days: 14
