@@ -1,0 +1,39 @@
+{
+  "title": "Call Back the Reds",
+  "description": "The Red Minions are the fire specialists, and they are the next traditional tribe the renewed horde can recover. Gnarl wants proof that the new reign can already operate where fire is an ordinary inconvenience. Return with a blaze rod; once that test is met, he can attempt to restore Red command through the Master's Staff.",
+  "description_completed": "The Overlord has returned with proof of command in hostile fire. Gnarl has attempted to restore the Red Minion capability through the Minion progression anchor.",
+  "icon": {
+    "item": "minecraft:blaze_rod"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 50,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:blaze_rod",
+      "required_amount": 1,
+      "name": "Return with a blaze rod"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "red",
+      "auto_claim": true,
+      "name": "Restore Red Minion command"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

@@ -1,0 +1,59 @@
+{
+  "title": "The Blues Return",
+  "description": "And there we have it, Sire. Blues. Damp, peculiar, and indispensable whenever the world insists on putting something important under water. Their command state is active, which means all four traditional Minion tribes are once again represented in your usable horde. Browns, Reds, Greens, Blues. A proper beginning at last.",
+  "description_completed": "Gnarl has confirmed that the Blue Minion capability is active in the owning Minion progression system. All four traditional Minion types now have an authored recovery path.",
+  "icon": {
+    "item": "minionsremastered:masters_staff"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 55,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/restore_blues",
+      "required_amount": 1,
+      "name": "Complete the Blue recovery attempt"
+    },
+    {
+      "type": "questlog:minion_unlocked",
+      "slot": "blue",
+      "required_amount": 1,
+      "name": "Confirm Blue Minion command"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Gnarl's confirmation"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:minions/blue_recovered",
+      "auto_claim": true,
+      "name": "Record the Blue tribe's recovery"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "approving",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}

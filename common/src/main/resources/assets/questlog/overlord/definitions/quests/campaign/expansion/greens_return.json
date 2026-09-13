@@ -1,34 +1,40 @@
 {
-  "title": "The Browns Return",
-  "description": "There we are, Sire. Browns. Sturdy, violent, and blessedly uncomplicated. The first Hive answers you again, which is more than can be said for the rest of our scattered little family. One tribe restored. Three remain.",
-  "description_completed": "Gnarl has confirmed the return of the Brown Minions and their Hive. The other three Minion tribes remain to be recovered.",
+  "title": "The Greens Return",
+  "description": "Greens again, Sire. Quiet when they should be, filthy when they please, and wonderfully willing to put something sharp into an enemy from the least respectable direction available. The Minion system confirms their command state. One traditional tribe remains beyond your reach.",
+  "description_completed": "Gnarl has confirmed that the Green Minion capability is active in the owning Minion progression system.",
   "icon": {
     "item": "minionsremastered:masters_staff"
   },
   "chapter": "main",
   "include_in_main": true,
-  "sort_order": 11,
+  "sort_order": 53,
   "prerequisites": [
     {
       "type": "questlog:quest_complete",
-      "quest": "questlog:campaign/opening/restore_browns",
+      "quest": "questlog:campaign/expansion/restore_greens",
       "required_amount": 1,
-      "name": "Restore the Brown Minions"
+      "name": "Complete the Green recovery attempt"
+    },
+    {
+      "type": "questlog:minion_unlocked",
+      "slot": "green",
+      "required_amount": 1,
+      "name": "Confirm Green Minion command"
     }
   ],
   "objectives": [
     {
       "type": "questlog:read",
       "required_amount": 1,
-      "name": "Hear Gnarl's assessment"
+      "name": "Hear Gnarl's confirmation"
     }
   ],
   "rewards": [
     {
       "type": "questlog:set_fact",
-      "fact": "overlord_reign:minions/brown_recovered",
+      "fact": "overlord_reign:minions/green_recovered",
       "auto_claim": true,
-      "name": "Record the Brown tribe's recovery"
+      "name": "Record the Green tribe's recovery"
     }
   ],
   "show_popup_on_unlock": true,

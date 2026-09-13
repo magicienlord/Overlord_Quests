@@ -1,0 +1,27 @@
+name: Minion Recovery Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-minion-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  minion-recovery-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate traditional Minion recovery contract
+        run: python3 tools/validate_minion_recovery_contract.py

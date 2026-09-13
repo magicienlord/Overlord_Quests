@@ -1,0 +1,39 @@
+{
+  "title": "Call Back the Greens",
+  "description": "The Greens are specialists in poison, ambush, and unpleasant places that civilized people have the good sense to avoid. Gnarl's next recovery test is deliberately less dignified than the last: return with a spider eye. Once the Overlord has demonstrated suitable tolerance for vermin and venom, he can attempt to restore Green command.",
+  "description_completed": "The Overlord has completed Gnarl's Green recovery test. Gnarl has attempted to restore the Green Minion capability through the Minion progression anchor.",
+  "icon": {
+    "item": "minecraft:spider_eye"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 52,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/reds_return",
+      "required_amount": 1,
+      "name": "Recover the Red Minions"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:spider_eye",
+      "required_amount": 1,
+      "name": "Return with a spider eye"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "green",
+      "auto_claim": true,
+      "name": "Restore Green Minion command"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

@@ -1,0 +1,39 @@
+{
+  "title": "Call Back the Blues",
+  "description": "The Blues are the water specialists, Sire, which already makes them more useful around deep water than a Brown pretending not to drown. For the final traditional recovery test, return with prismarine crystals from beneath the surface. Once that is done, Gnarl can attempt to restore Blue command and complete the four-tribe capability set.",
+  "description_completed": "The Overlord has completed Gnarl's Blue recovery test. Gnarl has attempted to restore the Blue Minion capability through the Minion progression anchor.",
+  "icon": {
+    "item": "minecraft:prismarine_crystals"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 54,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/greens_return",
+      "required_amount": 1,
+      "name": "Recover the Green Minions"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:prismarine_crystals",
+      "required_amount": 1,
+      "name": "Return with prismarine crystals"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:unlock_minion",
+      "slot": "blue",
+      "auto_claim": true,
+      "name": "Restore Blue Minion command"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
