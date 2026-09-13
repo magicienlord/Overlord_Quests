@@ -4,6 +4,8 @@ Status: TECHNICAL / IMPLEMENTATION STATUS
 
 This file records which civilization sidequest pools currently have source-backed production activities and which remain intentionally unfilled. It is not a source of new setting canon.
 
+See `CIVILIZATION_NATIVE_PROGRESSION_AUDIT.md` for the exact Dwarven Forge, Ribbits, and Kobolds artifact identities and the durable-signal analysis behind the current status below.
+
 ## Authoring threshold
 
 A civilization contact quest does not automatically justify generic sidequests.
@@ -90,11 +92,13 @@ The native `mowziesmobs:kill_umvuthi` path remains a separate destructive route 
 
 First contact: IMPLEMENTED.
 
-Post-contact pool: TECHNICALLY UNRESOLVED.
+Post-contact pool: AUTHORING UNRESOLVED / TECHNICAL SIGNAL AVAILABLE.
 
-The exact Dwarven Forge 1.0.0 audit found recipe-unlock advancements, not durable records of Dwarven trade or service usage. Those recipe entries must not be misrepresented as civilization accomplishments.
+The exact Dwarven Forge 1.0.0 audit found 24 recipe-unlock advancements. Those recipe entries are not proof of crafting, trade, or civilization service and must not be used as accomplishment milestones.
 
-Future Dwarven sidequests should wait for a concrete authored item/service requirement or a verified runtime state that accurately represents the intended Dwarven activity.
+A separate exact-source check resolves the useful technical question: Dwarven rune recipes implement vanilla `SmithingRecipe`, vanilla 1.20.1 `SmithingMenu.onTake` calls `ItemStack.onCraftedBy`, and `ItemStack.onCraftedBy` increments the persistent exact-item `Stats.ITEM_CRAFTED` statistic. Questlog's existing `questlog:item_craft_stat` objective can therefore track an authored exact Dwarven craft without replacing Dwarven Forge progression.
+
+No production Dwarven sidequest is added solely because that signal exists. The exact craft, provider, political meaning, and reward still require authored campaign justification.
 
 ## Ribbits
 
@@ -102,9 +106,11 @@ First contact: IMPLEMENTED.
 
 Post-contact pool: TECHNICALLY UNRESOLVED.
 
-Ribbits 3.0.5 exposes native professions and trade machinery, but its packaged advancements are recipe unlocks only. No durable native sidequest accomplishment signal has yet been identified.
+The exact installed Ribbits 3.0.5 artifact is pinned at SHA-256 `e04aa665df7e96844fe8833f29cc343feefac8ad7b949399d7b4a60475123e2b`. Its six packaged advancements are recipe unlocks for mossy-oak building recipes, not records of Ribbit trade, gardening, fishing, music, or Sorcerer activity.
 
-Do not convert mere profession interaction into hidden Questlog progress without an explicit authored objective or persistent source signal.
+Ribbits uses the vanilla `Merchant` menu, so successful trades increment `minecraft:traded_with_villager`. That statistic is global and cannot distinguish a Ribbit trade from another merchant trade after quest trigger. It is therefore too broad for a Ribbit-specific production accomplishment.
+
+If an authored Ribbit sidequest later requires proof of native trade completion, use a narrow filtered bridge. Do not substitute current inventory, an open merchant screen, current Ribbit home state, or the global merchant statistic.
 
 ## Kobolds
 
@@ -112,7 +118,9 @@ First contact: IMPLEMENTED.
 
 Post-contact pool: TECHNICALLY UNRESOLVED.
 
-The exact installed Kobolds 2.12.0 JAR exposes no advancement definitions. Its Captain has native interaction/trade behavior, but no durable source-owned accomplishment signal has yet been established for production sidequest tracking.
+The exact installed Kobolds 2.12.0 JAR exposes no advancement definitions. Captain and specialist trade behavior is implemented through native Kobold AI goals, and the audited path does not award a durable player statistic or advancement when it emits native trade output.
+
+If an authored Kobold sidequest later requires proof of a Captain or specialist transaction, use the smallest source-specific completion bridge that observes the native action without replacing Kobold AI or reward logic. Item possession alone is not a valid historical signal.
 
 ## Villagers
 
