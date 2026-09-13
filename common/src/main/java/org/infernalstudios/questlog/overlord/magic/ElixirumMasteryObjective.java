@@ -3,9 +3,12 @@ package org.infernalstudios.questlog.overlord.magic;
 import com.evandev.triggers.Triggers;
 import com.evandev.triggers.event.events.TriggerPlayerEvent;
 import com.google.gson.JsonObject;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.infernalstudios.questlog.core.quests.EditorMetadata;
+import org.infernalstudios.questlog.core.quests.QuestObjectiveRegistry;
 import org.infernalstudios.questlog.core.quests.objectives.Objective;
 
 import java.lang.reflect.Method;
@@ -30,6 +33,14 @@ public final class ElixirumMasteryObjective extends Objective {
     private static volatile boolean accessResolved;
 
     private int ticksUntilCheck;
+
+    public static void register() {
+        QuestObjectiveRegistry.register(
+                new ResourceLocation("questlog", "elixirum_mastery"),
+                ElixirumMasteryObjective::new,
+                new EditorMetadata(null, null, "required_amount")
+        );
+    }
 
     public ElixirumMasteryObjective(JsonObject definition) {
         super(definition);
