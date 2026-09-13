@@ -1,0 +1,20 @@
+{
+  "title": "Break the Great Ones",
+  "description": "Demonstrate that the newly found strongholds are not merely landmarks. Defeat several of Cataclysm's defining threats using the mod's own boss advancements as proof; no duplicate REIGN kill counter is required.",
+  "description_completed": "Ignis, the Leviathan, and Maledictus have each fallen within Cataclysm's own recorded progression.",
+  "icon": {"item": "minecraft:netherite_sword"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 311,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/cataclysm/ruins_that_wake","required_amount":1,"name":"Locate Cataclysm's strongholds"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"cataclysm:kill_ignis","required_amount":1,"name":"Defeat Ignis"},
+    {"type":"questlog:advancement","advancement":"cataclysm:kill_leviathan","required_amount":1,"name":"Defeat the Leviathan"},
+    {"type":"questlog:advancement","advancement":"cataclysm:kill_maledictus","required_amount":1,"name":"Defeat Maledictus"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

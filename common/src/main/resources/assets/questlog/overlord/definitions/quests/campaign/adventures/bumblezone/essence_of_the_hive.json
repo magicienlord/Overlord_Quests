@@ -1,0 +1,16 @@
+{
+  "title": "Essence of the Hive",
+  "description": "Reach the Bumblezone's Bee Essence Infusion milestone as the authored capstone of this REIGN wrapper. The dimension's many essence branches, flowers, pollen systems, protections, treasures, and discoveries remain available as native play rather than mandatory duplicate objectives.",
+  "description_completed": "The Overlord has reached a major Bumblezone essence milestone while leaving the dimension's broader progression under its own ownership.",
+  "icon": {"item": "minecraft:experience_bottle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 332,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/bumblezone/the_queens_domain","required_amount":1,"name":"Reach the Queen's domain milestone"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"the_bumblezone:essence/bee_essence_infusion","required_amount":1,"name":"Reach Bee Essence Infusion"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:adventure/bumblezone_essence_reached","auto_claim":true,"name":"Record the Bumblezone essence milestone"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

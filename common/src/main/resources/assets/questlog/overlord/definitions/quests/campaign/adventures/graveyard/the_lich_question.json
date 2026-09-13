@@ -1,0 +1,19 @@
+{
+  "title": "The Lich Question",
+  "description": "Follow The Graveyard's own Lich progression far enough to summon one and reach its Lich Prison milestone. REIGN treats this as evidence about a particular form of undeath and binding, not as a definition of resurrection, Lifeforce, or the fate of every soul.",
+  "description_completed": "The Graveyard's Lich sequence has been confronted through its native progression.",
+  "icon": {"item": "minecraft:wither_skeleton_skull"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 321,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/graveyard/places_the_dead_keep","required_amount":1,"name":"Survey The Graveyard's places of death"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/summon_lich","required_amount":1,"name":"Reach the Summon Lich milestone"},
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/lich_prison","required_amount":1,"name":"Reach the Lich Prison milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

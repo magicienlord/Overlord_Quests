@@ -1,0 +1,21 @@
+{
+  "title": "Ruins That Wake",
+  "description": "Cataclysm scatters dangerous strongholds across the world. Locate a representative span of its native structures before treating their inhabitants as quarry. Questlog records discovery; Cataclysm remains responsible for the places themselves and everything inside them.",
+  "description_completed": "Several of Cataclysm's major strongholds have been found and marked as targets of the reign.",
+  "icon": {"item": "minecraft:filled_map"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 310,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"cataclysm:find_cursed_pyramid","required_amount":1,"name":"Find the Cursed Pyramid"},
+    {"type":"questlog:advancement","advancement":"cataclysm:find_sunken_city","required_amount":1,"name":"Find the Sunken City"},
+    {"type":"questlog:advancement","advancement":"cataclysm:find_ruined_citadel","required_amount":1,"name":"Find the Ruined Citadel"},
+    {"type":"questlog:advancement","advancement":"cataclysm:find_burning_arena","required_amount":1,"name":"Find the Burning Arena"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

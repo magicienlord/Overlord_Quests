@@ -1,0 +1,21 @@
+{
+  "title": "A Forest Without Barriers",
+  "description": "Carry the Twilight Forest's native chain through its final available progression milestones: Troll territory, the merged progression threshold, trophy-pedestal access, and the native progression end. This closes REIGN's wrapper without inventing a conclusion the Forest itself does not provide.",
+  "description_completed": "The Twilight Forest's implemented progression has been carried to its native end state under the Overlord's reign.",
+  "icon": {"item": "minecraft:nether_star"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 303,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/twilight/towers_and_ice","required_amount":1,"name":"Break the later Forest barriers"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_troll","required_amount":1,"name":"Complete the Troll progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_merge","required_amount":1,"name":"Complete the merged progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_trophy_pedestal","required_amount":1,"name":"Complete the trophy-pedestal milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progression_end","required_amount":1,"name":"Reach the Forest's native progression end"}
+  ],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:adventure/twilight_forest_progression_completed","auto_claim":true,"name":"Record the Twilight Forest progression"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Maze and Fire",
+  "description": "Press farther through the Twilight Forest's own progression. Break the Labyrinth stage and the Hydra stage without asking Questlog to duplicate their kills, trophies, or environmental locks.",
+  "description_completed": "The Labyrinth and Hydra stages of the Twilight Forest have been overcome.",
+  "icon": {"item": "minecraft:map"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 301,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/twilight/old_forest_new_master","required_amount":1,"name":"Break the Forest's opening rulers"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_labyrinth","required_amount":1,"name":"Complete the Labyrinth progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_hydra","required_amount":1,"name":"Complete the Hydra progression milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

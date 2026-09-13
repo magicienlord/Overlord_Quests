@@ -1,0 +1,21 @@
+{
+  "title": "Towers and Ice",
+  "description": "Continue through the Forest's later sequence: the Knightly stage, Ur-Ghast, the Yeti, and the Glacier. These are native progression milestones, not a second REIGN boss ledger layered over them.",
+  "description_completed": "The middle and northern barriers of the Twilight Forest have yielded to the Overlord's advance.",
+  "icon": {"item": "minecraft:packed_ice"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 302,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/twilight/maze_and_fire","required_amount":1,"name":"Overcome Maze and Fire"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_knights","required_amount":1,"name":"Complete the Knight progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_ur_ghast","required_amount":1,"name":"Complete the Ur-Ghast progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_yeti","required_amount":1,"name":"Complete the Yeti progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_glacier","required_amount":1,"name":"Complete the Glacier progression milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

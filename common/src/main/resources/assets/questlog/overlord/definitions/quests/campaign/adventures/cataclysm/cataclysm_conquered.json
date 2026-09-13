@@ -1,0 +1,16 @@
+{
+  "title": "Cataclysm Conquered",
+  "description": "Finish the hunt by reaching Cataclysm's own all-bosses capstone. That single native milestone owns the exhaustive roster; Questlog does not reproduce every boss as a second checklist merely to claim the same accomplishment twice.",
+  "description_completed": "Cataclysm's native all-bosses milestone has been reached. Its great threats have been brought within the history of the reign.",
+  "icon": {"item": "minecraft:dragon_head"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 312,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/cataclysm/break_the_great_ones","required_amount":1,"name":"Break several defining Cataclysm threats"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"cataclysm:kill_all_bosses","required_amount":1,"name":"Reach Cataclysm's all-bosses milestone"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:adventure/cataclysm_capstone_completed","auto_claim":true,"name":"Record Cataclysm's conquered capstone"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

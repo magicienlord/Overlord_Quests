@@ -1,0 +1,20 @@
+{
+  "title": "Places the Dead Keep",
+  "description": "The Graveyard's ruins are evidence of several different relationships with death, not proof that every corpse, ghost, soul, and undead being is the same phenomenon. Explore its native graveyard, crypt, and haunted-house milestones before drawing conclusions.",
+  "description_completed": "The Overlord has surveyed several of The Graveyard's major places of burial and haunting.",
+  "icon": {"item": "minecraft:skeleton_skull"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 320,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/large_graveyard","required_amount":1,"name":"Discover a Large Graveyard"},
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/crypt","required_amount":1,"name":"Discover a Crypt"},
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/haunted_house","required_amount":1,"name":"Discover a Haunted House"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

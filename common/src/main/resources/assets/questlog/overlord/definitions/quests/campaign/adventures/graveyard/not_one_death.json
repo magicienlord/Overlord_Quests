@@ -1,0 +1,19 @@
+{
+  "title": "Death Is Not One Thing",
+  "description": "Close this expedition with two further native milestones: defeat a Wraith and establish the Coffin craft milestone. Ghosts, persistent souls, undead bodies, resurrection, and Lifeforce remain distinct REIGN concepts even when one mod places several of them beside one another.",
+  "description_completed": "The Graveyard expedition is complete without collapsing REIGN's distinct death and soul mechanics into a single occult resource.",
+  "icon": {"item": "minecraft:soul_lantern"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 322,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/graveyard/the_lich_question","required_amount":1,"name":"Confront the Lich sequence"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/kill_wraith","required_amount":1,"name":"Defeat a Wraith"},
+    {"type":"questlog:advancement","advancement":"graveyard:graveyard/craft_coffin","required_amount":1,"name":"Reach the Coffin craft milestone"}
+  ],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:adventure/graveyard_expedition_completed","auto_claim":true,"name":"Record the Graveyard expedition"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

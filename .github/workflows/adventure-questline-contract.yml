@@ -1,0 +1,27 @@
+name: Adventure Questline Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-adventures-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  adventure-questline-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate mandatory adventure wrappers
+        run: python3 tools/validate_adventure_questlines.py

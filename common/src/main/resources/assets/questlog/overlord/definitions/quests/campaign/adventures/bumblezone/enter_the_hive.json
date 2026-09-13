@@ -1,0 +1,19 @@
+{
+  "title": "Enter the Hive",
+  "description": "The Bumblezone is a deep native progression system rather than a single novelty dimension. Enter its advancement tree and tame a Beehemoth, using the dimension's own recorded milestones instead of converting every bee mechanic into a REIGN checklist.",
+  "description_completed": "The Overlord has entered the Bumblezone's native progression and secured a Beehemoth ally.",
+  "icon": {"item": "minecraft:honey_bottle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 330,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"the_bumblezone:root","required_amount":1,"name":"Enter the Bumblezone advancement tree"},
+    {"type":"questlog:advancement","advancement":"the_bumblezone:beehemoth/tamed_beehemoth","required_amount":1,"name":"Tame a Beehemoth"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

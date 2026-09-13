@@ -1,0 +1,19 @@
+{
+  "title": "Old Forest, New Master",
+  "description": "The Twilight Forest already enforces its own chain of rulers and barriers. Enter that progression on its native terms and defeat the Naga and Lich. Questlog observes what the Forest records; it does not replace the Forest's gating logic.",
+  "description_completed": "The first rulers of the Twilight Forest have fallen before the new reign.",
+  "icon": {"item": "minecraft:oak_sapling"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 300,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_naga","required_amount":1,"name":"Complete the Naga progression milestone"},
+    {"type":"questlog:advancement","advancement":"twilightforest:progress_lich","required_amount":1,"name":"Complete the Lich progression milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

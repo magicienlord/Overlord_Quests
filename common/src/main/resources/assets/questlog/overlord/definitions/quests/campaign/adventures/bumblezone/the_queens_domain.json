@@ -1,0 +1,16 @@
+{
+  "title": "The Queen's Domain",
+  "description": "Continue until the Bumblezone itself records the Queen Beehemoth milestone. Whatever social and mechanical requirements lead there remain owned by the dimension; Questlog only recognizes that the Overlord has reached that native threshold.",
+  "description_completed": "The Queen Beehemoth milestone has been reached within the Bumblezone's own progression.",
+  "icon": {"item": "minecraft:honeycomb"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 331,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/bumblezone/enter_the_hive","required_amount":1,"name":"Enter the Bumblezone progression"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"the_bumblezone:beehemoth/queen_beehemoth","required_amount":1,"name":"Reach the Queen Beehemoth milestone"}],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
