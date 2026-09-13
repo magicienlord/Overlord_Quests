@@ -1,11 +1,7 @@
 name: Civilization Validation Kit
 
 on:
-  workflow_run:
-    workflows:
-      - Build Forge 1.20.1
-    types:
-      - completed
+  push:
     branches:
       - gnarl-bootstrap
   workflow_dispatch:
@@ -15,40 +11,66 @@ permissions:
   actions: read
 
 concurrency:
-  group: overlord-quests-civilization-validation-${{ github.event.workflow_run.head_sha || github.sha }}
+  group: overlord-quests-civilization-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   package:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve source commit
-        id: source
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
-            echo "build_run=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-            echo "build_run=" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout exact source commit
         uses: actions/checkout@v5
         with:
-          ref: ${{ steps.source.outputs.sha }}
+          ref: ${{ github.sha }}
 
-      - name: Download exact Forge artifact from triggering build
-        if: github.event_name == 'workflow_run'
+      - name: Resolve successful same-commit Forge build
+        if: github.event_name == 'push'
+        id: source_build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for ATTEMPT in $(seq 1 40); do
+            RUNS="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs" \
+              -f head_sha="$GITHUB_SHA" \
+              -f event=push \
+              -f per_page=100)"
+
+            BUILD_RUN="$(jq -r '[.workflow_runs[] | select(.name == "Build Forge 1.20.1" and .head_sha == env.GITHUB_SHA)] | sort_by(.run_number) | last | .id // empty' <<<"$RUNS")"
+            if [ -z "$BUILD_RUN" ]; then
+              echo "Build Forge run for $GITHUB_SHA is not registered yet."
+              sleep 10
+              continue
+            fi
+
+            STATUS="$(jq -r --argjson id "$BUILD_RUN" '.workflow_runs[] | select(.id == $id) | .status' <<<"$RUNS")"
+            CONCLUSION="$(jq -r --argjson id "$BUILD_RUN" '.workflow_runs[] | select(.id == $id) | .conclusion // empty' <<<"$RUNS")"
+            echo "Build Forge run $BUILD_RUN status=$STATUS conclusion=${CONCLUSION:-pending}"
+
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCLUSION" != "success" ]; then
+                echo "Build Forge did not succeed for $GITHUB_SHA."
+                exit 1
+              fi
+              echo "build_run=$BUILD_RUN" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for Build Forge on $GITHUB_SHA."
+          exit 1
+
+      - name: Download exact Forge artifact from same-commit build
+        if: github.event_name == 'push'
         uses: actions/download-artifact@v5
         with:
           name: overlord-quests-forge-1.20.1
           path: downloaded-forge
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ steps.source.outputs.build_run }}
+          run-id: ${{ steps.source_build.outputs.build_run }}
 
       - name: Set up Java 17 for manual dispatch build
         if: github.event_name == 'workflow_dispatch'
@@ -121,7 +143,7 @@ jobs:
           OVERLORD QUESTS - CIVILIZATION FULL-INSTANCE VALIDATION KIT
 
           Purpose:
-          Validate the source-backed production civilization slices against the complete OVERLORD REIGN 1.20.1 Forge instance using the exact Quest JAR that passed the triggering Forge build.
+          Validate the source-backed production civilization slices against the complete OVERLORD REIGN 1.20.1 Forge instance using the exact Quest JAR that passed Build Forge for this source commit.
 
           1. Back up the target test instance and use a disposable validation world.
           2. Keep the target instance's required civilization/native-mod JARs installed at their validated versions.
@@ -135,12 +157,17 @@ jobs:
           Villager and Piglin civilization main-entry validation is intentionally absent because those production entry mechanics remain unresolved. This kit does not authorize speculative providers, political outcomes, or disposition consequences.
           EOF
 
+          BUILD_RUN_ID='manual-local-build'
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            BUILD_RUN_ID='${{ steps.source_build.outputs.build_run }}'
+          fi
+
           cat > "$KIT/BUILD_INFO.txt" <<EOF
           OVERLORD QUESTS civilization full-instance validation kit
-          source_commit=${{ steps.source.outputs.sha }}
+          source_commit=$GITHUB_SHA
           package_workflow=$GITHUB_WORKFLOW
           package_run_id=$GITHUB_RUN_ID
-          forge_build_run_id=${{ steps.source.outputs.build_run }}
+          forge_build_run_id=$BUILD_RUN_ID
           minecraft=1.20.1
           forge=47.4.10
           java=17
@@ -161,7 +188,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fxq "source_commit=${{ steps.source.outputs.sha }}" build/civilization-validation-kit/BUILD_INFO.txt
+          grep -Fxq "source_commit=$GITHUB_SHA" build/civilization-validation-kit/BUILD_INFO.txt
           test "$(wc -l < build/civilization-validation-kit/PROTOCOLS.txt)" -eq 14
           test -n "$(find build/civilization-validation-kit/mods -maxdepth 1 -type f -name '*.jar' | head -n 1)"
           (
