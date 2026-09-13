@@ -121,6 +121,7 @@ public class QuestlogForgeEventForwarder {
         if (event.phase == TickEvent.Phase.END) {
             QuestlogClientEvents.onClientTick();
             OverlordDeathScreens.tick();
+            OverlordEndingScreens.tick();
         }
     }
 
@@ -144,6 +145,7 @@ public class QuestlogForgeEventForwarder {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onClientPlayerLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        OverlordEndingScreens.resetClientState();
         QuestlogClientEvents.onClientPlayerLogout();
     }
 }

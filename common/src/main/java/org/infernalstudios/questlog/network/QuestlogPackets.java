@@ -27,9 +27,11 @@ public class QuestlogPackets {
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "chapter_edit_save"), ChapterEditSavePacket.class, ChapterEditSavePacket.DIRECTION, ChapterEditSavePacket::encode, ChapterEditSavePacket::decode, ChapterEditSavePacket::handle))
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "chapter_edit_remove"), ChapterEditRemovePacket.class, ChapterEditRemovePacket.DIRECTION, ChapterEditRemovePacket::encode, ChapterEditRemovePacket::decode, ChapterEditRemovePacket::handle))
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "reset"), QuestResetPacket.class, QuestResetPacket.DIRECTION, QuestResetPacket::encode, QuestResetPacket::decode, QuestResetPacket::handle))
-            // Append OVERLORD provider packets so inherited packet discriminator order remains stable.
+            // Append OVERLORD packets so inherited packet discriminator order remains stable.
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "provider_open"), QuestProviderOpenPacket.class, QuestProviderOpenPacket.DIRECTION, QuestProviderOpenPacket::encode, QuestProviderOpenPacket::decode, QuestProviderOpenPacket::handle))
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "provider_action"), QuestProviderActionPacket.class, QuestProviderActionPacket.DIRECTION, QuestProviderActionPacket::encode, QuestProviderActionPacket::decode, QuestProviderActionPacket::handle))
+            .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "ending_state"), OverlordEndingStatePacket.class, OverlordEndingStatePacket.DIRECTION, OverlordEndingStatePacket::encode, OverlordEndingStatePacket::decode, OverlordEndingStatePacket::handle))
+            .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "ending_presented"), OverlordEndingPresentedPacket.class, OverlordEndingPresentedPacket.DIRECTION, OverlordEndingPresentedPacket::encode, OverlordEndingPresentedPacket::decode, OverlordEndingPresentedPacket::handle))
             .build();
 
     public record RegisteredPacket<T>(ResourceLocation id, Class<T> clazz, IPacketContext.Direction direction,

@@ -13,6 +13,7 @@ import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.packet.QuestCompletedPacket;
 import org.infernalstudios.questlog.network.packet.QuestTriggeredPacket;
+import org.infernalstudios.questlog.overlord.ending.OverlordEndingActivation;
 import org.infernalstudios.questlog.overlord.minions.UnlockMinionReward;
 import org.infernalstudios.questlog.platform.Services;
 import org.infernalstudios.questlog.util.QuestlogMigrator;
@@ -54,6 +55,7 @@ public class QuestlogEvents {
         if (ServerPlayerManager.INSTANCE == null) return;
         QuestManager manager = ServerPlayerManager.INSTANCE.getManagerByPlayer(player);
         ServerPlayerManager.INSTANCE.load(manager);
+        OverlordEndingActivation.onPlayerLogin(player);
 
         if (QuestlogMigrator.showDatapackWarning && player.hasPermissions(2)) {
             player.sendSystemMessage(Component.literal("§e[Questlog] Warning: Quests are now loaded from the config folder. Datapacks are no longer supported! Your old datapack quests were automatically migrated."));

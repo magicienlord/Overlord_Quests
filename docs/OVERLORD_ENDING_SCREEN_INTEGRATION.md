@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Central Ending Presentation
 
-Status: TECHNICAL PREVIEW SCAFFOLD / PRODUCTION ACTIVATION NOT YET AUTHORED
+Status: TECHNICAL ACTIVATION INFRASTRUCTURE IMPLEMENTED / FINAL PRESENTATION AND CENTRAL QUEST NOT YET AUTHORED
 
 ## Authority
 
@@ -8,39 +8,80 @@ The REIGN runtime authority establishes the following campaign rules:
 
 - the Ender Dragon defeat remains the underlying Minecraft final-boss event;
 - the ordinary Minecraft ending presentation should ultimately be replaced or modified by an OVERLORD REIGN-specific ending presentation;
+- legitimate prior Dragon defeat must be recognized rather than undone;
 - the player returns to the same persistent world afterward;
 - unresolved civilization arcs, sidequests, native progression, Tower work, exploration, and sandbox play remain available;
 - detailed ending narrative material remains behind the spoiler firewall.
 
 This implementation does not add new ending lore.
 
-## Current technical boundary
+## Production activation boundary
 
-The repository now contains a deliberately neutral development scaffold that proves the presentation handoff without activating it in normal gameplay.
+The ending surface now has a fail-closed server-authoritative arm signal:
 
-`OverlordEndingScreens` inspects a newly opened vanilla `WinScreen`. It will replace that screen only when all of these development conditions are true:
+`overlord_reign:campaign/ending_armed`
 
-1. the Questlog ending-screen feature is enabled;
-2. `developmentPreview` is explicitly enabled in the client configuration;
+This is an implementation marker, not a substitute for the hidden final campaign quest. No bundled production quest currently sets it.
+
+A future authoritative central-campaign definition may set the fact only when its real authored ending gate has been reached. Dragon defeat alone never creates the fact and therefore cannot activate the REIGN ending by itself.
+
+The client receives only a derived boolean projection of that server state. Client configuration cannot arm the production ending.
+
+## One-time presentation persistence
+
+`OverlordEndingPresentationState` stores a separate world-scoped `presented` latch in `overlord_quests_ending` SavedData.
+
+This latch is presentation state, not narrative canon. It prevents the ending screen from replaying on every login or every later credits transition after the player has completed it once.
+
+The client acknowledges completion through a dedicated server-bound packet. The server accepts that acknowledgement only when:
+
+- the ending-arm fact is present; and
+- Minecraft's End fight reports that the Dragon has previously been defeated.
+
+A forged or premature acknowledgement therefore cannot suppress a future legitimate ending presentation.
+
+Clearing the arm fact is an administrative/testing action. On a later login while the fact is absent, the presentation latch is reset so the technical protocol can be repeated. Production quest rewards remain monotonic and do not clear the arm fact.
+
+## Normal Dragon-victory path
+
+If the ending is armed before the final Dragon victory, `OverlordEndingScreens` may replace a newly opened vanilla `WinScreen` only when all of these conditions are true:
+
+1. the ending-screen feature is enabled;
+2. the server has projected the ending as armed and not yet presented;
 3. the session is an unpublished local single-player integrated server;
-4. the vanilla `WinScreen` is the End poem form, not the manually opened credits form.
+4. the vanilla `WinScreen` is the End poem form, not manually opened credits.
 
-`developmentPreview` defaults to `false`. Therefore normal Ender Dragon victory remains on Minecraft's vanilla presentation until the hidden production campaign has an explicit, source-authorized activation condition.
+`WinScreenAccessor` exposes only the private `poem` discriminator and the original `onFinished` callback. The replacement invokes that callback at most once after acknowledging presentation, preserving Minecraft's normal post-End transition.
 
-## Vanilla continuation ownership
+## Prior-Dragon sequence-break path
 
-Minecraft 1.20.1 `WinScreen` stores two private values that matter to this integration:
+A WinScreen-only implementation is insufficient when the Dragon was defeated before the central campaign becomes ending-ready because there may be no future first-victory poem to intercept.
 
-- `poem`, distinguishing the End poem from ordinary credits;
-- `onFinished`, the callback that completes Minecraft's normal post-ending transition.
+When the arm fact becomes true or the player logs in, the server also checks Minecraft's persistent `EndDragonFight.hasPreviouslyKilledDragon()` state.
 
-`WinScreenAccessor` exposes only those two fields through Mixin. The replacement screen receives the original `onFinished` runnable and invokes it at most once when the player continues.
+If the Dragon was already defeated and the ending has not yet been presented, the server requests the direct sequence-break presentation. The client waits until screenless gameplay in an unpublished local single-player session before opening the same ending scaffold.
 
-The scaffold does not teleport the player, respawn the player, construct a new world, recreate the End transition, or bypass Minecraft's normal completion callback.
+That direct path does not:
+
+- summon or respawn the Dragon;
+- modify the End fight;
+- replay vanilla credits;
+- teleport or respawn the player;
+- alter unrelated quest, civilization, Tower, Minion, or native-mod progression.
+
+Continuing simply acknowledges the presentation and returns to the same active world.
+
+For the intended fresh-victory flow, campaign authoring should arm the ending before the expected Dragon fight so the normal WinScreen handoff owns the transition. The direct path exists to preserve legitimate sequence breaking and recovery after a missed first-victory presentation.
+
+## Development preview
+
+`ending_screen.developmentPreview` remains available and defaults to `false`.
+
+Preview mode bypasses the server arm state only for the neutral WinScreen replacement test. It does not write the arm fact, does not mark the production presentation as completed, and does not become campaign authority.
 
 ## Current presentation
 
-The screen is intentionally not a final visual design. In preview mode it renders only:
+The screen is intentionally not a final visual design. It renders only:
 
 - a black background;
 - the project title;
@@ -49,40 +90,26 @@ The screen is intentionally not a final visual design. In preview mode it render
 
 No final narration, Gnarl dialogue, branch outcome summary, credits treatment, artwork, music, Cataclysm exposition, or campaign reveal is encoded here.
 
-## Production gate still required
-
-Dragon defeat by itself must not silently become proof that the hidden central campaign has reached its authored ending state. Exploration and sequence breaking are valid project concerns, so production activation requires an explicit campaign gate once the final campaign dependency is authored.
-
-Until that gate exists, the technical scaffold remains preview-only.
-
-The production gate must satisfy all of the following:
-
-- be derived from authoritative campaign state rather than a client preference;
-- survive save and reload through the campaign's normal persistence model;
-- tolerate the Dragon having been defeated before the final campaign objective if the hidden campaign design permits such sequence breaking;
-- not alter or reset unrelated quest, civilization, Tower, Minion, or native-mod progression;
-- preserve the vanilla post-ending callback so the same world remains playable.
-
 ## Configuration
 
 The client configuration category `ending_screen` contains:
 
 - `enabled`, master presentation switch, default `true`;
 - `developmentPreview`, explicit preview bypass, default `false`;
-- `minimumDisplayTicks`, minimum preview dwell time, default `80`;
+- `minimumDisplayTicks`, minimum scaffold dwell time, default `80`;
 - `allowSkip`, permits Escape, Enter, or Space to continue after the minimum dwell time, default `true`.
 
-`developmentPreview` is a development control only. It is not a campaign fact and must never be used as the production ending condition.
+Disabling the screen does not mutate server campaign state. A pending direct sequence-break presentation remains pending until the feature is enabled or the session is reloaded.
 
-## Acceptance boundary
+## Remaining boundary
 
-Current implementation can be considered mechanically validated after a disposable single-player End victory confirms that, with development preview enabled:
+The technical activation and sequence-break transport are implemented, but no production quest currently arms the ending and the visible screen is still a neutral scaffold.
 
-1. the End poem is replaced by the neutral scaffold;
-2. ordinary menu credits remain vanilla;
-3. the Continue action invokes the original vanilla completion path exactly once;
-4. the player returns to the same persistent world;
-5. the replacement does not activate in LAN-published or dedicated multiplayer contexts;
-6. with development preview disabled, normal End victory remains untouched.
+Still PLANNED:
 
-Final OVERLORD REIGN ending presentation and production activation remain PLANNED.
+- the hidden central-campaign prerequisite chain;
+- final ending dialogue/narration;
+- final artwork, sound, timing and credits treatment;
+- any explicit post-ending authored reactions.
+
+Those remain behind the spoiler firewall and must not be inferred from this infrastructure.

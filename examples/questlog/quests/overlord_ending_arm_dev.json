@@ -1,0 +1,27 @@
+{
+  "title": "[DEV] Arm OVERLORD Ending",
+  "description": "Development-only fixture for the central ending activation boundary. This is not an OVERLORD REIGN story quest.",
+  "chapter": "main",
+  "icon": {
+    "item": "minecraft:dragon_head"
+  },
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "minecraft:debug_stick",
+      "required_amount": 1,
+      "name": "[DEV] Obtain a debug stick to arm the ending"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:campaign/ending_armed",
+      "auto_claim": true,
+      "name": "[DEV] Arm the server-authoritative ending presentation"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}

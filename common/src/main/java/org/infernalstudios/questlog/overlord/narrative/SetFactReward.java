@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
 import org.infernalstudios.questlog.core.quests.rewards.Reward;
+import org.infernalstudios.questlog.overlord.ending.OverlordEndingActivation;
 import org.infernalstudios.questlog.util.JsonUtils;
 
 /** Reward that records one monotonic authored world narrative fact. */
@@ -25,8 +26,12 @@ public final class SetFactReward extends Reward {
             return;
         }
 
-        OverlordNarrativeState.get(player.server).setFact(this.fact);
+        boolean changed = OverlordNarrativeState.get(player.server).setFact(this.fact);
         super.applyReward(player);
+
+        if (changed) {
+            OverlordEndingActivation.onNarrativeFactChanged(player.server, this.fact);
+        }
 
         // Fact objectives and provider gates may exist anywhere in the active
         // graph. Re-evaluate immediately after the world fact becomes true.
