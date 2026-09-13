@@ -33,7 +33,7 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Configure disposable test server
+      - name: Configure disposable test server with RCON
         run: |
           mkdir -p forge/run
           printf 'eula=true\n' > forge/run/eula.txt
@@ -44,6 +44,10 @@ jobs:
           view-distance=2
           simulation-distance=2
           spawn-protection=0
+          enable-rcon=true
+          rcon.port=25575
+          rcon.password=overlord-quests-ci
+          broadcast-rcon-to-ops=false
           EOF
 
       - name: Prepare Forge server run and runtime classpath
@@ -54,31 +58,72 @@ jobs:
         run: |
           set -euo pipefail
           LOG="$GITHUB_WORKSPACE/narrative-state-write.log"
+          RCON=(python3 "$GITHUB_WORKSPACE/tools/rcon_smoke_client.py" --password overlord-quests-ci)
 
-          (
-            sleep 55
-            printf '%s\n' \
-              'questlog narrative fact set overlord_reign:validation/runtime_fact' \
-              'questlog narrative disposition set overlord_reign:validation_civilization overlord_reign:neutral' \
-              'save-all flush'
-            sleep 5
-            printf '%s\n' 'stop'
-          ) | timeout --signal=TERM --kill-after=15s 150s \
+          timeout --signal=TERM --kill-after=15s 150s \
             ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
-            >"$LOG" 2>&1 || STATUS=$?
+            >"$LOG" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true; wait "$SERVER_PID" 2>/dev/null || true' EXIT
 
-          cat "$LOG"
+          READY=0
+          for _ in $(seq 1 120); do
+            if grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG" && grep -Fq 'Loaded 22 quests and 1 chapters' "$LOG"; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
 
-          if ! grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG"; then
-            echo '::error::First narrative-state server boot never reached ready state.'
+          if [ "$READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::First narrative-state server boot never reached Questlog-ready state.'
             exit 1
           fi
-          if ! grep -Fq 'Set narrative fact overlord_reign:validation/runtime_fact' "$LOG"; then
+
+          RCON_READY=0
+          for _ in $(seq 1 30); do
+            if "${RCON[@]}" 'list' >/dev/null 2>&1; then
+              RCON_READY=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$RCON_READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::RCON did not become available on the first boot.'
+            exit 1
+          fi
+
+          FACT_RESPONSE=$("${RCON[@]}" 'questlog narrative fact set overlord_reign:validation/runtime_fact')
+          DISPOSITION_RESPONSE=$("${RCON[@]}" 'questlog narrative disposition set overlord_reign:validation_civilization overlord_reign:neutral')
+          "${RCON[@]}" 'save-all flush' >/dev/null
+
+          printf '%s\n' "$FACT_RESPONSE"
+          printf '%s\n' "$DISPOSITION_RESPONSE"
+
+          if [[ "$FACT_RESPONSE" != *'Set narrative fact overlord_reign:validation/runtime_fact'* ]]; then
             echo '::error::Narrative fact set command did not complete.'
             exit 1
           fi
-          if ! grep -Fq 'Set narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral' "$LOG"; then
+          if [[ "$DISPOSITION_RESPONSE" != *'Set narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral'* ]]; then
             echo '::error::Narrative disposition set command did not complete.'
+            exit 1
+          fi
+
+          "${RCON[@]}" 'stop' >/dev/null 2>&1 || true
+          set +e
+          wait "$SERVER_PID"
+          STATUS=$?
+          set -e
+          trap - EXIT
+
+          cat "$LOG"
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::error::First narrative-state server exited with status $STATUS."
             exit 1
           fi
           if grep -Eiq 'Exception in thread|\[[^]]*/FATAL\]|Failed to complete lifecycle event|Mod Loading has failed' "$LOG"; then
@@ -91,43 +136,83 @@ jobs:
         run: |
           set -euo pipefail
           LOG="$GITHUB_WORKSPACE/narrative-state-read.log"
+          RCON=(python3 "$GITHUB_WORKSPACE/tools/rcon_smoke_client.py" --password overlord-quests-ci)
 
-          (
-            sleep 45
-            printf '%s\n' \
-              'questlog narrative fact get overlord_reign:validation/runtime_fact' \
-              'questlog narrative disposition get overlord_reign:validation_civilization'
-            sleep 3
-            printf '%s\n' \
-              'questlog narrative fact clear overlord_reign:validation/runtime_fact' \
-              'questlog narrative disposition clear overlord_reign:validation_civilization' \
-              'save-all flush'
-            sleep 3
-            printf '%s\n' 'stop'
-          ) | timeout --signal=TERM --kill-after=15s 135s \
+          timeout --signal=TERM --kill-after=15s 135s \
             ./gradlew :forge:runServer --offline --no-daemon --stacktrace \
-            >"$LOG" 2>&1 || STATUS=$?
+            >"$LOG" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true; wait "$SERVER_PID" 2>/dev/null || true' EXIT
 
-          cat "$LOG"
+          READY=0
+          for _ in $(seq 1 105); do
+            if grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG" && grep -Fq 'Loaded 22 quests and 1 chapters' "$LOG"; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
 
-          if ! grep -Eq 'Done \([0-9.]+s\)! For help, type "help"' "$LOG"; then
-            echo '::error::Second narrative-state server boot never reached ready state.'
+          if [ "$READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::Second narrative-state server boot never reached Questlog-ready state.'
             exit 1
           fi
-          if ! grep -Fq 'Narrative fact overlord_reign:validation/runtime_fact = true' "$LOG"; then
+
+          RCON_READY=0
+          for _ in $(seq 1 30); do
+            if "${RCON[@]}" 'list' >/dev/null 2>&1; then
+              RCON_READY=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$RCON_READY" -ne 1 ]; then
+            cat "$LOG"
+            echo '::error::RCON did not become available on the second boot.'
+            exit 1
+          fi
+
+          FACT_RESPONSE=$("${RCON[@]}" 'questlog narrative fact get overlord_reign:validation/runtime_fact')
+          DISPOSITION_RESPONSE=$("${RCON[@]}" 'questlog narrative disposition get overlord_reign:validation_civilization')
+          printf '%s\n' "$FACT_RESPONSE"
+          printf '%s\n' "$DISPOSITION_RESPONSE"
+
+          if [[ "$FACT_RESPONSE" != *'Narrative fact overlord_reign:validation/runtime_fact = true'* ]]; then
             echo '::error::Narrative fact did not survive the server restart.'
             exit 1
           fi
-          if ! grep -Fq 'Narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral' "$LOG"; then
+          if [[ "$DISPOSITION_RESPONSE" != *'Narrative disposition overlord_reign:validation_civilization = overlord_reign:neutral'* ]]; then
             echo '::error::Narrative disposition did not survive the server restart.'
             exit 1
           fi
-          if ! grep -Fq 'Cleared narrative fact overlord_reign:validation/runtime_fact' "$LOG"; then
+
+          CLEAR_FACT_RESPONSE=$("${RCON[@]}" 'questlog narrative fact clear overlord_reign:validation/runtime_fact')
+          CLEAR_DISPOSITION_RESPONSE=$("${RCON[@]}" 'questlog narrative disposition clear overlord_reign:validation_civilization')
+          "${RCON[@]}" 'save-all flush' >/dev/null
+
+          if [[ "$CLEAR_FACT_RESPONSE" != *'Cleared narrative fact overlord_reign:validation/runtime_fact'* ]]; then
             echo '::error::Narrative fact cleanup command did not complete.'
             exit 1
           fi
-          if ! grep -Fq 'Cleared narrative disposition overlord_reign:validation_civilization = questlog:unresolved' "$LOG"; then
+          if [[ "$CLEAR_DISPOSITION_RESPONSE" != *'Cleared narrative disposition overlord_reign:validation_civilization = questlog:unresolved'* ]]; then
             echo '::error::Narrative disposition cleanup command did not complete.'
+            exit 1
+          fi
+
+          "${RCON[@]}" 'stop' >/dev/null 2>&1 || true
+          set +e
+          wait "$SERVER_PID"
+          STATUS=$?
+          set -e
+          trap - EXIT
+
+          cat "$LOG"
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::error::Second narrative-state server exited with status $STATUS."
             exit 1
           fi
           if grep -Eiq 'Exception in thread|\[[^]]*/FATAL\]|Failed to complete lifecycle event|Mod Loading has failed' "$LOG"; then
