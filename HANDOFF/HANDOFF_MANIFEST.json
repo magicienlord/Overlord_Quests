@@ -1,0 +1,135 @@
+{
+  "package": "OVERLORD QUESTS conversation handoff",
+  "date": "2026-09-13",
+  "repository": "magicienlord/Overlord_Quests",
+  "implementation_branch_at_packaging": "gnarl-bootstrap",
+  "implementation_checkpoint": "c0faf694b969e94721fc56edc605496221f456b9",
+  "implementation_checkpoint_message": "Make civilization validation packaging branch-local",
+  "preservation_branch": "conversation-handoff-2026-09-13-c0faf69",
+  "preservation_rule": "The preservation branch was created directly from the exact live implementation checkpoint after re-fetching the repository following a conversation rollback. Packaging changes are restricted to HANDOFF/* and .github/workflows/conversation-handoff.yml.",
+  "validation": {
+    "build_forge": {
+      "run_number": 698,
+      "run_id": 34768622343,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "dedicated_server_smoke": {
+      "run_number": 57,
+      "run_id": 34768622452,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "client_bootstrap_smoke": {
+      "run_number": 18,
+      "run_id": 34768622344,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "narrative_state_persistence": {
+      "run_number": 13,
+      "run_id": 34768622393,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "quest_anchor_protection_smoke": {
+      "run_number": 8,
+      "run_id": 34768622351,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "illager_campaign_contract": {
+      "run_number": 33,
+      "run_id": 34768622407,
+      "successful_attempt": 3,
+      "result": "success"
+    },
+    "ending_contract": {
+      "run_number": 23,
+      "run_id": 34768622360,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "optional_objectives_contract": {
+      "run_number": 21,
+      "run_id": 34768622453,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "civilization_validation_kit": {
+      "run_number": 1,
+      "run_id": 34768622380,
+      "successful_attempt": 2,
+      "result": "success"
+    },
+    "retry_note": "Earlier attempts on this exact source checkpoint failed before runner allocation with runner_id 0 and no executed steps. Later attempts on unchanged source succeeded."
+  },
+  "github_artifacts": [
+    {
+      "name": "overlord-quests-forge-1.20.1",
+      "artifact_id": 10322365804,
+      "workflow_run_id": 34768622343,
+      "sha256": "54f41541499a14e05194d615016c5d0f05aeff390fabad060360f2fbe915a20a"
+    },
+    {
+      "name": "overlord-quests-provider-test-kit",
+      "artifact_id": 10322261166,
+      "workflow_run_id": 34768622343,
+      "sha256": "fe78a16aecb0f4ba66cda5bba2d597c899616c37c919f1ebe7928c4153f5ea81"
+    },
+    {
+      "name": "overlord-quests-death-screen-test-kit",
+      "artifact_id": 10322236203,
+      "workflow_run_id": 34768622343,
+      "sha256": "00c2bfd9c84f4b5337c112936817841c8cae740598436cd84fba875b29c5f62a"
+    },
+    {
+      "name": "overlord-quests-gnarl-popup-test-kit",
+      "artifact_id": 10321966802,
+      "workflow_run_id": 34768622343,
+      "sha256": "674278f73e27308d66db2bc71c6227788f8c56844c6c62f1e63ce91ba79d62eb"
+    },
+    {
+      "name": "overlord-quests-minion-progression-test-kit",
+      "artifact_id": 10321448003,
+      "workflow_run_id": 34768622343,
+      "sha256": "b066f2a89995c4751d17aff4749d136b45b06a2036d6165266da04a9feff1234"
+    },
+    {
+      "name": "overlord-quests-consequence-test-kit",
+      "artifact_id": 10321422972,
+      "workflow_run_id": 34768622343,
+      "sha256": "8fdceba92a18d08f1b56b4254338b2d74b82f052a9b171201f65ab89758e8525"
+    },
+    {
+      "name": "overlord-quests-civilization-validation-kit",
+      "artifact_id": 10321428155,
+      "workflow_run_id": 34768622380,
+      "sha256": "b8c1b2886457291661a27031a4cdc5712d1eb301170caec02bb9611fedd58a83"
+    }
+  ],
+  "handoff_files": [
+    "HANDOFF/README_FIRST.md",
+    "HANDOFF/NEXT_CONVERSATION_HANDOFF.md",
+    "HANDOFF/RESTART_POINT.txt",
+    "HANDOFF/VALIDATION_STATE.md",
+    "HANDOFF/RECENT_WORK_LEDGER.md",
+    "HANDOFF/HANDOFF_MANIFEST.json"
+  ],
+  "package_contents": [
+    "exact source archive at implementation checkpoint",
+    "HANDOFF records",
+    "exact Build Forge #698 artifacts",
+    "exact Civilization Validation Kit #1 artifact",
+    "package build identity and SHA-256 checksums"
+  ],
+  "resume_requirement": "Re-fetch the live gnarl-bootstrap branch before implementation. It may be newer than the preserved checkpoint. If it advanced, inspect and use the newer live repository as implementation authority.",
+  "spoiler_firewall": true,
+  "implementation_changed_during_packaging": false,
+  "notes": [
+    "The preservation branch is for recovery and continuity, not the default implementation branch.",
+    "No Dwarven Forge, Ribbits or Kobolds native-accomplishment source audit was started after the handoff instruction.",
+    "Full OVERLORD REIGN instance validation remains distinct from repository-green CI.",
+    "The Ocean Dragon questline was an erroneous prior assumption and must not be reintroduced from stale context."
+  ]
+}

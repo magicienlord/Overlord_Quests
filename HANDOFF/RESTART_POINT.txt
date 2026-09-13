@@ -1,0 +1,22 @@
+OVERLORD QUESTS CONVERSATION RESTART POINT
+
+Repository: magicienlord/Overlord_Quests
+Implementation branch: gnarl-bootstrap
+Preserved implementation checkpoint: c0faf694b969e94721fc56edc605496221f456b9
+Checkpoint message: Make civilization validation packaging branch-local
+Preservation branch: conversation-handoff-2026-09-13-c0faf69
+
+FIRST ACTION IN THE NEXT CONVERSATION:
+Re-fetch the live gnarl-bootstrap branch. THE OVERLORD had to roll back the conversation and explicitly warned that repository files may be newer than conversational context. If gnarl-bootstrap has advanced beyond c0faf694b969e94721fc56edc605496221f456b9, inspect and use the newer live repository state as implementation authority.
+
+CURRENT VALIDATION:
+The preserved checkpoint is green after transient GitHub Actions runner-allocation retries. Build Forge #698, server/client smoke, narrative-state persistence, anchor-protection smoke, Illager contract, ending contract, optional-objective contract and Civilization Validation Kit #1 all completed successfully on this exact source checkpoint.
+
+DO NOT INVENT:
+Villager provider, post-Bastille Illager provider, Piglin initial audience mechanism, Red/Green/Blue Minion recovery routes, central ending setter/prerequisite chain, or final ending presentation.
+
+NEXT TECHNICAL DIRECTION BEFORE HANDOFF:
+A source audit of exact installed Dwarven Forge, Ribbits and Kobolds JARs for durable native accomplishment signals was planned but NOT STARTED. Treat this only as a candidate next engineering task after re-reading the live repo and current canon.
+
+HANDOFF RULE:
+The preservation branch may differ from the implementation checkpoint only through HANDOFF/* and .github/workflows/conversation-handoff.yml. Do not treat the preservation branch as the normal development branch.

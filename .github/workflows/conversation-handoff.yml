@@ -1,0 +1,157 @@
+name: Conversation Handoff Package
+
+on:
+  push:
+    branches:
+      - conversation-handoff-2026-09-13-c0faf69
+    paths:
+      - 'HANDOFF/**'
+      - '.github/workflows/conversation-handoff.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: overlord-quests-conversation-handoff-2026-09-13-c0faf69
+  cancel-in-progress: false
+
+env:
+  BASE_SHA: c0faf694b969e94721fc56edc605496221f456b9
+  BUILD_FORGE_RUN_ID: '34768622343'
+  CIVILIZATION_KIT_RUN_ID: '34768622380'
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preservation branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Verify preservation gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE_SHA}^{commit}"
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              HANDOFF/*|.github/workflows/conversation-handoff.yml)
+                ;;
+              *)
+                echo "Unexpected non-handoff change relative to ${BASE_SHA}: $path"
+                exit 1
+                ;;
+            esac
+          done < <(git diff --name-only "${BASE_SHA}"..HEAD)
+
+      - name: Prepare exact source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='build/conversation-handoff-staging'
+          rm -rf "$ROOT"
+          mkdir -p "$ROOT/source" "$ROOT/handoff" "$ROOT/validation/build-forge" "$ROOT/validation/civilization"
+          git archive --format=zip --output="$ROOT/source/Overlord_Quests-source-c0faf694.zip" "$BASE_SHA"
+          cp -a HANDOFF/. "$ROOT/handoff/"
+
+      - name: Download exact Forge runtime artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-forge-1.20.1
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-forge-1.20.1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact provider test kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-provider-test-kit
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-provider-test-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact death-screen test kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-death-screen-test-kit
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-death-screen-test-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact Gnarl popup test kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-gnarl-popup-test-kit
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-gnarl-popup-test-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact Minion progression test kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-minion-progression-test-kit
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-minion-progression-test-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact consequence test kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-consequence-test-kit
+          path: build/conversation-handoff-staging/validation/build-forge/overlord-quests-consequence-test-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.BUILD_FORGE_RUN_ID }}
+
+      - name: Download exact civilization validation kit
+        uses: actions/download-artifact@v5
+        with:
+          name: overlord-quests-civilization-validation-kit
+          path: build/conversation-handoff-staging/validation/civilization/overlord-quests-civilization-validation-kit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.CIVILIZATION_KIT_RUN_ID }}
+
+      - name: Record package identity and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='build/conversation-handoff-staging'
+          cat > "$ROOT/BUILD_INFO.txt" <<EOF
+          OVERLORD QUESTS conversation handoff
+          date=2026-09-13
+          repository=magicienlord/Overlord_Quests
+          implementation_branch=gnarl-bootstrap
+          implementation_checkpoint=${BASE_SHA}
+          preservation_branch=conversation-handoff-2026-09-13-c0faf69
+          preservation_head=${GITHUB_SHA}
+          build_forge_run_id=${BUILD_FORGE_RUN_ID}
+          civilization_validation_run_id=${CIVILIZATION_KIT_RUN_ID}
+          source_archive_is_exact_git_archive_of_implementation_checkpoint=true
+          implementation_changed_during_packaging=false
+          EOF
+          (
+            cd "$ROOT"
+            find . -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt
+            sha256sum -c SHA256SUMS.txt
+          )
+
+      - name: Assemble final handoff zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd build
+          ZIP='Overlord_Quests-conversation-handoff-2026-09-13-c0faf69.zip'
+          rm -f "$ZIP" "$ZIP.sha256"
+          (cd conversation-handoff-staging && zip -qr "../$ZIP" .)
+          sha256sum "$ZIP" > "$ZIP.sha256"
+
+      - name: Upload conversation handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-conversation-handoff-2026-09-13-c0faf69
+          path: |
+            build/Overlord_Quests-conversation-handoff-2026-09-13-c0faf69.zip
+            build/Overlord_Quests-conversation-handoff-2026-09-13-c0faf69.zip.sha256
+          if-no-files-found: error
