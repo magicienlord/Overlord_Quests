@@ -52,7 +52,7 @@ jobs:
 
           set +e
           timeout --signal=TERM --kill-after=15s 180s \
-            xvfb-run -a ./gradlew :forge:runClient --offline --no-daemon --stacktrace \
+            xvfb-run -a ./gradlew :forge:runClient --no-daemon --stacktrace \
             >"$LOG" 2>&1
           STATUS=$?
           set -e
