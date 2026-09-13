@@ -2,7 +2,7 @@
 
 Status: PRODUCTION CONTENT RUNTIME VALIDATION PROTOCOL
 
-Scope: first formal contact with the designated Dwarven successor hold only.
+Scope: first formal contact with the designated Dwarven successor hold plus a non-canon technical probe of the installed Dwarf reputation/price path.
 
 This protocol validates `campaign/civilizations/dwarves/first_contact` against the exact installed The Dwarven Forge 1.0.0 entity/profession behavior without requiring final-world coordinates. It does not validate later Dwarven political branches, disposition outcomes, tribute, destruction, rune rewards, services, or final terrain integration.
 
@@ -42,6 +42,8 @@ Quest-critical protection remains separate:
 ```text
 overlord_quest_protected
 ```
+
+A source/bytecode audit also confirms that the installed Dwarf trade path reads inherited vanilla Villager player reputation and applies the resulting special-price adjustment to its native MerchantOffers. Hero of the Village is handled separately. The runtime price probe later in this protocol validates that mechanism only; it establishes no Dwarven disposition reward or reputation amount.
 
 ## Preconditions
 
@@ -245,6 +247,43 @@ In a disposable test world only, remove protection:
 
 The provider must still remain the authored Forge-Thane because native entity identity, native profession, and anchor identity are separate from protection.
 
+## Check 9: inherited Villager reputation affects native Dwarven prices
+
+This is a TECHNICAL probe only. It must be performed in a disposable validation world and must not be interpreted as a production subjugation reward.
+
+Use a native Dwarven Forger that currently offers at least one trade whose input count can visibly change. Open its ordinary non-sneaking trade UI and record the displayed input cost for a stable offer. Close the UI before mutating gossip state.
+
+Inspect the local player's UUID if needed:
+
+```text
+/data get entity @p UUID
+```
+
+Replace the Dwarf's gossip list with one temporary positive vanilla Villager gossip entry, then copy the actual local player's UUID into that entry:
+
+```text
+/data modify entity @e[type=dwarven_forge:dwarf,sort=nearest,limit=1,distance=..8] Gossips set value [{Target:[I;0,0,0,0],Type:"major_positive",Value:100}]
+/data modify entity @e[type=dwarven_forge:dwarf,sort=nearest,limit=1,distance=..8] Gossips[0].Target set from entity @p UUID
+```
+
+Reopen the same native Dwarven trade UI and inspect the same offer.
+
+Expected result: the offer's player-specific special price is more favorable than its recorded baseline where the offer and its price multiplier permit a visible integer adjustment. The native trade remains a Dwarven Forge MerchantOffer; Questlog must not replace the trade or create a parallel price table.
+
+If the selected offer's multiplier and integer rounding produce no visible change, repeat against another native offer with a non-zero price multiplier rather than treating that single offer as a failure.
+
+For a separate control, Hero of the Village may also be tested through the vanilla effect path. That result must not be confused with the gossip/reputation probe because the installed Dwarf implementation handles Hero discounts separately.
+
+After the probe, remove the synthetic gossip state or discard the validation world. Do not carry this artificial reputation into normal play.
+
+This check proves only that the source-audited inherited pricing mechanism functions in the complete target instance. It does not decide:
+
+- which Dwarven political outcome should modify reputation;
+- whether the change is positive or negative for a particular branch;
+- the magnitude of the authored change;
+- which Dwarves or settlement scope receive it;
+- whether the effect is permanent or later reversible.
+
 ## Pass criteria
 
 This slice is runtime-valid only when all of the following are directly observed in the target instance:
@@ -258,4 +297,5 @@ This slice is runtime-valid only when all of the following are directly observed
 - completion persists through save/reload;
 - the contact fact persists;
 - Dwarven disposition remains unresolved;
-- quest protection remains independent from provider identity.
+- quest protection remains independent from provider identity;
+- inherited vanilla Villager gossip/reputation can alter the installed Dwarf's own native MerchantOffer pricing without a Questlog pricing simulator.
