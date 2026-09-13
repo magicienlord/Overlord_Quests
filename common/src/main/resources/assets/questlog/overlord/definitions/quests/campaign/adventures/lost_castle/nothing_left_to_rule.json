@@ -1,0 +1,37 @@
+{
+  "title": "Nothing Left to Rule",
+  "description": "An impressive ruin, Sire. Vast walls, abandoned treasure, and just enough surviving opposition to make taking it entertaining. The old court is broken. Strip the place of anything useful and let the stones remember which reign outlived it.",
+  "description_completed": "Gnarl has closed the Lost Castle expedition. The fortress remains a native exploration location rather than an endless REIGN checklist.",
+  "icon": {"item": "minecraft:golden_helmet"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 352,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/lost_castle/break_the_lost_court","required_amount":1,"name":"Break the Lost Castle's armed court"}
+  ],
+  "objectives": [
+    {"type":"questlog:read","required_amount":1,"name":"Hear Gnarl's assessment"}
+  ],
+  "rewards": [
+    {"type":"questlog:set_fact","fact":"overlord_reign:adventure/lost_castle_expedition_completed","auto_claim":true,"name":"Record the completed Lost Castle expedition"}
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": false,
+  "disable_details_button": true,
+  "details_open_by_default": false,
+  "left_panel_width": 480,
+  "right_panel_width": 170,
+  "panel_height": 200,
+  "left_panel_x_offset": 0,
+  "left_panel_y_offset": 0,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "mocking",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}
