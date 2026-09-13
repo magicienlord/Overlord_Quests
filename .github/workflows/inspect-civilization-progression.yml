@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           echo 'f43bbe67330f7e92756b4665f6d24fd2d267aeca35cfeb4d4c9ee3cb5423d85b  /tmp/dwarven_forge-1.0.0.jar' | sha256sum --check --strict
-          echo 'f6ff95178dab3a9714a87da504ef06b2e19cdcb939407acd3aaade25b4cfcd86  /tmp/Ribbits-1.20.1-Forge-3.0.5.jar' | sha256sum --check --strict
+          echo 'e04aa665df7e96844fe8833f29cc343feefac8ad7b949399d7b4a60475123e2b  /tmp/Ribbits-1.20.1-Forge-3.0.5.jar' | sha256sum --check --strict
           echo 'f5f5dd31ab42e3bda1a1148b91ae62c07daafb9e52905d263c0bbcfbdf9cbabe  /tmp/Kobolds-2.12.0.jar' | sha256sum --check --strict
 
       - name: Inspect Dwarven Forge progression candidates
