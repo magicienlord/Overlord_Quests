@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.infernalstudios.questlog.core.ServerPlayerManager;
+import org.infernalstudios.questlog.overlord.ending.OverlordEndingActivation;
 import org.infernalstudios.questlog.overlord.narrative.OverlordNarrativeState;
 
 import java.util.Comparator;
@@ -153,6 +154,9 @@ public final class OverlordNarrativeCommands {
         OverlordNarrativeState narrative = OverlordNarrativeState.get(ctx.getSource().getServer());
         boolean changed = narrative.setFact(fact);
         syncQuestStateIfChanged(changed);
+        if (changed) {
+            OverlordEndingActivation.onNarrativeFactChanged(ctx.getSource().getServer(), fact);
+        }
         ctx.getSource().sendSuccess(
                 () -> Component.literal((changed ? "Set" : "Kept") + " narrative fact " + fact),
                 true
@@ -165,6 +169,9 @@ public final class OverlordNarrativeCommands {
         OverlordNarrativeState narrative = OverlordNarrativeState.get(ctx.getSource().getServer());
         boolean changed = narrative.clearFact(fact);
         syncQuestStateIfChanged(changed);
+        if (changed) {
+            OverlordEndingActivation.onNarrativeFactChanged(ctx.getSource().getServer(), fact);
+        }
         ctx.getSource().sendSuccess(
                 () -> Component.literal((changed ? "Cleared" : "Kept absent") + " narrative fact " + fact),
                 true
