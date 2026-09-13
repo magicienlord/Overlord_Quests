@@ -43,7 +43,7 @@ require(
 require(FORWARDER, "!player.isShiftKeyDown()", "sneak-only temporary provider interaction")
 require(FORWARDER, "event.getHand() != InteractionHand.MAIN_HAND", "main-hand-only provider interaction")
 require(FORWARDER, "OverlordNarrativeCommands.register(event.getDispatcher())", "narrative admin command registration")
-require(NETWORKING, 'PROTOCOL_VERSION = "overlord-quests-3"', "provider completed-state network protocol bump")
+require(NETWORKING, 'PROTOCOL_VERSION = "overlord-quests-4"', "provider completed-state and ending-state network protocol bump")
 require(NETWORKING, ".clientAcceptedVersions(PROTOCOL_VERSION::equals)", "exact client protocol compatibility")
 require(NETWORKING, ".serverAcceptedVersions(PROTOCOL_VERSION::equals)", "exact server protocol compatibility")
 require(OPEN_PACKET, "MAX_ENTRIES = 256", "bounded provider-menu entry count")
