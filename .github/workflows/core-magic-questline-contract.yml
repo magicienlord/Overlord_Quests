@@ -1,0 +1,27 @@
+name: Core Magic Questline Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-core-magic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-magic-questline-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate six core magic questlines
+        run: python3 tools/validate_core_magic_questlines.py

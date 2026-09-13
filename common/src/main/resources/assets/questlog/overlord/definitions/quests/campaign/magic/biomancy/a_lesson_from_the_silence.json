@@ -1,0 +1,19 @@
+{
+  "title": "A Lesson from the Silence",
+  "description": "During the Silence, Gnarl turned magical overexposure into a practical question: if enough magic is forced into flesh, can flesh itself become machinery? Begin with Biomancy's own primordial-core and living-flesh milestones. This is Gnarl's recent discipline of Evil-Mana biological engineering, not an ancient imported cosmology.",
+  "description_completed": "The Overlord has begun working through the Biomancy principles Gnarl developed during the Silence.",
+  "icon": {"item": "minecraft:rotten_flesh"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 240,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/expansion/the_reign_takes_shape","required_amount":1,"name":"Establish the first foundation of the reign"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/craft_primal_core","required_amount":1,"name":"Craft a Primordial Core"},
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/living_flesh","required_amount":1,"name":"Reach the Living Flesh milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

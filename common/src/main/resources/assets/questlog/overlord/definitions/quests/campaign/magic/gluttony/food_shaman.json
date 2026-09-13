@@ -1,0 +1,16 @@
+{
+  "title": "A Cuisine That Casts Back",
+  "description": "Continue through Farmer's Spell's own Gluttony progression until its Food Shaman milestone is reached. The point is command of magical cuisine as a distinct discipline, not completion of every meal or conversion of all food into magic.",
+  "description_completed": "The Overlord has crossed Farmer's Spell's Food Shaman milestone and demonstrated practical Gluttony magic.",
+  "icon": {"item": "minecraft:golden_carrot"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 211,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/gluttony/feed_the_spell","required_amount":1,"name":"Establish magical culinary ingredients"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"farmers_spell:food_shaman","required_amount":1,"name":"Reach the Food Shaman milestone"}],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

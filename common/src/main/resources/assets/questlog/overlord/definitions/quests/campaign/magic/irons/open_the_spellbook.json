@@ -1,0 +1,19 @@
+{
+  "title": "Put Magic in Hand",
+  "description": "The Tower can now support formal spell study. Use Iron's own spellcraft progression rather than treating its schools as separate cosmologies: equip a spell book and establish scroll-forging capability so active mana can be studied, recorded, and wielded deliberately.",
+  "description_completed": "The Overlord has entered Iron's active spellcraft on its own terms, with a spell book equipped and scroll-forging capability established.",
+  "icon": {"item": "minecraft:book"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 200,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/tower/magic/establish_spell_study","required_amount":1,"name":"Establish the Tower spell-study facility"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"irons_spellbooks:irons_spellbooks/spell_book_equip","required_amount":1,"name":"Equip a spell book"},
+    {"type":"questlog:advancement","advancement":"irons_spellbooks:irons_spellbooks/make_scroll_forge","required_amount":1,"name":"Establish scroll forging"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

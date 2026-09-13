@@ -1,0 +1,16 @@
+{
+  "title": "Beyond the First Dose",
+  "description": "The laboratory is operational; now deepen the discipline itself. Ars Elixirum owns potion effects, extracts, composition, and magical pharmacology, so this arc follows its persisted mastery profile rather than synthetic Questlog counters or inventory checks.",
+  "description_completed": "The Overlord has advanced beyond basic laboratory competence in Ars Elixirum.",
+  "icon": {"item": "minecraft:potion"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 230,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/tower/magic/open_alchemy_laboratory","required_amount":1,"name":"Open the Tower Alchemy Laboratory"}],
+  "objectives": [{"type":"questlog:elixirum_mastery","required_amount":5,"name":"Reach Ars Elixirum mastery level 5"}],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

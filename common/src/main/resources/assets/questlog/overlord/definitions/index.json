@@ -19,6 +19,24 @@
     "campaign/tower/magic/establish_spell_study.json",
     "campaign/tower/magic/prepare_eidolon_chamber.json",
     "campaign/tower/restoration_complete.json",
+    "campaign/magic/irons/open_the_spellbook.json",
+    "campaign/magic/irons/shape_the_spell.json",
+    "campaign/magic/irons/master_the_ink.json",
+    "campaign/magic/gluttony/feed_the_spell.json",
+    "campaign/magic/gluttony/food_shaman.json",
+    "campaign/magic/gluttony/banquet_of_power.json",
+    "campaign/magic/theurgy/first_rod.json",
+    "campaign/magic/theurgy/refine_the_rod.json",
+    "campaign/magic/theurgy/precious_matter.json",
+    "campaign/magic/alchemy/beyond_the_first_dose.json",
+    "campaign/magic/alchemy/deepen_the_codex.json",
+    "campaign/magic/alchemy/pharmacologist.json",
+    "campaign/magic/biomancy/a_lesson_from_the_silence.json",
+    "campaign/magic/biomancy/flesh_as_machinery.json",
+    "campaign/magic/biomancy/the_living_laboratory.json",
+    "campaign/magic/eidolon/raise_the_altar.json",
+    "campaign/magic/eidolon/bind_the_unseen.json",
+    "campaign/magic/eidolon/choose_a_rite.json",
     "campaign/expansion/the_reign_takes_shape.json",
     "campaign/expansion/restore_reds.json",
     "campaign/expansion/reds_return.json",
@@ -41,7 +59,5 @@
     "campaign/civilizations/umvuthana/suns_blessing.json",
     "campaign/civilizations/illagers/break_the_bastille.json"
   ],
-  "chapters": [
-    "main.json"
-  ]
+  "chapters": ["main.json"]
 }

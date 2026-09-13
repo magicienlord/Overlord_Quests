@@ -1,0 +1,19 @@
+{
+  "title": "Bind the Unseen",
+  "description": "Move from apparatus into actual occult knowledge. Reach Eidolon's research-notes and soul-shard milestones while preserving REIGN's distinction between a persistent soul, fungible Lifeforce, material Theurgic Sulfur, ghosts, and undeath.",
+  "description_completed": "The Overlord has entered Eidolon's soul-focused ritual practice without collapsing REIGN's afterlife categories into one resource.",
+  "icon": {"item": "minecraft:soul_sand"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 251,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/eidolon/raise_the_altar","required_amount":1,"name":"Establish the altar progression"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"eidolon:research_notes","required_amount":1,"name":"Obtain ritual research notes"},
+    {"type":"questlog:advancement","advancement":"eidolon:soul_shard","required_amount":1,"name":"Reach the Soul Shard milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

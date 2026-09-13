@@ -1,0 +1,25 @@
+{
+  "title": "Choose a Rite",
+  "description": "Eidolon's native progression divides into sacred and wicked ritual paths. REIGN does not turn that upstream language into a universal moral law: demonstrate command of either path. Holy or dark expression does not by itself decide whether the Overlord may master the discipline.",
+  "description_completed": "The Overlord has committed to a mature Eidolon ritual path. The wider rites remain open without forcing both branches into one checklist.",
+  "icon": {"item": "minecraft:enchanted_book"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 252,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/eidolon/bind_the_unseen","required_amount":1,"name":"Enter soul-focused ritual practice"}],
+  "objectives": [
+    {
+      "type": "questlog:or",
+      "name": "Commit to either Eidolon ritual path",
+      "objectives": [
+        {"type":"questlog:advancement","advancement":"eidolon:sacred_path","required_amount":1,"name":"Walk the sacred path"},
+        {"type":"questlog:advancement","advancement":"eidolon:wicked_path","required_amount":1,"name":"Walk the wicked path"}
+      ]
+    }
+  ],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/eidolon/ritual_path_established","auto_claim":true,"name":"Record established Eidolon ritual practice"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

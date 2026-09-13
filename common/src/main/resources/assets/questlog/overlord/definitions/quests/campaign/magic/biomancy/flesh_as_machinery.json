@@ -1,0 +1,20 @@
+{
+  "title": "Flesh as Machinery",
+  "description": "Build out Biomancy's processing apparatus until flesh is no longer merely material but an engineered system: forging, decomposition, digestion, and controlled biological processing. Native advancements remain the proof; Questlog supplies only the REIGN framing.",
+  "description_completed": "Biomancy's core biological-processing apparatus is established under the Overlord's rule.",
+  "icon": {"item": "minecraft:bone"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 241,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/biomancy/a_lesson_from_the_silence","required_amount":1,"name":"Learn Gnarl's Biomancy premise"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/bio_forge","required_amount":1,"name":"Reach the Bio-Forge milestone"},
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/decomposer","required_amount":1,"name":"Reach the Decomposer milestone"},
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/digester","required_amount":1,"name":"Reach the Digester milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

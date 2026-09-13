@@ -1,0 +1,16 @@
+{
+  "title": "Shape the Spell",
+  "description": "Raw access to mana is not the same thing as controlled spellcraft. Establish the Arcane Anvil and demonstrate that the Tower's study can support deliberate refinement of magical equipment and spell-bearing tools.",
+  "description_completed": "The Arcane Anvil is part of the Overlord's working spellcraft infrastructure.",
+  "icon": {"item": "minecraft:anvil"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 201,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/irons/open_the_spellbook","required_amount":1,"name":"Enter active spellcraft"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"irons_spellbooks:irons_spellbooks/make_arcane_anvil","required_amount":1,"name":"Make an Arcane Anvil"}],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

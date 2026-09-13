@@ -1,0 +1,19 @@
+{
+  "title": "Raise the Altar",
+  "description": "Eidolon belongs to rites, souls, ritual necromancy, occult binding, and transformation. Establish its altar progression without adopting upstream gods as mandatory cosmological authorities or collapsing ritual occultism into Iron's Blood spellcraft.",
+  "description_completed": "The Overlord has established the altar foundation required for deeper Eidolon rites.",
+  "icon": {"item": "minecraft:candle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 250,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/tower/magic/prepare_eidolon_chamber","required_amount":1,"name":"Prepare the Tower Eidolon chamber"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"eidolon:wooden_altar","required_amount":1,"name":"Establish the wooden altar"},
+    {"type":"questlog:advancement","advancement":"eidolon:stone_altar","required_amount":1,"name":"Advance to the stone altar"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

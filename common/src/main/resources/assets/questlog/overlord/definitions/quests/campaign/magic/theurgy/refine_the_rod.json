@@ -1,0 +1,19 @@
+{
+  "title": "Refine the Law of Matter",
+  "description": "Push Theurgy through its middle rod tiers. Questlog observes native advancement state only; the owning mod remains responsible for the actual material gates, apparatus, and transformations that make those milestones meaningful.",
+  "description_completed": "The Overlord has crossed Theurgy's middle rod tiers without replacing its native material progression.",
+  "icon": {"item": "minecraft:copper_ingot"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 221,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/theurgy/first_rod","required_amount":1,"name":"Enter Theurgy's rod progression"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"theurgy:has_t2_rod","required_amount":1,"name":"Reach the T2 rod milestone"},
+    {"type":"questlog:advancement","advancement":"theurgy:has_t3_rod","required_amount":1,"name":"Reach the T3 rod milestone"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

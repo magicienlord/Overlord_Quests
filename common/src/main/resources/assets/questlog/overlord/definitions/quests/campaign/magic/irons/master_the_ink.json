@@ -1,0 +1,16 @@
+{
+  "title": "Ink for a Master",
+  "description": "Prove that the Overlord's spellcraft has moved beyond mere access to apparatus. Reach Iron's own legendary-ink milestone; Questlog observes the native accomplishment and records only the REIGN-level conclusion that active spellcraft is now an established discipline of the reign.",
+  "description_completed": "Active mana spellcraft is established as a mature discipline of the reign without replacing Iron's deeper native progression.",
+  "icon": {"item": "minecraft:ink_sac"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 202,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/irons/shape_the_spell","required_amount":1,"name":"Establish refined spellcraft infrastructure"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"irons_spellbooks:irons_spellbooks/ink_legendary","required_amount":1,"name":"Reach the legendary ink milestone"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/irons/spellcraft_established","auto_claim":true,"name":"Record established active spellcraft"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

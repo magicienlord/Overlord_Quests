@@ -1,0 +1,19 @@
+{
+  "title": "Precious Matter, Obedient Matter",
+  "description": "Reach Theurgy's high rod progression and precious-material milestone. This closes the authored REIGN arc at a meaningful native boundary while leaving specialist transformations and apparatus use to the system itself.",
+  "description_completed": "Theurgy is established as the reign's discipline of matter and occult material transformation.",
+  "icon": {"item": "minecraft:diamond"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 222,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/theurgy/refine_the_rod","required_amount":1,"name":"Cross Theurgy's middle tiers"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"theurgy:has_t4_rod","required_amount":1,"name":"Reach the T4 rod milestone"},
+    {"type":"questlog:advancement","advancement":"theurgy:has_precious_rod","required_amount":1,"name":"Reach the precious rod milestone"}
+  ],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/theurgy/mastery_established","auto_claim":true,"name":"Record established Theurgy"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

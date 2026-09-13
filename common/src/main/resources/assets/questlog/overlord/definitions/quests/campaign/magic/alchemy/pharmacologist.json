@@ -1,0 +1,16 @@
+{
+  "title": "The Overlord's Pharmacologist",
+  "description": "Reach a mature Ars Elixirum mastery milestone. This records alchemy-pharmacology as an established discipline of the reign without pretending level 50 exhausts a system whose native mastery continues far beyond the authored quest boundary.",
+  "description_completed": "Alchemy-pharmacology is established as a mature discipline of the reign; Ars Elixirum's continuing mastery remains open-ended native progression.",
+  "icon": {"item": "minecraft:ghast_tear"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 232,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/alchemy/deepen_the_codex","required_amount":1,"name":"Deepen practical pharmacological experience"}],
+  "objectives": [{"type":"questlog:elixirum_mastery","required_amount":50,"name":"Reach Ars Elixirum mastery level 50"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/alchemy/pharmacology_established","auto_claim":true,"name":"Record established alchemy-pharmacology"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

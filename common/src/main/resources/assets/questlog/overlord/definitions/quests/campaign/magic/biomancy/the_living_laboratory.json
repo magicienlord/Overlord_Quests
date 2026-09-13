@@ -1,0 +1,20 @@
+{
+  "title": "The Living Laboratory",
+  "description": "Carry Gnarl's discipline into deliberate biological engineering. Reach Biomancy's laboratory, injector, and cradle milestones so the practice has moved from processing flesh to designing and manipulating living systems.",
+  "description_completed": "Biomancy is established as a working discipline of flesh, mutation, and biological engineering for the reign.",
+  "icon": {"item": "minecraft:spider_eye"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 242,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/biomancy/flesh_as_machinery","required_amount":1,"name":"Establish biological processing"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/bio_lab","required_amount":1,"name":"Reach the Bio-Lab milestone"},
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/bio_injector","required_amount":1,"name":"Reach the Bio-Injector milestone"},
+    {"type":"questlog:advancement","advancement":"biomancy:biomancy/cradle","required_amount":1,"name":"Reach the Cradle milestone"}
+  ],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/biomancy/discipline_established","auto_claim":true,"name":"Record established Biomancy"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

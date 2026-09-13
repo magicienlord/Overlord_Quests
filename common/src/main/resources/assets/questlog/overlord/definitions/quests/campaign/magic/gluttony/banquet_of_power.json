@@ -1,0 +1,16 @@
+{
+  "title": "A Banquet of Power",
+  "description": "Complete the arc at Farmer's Spell's own Chef Ratatouille milestone. This marks Gluttony as an established magical discipline of the reign while leaving the rest of its recipes, foods, discoveries, and ordinary cooking to native play.",
+  "description_completed": "Gluttony magic is established without turning the Tower kitchen into a completionist cookbook.",
+  "icon": {"item": "minecraft:cake"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 212,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/gluttony/food_shaman","required_amount":1,"name":"Demonstrate practical Gluttony magic"}],
+  "objectives": [{"type":"questlog:advancement","advancement":"farmers_spell:chef_ratatouille","required_amount":1,"name":"Reach the Chef Ratatouille milestone"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:magic/gluttony/mastery_established","auto_claim":true,"name":"Record established Gluttony magic"}],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

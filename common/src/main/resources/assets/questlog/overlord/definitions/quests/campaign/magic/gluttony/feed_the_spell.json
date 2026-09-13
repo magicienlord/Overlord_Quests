@@ -1,0 +1,19 @@
+{
+  "title": "Feed the Spell",
+  "description": "Gluttony is magical cuisine, not ordinary cooking with a grander name. Cultivate and prepare Farmer's Spell's explicitly magical ingredients so the discipline begins from food already altered by mana rather than collapsing mundane Farmer's Delight cooking into spellcraft.",
+  "description_completed": "The Overlord has established a supply of explicitly magical culinary ingredients for Gluttony work.",
+  "icon": {"item": "minecraft:beetroot"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 210,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/tower/magic/open_gluttony_kitchen","required_amount":1,"name":"Open the Tower Gluttony Kitchen"}],
+  "objectives": [
+    {"type":"questlog:advancement","advancement":"farmers_spell:amethyst_beetroot","required_amount":1,"name":"Discover Amethyst Beetroot"},
+    {"type":"questlog:advancement","advancement":"farmers_spell:arcane_cocoa","required_amount":1,"name":"Discover Arcane Cocoa"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

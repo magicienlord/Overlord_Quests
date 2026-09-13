@@ -1,0 +1,16 @@
+{
+  "title": "Deepen the Codex",
+  "description": "Continue experimenting until the native AlchemyProfile itself records substantial practical experience. The threshold is an authored REIGN milestone, but the experience and level remain entirely owned and persisted by Ars Elixirum.",
+  "description_completed": "The AlchemyProfile now records sustained pharmacological practice rather than an introductory experiment.",
+  "icon": {"item": "minecraft:glass_bottle"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 231,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/magic/alchemy/beyond_the_first_dose","required_amount":1,"name":"Move beyond introductory alchemy"}],
+  "objectives": [{"type":"questlog:elixirum_mastery","required_amount":20,"name":"Reach Ars Elixirum mastery level 20"}],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
