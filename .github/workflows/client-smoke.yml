@@ -1,0 +1,92 @@
+name: Client Bootstrap Smoke
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-client-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  client-bootstrap-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Ensure virtual display
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
+      - name: Prepare Forge client run
+        run: ./gradlew :common:createMinecraftArtifacts :forge:prepareClientRun --no-daemon --stacktrace
+
+      - name: Bootstrap Forge client
+        shell: bash
+        run: |
+          set -uo pipefail
+          LOG="$GITHUB_WORKSPACE/client-bootstrap-smoke.log"
+
+          set +e
+          timeout --signal=TERM --kill-after=15s 180s \
+            xvfb-run -a ./gradlew :forge:runClient --offline --no-daemon --stacktrace \
+            >"$LOG" 2>&1
+          STATUS=$?
+          set -e
+
+          cat "$LOG"
+
+          if grep -Eiq 'MixinTransformerError|InjectionError|Mod Loading has failed|Failed to complete lifecycle event|Exception in thread|\[[^]]*/FATAL\]|Failed to create mod instance' "$LOG"; then
+            echo '::error::Client log contains a fatal startup marker.'
+            exit 1
+          fi
+
+          if grep -Eiq 'Could not find required mod|Missing or unsupported mandatory dependencies|Incompatible mod set' "$LOG"; then
+            echo '::error::Client log contains a dependency-resolution failure.'
+            exit 1
+          fi
+
+          if [ "$STATUS" -eq 124 ]; then
+            echo 'Forge client remained alive through the bootstrap smoke window.'
+            exit 0
+          fi
+
+          if [ "$STATUS" -eq 0 ]; then
+            echo 'Forge client exited cleanly before the smoke window elapsed.'
+            exit 0
+          fi
+
+          echo "::error::Forge client exited with code $STATUS before the smoke window elapsed."
+          exit "$STATUS"
+
+      - name: Upload client bootstrap smoke log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-client-bootstrap-smoke-${{ github.run_number }}
+          path: client-bootstrap-smoke.log
+          if-no-files-found: error
+          retention-days: 14
