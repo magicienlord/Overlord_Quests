@@ -1,0 +1,21 @@
+{
+  "title": "Break the Lost Court",
+  "description": "The castle's native garrison is no phantom army: Vindicators and Evokers still hold its halls. Break the officers after discovering the fortress. These are live Questlog kill objectives, deliberately not retrospective global kill history, so old encounters elsewhere do not complete the assault before it begins.",
+  "description_completed": "The Lost Castle's armed court has been broken. Its chambers and treasure are now an expedition to finish, not a second progression system to maintain.",
+  "icon": {"item": "minecraft:ominous_banner"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 351,
+  "prerequisites": [
+    {"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/lost_castle/a_castle_off_the_map","required_amount":1,"name":"Find the Lost Castle"}
+  ],
+  "objectives": [
+    {"type":"questlog:entity_kill","entity":"minecraft:vindicator","required_amount":1,"name":"Defeat a Vindicator after finding the castle"},
+    {"type":"questlog:entity_kill","entity":"minecraft:evoker","required_amount":1,"name":"Defeat an Evoker after finding the castle"}
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}
