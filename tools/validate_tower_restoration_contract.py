@@ -65,7 +65,7 @@ FORGE_REL = "campaign/tower/prepare_the_forge.json"
 COMPLETION_REL = "campaign/tower/restoration_complete.json"
 COMPLETION_FACT = "overlord_reign:tower/restoration_complete"
 
-REQUIRED_COMPLETION_QUESTS = {
+CORE_COMPLETION_QUESTS = {
     "questlog:campaign/tower/claim_the_throne",
     "questlog:campaign/tower/prepare_the_forge",
     "questlog:campaign/tower/wake_minion_infrastructure",
@@ -73,11 +73,6 @@ REQUIRED_COMPLETION_QUESTS = {
     "questlog:campaign/tower/secure_treasury",
     "questlog:campaign/tower/provision_storage_room",
     "questlog:campaign/tower/establish_armory",
-    "questlog:campaign/tower/magic/open_alchemy_laboratory",
-    "questlog:campaign/tower/magic/establish_theurgy_laboratory",
-    "questlog:campaign/tower/magic/open_gluttony_kitchen",
-    "questlog:campaign/tower/magic/establish_spell_study",
-    "questlog:campaign/tower/magic/prepare_eidolon_chamber",
 }
 
 
@@ -163,10 +158,10 @@ def collect_errors() -> list[str]:
         and p.get("type") == "questlog:quest_complete"
         and p.get("required_amount") == 1
     } if isinstance(completion_prereqs, list) else set()
-    if actual_completion_quests != REQUIRED_COMPLETION_QUESTS:
-        missing = sorted(REQUIRED_COMPLETION_QUESTS - actual_completion_quests)
-        extra = sorted(actual_completion_quests - REQUIRED_COMPLETION_QUESTS)
-        errors.append(f"Formal Tower Restoration prerequisites mismatch; missing={missing}, extra={extra}")
+    if actual_completion_quests != CORE_COMPLETION_QUESTS:
+        missing = sorted(CORE_COMPLETION_QUESTS - actual_completion_quests)
+        extra = sorted(actual_completion_quests - CORE_COMPLETION_QUESTS)
+        errors.append(f"Formal Tower Restoration must require exactly the seven core operational milestones; missing={missing}, extra={extra}")
 
     production_text = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted((QUEST_ROOT / "campaign").rglob("*.json"))
@@ -205,7 +200,7 @@ def main() -> int:
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
-    print("Tower restoration contract OK: Waystones Gates Room and formal completion are implemented within bounded Tower ownership.")
+    print("Tower restoration contract OK: seven core facilities gate formal completion; selected magical facilities remain Tower-owned branches.")
     return 0
 
 

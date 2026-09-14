@@ -48,16 +48,18 @@ Biomancy is intentionally not present in this list. It remains a major dedicated
 
 ## Formal completion
 
-`campaign/tower/restoration_complete.json` closes the overarching Tower-restoration questline once all required core and selected magical facilities above are operational.
+`campaign/tower/restoration_complete.json` closes formal Tower Restoration once the seven authoritative core operational milestones are complete: Throne Room, Forge, Minion infrastructure, Gates Room, Treasury, Storage Room and Armory.
 
-It records:
+The five selected magical room activations remain Tower Restoration-owned branches because their physical activation belongs to Tower Restoration. They are not formal completion prerequisites. They may continue after the Tower already qualifies as a functioning seat of Overlord rule, while deeper mastery remains in their dedicated magic progression.
+
+Formal completion records:
 
 `overlord_reign:tower/restoration_complete`
 
-The completion quest does not demand later system mastery, room upgrades, arbitrary wealth, complete equipment collections, optional court personnel, trophies, or architectural completionism. Quaver's band and other optional Tower content remain outside this gate.
+The completion quest does not demand later system mastery, room upgrades, arbitrary wealth, complete equipment collections, optional court personnel, trophies, magical-room completion, or architectural completionism. Quaver's band and other optional Tower content remain outside this gate.
 
 ## Validation
 
 `tools/validate_tower_restoration_contract.py` guards this boundary and `.github/workflows/tower-restoration-contract.yml` runs it in CI.
 
-The validator verifies the exact room list, Waystones Gates implementation, owner-state milestones, narrative markers, index inclusion, the existing Hot Iron forge milestone, formal completion prerequisites, and absence of an unauthorized Tower Biomancy room.
+The validator verifies the exact seven-item formal completion boundary, the selected magical room ownership, Waystones Gates implementation, owner-state milestones, narrative markers, index inclusion, the existing Hot Iron forge milestone, and absence of an unauthorized Tower Biomancy room.

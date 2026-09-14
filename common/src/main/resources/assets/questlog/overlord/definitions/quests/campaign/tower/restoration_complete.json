@@ -1,6 +1,6 @@
 {
   "title": "The Tower Stands Ready",
-  "description": "The Dark Tower no longer merely exists; it functions. Its seat of rule, forge, Minion infrastructure, Gates Room, Treasury, Storage Room, Armory, and selected magical facilities are operational. Hear Gnarl's assessment and mark the end of formal Tower Restoration. Later upgrades, mastery, personnel comforts, trophies, and specialist work remain free to continue without holding the campaign hostage.",
+  "description": "The Dark Tower no longer merely exists; it functions. Its seat of rule, forge, Minion infrastructure, Gates Room, Treasury, Storage Room and Armory are operational. Hear Gnarl's assessment and mark the end of formal Tower Restoration. Selected magical rooms and later upgrades, mastery, personnel comforts, trophies and specialist work may continue without holding formal restoration hostage.",
   "description_completed": "Formal Dark Tower Restoration is complete. The Tower is a functioning seat of Overlord rule, while its systems and inhabitants may continue to develop throughout the reign.",
   "icon": {"item": "minecraft:nether_star"},
   "chapter": "main",
@@ -13,12 +13,7 @@
     {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/open_gates_room", "required_amount": 1, "name": "Open the Gates Room"},
     {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/secure_treasury", "required_amount": 1, "name": "Restore the Treasury"},
     {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/provision_storage_room", "required_amount": 1, "name": "Restore the Storage Room"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/establish_armory", "required_amount": 1, "name": "Restore the Armory"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/open_alchemy_laboratory", "required_amount": 1, "name": "Open the Alchemy Laboratory"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/establish_theurgy_laboratory", "required_amount": 1, "name": "Establish the Theurgy facility"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/open_gluttony_kitchen", "required_amount": 1, "name": "Open the Gluttony Kitchen"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/establish_spell_study", "required_amount": 1, "name": "Establish spell study and making"},
-    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/magic/prepare_eidolon_chamber", "required_amount": 1, "name": "Prepare the Eidolon chamber"}
+    {"type": "questlog:quest_complete", "quest": "questlog:campaign/tower/establish_armory", "required_amount": 1, "name": "Restore the Armory"}
   ],
   "objectives": [
     {

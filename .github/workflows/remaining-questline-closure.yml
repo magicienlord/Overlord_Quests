@@ -29,5 +29,8 @@ jobs:
       - name: Validate Fathoms Historian closure
         run: python3 tools/validate_fathoms_sidequest_contracts.py
 
+      - name: Validate final assignment ledger reconciliation
+        run: python3 tools/validate_final_assignment_reconciliation.py
+
       - name: Validate production narrative-fact documentation
         run: python3 tools/validate_narrative_fact_documentation.py
