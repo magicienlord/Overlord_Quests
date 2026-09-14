@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate closure of delegated civilization gaps and Nycto alpha.3 quest integration."""
+"""Validate closure of delegated civilization, NightWalker and assigned personal-mod questlines."""
 from __future__ import annotations
 
 import json
@@ -19,6 +19,8 @@ ILLAGER_BRIDGE = ROOT / "forge/src/main/java/org/infernalstudios/questlog/overlo
 FOUNDATION = "overlord_reign:reign/initial_foundation_established"
 ILLAGER_AUTHORITY = "overlord_reign:civilizations/illagers/authority_established"
 LESTAT_JOINED = "overlord_reign:personal/nightwalker/lestat_joined_tower"
+DEPTHS_VALIDATED_HEAD = "b00ef7a33550267a826f98d4989f6ea63e6909a9"
+DEPTHS_IMPLEMENTED_STATUS = "IMPLEMENTED AGAINST VALIDATED DEPTHS CHECKPOINT"
 
 NEW_QUESTS = [
     "campaign/civilizations/villagers/first_contact.json",
@@ -225,8 +227,10 @@ def collect_errors() -> list[str]:
         require("Villager principal settlement/provider selection" not in text, f"{name}: stale Villager false blocker remains", errors)
         require("surviving fearful/cowed provider is still undefined" not in text, f"{name}: stale Illager false blocker remains", errors)
     require("IMPLEMENTED AGAINST SUPPLIED ALPHA.3" in remaining, "remaining ledger must record NightWalker implementation boundary", errors)
-    require("9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f" in remaining, "remaining ledger must record fresh Depths checkpoint", errors)
-    require("three exact-head workflows" in remaining.lower(), "remaining ledger must record the fresh Depths CI boundary", errors)
+    for name, text in (("remaining ledger", remaining), ("current status", current)):
+        require(DEPTHS_VALIDATED_HEAD in text, f"{name}: missing validated Depths checkpoint", errors)
+        require(DEPTHS_IMPLEMENTED_STATUS in text, f"{name}: missing implemented Fathoms status", errors)
+        require("external technical deferral recorded" not in text.lower(), f"{name}: stale active Fathoms deferral language remains", errors)
 
     return errors
 
@@ -241,7 +245,7 @@ def main() -> int:
     print("Remaining delegated questline closure: PASS")
     print("civilizations: 10/10 main-entry coverage; Illager cowed continuation implemented")
     print("NightWalker: alpha.3 vampire state, blood economy, altar and first power purchase integrated")
-    print("Depths: external technical deferral recorded at fresh exact-head CI boundary")
+    print("Depths: validated source checkpoint recorded; Historian-led Fathoms arc implemented")
     return 0
 
 

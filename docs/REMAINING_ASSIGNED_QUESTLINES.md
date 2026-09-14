@@ -117,8 +117,6 @@ The final step is the native aberration-idol ritual advancement verified by the 
 
 See `docs/FATHOMS_HISTORIAN_INTEGRATION.md`.
 
-Historical superseded boundary: the earlier checkpoint `9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f` was deferred because three exact-head workflows still failed. That deferral is no longer operational.
-
 ## Known implementation limitations
 
 - Church of Sin kill objectives are not structure-location-bound after cathedral discovery.
