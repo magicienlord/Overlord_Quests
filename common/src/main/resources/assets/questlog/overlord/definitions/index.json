@@ -70,6 +70,10 @@
     "campaign/personnel/quaver/first_tower_performance.json",
     "campaign/sidequests/pet_cemetery/a_collar_left_behind.json",
     "campaign/sidequests/pet_cemetery/return_from_the_grave.json",
+    "campaign/sidequests/nightwalker/lestat_arrives.json",
+    "campaign/sidequests/nightwalker/hunger_is_a_fact.json",
+    "campaign/sidequests/nightwalker/the_vampire_altar.json",
+    "campaign/sidequests/nightwalker/choose_the_price.json",
     "campaign/expansion/the_reign_takes_shape.json",
     "campaign/expansion/restore_reds.json",
     "campaign/expansion/reds_return.json",
@@ -79,6 +83,7 @@
     "campaign/expansion/blues_return.json",
     "campaign/end/the_wound_beyond_the_world.json",
     "campaign/end/break_the_dragon.json",
+    "campaign/civilizations/villagers/first_contact.json",
     "campaign/civilizations/goblins/first_contact.json",
     "campaign/civilizations/goblins/merchant_business.json",
     "campaign/civilizations/goblins/engineer_workbench.json",
@@ -93,6 +98,7 @@
     "campaign/civilizations/umvuthana/first_contact.json",
     "campaign/civilizations/umvuthana/suns_blessing.json",
     "campaign/civilizations/illagers/break_the_bastille.json",
+    "campaign/civilizations/illagers/the_bastille_bows.json",
     "campaign/civilizations/piglins/first_contact.json"
   ],
   "chapters": ["main.json"]

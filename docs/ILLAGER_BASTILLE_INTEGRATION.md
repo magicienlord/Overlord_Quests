@@ -4,108 +4,109 @@ Status: TECHNICAL IMPLEMENTATION OF APPROVED ILLAGER QUEST ARCHITECTURE
 
 ## Authority
 
-The newer OVERLORD REIGN civilization decisions establish:
+The OVERLORD REIGN civilization decisions establish a deliberately local Illager arc:
 
 - Illagers are decentralized warbands rather than one universal nation;
 - one designated Take a Pillage Bastille is the principal Illager civilization quest anchor;
-- unrelated patrols, raids, camps, mansions, outposts, and Bastilles must not automatically start the main Illager arc;
+- unrelated patrols, raids, camps, mansions, outposts and Bastilles do not automatically belong to that polity;
 - the opening relationship is hostile;
-- the Overlord establishes authority through force, intimidation, leadership defeat, or a related hostile action;
-- the later political outcome remains separate from this initial assertion of authority.
+- the Overlord first establishes authority through force;
+- afterward the surviving Bastille can enter a fearful/cowed intermediary state in which peaceful interaction becomes possible;
+- later political outcomes remain separate from this initial cowed peace.
 
-This integration implements only that opening boundary.
+The exact survivor used as post-Bastille intermediary is Quest-Maker / technical discretion. It is not an unanswered lore question.
 
 ## Installed source authority
 
-The audited installed artifact is:
+The audited Take a Pillage artifact is:
 
 ```text
 takesapillage-1.0.3-1.20.1.jar
 SHA-256 b8ebc7ea467637dc918ffa9c8eaa273f8723e6e81be93cf5f69618f8072baa11
 ```
 
-The exact installed JAR confirms:
+It provides the Bastille structure and the native `takesapillage:legioner`, `takesapillage:skirmisher` and `takesapillage:archer` soldiers. No dedicated Bastille-leader entity type or native commander role was found in the installed implementation.
 
-- structure ID `takesapillage:bastille`;
-- advancement ID `takesapillage:bastille`, awarded by the vanilla `minecraft:location` trigger while the player is inside a Bastille;
-- native entity types `takesapillage:legioner`, `takesapillage:skirmisher`, and `takesapillage:archer`;
-- the Bastille `illager` template pool delegates to `takesapillage:mob_feature_soldier`;
-- that soldier feature draws from the mod's `BASTILLE_LIST`;
-- `takesapillage:legioner` is the strongest weighted custom entry in that list at weight 15, followed by Skirmisher at 12 and Archer at 8, alongside lower-weight vanilla Illager entries.
+## Hostile opening
 
-No dedicated Bastille-leader entity type or native commander role was found in the installed 1.0.3 structure, entity registry, or Bastille spawn-pool implementation.
-
-## Authored commander boundary
-
-Because Take a Pillage does not define a native Bastille leader, OVERLORD REIGN does not pretend that every Legioner is a commander.
-
-World integration selects exactly one Legioner in the designated Bastille and gives it this persistent authored identity tag:
+World integration selects exactly one native Legioner in the designated Bastille and marks it:
 
 ```text
 overlord_anchor:illager_bastille_commander
 ```
 
-That tag means only:
-
-- this existing native Legioner is the local command figure chosen for the authored REIGN Bastille anchor.
-
-It does not mean:
-
-- Legioners are canonically the universal leaders of Illagers;
-- other Bastilles use the same commander;
-- every Legioner belongs to the designated polity;
-- Take a Pillage itself defines this role.
-
-The local command role is an OVERLORD REIGN authoring layer on a source-backed elite Bastille soldier.
-
-## Bastille advancement boundary
-
-The native `takesapillage:bastille` advancement is valid source evidence that a player entered a Bastille. It does not identify which Bastille was entered.
-
-Because REIGN intentionally distinguishes one designated Bastille from unrelated Bastilles, the production main-arc opener does not use that global advancement as proof of the designated anchor. Doing so would let an unrelated Bastille satisfy part of the principal civilization quest and would overstate what the native signal actually proves.
-
-The advancement remains untouched and continues to function as Take a Pillage intended. A later sidequest, optional objective, or world-integration layer may use it where the distinction between Bastilles is irrelevant.
-
-## Sequence-breaking
-
-The commander is intentionally killable before the formal campaign quest becomes visible. Therefore it must not rely on `overlord_quest_protected` during the legitimate hostile opening window.
-
-The production quest uses one exact historical signal:
-
-```text
-questlog:entity_kill_history
-entity = takesapillage:legioner
-scoreboard_tag = overlord_anchor:illager_bastille_commander
-```
-
-The scoreboard tag supplies the local identity that the native advancement cannot.
-
-`entity_kill_history` observes the real player-attributed death event from the moment the bundled definition is loaded, even while its parent quest remains locked, and persists the observation. It does not reconstruct kills from before OVERLORD QUESTS was installed or before the definition existed.
-
-This avoids respawning, replacing, or asking the player to kill a second commander merely because the central campaign had not yet formally directed them to the Bastille.
-
-## Production opening quest
-
-Bundled quest:
+The bundled opening quest is:
 
 ```text
 questlog:campaign/civilizations/illagers/break_the_bastille
 ```
 
-It requires the initial reign foundation fact and then recognizes the exact marked commander kill. The selected commander's authored identity ties that event to the designated Bastille polity without pretending a global structure advancement can identify one generated instance.
+It uses persistent `questlog:entity_kill_history` for that exact tagged `takesapillage:legioner`, so killing the commander before the journal formally exposes the quest remains recoverable after the definition is loaded.
 
-On completion it sets:
+Completion records:
 
 ```text
 overlord_reign:civilizations/illagers/authority_established
 ```
 
-The fact means that the designated Bastille's local command has been broken by the Overlord.
+This means the designated Bastille's local command has been broken. The opening does not set civilization disposition; it only establishes the hostile authority milestone.
 
-It does not set civilization disposition. In particular, it does not mean the Bastille is already NEUTRAL, SUBJUGATED, HOSTILE as a resolved political state, or destroyed. The approved fearful/cowed intermediary phase and later resolution remain separate authored work.
+The native global `takesapillage:bastille` advancement is deliberately not used to identify the designated REIGN Bastille because it does not identify which Bastille was entered. A global structure signal cannot distinguish one generated Bastille from another.
 
-## Locality rule
+## Fearful/cowed continuation
 
-This opening is scoped to one designated Bastille. Unrelated Illagers and other Bastilles remain independent and retain their native behavior unless separately affected by authored content.
+World integration selects one surviving vanilla Pillager at the same designated Bastille and gives it both tags:
 
-No global Illager AI, raid behavior, Villager hostility, or Take a Pillage spawn logic is modified by this integration.
+```text
+overlord_anchor:illager_bastille_intermediary
+overlord_quest_protected
+```
+
+The use of `minecraft:pillager` is a technical local representation, not a declaration that Pillagers are a universal Illager diplomatic caste.
+
+After `authority_established`, `IllagerBastilleAudienceBridgeForge` suppresses player targeting and attacks only from this exact protected intermediary. It does not alter other Pillagers, other Illager types, raids, patrols or unrelated Bastilles.
+
+The continuation quest is:
+
+```text
+questlog:campaign/civilizations/illagers/the_bastille_bows
+```
+
+The peaceful provider interaction records:
+
+```text
+overlord_reign:civilizations/illagers/bastille_cowed
+```
+
+and sets the designated Illager civilization state to:
+
+```text
+overlord_reign:neutral
+```
+
+Here NEUTRAL is the generalized runtime disposition under a more specific historical fact: the Bastille is fearful/cowed. It should not be narrated as friendship, alliance or voluntary reconciliation.
+
+The local polity may later move to another established disposition when future authored consequences justify it. This quest does not automatically create a SUBJUGATED outcome merely because force preceded the audience.
+
+## Locality and protection rules
+
+The commander remains legitimately killable during the hostile opening and therefore must not be protected in a way that blocks the required kill.
+
+The post-authority intermediary is deliberately protected because its role is to survive as a continuing provider after the combat phase.
+
+Neither marker applies globally. Ordinary Illager behavior remains native everywhere else.
+
+## Runtime qualification protocol
+
+1. In the designated Bastille, confirm exactly one intended `takesapillage:legioner` has `overlord_anchor:illager_bastille_commander`.
+2. Confirm one surviving `minecraft:pillager` has both `overlord_anchor:illager_bastille_intermediary` and `overlord_quest_protected`.
+3. Before authority is established, confirm the Bastille remains hostile and the commander can be killed normally.
+4. Kill the marked commander and verify `overlord_reign:civilizations/illagers/authority_established` persists.
+5. After that fact exists, confirm the marked protected intermediary no longer targets or successfully attacks the player.
+6. Confirm an unmarked Pillager in the same or another encounter remains native and is not globally pacified.
+7. Interact with the marked intermediary and complete `The Bastille Bows`.
+8. Confirm `overlord_reign:civilizations/illagers/bastille_cowed` is persisted and the Illager disposition becomes `overlord_reign:neutral`.
+9. Save/reload and verify the local provider remains usable while unrelated Illagers remain unaffected.
+10. Confirm the protected intermediary cannot be accidentally killed through ordinary combat.
+
+This validates the designated local Bastille only; it establishes no universal Illager government or global truce.

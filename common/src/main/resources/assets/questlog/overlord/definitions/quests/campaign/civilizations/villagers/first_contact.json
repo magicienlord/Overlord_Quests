@@ -1,0 +1,51 @@
+{
+  "title": "A Village That Remembers",
+  "description": "One deliberately authored human settlement stands on the remnant or successor-site of an older human place, fitted to the biome and final world rather than forced onto a copied historical map. Its people know enough old stories to recognize that the Dark Tower's return may matter. Speak to the settlement's marked representative and let this local community decide what it has actually seen.",
+  "description_completed": "The designated human settlement has formally met the current Overlord. Contact is established with this local community; its political outcome remains unresolved, and other Villager settlements remain independent.",
+  "icon": {
+    "item": "minecraft:bell"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 90,
+  "provider": {
+    "entity_types": [
+      "minecraft:villager"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:villager_main",
+      "overlord_quest_protected"
+    ],
+    "civilization": "overlord_reign:villagers",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "We've heard stories about the Tower. Different stories, depending on who is telling them. Now you're standing here, so I suppose we can stop arguing over whether the stories were only stories. Speak. This settlement will judge what returns with you.",
+      "ready_to_turn_in": "That is enough for a first meeting. We know who has returned to the Tower, and you know this village is not every human settlement in the world.",
+      "completed": "The village remembers this meeting. What comes of it depends on what you do next, not on a tale somebody told generations ago."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/villagers/contact_established",
+      "auto_claim": true,
+      "name": "Record formal contact with the designated human settlement"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}

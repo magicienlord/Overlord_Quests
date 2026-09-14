@@ -2,7 +2,7 @@
 
 Status: LIVE ENGINEERING LEDGER
 
-This file records the current repository implementation boundary. It is not a source of new OVERLORD REIGN world or story canon. Lore authority remains `magicienlord/Overlord_Lore_and_Canon`, read-only from the Quest implementation.
+This file records the repository implementation boundary. It is not a source of new OVERLORD REIGN canon. Lore authority remains `magicienlord/Overlord_Lore_and_Canon`, read-only from this repository.
 
 ## Runtime target
 
@@ -13,173 +13,128 @@ Java 17
 Primary branch: gnarl-bootstrap
 ```
 
-OVERLORD REIGN remains a single-player project. Automatic full-screen speaker and ending presentation targets an unpublished local integrated-server session. Dedicated-server boot remains a compatibility smoke boundary, not a player-facing multiplayer support promise.
+OVERLORD REIGN is a single-player project. Dedicated-server boot remains a compatibility smoke boundary rather than a player-facing multiplayer support promise.
 
 ## Engine state
 
-Implemented and repository-validated:
+Implemented and repository-validated at the previous checkpoint, with the current closure pass extending the same architecture:
 
-- inherited Questlog quest/chapter loading and config override workflow;
-- bundled production definitions under `assets/questlog/overlord/definitions/`;
-- strict definition validation, wire-size checks, dependency-cycle checks, cache authority, event-bus lifecycle guards and packet hardening;
+- bundled production quest definitions and config override workflow;
 - persistent narrative facts and civilization dispositions;
-- NPC provider rules, exact provider UUID binding, same-provider turn-in, distance revalidation, provider dialogue and protected quest anchors;
-- native/provider compatibility bridges used only where exact mod mechanics require them;
-- Minion owner-state bridge through the Overlord Minions public progression API;
-- sequence-break history objectives for structures, dimensions, positions, kills, crafting and Ender Dragon defeat;
-- optional objectives whose progress persists without blocking completion when marked optional;
-- failure-consequence support;
-- Gnarl/incorporeal speaker presentation and provider presentation split;
-- OVERLORD death-screen compatibility boundary;
-- production central-ending activation, one-time presentation persistence and prior-Dragon sequence-break delivery;
-- a separate one-time system-reaction channel for sparse popup-only assignments, without manufacturing hidden quests or narrative facts;
-- Forge development dedicated-server and client bootstrap smoke boundaries;
-- real two-boot narrative-state persistence coverage through authenticated localhost RCON.
+- NPC providers with exact UUID binding, same-provider turn-in, dialogue, protection and narrow native-role bridges;
+- sequence-break history objectives;
+- Overlord Minions owner-state integration;
+- production central ending and persistence;
+- sparse one-time system reactions for content intentionally kept outside the journal;
+- Forge server/client bootstrap smoke boundaries and narrative-state persistence checks.
 
-Manual in-game qualification is still required for player-facing presentation details and exact full-modpack interaction paths. Standalone static validation and Forge bootstrap checks do not replace those checks.
+The current pass additionally adds:
+
+- player-specific optional NightWalker owner-state objectives with no hard Nycto class dependency;
+- a local Illager post-Bastille restraint bridge that affects only the designated protected intermediary;
+- production Villager main-entry content;
+- production Illager fearful/cowed continuation;
+- the conditional Lestat-led NightWalker transition arc.
 
 ## Bundled production campaign coverage
 
-### Opening and Dark Tower
+Opening/Tower, assigned core-magic arcs, assigned adventure arcs, Quaver, Pet Cemetery, central End completion and Minion recovery are implemented as previously documented.
 
-The opening, Brown Minion restoration, throne claim, Minion infrastructure, forge, storage, armory, treasury, gates room, magic-room restoration and Tower restoration capstone are implemented.
-
-### Core magic arcs
-
-Dedicated production progression exists for:
-
-- Iron's Spells 'n Spellbooks;
-- Farmer's Spell / Gluttony;
-- Theurgy;
-- Ars Elixirum;
-- Biomancy;
-- Eidolon: Repraised.
-
-### Adventure and personnel arcs
-
-Dedicated production content exists for:
-
-- Twilight Forest;
-- L_Ender's Cataclysm;
-- The Graveyard;
-- The Bumblezone;
-- Knight Quest;
-- The Lost Castle;
-- Rats / Ratlantis;
-- Church of Sin;
-- Oddities / Orchid Shrine;
-- Quaver's Tower Band as an optional Tower personnel arc;
-- Pet Cemetery as a conditional pet-resurrection sidequest.
-
-### Central End campaign
-
-Production central-campaign content is implemented:
-
-1. `campaign/end/the_wound_beyond_the_world` requires only the established first foundation and retrospective entry into `minecraft:the_end`.
-2. That quest auto-claims `overlord_reign:campaign/ending_armed` and records the dimensional Wasteland entry.
-3. `campaign/end/break_the_dragon` resolves on the persistent Ender Dragon defeat boundary.
-4. The custom ending presentation is production text, not a development scaffold, and returns the player to the still-playable world.
-
-The ending does not require all civilizations, all optional content, or formal completion of every Tower branch.
-
-## Civilization coverage
+### Civilization coverage
 
 Generalized civilization roster: 10.
 
-Main-entry coverage implemented: 9/10.
+Main-entry coverage implemented: **10/10**.
 
 Implemented civilization entries:
 
+- Villagers;
+- Illagers, including hostile Bastille authority and post-authority fearful/cowed audience;
 - Dwarves;
 - Gnumus;
 - Goblins;
-- Illagers through the hostile Bastille opening;
 - Kobolds;
 - Piglins;
 - Ribbits;
 - Sea Dwellers;
 - Umvuthana.
 
-Still unresolved at the authority level:
-
-- Villagers: the principal settlement/provider for the main civilization entry has not been selected.
-- Illagers: the surviving fearful/cowed post-Bastille provider has not been selected.
+The Villager and Illager local-provider choices are delegated implementation decisions, not unresolved authority questions.
 
 Demons remain explicitly outside the generalized civilization disposition system.
 
-### Piglin implementation boundary
+### Villager boundary
 
-The designated local Chieftain is the exact protected `minecraft:piglin_brute` carrying `overlord_anchor:piglin_main_chieftain`.
+The main human anchor is one protected vanilla Villager at a deliberately authored, biome-appropriate historical remnant/successor settlement. Questlog stores no fixed historical-site name, profession or coordinates. First contact records only `overlord_reign:civilizations/villagers/contact_established` and does not resolve political disposition.
 
-Gold armor provides only enough temporary restraint for the initial audience. The bridge suppresses hostility only for that protected designated Chieftain and only while the player is wearing at least one gold armor piece, or later if an explicitly authored peaceful disposition exists.
+### Illager boundary
 
-The first audience records `overlord_reign:civilizations/piglins/contact_established`. It deliberately does not assign the Piglin village's final political disposition.
+The hostile opener still uses the marked `takesapillage:legioner` commander and records `overlord_reign:civilizations/illagers/authority_established`.
 
-## Red, Green and Blue Minion recovery
+A separate protected `minecraft:pillager` marked `overlord_anchor:illager_bastille_intermediary` becomes the designated local fearful intermediary after authority is established. Only that NPC is restrained by Questlog. Completing the peaceful audience records `overlord_reign:civilizations/illagers/bastille_cowed` and sets the local civilization runtime state to `overlord_reign:neutral` without creating a global Illager truce.
 
-Production recovery quests exist for all three later traditional Minion slots and use the real Minion progression owner bridge.
+### NightWalker / Lestat boundary
 
-Current practical recovery proofs are:
+Status: IMPLEMENTED AGAINST SUPPLIED ALPHA.3.
 
-- Red: Blaze Rod;
-- Green: Spider Eye;
-- Blue: Prismarine Crystal.
+Exact supplied build:
 
-These are implementation proxies, not claims that the source-game Hives were those items. Source-game identity is known: Red Hive at Melvin's Kitchen / Mellow Hills, Green Hive in the Viridian Caverns / Evernight, and Blue Hive in the Moist Hollows / Heaven's Peak.
+```text
+nycto-forge-1.20.1-overlordreign-1.0.0-alpha.3.jar
+SHA-256 a24de1fb23b83bc15263e40511782a8b46f6dd151b55e541e8727dfa0fe21503
+```
 
-The current quests are therefore IMPLEMENTED WITH A FIDELITY LIMITATION. Do not replace the proxies with invented fake Hive items, structures, bosses, or unrelated-mod mappings merely to imitate source geography.
+Questlog reads the real Nycto player-owned state:
+
+- `Nycto.vampire` for completed transformation;
+- `Nycto.powerMask` for choosable Vampire Altar purchases;
+- registered `nycto:vampirism` as the runtime-presence guard.
+
+The Lestat sequence covers arrival after completed transformation, deliberate blood replenishment, Vampire Altar use and at least one real altar power purchase. It deliberately stops before duplicating the rest of NightWalker's progression.
+
+Lestat is represented by one protected tagged `nycto:vampire` at the Dark Tower. Exact placement remains world integration; Questlog does not invent Tower coordinates.
+
+## Central End campaign
+
+Production central completion remains:
+
+1. `campaign/end/the_wound_beyond_the_world`;
+2. `campaign/end/break_the_dragon`.
+
+The ending does not require every civilization, optional sidequest or Tower branch, and the same world remains playable afterward.
+
+## Minion recovery fidelity
+
+Red, Green and Blue recovery uses the actual Minion progression owner bridge with practical proof proxies: Blaze Rod, Spider Eye and Prismarine Crystal respectively. These remain explicit implementation proxies rather than claims about source-game Hive identity.
 
 ## Sparse system reactions
 
-The final assignment ledger explicitly keeps several systems outside the quest log. Questlog has a persistent one-time reaction channel for source-backed cases where an introductory or milestone popup is specifically useful.
+The one-time system-reaction channel remains the production treatment for Enchanting System Overhaul, LevelUP, RPG Skill Trees, Spice of Life: Carrot Edition, Legendary Farming, Crop Critters, Golem Overhaul and BloomingNature milestones already documented in `docs/SYSTEM_REACTIONS.md`.
 
-Implemented bindings:
+## Overlord Depths / Fathoms
 
-- Enchanting System Overhaul: first main-hand interaction with the real enchanting table;
-- LevelUP: first detected base-stat investment;
-- RPG Skill Trees: first actual skill unlock in the `rpg_skill_trees` Pufferfish Skills category;
-- Spice of Life: Carrot Edition: distinct-food milestones at 10, 25, 50, 75 and 100;
-- Legendary Farming: first successful harvest of a registered mega crop block;
-- Crop Critters: first nearby native owner-state detection for a tamed Crop Critter owned by the player;
-- Golem Overhaul: first direct interaction with a Golem Overhaul golem;
-- BloomingNature: first interaction with the exact Wandering Gardener provider.
+Status: DEFERRED BY EXTERNAL TECHNICAL VALIDATION, NOT BY LORE.
 
-These reactions are intentionally not production quest definitions and do not write narrative facts.
+Fresh live checkpoint checked during this closure pass:
 
-Other content assigned popup-only, absorbed, ambient or no quest-facing treatment remains deliberately absent from the quest log unless a later eventful source-backed acknowledgement is worth adding. Absence is not itself a coverage defect.
+```text
+branch: validation/source-closure-direct-2026-09-13
+head: 9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f
+```
+
+Five exact-head workflows were observed. Source Resource Closure Audit is green, while three exact-head workflows fail: Build Forge 1.20.1 Backport, Target YUNG Rocky Waters and Target Core Worldgen Rocky Waters.
+
+The Historian-led Depths sidequest therefore remains deferred until the backport exposes a stable green boundary. This is the only remaining assigned dedicated-arc deferral.
 
 ## Known technical limitations
 
-### Church of Sin location binding
-
-The Church finale uses live Zombie and Skeleton kill objectives after the Cursed Cathedral is discovered. Questlog entity-kill objectives are not structure-location-bound, so those kills can technically occur elsewhere after unlock. Runtime validation should perform them inside the cathedral. This limitation does not justify inventing a Church-specific boss.
-
-### Minion recovery fidelity
-
-Red, Green and Blue recovery currently uses the practical item proxies listed above rather than source-game location reproductions.
-
-### Full-instance presentation
-
-Standalone validation cannot replace manual checks for Gnarl/provider composition, all optional-mod reflection paths, Minion progression across reloads, and central-ending presentation inside the complete OVERLORD REIGN instance.
-
-## Personal backport sidequests
-
-Lore authority makes both arcs mandatory only when the corresponding personal backport is implemented and stable enough to expose real mechanics.
-
-### Overlord Depths
-
-Status: DEFERRED BY EXTERNAL IMPLEMENTATION BOUNDARY.
-
-At the latest checked live branch `validation/source-closure-direct-2026-09-13`, head `11740ee915e34e1fac5c8c7bd6c90d7341cc9e53`, source-resource closure is still under active validation and four exact-head workflows are failing. Do not bind a production Historian arc to this moving target.
-
-### Overlord NightWalker
-
-Status: DEFERRED BY EXTERNAL IMPLEMENTATION BOUNDARY.
-
-At the latest checked live branch `fix/nightwalker-runtime-closure-2026-09-14`, head `4da22b27755351d9038f0c63ee5b1137d2ece5f2`, the runtime-closure work has no exact-head GitHub Actions evidence. Do not author the Lestat-led vampire transition from unvalidated intermediate mechanics.
+- Church of Sin kill objectives are not location-bound after cathedral discovery.
+- Minion recovery uses practical item proxies instead of direct Hive recreations.
+- Villager, Illager intermediary and Lestat anchors require final-world placement/tagging.
+- Full-instance manual validation remains necessary for presentation and optional-mod interaction paths.
 
 ## Validation rule
 
-A green repository workflow means the checked contracts compiled and/or passed their stated standalone static/runtime boundary. It does not by itself prove the complete OVERLORD REIGN instance.
+A green repository workflow proves only its stated static/build/smoke contract. It does not substitute for full-instance gameplay qualification.
 
-When a blocked authoring boundary is explicitly resolved, update this file and the appropriate focused integration/test document in the same implementation pass. Do not silently promote a proposal, provisional backport mechanic, or unspecified provider into production campaign canon.
+When Depths reaches a stable exact checkpoint, re-read that live implementation before authoring its Historian arc. Do not restore obsolete Villager, Illager or NightWalker “authority blocker” language in later handoffs.

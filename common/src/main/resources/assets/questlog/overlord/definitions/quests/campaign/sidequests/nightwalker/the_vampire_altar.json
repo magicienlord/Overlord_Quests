@@ -1,0 +1,57 @@
+{
+  "title": "The Vampire Altar",
+  "description": "NightWalker gives vampires a real progression surface rather than a generic list of inherited gifts. Open a Vampire Altar while transformed and inspect the powers and weaknesses the system actually permits.",
+  "description_completed": "The Overlord has opened NightWalker's Vampire Altar and seen the real power-and-weakness progression available to this vampiric state.",
+  "icon": {
+    "item": "nycto:vampire_altar"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 402,
+  "provider": {
+    "entity_types": [
+      "nycto:vampire"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:lestat",
+      "overlord_quest_protected"
+    ],
+    "required_facts": [
+      "overlord_reign:personal/nightwalker/lestat_joined_tower"
+    ],
+    "dialogue": {
+      "offer": "Now we arrive at temptation with paperwork. The altar will show you what this blood can become and what each indulgence may ask you to carry beside it. Look first. Vanity is expensive when one refuses to read the price.",
+      "in_progress": "The altar, Overlord. You need not kneel to it. Merely use it.",
+      "ready_to_turn_in": "Good. You have seen the choices. Power is much more interesting when one knows precisely what one agreed to pay for it.",
+      "completed": "The altar belongs to your condition, not to me. Use it as you please. I only insist that you stop calling an unknown consequence a surprise."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/nightwalker/hunger_is_a_fact",
+      "required_amount": 1,
+      "name": "Learn to manage the blood reserve"
+    },
+    {
+      "type": "overlord_reign:nightwalker_vampire",
+      "required_amount": 1,
+      "name": "Remain within the NightWalker vampire path"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:block_interact",
+      "block": "nycto:vampire_altar",
+      "required_amount": 1,
+      "name": "Use a Vampire Altar"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

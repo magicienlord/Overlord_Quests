@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.infernalstudios.questlog.config.QuestlogConfig;
 import org.infernalstudios.questlog.event.QuestlogEventBus;
 import org.infernalstudios.questlog.overlord.magic.ElixirumMasteryObjective;
+import org.infernalstudios.questlog.overlord.nightwalker.NightwalkerPowerCountObjective;
+import org.infernalstudios.questlog.overlord.nightwalker.NightwalkerVampireObjective;
 
 public class Questlog {
     public static final String MODID = "questlog";
@@ -17,6 +19,8 @@ public class Questlog {
 
     public static void init() {
         ElixirumMasteryObjective.register();
+        NightwalkerVampireObjective.register();
+        NightwalkerPowerCountObjective.register();
     }
 
     public static void initClient() {

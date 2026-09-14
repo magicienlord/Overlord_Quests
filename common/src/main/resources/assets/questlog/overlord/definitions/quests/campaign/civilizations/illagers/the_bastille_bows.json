@@ -1,0 +1,58 @@
+{
+  "title": "The Bastille Bows",
+  "description": "The designated Bastille's commander is dead. One surviving Pillager has been marked as the local intermediary for a warband that has learned fear before loyalty. Return under the authority you established and make the Bastille acknowledge a non-hostile audience.",
+  "description_completed": "The designated Bastille has entered a fearful, cowed peace with the Overlord. Its local warband is neutral enough for peaceful interaction, but it is not yet the Overlord's willing ally, and unrelated Illager bands remain independent and hostile on their own terms.",
+  "icon": {
+    "item": "minecraft:ominous_banner"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 171,
+  "provider": {
+    "entity_types": [
+      "minecraft:pillager"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:illager_bastille_intermediary",
+      "overlord_quest_protected"
+    ],
+    "civilization": "overlord_reign:illagers",
+    "required_facts": [
+      "overlord_reign:civilizations/illagers/authority_established"
+    ],
+    "dialogue": {
+      "offer": "The commander is dead. We saw what happened. Nobody here is eager to be the next lesson. You wanted the Bastille to listen, Overlord. It is listening.",
+      "ready_to_turn_in": "Then we understand each other. You may enter and speak without every crossbow in the yard answering first. Do not mistake fear for friendship.",
+      "completed": "The Bastille remembers who broke its command. We can speak. That is more than you had before, and less than obedience."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:civilizations/illagers/authority_established",
+      "required_amount": 1,
+      "name": "Break the designated Bastille's command"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/illagers/bastille_cowed",
+      "auto_claim": true,
+      "name": "Record the designated Bastille's fearful submission to dialogue"
+    },
+    {
+      "type": "questlog:set_disposition",
+      "civilization": "overlord_reign:illagers",
+      "state": "overlord_reign:neutral",
+      "auto_claim": true,
+      "name": "Open a local non-hostile phase with the designated Bastille"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
