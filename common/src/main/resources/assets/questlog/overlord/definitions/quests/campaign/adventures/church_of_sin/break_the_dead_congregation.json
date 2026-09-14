@@ -1,6 +1,6 @@
 {
   "title": "Break the Dead Congregation",
-  "description": "The cathedral template contains armed Zombies, Skeletons, and Zombie spawners. Break a representative body of those defenders after discovering the site. Questlog deliberately does not invent a Church of Sin boss or faction that the installed mod does not contain.",
+  "description": "The cathedral template contains armed Zombies, Skeletons, and Zombie spawners. Break a representative body of those defenders inside the Cursed Cathedral. Questlog deliberately does not invent a Church of Sin boss or faction that the installed mod does not contain.",
   "description_completed": "The dead congregation has been bloodied and the cathedral's finite expedition is concluded. Whatever remains inside is plunder, not a hidden second campaign.",
   "icon": {
     "item": "minecraft:bone"
@@ -24,14 +24,24 @@
     {
       "type": "questlog:entity_kill",
       "entity": "minecraft:zombie",
+      "predicate": {
+        "location": {
+          "structure": "church_of_sin:cursedcathedral"
+        }
+      },
       "required_amount": 4,
-      "name": "Destroy four Zombies after entering the cathedral"
+      "name": "Destroy four Zombies inside the cathedral"
     },
     {
       "type": "questlog:entity_kill",
       "entity": "minecraft:skeleton",
+      "predicate": {
+        "location": {
+          "structure": "church_of_sin:cursedcathedral"
+        }
+      },
       "required_amount": 2,
-      "name": "Destroy two Skeletons after entering the cathedral"
+      "name": "Destroy two Skeletons inside the cathedral"
     }
   ],
   "rewards": [

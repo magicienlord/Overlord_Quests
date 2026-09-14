@@ -85,7 +85,7 @@ Production wrapper:
 
 The installed content exposes the Cursed Cathedral and ordinary undead population, not a Church-specific boss or faction entity. The first stage therefore uses retrospective structure discovery and the second uses live Zombie/Skeleton kills after discovery.
 
-Technical limitation: Questlog's entity-kill objective is not structure-location-bound. The kills can technically occur outside the cathedral once the second stage is unlocked. Runtime validation should perform them inside the cathedral; this limitation is not permission to invent a boss.
+The combat objectives use Minecraft 1.20.1 `EntityPredicate` location matching against the native `church_of_sin:cursedcathedral` structure. Defender kills therefore count only while the killed entity is inside that structure. This preserves the compact expedition boundary without fixed coordinates or an invented boss.
 
 Final marker: `overlord_reign:adventure/church_of_sin_expedition_completed`.
 
@@ -109,4 +109,4 @@ Inventory observations are used only when they are the narrowest defensible sign
 
 ## Validation
 
-The adventure contract and focused validators guard manifest inclusion, prerequisite chains, exact native identifiers, capstone facts and sequence-break behavior. New adventure content should follow the same rule: observe the real source mechanic when possible and avoid building a duplicate progression system inside Questlog.
+The adventure contract and focused validators guard manifest inclusion, prerequisite chains, exact native identifiers, capstone facts and sequence-break behavior. The compact Church of Sin validator additionally fixes both combat predicates to the native cathedral structure ID. New adventure content should follow the same rule: observe the real source mechanic when possible and avoid building a duplicate progression system inside Questlog.

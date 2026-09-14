@@ -35,7 +35,8 @@ The current pass additionally adds:
 - production Villager main-entry content;
 - production Illager fearful/cowed continuation;
 - the conditional Lestat-led NightWalker transition arc;
-- the source-backed Historian-led Overlord Depths / Fathoms nautical arc.
+- the source-backed Historian-led Overlord Depths / Fathoms nautical arc;
+- Church of Sin defender kills scoped to the native Cursed Cathedral structure through Minecraft entity-location predicates.
 
 ## Bundled production campaign coverage
 
@@ -133,7 +134,6 @@ See `docs/FATHOMS_HISTORIAN_INTEGRATION.md`.
 
 ## Known technical limitations
 
-- Church of Sin kill objectives are not location-bound after cathedral discovery.
 - Minion recovery uses practical item proxies instead of direct Hive recreations.
 - Villager, Illager intermediary and Lestat anchors require final-world placement/tagging.
 - The Fathoms arc still requires full-instance qualification of presentation, native Historian interaction and advancement handoff.

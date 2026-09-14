@@ -55,8 +55,13 @@ def main() -> int:
     visits=entries(church[0],"objectives","questlog:visit_structure_history")
     if len(visits)!=1 or visits[0].get("structure")!="church_of_sin:cursedcathedral": errors.append("Church of Sin must discover church_of_sin:cursedcathedral")
     if not has_quest_prereq(church[1],"questlog:campaign/adventures/church_of_sin/find_the_cursed_cathedral"): errors.append("Church combat stage must follow cathedral discovery")
-    kills={(entry.get("entity"),entry.get("required_amount")) for entry in entries(church[1],"objectives","questlog:entity_kill")}
+    church_kills=entries(church[1],"objectives","questlog:entity_kill")
+    kills={(entry.get("entity"),entry.get("required_amount")) for entry in church_kills}
     if kills!={("minecraft:zombie",4),("minecraft:skeleton",2)}: errors.append("Church combat stage must retain its narrow embedded-undead sample")
+    cathedral_predicate={"location":{"structure":"church_of_sin:cursedcathedral"}}
+    for entry in church_kills:
+        if entry.get("predicate")!=cathedral_predicate:
+            errors.append(f"Church combat objective {entry.get('entity')}: kill must be structure-bound to church_of_sin:cursedcathedral")
     if entries(church[1],"objectives","questlog:entity_kill_history"): errors.append("Church defenders must be live post-discovery kills, not retrospective global kill history")
     if not exact_fact(church[-1],"overlord_reign:adventure/church_of_sin_expedition_completed"): errors.append("Church capstone must persist church_of_sin_expedition_completed")
     oddities=[docs[FILES[5]],docs[FILES[6]],docs[FILES[7]]]

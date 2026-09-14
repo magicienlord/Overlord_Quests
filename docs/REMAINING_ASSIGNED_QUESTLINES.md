@@ -119,7 +119,6 @@ See `docs/FATHOMS_HISTORIAN_INTEGRATION.md`.
 
 ## Known implementation limitations
 
-- Church of Sin kill objectives are not structure-location-bound after cathedral discovery.
 - Red/Green/Blue recovery uses practical item proxies rather than direct source-game Hive recreations.
 - Villager, Illager intermediary and Lestat anchors require final-world placement/tagging and manual full-instance qualification.
 - The Fathoms wrapper still needs full-instance qualification of presentation, Historian interaction and native advancement handoff in the final modpack environment.
