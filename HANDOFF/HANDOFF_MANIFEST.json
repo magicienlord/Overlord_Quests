@@ -1,0 +1,64 @@
+{
+  "format_version": 1,
+  "package_kind": "conversation_handoff",
+  "project": "OVERLORD REIGN",
+  "repository": "magicienlord/Overlord_Quests",
+  "preservation_branch": "conversation-handoff-2026-09-14-526aeef",
+  "rollback_recovery": {
+    "live_repository_reread": true,
+    "note": "The source checkpoint was selected from the live repository after THE OVERLORD reported a conversation rollback. Earlier chat-state SHAs are not authoritative."
+  },
+  "source": {
+    "branch": "gnarl-bootstrap",
+    "commit": "526aeef195dbb7530ae1c0302a68c8ce42a459da",
+    "tree": "ddab2e8f85aae81cb7cf5052f507fddedcf7d082",
+    "commit_message": "Validate full Illager Bastille arc"
+  },
+  "lore_authority": {
+    "repository": "magicienlord/Overlord_Lore_and_Canon",
+    "branch": "main",
+    "observed_commit": "235845c4985b61cba9c106b2f4c4af8894bb98ae",
+    "read_only": true
+  },
+  "validation": {
+    "exact_head_workflows_total": 16,
+    "exact_head_workflows_success": 16,
+    "exact_head_workflows_failure": 0,
+    "exact_head_workflows_queued_or_in_progress": 0,
+    "forge_run_id": 34890868260,
+    "civilization_validation_run_id": 34890868284
+  },
+  "validation_artifacts": {
+    "forge": {
+      "name": "overlord-quests-forge-1.20.1",
+      "id": 10366262611,
+      "digest": "sha256:cff98f3e5b96a5ef8c982d31b77edb15d272b0ff525697cae2ca0e93653e320e",
+      "expired_when_checked": false
+    },
+    "civilization_validation_kit": {
+      "name": "overlord-quests-civilization-validation-kit",
+      "id": 10366249461,
+      "digest": "sha256:06ef447c83f7a76b612a136020d980b9af49a03020399b4aef5f4232a816c6d5",
+      "expired_when_checked": false
+    }
+  },
+  "package_scope": {
+    "required_handoff_files": [
+      "HANDOFF/README_FIRST.md",
+      "HANDOFF/NEXT_CONVERSATION_HANDOFF.md",
+      "HANDOFF/RECENT_WORK_LEDGER.md",
+      "HANDOFF/RESTART_POINT.txt",
+      "HANDOFF/VALIDATION_STATE.md",
+      "HANDOFF/HANDOFF_MANIFEST.json"
+    ],
+    "packaging_workflow": ".github/workflows/conversation-handoff.yml",
+    "allowed_diff_prefix": "HANDOFF/",
+    "no_implementation_changes": true
+  },
+  "continuation": {
+    "development_branch": "gnarl-bootstrap",
+    "reread_live_branch_before_work": true,
+    "do_not_develop_from_preservation_branch": true,
+    "remaining_assigned_arc_recorded_by_source": "Overlord Depths / Fathoms Historian sidequest, deferred by external technical validation; recheck external repository live before use"
+  }
+}

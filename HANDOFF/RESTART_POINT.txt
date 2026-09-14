@@ -1,0 +1,23 @@
+OVERLORD QUESTS CONVERSATION RESTART POINT
+
+Repository: magicienlord/Overlord_Quests
+Development branch: gnarl-bootstrap
+Preserved live implementation commit: 526aeef195dbb7530ae1c0302a68c8ce42a459da
+Preserved live implementation tree: ddab2e8f85aae81cb7cf5052f507fddedcf7d082
+Commit message: Validate full Illager Bastille arc
+
+ROLLBACK WARNING:
+The live repository was re-read after THE OVERLORD reported a conversation rollback. This exact live commit supersedes stale chat-state assumptions. On restart, fetch gnarl-bootstrap again before making changes; if it has advanced, use the newer live state and do not reset it to this checkpoint.
+
+VALIDATION AT PACKAGING:
+16 exact-head workflows observed; 16 success; 0 failure; no observed queued/in-progress runs.
+
+LORE AUTHORITY OBSERVED:
+magicienlord/Overlord_Lore_and_Canon main
+235845c4985b61cba9c106b2f4c4af8894bb98ae
+
+CURRENT REMAINING-WORK BOUNDARY IN REPOSITORY DOCS:
+The only assigned dedicated arc still recorded as deferred is Overlord Depths/Fathoms, for external technical validation only. Recheck that external repository before continuation.
+
+DO NOT DEVELOP FROM THE PRESERVATION BRANCH.
+It exists only to carry HANDOFF material and the packaging workflow.

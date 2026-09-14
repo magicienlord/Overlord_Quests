@@ -1,0 +1,143 @@
+name: Conversation Handoff Package
+
+on:
+  push:
+    branches:
+      - conversation-handoff-2026-09-14-526aeef
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preservation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify preservation boundary and metadata
+        shell: bash
+        env:
+          SOURCE_SHA: 526aeef195dbb7530ae1c0302a68c8ce42a459da
+          SOURCE_TREE: ddab2e8f85aae81cb7cf5052f507fddedcf7d082
+        run: |
+          set -euo pipefail
+
+          actual_tree="$(git rev-parse "${SOURCE_SHA}^{tree}")"
+          test "$actual_tree" = "$SOURCE_TREE"
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('HANDOFF/HANDOFF_MANIFEST.json').read_text(encoding='utf-8'))
+          assert manifest['source']['commit'] == '526aeef195dbb7530ae1c0302a68c8ce42a459da'
+          assert manifest['source']['tree'] == 'ddab2e8f85aae81cb7cf5052f507fddedcf7d082'
+          assert manifest['source']['branch'] == 'gnarl-bootstrap'
+          assert manifest['lore_authority']['observed_commit'] == '235845c4985b61cba9c106b2f4c4af8894bb98ae'
+          assert manifest['validation']['exact_head_workflows_total'] == 16
+          assert manifest['validation']['exact_head_workflows_success'] == 16
+          assert manifest['validation']['exact_head_workflows_failure'] == 0
+          assert manifest['validation']['exact_head_workflows_queued_or_in_progress'] == 0
+          assert manifest['validation']['forge_run_id'] == 34890868260
+          assert manifest['validation']['civilization_validation_run_id'] == 34890868284
+          assert manifest['package_scope']['no_implementation_changes'] is True
+          for path in manifest['package_scope']['required_handoff_files']:
+              assert Path(path).is_file(), path
+          assert Path(manifest['package_scope']['packaging_workflow']).is_file()
+          PY
+
+          changed="$(git diff --name-only "$SOURCE_SHA" HEAD)"
+          test -n "$changed"
+          while IFS= read -r path; do
+            case "$path" in
+              HANDOFF/*|.github/workflows/conversation-handoff.yml) ;;
+              *)
+                echo "ERROR: preservation branch changes implementation path: $path" >&2
+                exit 1
+                ;;
+            esac
+          done <<< "$changed"
+
+          test "$(printf '%s\n' "$changed" | sed '/^$/d' | wc -l)" -eq 7
+          printf '%s\n' "$changed"
+
+      - name: Download exact Forge build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: overlord-quests-forge-1.20.1
+          path: package/validation-artifacts/build-forge
+          github-token: ${{ github.token }}
+          repository: magicienlord/Overlord_Quests
+          run-id: 34890868260
+
+      - name: Download exact civilization validation kit
+        uses: actions/download-artifact@v4
+        with:
+          name: overlord-quests-civilization-validation-kit
+          path: package/validation-artifacts/civilization-validation-kit
+          github-token: ${{ github.token }}
+          repository: magicienlord/Overlord_Quests
+          run-id: 34890868284
+
+      - name: Assemble handoff package
+        shell: bash
+        env:
+          SOURCE_SHA: 526aeef195dbb7530ae1c0302a68c8ce42a459da
+          SOURCE_TREE: ddab2e8f85aae81cb7cf5052f507fddedcf7d082
+        run: |
+          set -euo pipefail
+
+          mkdir -p package/HANDOFF package/source
+          cp -a HANDOFF/. package/HANDOFF/
+
+          git archive \
+            --format=zip \
+            --output=package/source/overlord-quests-source-526aeef.zip \
+            "$SOURCE_SHA"
+
+          cat > package/SOURCE_CHECKPOINT.txt <<EOF
+          Repository: magicienlord/Overlord_Quests
+          Development branch observed: gnarl-bootstrap
+          Exact source commit: $SOURCE_SHA
+          Exact source tree: $SOURCE_TREE
+          Commit message: Validate full Illager Bastille arc
+          Lore authority observed: magicienlord/Overlord_Lore_and_Canon main @ 235845c4985b61cba9c106b2f4c4af8894bb98ae
+          Source exact-head workflows at packaging observation: 16 success / 16 total
+          Forge validation run: 34890868260
+          Civilization validation run: 34890868284
+          Rollback note: live repository was re-read before packaging; earlier conversation state is not authoritative.
+          EOF
+
+          cat > package/ARTIFACT_LEDGER.txt <<'EOF'
+          overlord-quests-forge-1.20.1
+            source run: 34890868260
+            GitHub artifact ID: 10366262611
+            GitHub artifact digest: sha256:cff98f3e5b96a5ef8c982d31b77edb15d272b0ff525697cae2ca0e93653e320e
+
+          overlord-quests-civilization-validation-kit
+            source run: 34890868284
+            GitHub artifact ID: 10366249461
+            GitHub artifact digest: sha256:06ef447c83f7a76b612a136020d980b9af49a03020399b4aef5f4232a816c6d5
+          EOF
+
+          find package -type f ! -name SHA256SUMS.txt -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > package/SHA256SUMS.txt
+
+          test -s package/source/overlord-quests-source-526aeef.zip
+          test -s package/SHA256SUMS.txt
+          find package -maxdepth 4 -type f -print | sort
+
+      - name: Upload conversation handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-conversation-handoff-2026-09-14-526aeef
+          path: package
+          if-no-files-found: error
+          retention-days: 90
