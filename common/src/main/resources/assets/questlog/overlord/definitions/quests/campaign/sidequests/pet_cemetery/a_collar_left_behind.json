@@ -1,0 +1,32 @@
+{
+  "title": "A Collar Left Behind",
+  "description": "One of your supported tamed companions has died. Pet Cemetery leaves the owner's collar behind when a supported pet falls. Recover that collar before death has time to become permanent.",
+  "description_completed": "The collar is recovered. Pet Cemetery's own resurrection path can now be used to return the lost companion.",
+  "icon": {
+    "item": "pet_cemetery:pet_collar"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 390,
+  "prerequisites": [
+    {
+      "type": "questlog:owned_tame_death",
+      "entity": "#pet_cemetery:drops_pet_collar",
+      "required_amount": 1,
+      "name": "Lose one of your supported tamed pets"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:item_obtain",
+      "item": "pet_cemetery:pet_collar",
+      "required_amount": 1,
+      "name": "Recover the fallen pet's collar"
+    }
+  ],
+  "rewards": []
+}

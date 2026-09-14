@@ -1,0 +1,39 @@
+{
+  "title": "Return from the Grave",
+  "description": "Pet Cemetery can restore the companion recorded in a Pet Collar through its own charged Respawn Anchor ritual. Use that native resurrection path. Questlog observes the mod's actual resurrection advancement rather than replacing the ritual.",
+  "description_completed": "The lost companion lives again. Death has been made temporary for one creature under your rule.",
+  "icon": {
+    "item": "minecraft:respawn_anchor"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 391,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/pet_cemetery/a_collar_left_behind",
+      "required_amount": 1,
+      "name": "Recover the fallen pet's collar"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "pet_cemetery:nether/respawn_pet",
+      "required_amount": 1,
+      "name": "Resurrect the pet through Pet Cemetery"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:personal/pet_resurrection_completed",
+      "value": true,
+      "auto_claim": true
+    }
+  ]
+}

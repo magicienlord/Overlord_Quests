@@ -56,6 +56,8 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_tame"), EntityTameObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
+        register(new ResourceLocation("questlog", "owned_tame_death"), OwnedTameDeathObjective::new,
+                new EditorMetadata("entity", "Owned tameable ID / tag:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
 
         // Logic
         register(new ResourceLocation("questlog", "and"), AndObjective::new,
