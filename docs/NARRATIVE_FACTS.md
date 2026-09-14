@@ -4,33 +4,26 @@ Status: TECHNICAL IMPLEMENTATION OF APPROVED QUEST ARCHITECTURE
 
 ## Authority
 
-`magicienlord/Overlord_Lore_and_Canon` defines Main Quest markers as runtime representations of real narrative facts, requires sidequests to leave persistent quest facts or completion state where appropriate, and requires sparse conditional architecture based on explicit facts rather than numeric reputation or morality systems.
+`magicienlord/Overlord_Lore_and_Canon` defines Main Quest markers as runtime representations of real narrative facts, requires persistent quest facts or completion state where later content needs them, and rejects a hidden numeric reputation or morality system.
 
-This document defines how OVERLORD QUESTS represents those facts technically and records stable production IDs once campaign authoring actually needs them.
+This document is the implementation-facing registry for durable production fact IDs used by the bundled OVERLORD QUESTS campaign. It does not create setting canon independently of the read-only lore authority or the bundled quest that actually writes a fact.
 
 ## Model
 
-A narrative fact is a world-scoped `ResourceLocation` that means one authored historical statement has become true.
+A narrative fact is a world-scoped `ResourceLocation` stored by `OverlordNarrativeState`.
 
-Development examples use synthetic IDs such as:
+Normal production behavior is monotonic:
 
-```text
-questlog:dev_fact_open
-questlog:dev_provider_closed
-```
-
-Production IDs are chosen by campaign content from the authoritative lore and campaign design. The engine does not infer them from NPC names, factions, locations, or mod content.
-
-Narrative facts are deliberately boolean and monotonic during normal gameplay:
-
-- absent means the authored fact has not been recorded;
+- absent means the authored historical or campaign statement has not been recorded;
 - present means it has become true;
-- production quest rewards may add a fact;
-- production quest rewards do not erase facts.
+- `questlog:set_fact` may add it;
+- production content does not erase it.
 
-This makes facts suitable for persistent historical consequences without becoming a disguised numeric score.
+Administrative `clear` exists only for testing/recovery.
 
-Civilization disposition remains a separate exclusive-state mechanism. Use a disposition when exactly one current political state matters. Use a narrative fact when later content needs to know that a specific event or outcome happened.
+A fact is not a civilization disposition. Facts preserve history; disposition represents one current exclusive political state and may later be replaced by another authored state.
+
+A fact is also not automatically the owner of a cross-mod capability. Where another mod owns durable gameplay state, Questlog may observe that owner state directly and use a separate fact only for a distinct historical statement.
 
 ## Quest definition surface
 
@@ -39,15 +32,12 @@ Civilization disposition remains a separate exclusive-state mechanism. Use a dis
 ```json
 {
   "type": "questlog:fact",
-  "fact": "overlord_reign:some_authored_fact"
+  "fact": "overlord_reign:some_authored_fact",
+  "required_amount": 1
 }
 ```
 
-A fact objective has an implicit `required_amount` of `1`. Any authored `required_amount` must also be exactly `1`.
-
-On the logical server the objective reads `OverlordNarrativeState` directly. Its synchronized objective units are only a client presentation projection of the authoritative world fact.
-
-Fact objectives are valid anywhere ordinary objective trees are valid, including prerequisites and logic objectives.
+`required_amount` is exactly `1`. On the logical server, the objective reads world narrative state directly.
 
 ### Set-fact reward
 
@@ -59,44 +49,24 @@ Fact objectives are valid anywhere ordinary objective trees are valid, including
 }
 ```
 
-The reward records the fact in world narrative state and immediately re-synchronizes active quest state so dependent fact objectives and provider gates react without waiting for an unrelated event.
+Hidden state transitions should normally use `auto_claim: true` so dependent objectives and provider gates can react immediately.
 
-For hidden campaign state transitions, authors should normally use `auto_claim: true`. A manual claim is appropriate only when claiming the visible reward is intentionally the moment the fact becomes true.
-
-The reward is monotonic. It has no production `clear` form.
-
-## Provider gates
-
-Provider rules support two fact sets:
+### Provider gates
 
 ```json
 "provider": {
-  "required_facts": [
-    "overlord_reign:fact_that_must_be_true"
-  ],
-  "forbidden_facts": [
-    "overlord_reign:fact_that_must_not_be_true"
-  ]
+  "required_facts": ["overlord_reign:required_fact"],
+  "forbidden_facts": ["overlord_reign:forbidden_fact"]
 }
 ```
 
-All `required_facts` must be present and every `forbidden_facts` entry must be absent before the quest can be accepted.
+All required facts must exist and all forbidden facts must be absent before acceptance. These gates do not silently fail an already accepted quest.
 
-A provider definition that both requires and forbids the same fact is invalid.
+## Persistence and administration
 
-As with disposition and ordinary quest-marker gating, fact gates apply to acceptance. They are not re-applied to an already accepted quest during turn-in. If a later narrative event should invalidate, fail, or redirect an active quest, that consequence must be authored explicitly rather than produced by silently making its provider inaccessible.
+Facts are stored in the world-scoped `overlord_quests_narrative` `SavedData`. IDs are save-history keys: once shipped, renaming one is a save migration, not a cosmetic refactor.
 
-## Persistence
-
-Facts are stored in the existing world-scoped `overlord_quests_narrative` `SavedData` alongside civilization dispositions.
-
-The fact set is serialized deterministically and loads backward-compatibly when an older world has no `facts` field.
-
-Fact IDs are history keys. Once production content ships, renaming a fact ID is a save migration and must not be treated as a cosmetic refactor.
-
-## Administration and validation
-
-Permission-gated commands are available for authoring and test recovery:
+Administrative/test commands are:
 
 ```text
 /questlog narrative fact get <fact>
@@ -104,285 +74,464 @@ Permission-gated commands are available for authoring and test recovery:
 /questlog narrative fact clear <fact>
 ```
 
-`clear` exists only as an administrative/testing escape hatch. Its presence does not make narrative facts reversible campaign variables.
-
-`set` and `clear` immediately re-synchronize active quest state.
-
 ## Authoring rules
 
-Use a named narrative fact when the truth is materially reusable outside the quest that first established it. Legitimate categories from the approved architecture include discovery, local-ruler outcomes, crisis resolution, Tower restoration milestones, NPC survival/death, branch outputs, persistent capability unlocks, and other persistent consequences.
+Use a fact only when later content materially benefits from a reusable historical or campaign truth. Do not create facts for generic numerical progress, hidden reputation, every trivial objective, or a capability already represented completely by another owner's state.
 
-Do not create facts for:
+Local civilization facts remain local to the designated authored polity. They do not silently rewrite every procedural settlement or species member.
 
-- arbitrary numerical progress;
-- generic friendliness or reputation accumulation;
-- cosmetic statistics with no later consequence;
-- every trivial objective step;
-- information already represented cleanly by an ordinary completed quest and never queried independently.
+Production facts referenced by bundled quests must appear in this registry. `tools/validate_narrative_fact_documentation.py` enforces that boundary.
 
-Where simple quest completion is sufficient, `questlog:quest_complete` remains the smaller representation.
+---
 
-A semantic convergence fact may be appropriate when several implementation-level quest completions jointly establish one reusable campaign truth. In that case the fact should describe the stable meaning of the convergence rather than duplicate one source quest's completion state.
+# Production fact registry
 
-## Production fact registry
+## Opening, Minions and early reign
 
-The following production fact IDs are currently defined by bundled campaign content.
+### `overlord_reign:minions/brown_recovered`
 
-### `overlord_reign:tower/forge_prepared`
+Writer: `campaign/opening/browns_return`.
 
-Category: Tower restoration milestone.
+Meaning: the campaign has confirmed the Brown tribe's return under the current Overlord.
 
-Set when the first Tower forge preparation quest completes its native Hot Iron progression requirement.
+Boundary: this is historical campaign confirmation, not an independent replacement for Minion-system owner state or the Master's Staff bootstrap.
 
-Meaning:
+### `overlord_reign:minions/red_recovered`
 
-- the Overlord has acquired the core smithing equipment needed to furnish the Tower's purpose-built forge chamber;
-- the campaign may treat the forge restoration process as having reached its prepared-material stage;
-- later Tower content may use this fact without depending directly on the implementation details of the originating quest.
+Writer: `campaign/expansion/reds_return`.
 
-This fact does NOT mean:
+Meaning: after the Red recovery quest and owner-state confirmation, Gnarl/the campaign has recorded the Red tribe as recovered.
 
-- that a specific anvil or workstation has been placed at a fixed world coordinate;
-- that every future forge upgrade is complete;
-- that Hot Iron progression has been exhausted;
-- that the final architectural installation or world-state presentation has been implemented.
+Boundary: `Overlord_Minions` remains authoritative for whether Red command is actually unlocked. This fact remembers the corresponding campaign event.
 
-Those boundaries remain separate so the fact stays truthful even before exact Tower-room world integration is finalized.
+### `overlord_reign:minions/green_recovered`
+
+Writer: `campaign/expansion/greens_return`.
+
+Meaning: after the Green recovery quest and owner-state confirmation, the campaign has recorded the Green tribe as recovered.
+
+Boundary: it does not replace Green Minion owner state and does not claim a fabricated Hive implementation.
+
+### `overlord_reign:minions/blue_recovered`
+
+Writer: `campaign/expansion/blues_return`.
+
+Meaning: after the Blue recovery quest and owner-state confirmation, the campaign has recorded the Blue tribe as recovered.
+
+Boundary: it does not replace Blue Minion owner state and does not claim a fabricated Hive implementation.
 
 ### `overlord_reign:reign/initial_foundation_established`
 
-Category: early campaign convergence milestone.
+Writer: `campaign/expansion/the_reign_takes_shape`.
 
-Set by `campaign/expansion/the_reign_takes_shape` after both of the following have been completed and acknowledged:
+Meaning: Brown recovery and the first practical Tower infrastructure milestone have converged sufficiently for the semi-open campaign structure to begin.
 
-- Brown Minion recovery;
-- the first practical Tower infrastructure restoration.
+Boundary: this does not imply recovery of Red/Green/Blue Minions, completion of all Tower facilities, any civilization outcome, or any optional magic/adventure progression.
 
-Meaning:
+---
 
-- the current Overlord has recovered the Brown tribe and established the first practical Tower infrastructure milestone;
-- the opening foundation is complete enough for the campaign to enter its semi-open, capability-driven structure;
-- later campaign and provider content may gate on one stable semantic marker instead of depending on the implementation details of two early quest branches.
+## Dark Tower and personnel
 
-This fact does NOT mean:
+### `overlord_reign:tower/throne_room_operational`
 
-- that Red, Green, or Blue Minions have been restored;
-- that any civilization disposition has been resolved;
-- that any later Tower facility is complete;
-- that any named region, dungeon, or settlement has been discovered;
-- that Theurgy or any other optional native system has been assigned a mandatory story role;
-- that a concealed later campaign branch or outcome has been selected.
+Writer: `campaign/tower/claim_the_throne`.
 
-The fact is intentionally broader than either source quest completion while remaining strictly bounded to the two established opening recoveries.
+Meaning: the current Overlord has reclaimed the Tower's throne-room function as the seat of the reign.
+
+Boundary: it does not mean the rest of the Tower is restored.
+
+### `overlord_reign:tower/minion_infrastructure_operational`
+
+Writer: `campaign/tower/wake_minion_infrastructure`.
+
+Meaning: the first practical Minion-support infrastructure of the Tower is operational.
+
+Boundary: it does not imply all Minion tribes are recovered or all Tower infrastructure is complete.
+
+### `overlord_reign:tower/forge_prepared`
+
+Writer: `campaign/tower/prepare_the_forge`.
+
+Meaning: the Overlord has acquired the core smithing equipment/material progression needed to treat the Tower forge as prepared for its campaign role.
+
+Boundary: it does not fix architectural coordinates, exhaust Hot Iron progression, or imply every future forge upgrade is complete.
+
+### `overlord_reign:tower/storage_room_operational`
+
+Writer: `campaign/tower/provision_storage_room`.
+
+Meaning: the Tower's authored storage-room function has reached its production campaign milestone.
+
+Boundary: it does not require or imply completion of every storage mod or every possible storage upgrade.
+
+### `overlord_reign:tower/armory_operational`
+
+Writer: `campaign/tower/establish_armory`.
+
+Meaning: the Tower armory has reached its authored operational milestone.
+
+Boundary: it does not imply acquisition of every weapon, armor set, combat mod, or relic in the pack.
+
+### `overlord_reign:tower/treasury_operational`
+
+Writer: `campaign/tower/secure_treasury`.
+
+Meaning: the Tower treasury has reached its authored operational milestone.
+
+Boundary: it does not establish a global economy, complete every wealth objective, or fix a final room coordinate in canon.
+
+### `overlord_reign:tower/gates_operational`
+
+Writer: `campaign/tower/open_gates_room`.
+
+Meaning: the Tower gates-room function has reached its authored operational milestone.
+
+Boundary: it does not imply every dimension, portal system, or optional travel mod has been completed.
+
+### `overlord_reign:tower/alchemy_room_operational`
+
+Writer: `campaign/tower/magic/open_alchemy_laboratory`.
+
+Meaning: an authored Tower laboratory is available for the Ars Elixirum / alchemical campaign context.
+
+Boundary: room readiness is distinct from mastery of Ars Elixirum itself.
+
+### `overlord_reign:tower/theurgy_room_operational`
+
+Writer: `campaign/tower/magic/establish_theurgy_laboratory`.
+
+Meaning: an authored Tower work area for Theurgy has reached its operational milestone.
+
+Boundary: it does not itself establish Theurgy mastery.
+
+### `overlord_reign:tower/gluttony_room_operational`
+
+Writer: `campaign/tower/magic/open_gluttony_kitchen`.
+
+Meaning: the Tower kitchen/Gluttony work area has reached its authored operational milestone.
+
+Boundary: it does not itself establish Farmer's Spell / Gluttony mastery.
+
+### `overlord_reign:tower/spell_study_operational`
+
+Writer: `campaign/tower/magic/establish_spell_study`.
+
+Meaning: the Tower has an operational authored spell-study context for active spellcraft.
+
+Boundary: it does not itself complete Iron's Spells 'n Spellbooks progression.
+
+### `overlord_reign:tower/eidolon_room_operational`
+
+Writer: `campaign/tower/magic/prepare_eidolon_chamber`.
+
+Meaning: the Tower has an authored chamber prepared for Eidolon ritual study.
+
+Boundary: room readiness is distinct from establishing the ritual discipline.
+
+### `overlord_reign:tower/restoration_complete`
+
+Writer: `campaign/tower/restoration_complete`.
+
+Meaning: the production Tower-restoration campaign has reached its intended capstone across the facilities assigned to that arc.
+
+Boundary: this does not mean every possible room, mod integration, optional system, civilization arc, Minion tribe, or campaign branch is complete.
+
+### `overlord_reign:tower/quaver_band_established`
+
+Writer: `campaign/personnel/quaver/first_tower_performance`.
+
+Meaning: Quaver's optional Tower ensemble has been assembled far enough to give its first authored Tower performance.
+
+Boundary: this does not make every Immersive Melodies instrument mandatory or turn the band into a central-campaign requirement.
+
+---
+
+## Magic disciplines
+
+### `overlord_reign:magic/irons/spellcraft_established`
+
+Writer: `campaign/magic/irons/master_the_ink`.
+
+Meaning: the player has carried Iron's own progression through the selected legendary-ink milestone, allowing REIGN to treat active mana spellcraft as an established discipline.
+
+Boundary: Questlog observes native Iron's progression; it does not replace or claim exhaustion of that mod's deeper progression.
+
+### `overlord_reign:magic/gluttony/mastery_established`
+
+Writer: `campaign/magic/gluttony/banquet_of_power`.
+
+Meaning: the selected Farmer's Spell / Gluttony progression has reached the authored REIGN mastery milestone.
+
+Boundary: it does not imply completion of every Farmer's Delight-family recipe or food system.
+
+### `overlord_reign:magic/theurgy/mastery_established`
+
+Writer: `campaign/magic/theurgy/precious_matter`.
+
+Meaning: the selected native Theurgy progression has reached the authored mastery threshold used by REIGN.
+
+Boundary: it does not replace Theurgy's own progression ownership or require every optional Theurgy path.
+
+### `overlord_reign:magic/alchemy/pharmacology_established`
+
+Writer: `campaign/magic/alchemy/pharmacologist`.
+
+Meaning: Ars Elixirum pharmacological/alchemical practice has reached the selected durable mastery milestone for the reign.
+
+Boundary: the native Ars Elixirum profile remains the owner of its mastery data; this fact records the campaign-level conclusion.
+
+### `overlord_reign:magic/biomancy/discipline_established`
+
+Writer: `campaign/magic/biomancy/the_living_laboratory`.
+
+Meaning: the selected Biomancy progression has matured enough for REIGN to treat Biomancy as an established discipline.
+
+Boundary: it does not replace Biomancy's systems or imply every Biomancy mechanic has been exhausted.
+
+### `overlord_reign:magic/eidolon/ritual_path_established`
+
+Writer: `campaign/magic/eidolon/choose_a_rite`.
+
+Meaning: the player has completed the authored Eidolon ritual-study path far enough for that discipline to be established in the reign.
+
+Boundary: it does not assert completion of every Eidolon ritual, item, or optional progression route.
+
+---
+
+## Adventure campaign wrappers
+
+These facts record completion of REIGN's dedicated wrapper around the corresponding installed-mod progression. They do not claim that Questlog owns the native progression, that every optional collectible was exhausted, or that procedural instances elsewhere inherit the same history.
+
+### `overlord_reign:adventure/twilight_forest_progression_completed`
+
+Writer: `campaign/adventures/twilight/forest_without_barriers`.
+
+Meaning: the Twilight Forest's implemented native progression chain has been carried through the selected native end state without inventing an unsupported finale.
+
+### `overlord_reign:adventure/cataclysm_capstone_completed`
+
+Writer: `campaign/adventures/cataclysm/cataclysm_conquered`.
+
+Meaning: the dedicated Cataclysm conquest wrapper has reached its authored capstone after the selected native great-enemy progression.
+
+### `overlord_reign:adventure/graveyard_expedition_completed`
+
+Writer: `campaign/adventures/graveyard/not_one_death`.
+
+Meaning: the dedicated Graveyard expedition wrapper has reached its authored conclusion.
+
+### `overlord_reign:adventure/bumblezone_essence_reached`
+
+Writer: `campaign/adventures/bumblezone/essence_of_the_hive`.
+
+Meaning: the dedicated Bumblezone expedition has reached the selected native Essence milestone used as its REIGN capstone.
+
+### `overlord_reign:adventure/knight_quest_completed`
+
+Writer: `campaign/adventures/knight/the_knight_beyond_the_chalice`.
+
+Meaning: the dedicated Knight Quest wrapper has reached its authored conclusion through the selected native quest progression.
+
+### `overlord_reign:adventure/lost_castle_expedition_completed`
+
+Writer: `campaign/adventures/lost_castle/nothing_left_to_rule`.
+
+Meaning: the dedicated Lost Castle expedition has reached its authored conclusion after the selected native castle progression.
+
+### `overlord_reign:adventure/ratlantis_campaign_completed`
+
+Writer: `campaign/adventures/rats/break_the_ratlantean_powers`.
+
+Meaning: the dedicated Rats / Ratlantis wrapper has reached its authored campaign conclusion.
+
+### `overlord_reign:adventure/church_of_sin_expedition_completed`
+
+Writer: `campaign/adventures/church_of_sin/break_the_dead_congregation`.
+
+Meaning: the dedicated Church of Sin / Cursed Cathedral expedition has reached its authored conclusion.
+
+Boundary: current kill objectives are not structure-location-bound after discovery; this fact records quest completion, not proof that every qualifying kill physically occurred inside the cathedral.
+
+### `overlord_reign:adventure/oddities_orchid_queen_defeated`
+
+Writer: `campaign/adventures/oddities/cut_down_the_queen`.
+
+Meaning: the dedicated Oddities / Orchid Shrine arc has recorded the selected Orchid Queen defeat capstone.
+
+---
+
+## Personal and conditional sidequests
+
+### `overlord_reign:personal/pet_resurrection_completed`
+
+Writer: `campaign/sidequests/pet_cemetery/return_from_the_grave`.
+
+Meaning: after the player's own supported tame has died and the native Pet Cemetery resurrection path has been completed, REIGN records that personal resurrection event.
+
+Boundary: it does not imply immortality for all pets, resurrection of an arbitrary entity, or replacement of Pet Cemetery's own mechanics.
+
+### `overlord_reign:personal/nightwalker/lestat_joined_tower`
+
+Writer: `campaign/sidequests/nightwalker/lestat_arrives`.
+
+Meaning: after the player is confirmed as a vampire through the supplied NightWalker/Nycto system, the authored REIGN-native Lestat anchor has entered the Tower-side personal arc and made contact with the current Overlord.
+
+Boundary: Lestat is not transported from another continuity, and this fact does not import modern Earth, television continuity, or a second vampire cosmology into REIGN.
+
+### `overlord_reign:personal/nightwalker/transition_guided`
+
+Writer: `campaign/sidequests/nightwalker/choose_the_price`.
+
+Meaning: the Lestat-led transition sidequest has reached its authored guidance capstone after blood-consumption practice, Vampire Altar interaction, and at least one real Nycto power purchase.
+
+Boundary: this fact records Lestat's campaign guidance. Nycto remains authoritative for whether the player is currently a vampire and which powers are actually purchased; curing or changing native vampire state does not erase the historical fact that the guided transition occurred.
+
+---
+
+## Civilization facts
+
+Civilization facts below are scoped to the deliberately designated local polity/anchor used by the campaign. They do not establish species-wide obedience, one universal state, or global AI changes.
+
+### `overlord_reign:civilizations/villagers/contact_established`
+
+Writer: `campaign/civilizations/villagers/first_contact`.
+
+Meaning: formal contact has been established with the deliberately authored biome-appropriate historical human remnant/successor settlement represented by the exact marked local Villager.
+
+Boundary: no Villager disposition is written; no universal human kingdom, capital, monarch, profession, or exact settlement coordinate is implied.
 
 ### `overlord_reign:civilizations/goblins/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/goblins/first_contact`.
 
-Set by `campaign/civilizations/goblins/first_contact` after the Overlord accepts and completes the designated Goblin leader's first formal interaction at the principal Goblin Camp.
+Meaning: the designated principal Goblin Camp has formally entered current campaign history.
 
-Meaning:
-
-- the designated Goblin anchor polity has formally entered the current Overlord's campaign history;
-- later Goblin content may distinguish established contact from an undiscovered or unrelated procedural Goblin population;
-- the issuing leader and camp are the authored local polity defined by the Goblin civilization decisions, not every Goblin generated elsewhere.
-
-This fact does NOT mean:
-
-- that the Goblin civilization disposition has been resolved;
-- that the camp is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that all Goblins recognize the Overlord's authority;
-- that exact camp coordinates have been fixed in canon;
-- that later Goblin branch outcomes have been selected.
-
-The fact intentionally records contact only. Political state remains a separate authored disposition or consequence when later campaign content actually resolves it.
+Boundary: disposition remains separate and unrelated procedural Goblins are not automatically included.
 
 ### `overlord_reign:civilizations/gnumus/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/gnumus/first_contact`.
 
-Set by `campaign/civilizations/gnumus/first_contact` after the Overlord completes the first formal interaction with the designated Elder Shaman at the principal Gnumu settlement.
+Meaning: formal contact has been established with the designated principal Gnumu settlement through its authored local Elder Shaman.
 
-Meaning:
-
-- the designated Gnumu anchor polity has formally entered the current Overlord's campaign history;
-- later Gnumu content may distinguish established contact from unrelated procedural Gnumu settlements;
-- the Elder Shaman is an authored political role layered onto the source-backed `gnumus:gnumus_shaman` entity at the selected main settlement.
-
-This fact does NOT mean:
-
-- that the Gnumu civilization disposition has been resolved;
-- that the settlement is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that every Gnumu settlement shares the anchor's later political state;
-- that the Gnumus know their hidden Halfling ancestry;
-- that exact settlement coordinates have been fixed in canon;
-- that later Gnumu branch outcomes have been selected.
-
-The ancestry boundary is deliberate. Formal contact does not reveal information that the current Gnumus canonically do not know.
+Boundary: disposition remains separate, unrelated settlements remain independent, and this contact does not reveal the hidden Halfling ancestry to Gnumus.
 
 ### `overlord_reign:civilizations/ribbits/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/ribbits/first_contact`.
 
-Set by `campaign/civilizations/ribbits/first_contact` after the Overlord completes the first formal interaction with the designated Gardener Elder at the principal Ribbit Village.
+Meaning: formal contact has been established with the designated principal Ribbit Village through the authored local Gardener Elder.
 
-Meaning:
-
-- the designated Ribbit anchor polity has formally entered the current Overlord's campaign history;
-- the provider is both the authored local Elder and an actual native `ribbits:gardener` profession in the installed Ribbits 3.0.5 implementation;
-- later Ribbit content may distinguish established contact from unrelated procedural Ribbit Villages and Gardeners.
-
-This fact does NOT mean:
-
-- that the Ribbit civilization disposition has been resolved;
-- that the village is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that every Ribbit Village recognizes the Overlord's authority;
-- that exact village coordinates have been fixed in canon;
-- that later Ribbit branch outcomes have been selected;
-- that Ribbits' native peaceful behavior or trade systems have been globally rewritten.
-
-The fact records local formal contact only and preserves the source mod's ordinary Ribbit identity outside the authored anchor.
+Boundary: disposition and unrelated Ribbit Villages remain separate.
 
 ### `overlord_reign:civilizations/kobolds/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/kobolds/first_contact`.
 
-Set by `campaign/civilizations/kobolds/first_contact` after the Overlord completes the first formal interaction with the designated Captain of the principal Kobold Den.
+Meaning: formal contact has been established with the designated principal Kobold Den through its exact marked Captain.
 
-Meaning:
-
-- the designated Kobold anchor polity has formally entered the current Overlord's campaign history;
-- the provider is the exact installed `kobolds:kobold_captain` entity selected for the principal Den and marked with the authored local anchor identity;
-- later Kobold content may distinguish established contact with that Den from unrelated Kobold Dens, ordinary Captains, and Pirate Kobolds.
-
-This fact does NOT mean:
-
-- that the Kobold civilization disposition has been resolved;
-- that the Den is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that the selected Captain has authority over every Kobold population;
-- that Pirate Kobolds have entered the same political relationship;
-- that exact Den coordinates have been fixed in canon;
-- that later Kobold branch outcomes have been selected;
-- that Kobolds 2.12.0 native trade or combat behavior has been globally rewritten.
-
-The fact records formal contact with one designated Den only. Political state and later consequences remain separate authored systems.
+Boundary: Pirate Kobolds, unrelated Dens and ordinary Captains are not folded into the same polity or disposition.
 
 ### `overlord_reign:civilizations/sea_dwellers/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/sea_dwellers/first_contact`.
 
-Set by `campaign/civilizations/sea_dwellers/first_contact` after the Overlord completes the first formal interaction with the designated Sea Elder at the principal Sea Village.
+Meaning: formal contact has been established with the designated principal Sea Village through its authored Sea Elder within the installed Mermorph family.
 
-Meaning:
-
-- the designated Sea Village has formally entered the current Overlord's campaign history;
-- the provider belongs to the exact installed `#seadwellers:mermorphs` native entity family and carries the authored local Sea Elder role;
-- later Sea Dweller content may distinguish the selected village from unrelated Sea Villages and naturally occurring Mermorphs.
-
-This fact does NOT mean:
-
-- that Sea Dweller disposition has been resolved;
-- that the village is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that every Sea Dweller recognizes the Overlord's authority;
-- that exact village coordinates have been fixed in canon;
-- that native Sea Dweller trade behavior has been globally rewritten;
-- that any removed or nonexistent Ocean Dragon progression is part of the campaign.
-
-The fact records formal contact with one designated Sea Village only.
+Boundary: disposition remains separate, unrelated Sea Villages remain independent, and no removed/nonexistent Ocean Dragon progression is implied.
 
 ### `overlord_reign:civilizations/dwarves/contact_established`
 
-Category: civilization-anchor contact milestone.
+Writer: `campaign/civilizations/dwarves/first_contact`.
 
-Set by `campaign/civilizations/dwarves/first_contact` after the Overlord completes the first formal interaction with the designated Forge-Thane of the Golden Hills successor hold.
+Meaning: formal contact has been established with the designated Golden Hills successor hold through the exact local Dwarven Forger carrying the authored Forge-Thane role.
 
-Meaning:
-
-- the designated Dwarven successor hold has formally entered the current Overlord's campaign history;
-- the provider is the exact installed `dwarven_forge:dwarf` entity with native `minecraft:toolsmith` profession, which the source mod presents as Dwarven Forger;
-- the authored Forge-Thane identity applies to that local political anchor rather than every Dwarven Forger.
-
-This fact does NOT mean:
-
-- that Dwarven disposition has been resolved;
-- that the successor hold is NEUTRAL, SUBJUGATED, HOSTILE, destroyed, or otherwise politically settled;
-- that every Dwarf recognizes the Forge-Thane as a universal ruler;
-- that the old Golden Hills kingdom has been restored;
-- that exact hold coordinates have been fixed in canon;
-- that native Dwarven amethyst trade behavior has been globally rewritten.
-
-The fact records formal contact with the designated successor hold only.
+Boundary: this does not restore the old Golden Hills kingdom, create a universal Dwarven ruler, or settle disposition.
 
 ### `overlord_reign:civilizations/umvuthana/contact_established`
 
-Category: civilization-anchor first-audience milestone.
+Writer: `campaign/civilizations/umvuthana/first_contact`.
 
-Set by `campaign/civilizations/umvuthana/first_contact` after the Overlord completes the legitimate mask-gated audience with the designated canonical Umvuthi.
+Meaning: the current Overlord has completed the legitimate mask-gated first audience with the designated canonical Umvuthi.
 
-Meaning:
-
-- the Overlord has formally met the creator-god and political center of the designated Grove;
-- the audience was entered through the exact installed Umvuthana-mask recognition path rather than by globally disabling Umvuthi hostility;
-- the designated Grove has crossed from pre-audience hostility into the explicit local political state written by the same quest.
-
-This fact does NOT mean:
-
-- that all Umvuthana or all Umvuthis are neutral;
-- that the designated Umvuthi is subjugated;
-- that the native boss/destructive route has been removed;
-- that a player marked by Mowzie's Mobs as the Umvuthi's misbehaving player receives permanent immunity;
-- that exact Grove coordinates have been fixed in canon.
-
-Unlike the other current civilization contact facts, this audience also writes the designated Grove's disposition to `overlord_reign:neutral` because the newer Umvuthana decisions explicitly define first-audience completion as the transition to local neutrality. The historical contact fact and the current disposition remain separate state dimensions. See `docs/CIVILIZATION_DISPOSITIONS.md` and `docs/UMVUTHI_AUDIENCE_INTEGRATION.md`.
+Boundary: the same quest separately writes the designated Grove's disposition to `overlord_reign:neutral`; unrelated Umvuthana/Umvuthis and native destructive behavior remain outside that local result.
 
 ### `overlord_reign:civilizations/illagers/authority_established`
 
-Category: local civilization authority milestone.
+Writer: `campaign/civilizations/illagers/break_the_bastille`.
 
-Set by `campaign/civilizations/illagers/break_the_bastille` after the Overlord personally kills the one `takesapillage:legioner` marked as the designated Bastille's authored local commander.
+Meaning: the current Overlord has personally broken the designated Bastille's local command by defeating the exact marked `takesapillage:legioner` commander.
 
-Meaning:
+Boundary: the commander role is an authored local layer, not a native universal Legioner class; this fact alone does not write disposition, globally pacify Illagers, identify every Bastille with the designated polity, or imply the later cowed audience has occurred.
 
-- the designated Bastille's local command has been broken by the Overlord;
-- the local warband has received the hostile demonstration of authority required to move into later Illager political content;
-- later Illager quests may distinguish this specific event from arbitrary combat against patrols, raids, outposts, mansions, unrelated Bastilles, or unmarked Legioners.
+### `overlord_reign:civilizations/illagers/bastille_cowed`
 
-This fact does NOT mean:
+Writer: `campaign/civilizations/illagers/the_bastille_bows`.
 
-- that Illager disposition has been resolved;
-- that the designated Bastille is already NEUTRAL, SUBJUGATED, HOSTILE as a resolved political state, destroyed, or otherwise settled;
-- that `takesapillage:legioner` is a native commander class;
-- that every Legioner or every Illager recognizes the marked NPC's authored local role;
-- that unrelated Illager warbands have been defeated or pacified;
-- that the player necessarily earned Take a Pillage's global Bastille advancement at the designated REIGN Bastille;
-- that exact Bastille coordinates have been fixed in canon;
-- that later fearful/cowed or submission outcomes have been selected.
+Meaning: after local authority was established, the exact protected Bastille intermediary has completed the fearful/cowed audience and acknowledged restraint under the Overlord's demonstrated force.
 
-The commander role is an OVERLORD REIGN world-integration layer on one source-backed elite Bastille soldier because the exact installed Take a Pillage 1.0.3 implementation exposes no dedicated Bastille-leader entity or native commander role. See `docs/ILLAGER_BASTILLE_INTEGRATION.md`.
+Boundary: the same quest writes the designated Bastille polity to `overlord_reign:neutral`, but the fact means historical fear/restraint rather than friendship, alliance, species-wide surrender, or permanent pacification. A later explicit non-peaceful disposition may restore native hostility while this historical fact remains true.
+
+### `overlord_reign:civilizations/piglins/contact_established`
+
+Writer: `campaign/civilizations/piglins/first_contact`.
+
+Meaning: formal first audience has been completed with the exact protected Piglin Brute Chieftain of the designated authored Nether Village.
+
+Boundary: gold armor is an access/restraint condition for that local audience, not a political outcome. The contact writes no disposition and does not change ordinary Piglins or Piglin Brutes elsewhere.
+
+---
+
+## Central End / dimensional Wasteland
+
+### `overlord_reign:campaign/dimensional_wasteland_reached`
+
+Writer: `campaign/end/the_wound_beyond_the_world`.
+
+Meaning: the player has entered `minecraft:the_end`, which the production campaign uses as the dimensional Wasteland left by the old catastrophe around the Tower.
+
+Boundary: this fact records entry only; it does not mean the Ender Dragon is defeated or the central campaign is complete.
+
+### `overlord_reign:campaign/ending_armed`
+
+Writer: `campaign/end/the_wound_beyond_the_world`.
+
+Meaning: after the dimensional Wasteland has been reached, the production ending presentation is eligible to resolve when its final mechanical trigger occurs.
+
+Boundary: this is a campaign/presentation readiness marker. It does not require all civilizations, all Tower restoration, all optional content, or every parallel arc.
+
+### `overlord_reign:campaign/central_campaign_completed`
+
+Writer: `campaign/end/break_the_dragon`.
+
+Meaning: the Ender Dragon has been defeated through the production central-ending sequence and the central OVERLORD REIGN campaign has reached its mechanical conclusion.
+
+Boundary: the same world remains playable; unresolved civilizations, optional arcs, Tower work and sidequests do not become retroactively completed.
+
+---
 
 ## Cross-mod capability ownership
 
-Not every persistent capability should be mirrored as a Questlog narrative fact.
+Narrative facts must not silently replace state owned by another mod.
 
-The current Minion integration is the authoritative example. Build #118 of `Overlord_Minions` owns Minion progression state. Questlog uses:
+### Overlord Minions
 
-```text
-questlog:unlock_minion
-questlog:minion_unlocked
-```
+`Overlord_Minions` owns actual Minion command/unlock state. Questlog's `questlog:minion_unlocked` objective and `questlog:unlock_minion` reward read/write that owner system.
 
-The reward calls the public Minion progression API, and the objective/prerequisite reads owner state. Questlog does not duplicate Red, Green, or Blue unlock state in `OverlordNarrativeState` and does not require parallel Minion fact IDs.
+The four `overlord_reign:minions/*_recovered` facts in this registry are deliberately different: they remember that the authored recovery/confirmation event occurred. They are not the capability source of truth and must not be used to fabricate an unlocked Minion slot when the owner system disagrees.
 
-Brown remains the Master's Staff bootstrap owned by the Minion system. Red, Green, and Blue remain sequential campaign-earned capabilities, but their durable capability state belongs to `Overlord_Minions`.
+Red, Green and Blue recovery currently has a documented fidelity limitation in the physical proof objectives. Their historical facts do not convert practical item proxies into claims that the source-game Hives were recreated exactly.
 
-A separate narrative fact should be added around a Minion recovery only if campaign content later needs to remember a distinct historical statement that is not equivalent to "this Minion slot is unlocked". Such a fact must be justified by authored narrative semantics, not created as a technical mirror.
+### NightWalker / Nycto
 
-See `docs/MINION_UNLOCK_INTEGRATION.md` and `docs/MINION_RECOVERY_AUTHORING_CONTRACT.md` for the cross-mod ownership and authoring boundaries.
+Nycto owns current vampire state and purchased power state. Questlog observes the supplied alpha.3 persistent player surface and records only the separate Lestat-sidequest history facts above.
+
+### Native adventure/magic mods
+
+Where a quest observes a native advancement, profile, statistic or owner state, that native mod remains authoritative for its mechanics. The REIGN fact records the campaign-level conclusion reached after the selected source-backed milestone.
+
+---
 
 ## Development fixtures
 
-`examples/questlog/quests/overlord_narrative_fact_dev.json` validates a fact prerequisite and an auto-claimed set-fact reward using synthetic `questlog:dev_*` IDs.
-
-`examples/questlog/quests/overlord_provider_fact_dev.json` validates provider `required_facts` and `forbidden_facts` using synthetic IDs.
-
-Neither fixture is production story content or setting canon.
+`examples/questlog/quests/overlord_narrative_fact_dev.json` and `overlord_provider_fact_dev.json` use synthetic `questlog:dev_*` IDs to validate the engine surface. They are not production story content and are intentionally excluded from the production registry check.
