@@ -6,6 +6,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.lang.reflect.Method;
+
 /**
  * Narrow read-only bridge to the stable player-state surface exposed by the
  * supplied Overlord NightWalker / Nycto alpha.3 build.
@@ -16,6 +18,11 @@ import net.minecraft.server.level.ServerPlayer;
  * records the thirteen choosable Vampire Altar powers. Registry presence of the
  * real `nycto:vampirism` effect prevents stale NBT from impersonating an installed
  * NightWalker runtime.
+ *
+ * Forge adds Entity#getPersistentData at runtime, but that patched method is not
+ * present on the loader-neutral common compile surface. Resolve only that Forge
+ * API method reflectively; Nycto classes remain completely optional and are never
+ * loaded or linked by Questlog.
  */
 public final class NightwalkerState {
     static final String ROOT = "Nycto";
@@ -25,6 +32,9 @@ public final class NightwalkerState {
     static final int CHOOSABLE_POWER_MASK = (1 << CHOOSABLE_POWER_COUNT) - 1;
 
     private static final ResourceLocation VAMPIRISM_EFFECT = new ResourceLocation("nycto", "vampirism");
+
+    private static volatile Method persistentDataMethod;
+    private static volatile boolean persistentDataMethodResolved;
 
     private NightwalkerState() {
     }
@@ -47,8 +57,37 @@ public final class NightwalkerState {
     }
 
     private static CompoundTag root(ServerPlayer player) {
-        CompoundTag persistent = player.getPersistentData();
-        if (!persistent.contains(ROOT, Tag.TAG_COMPOUND)) return null;
+        CompoundTag persistent = persistentData(player);
+        if (persistent == null || !persistent.contains(ROOT, Tag.TAG_COMPOUND)) return null;
         return persistent.getCompound(ROOT);
+    }
+
+    private static CompoundTag persistentData(ServerPlayer player) {
+        Method method = resolvePersistentDataMethod(player);
+        if (method == null) return null;
+
+        try {
+            Object value = method.invoke(player);
+            return value instanceof CompoundTag tag ? tag : null;
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            return null;
+        }
+    }
+
+    private static Method resolvePersistentDataMethod(ServerPlayer player) {
+        if (persistentDataMethodResolved) return persistentDataMethod;
+
+        synchronized (NightwalkerState.class) {
+            if (persistentDataMethodResolved) return persistentDataMethod;
+
+            try {
+                persistentDataMethod = player.getClass().getMethod("getPersistentData");
+            } catch (NoSuchMethodException | SecurityException ignored) {
+                persistentDataMethod = null;
+            }
+
+            persistentDataMethodResolved = true;
+            return persistentDataMethod;
+        }
     }
 }
