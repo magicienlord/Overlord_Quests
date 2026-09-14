@@ -24,4 +24,6 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Validate central ending activation contracts
-        run: python3 tools/validate_overlord_ending_screen.py
+        run: |
+          python3 tools/validate_overlord_ending_screen.py
+          python3 tools/validate_central_end_campaign.py

@@ -11,16 +11,21 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Objects;
 
 /**
- * Development-only mechanical scaffold for the eventual OVERLORD REIGN ending.
+ * Minimal production ending presentation for the OVERLORD REIGN central campaign.
  *
- * No final campaign prose, reveal, artwork, or audio is authored here. The only
- * production-relevant responsibility of this screen is preserving the vanilla
- * WinScreen completion callback exactly once so the same world remains playable.
+ * The screen deliberately states only the already-established mechanical result:
+ * the Ender Dragon is dead, the dimensional Wasteland remains accessible, and
+ * the same persistent world continues under the Overlord's reign. Branch-specific
+ * epilogues remain separate quest/world-state material rather than being flattened
+ * into a global morality summary here.
  */
 public final class OverlordEndingScreen extends Screen {
-    private static final Component SCAFFOLD_TITLE = Component.literal("OVERLORD REIGN");
-    private static final Component SCAFFOLD_STATUS = Component.literal("ENDING PRESENTATION DEVELOPMENT SCAFFOLD");
-    private static final Component CONTINUE = Component.literal("Continue");
+    private static final Component TITLE = Component.literal("OVERLORD REIGN");
+    private static final Component STATUS = Component.literal("CENTRAL CAMPAIGN COMPLETE");
+    private static final Component LINE_ONE = Component.literal("The Ender Dragon is dead.");
+    private static final Component LINE_TWO = Component.literal("The dimensional Wasteland remains, but its Dragon does not.");
+    private static final Component LINE_THREE = Component.literal("The world remains. Your reign continues.");
+    private static final Component CONTINUE = Component.literal("Continue Your Reign");
 
     private final Runnable onFinished;
     private int ticks;
@@ -28,14 +33,14 @@ public final class OverlordEndingScreen extends Screen {
     private Button continueButton;
 
     public OverlordEndingScreen(Runnable onFinished) {
-        super(SCAFFOLD_TITLE);
+        super(TITLE);
         this.onFinished = Objects.requireNonNull(onFinished, "onFinished");
     }
 
     @Override
     protected void init() {
         super.init();
-        int buttonWidth = Math.min(200, Math.max(80, this.width - 40));
+        int buttonWidth = Math.min(220, Math.max(100, this.width - 40));
         this.continueButton = Button.builder(CONTINUE, button -> this.finish())
                 .bounds((this.width - buttonWidth) / 2, Math.max(20, this.height - 52), buttonWidth, 20)
                 .build();
@@ -78,8 +83,11 @@ public final class OverlordEndingScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         graphics.fill(0, 0, this.width, this.height, 0xFF000000);
         int centerY = this.height / 2;
-        graphics.drawCenteredString(this.font, SCAFFOLD_TITLE, this.width / 2, centerY - 20, 0xE8E8E8);
-        graphics.drawCenteredString(this.font, SCAFFOLD_STATUS, this.width / 2, centerY + 2, 0x8F8F8F);
+        graphics.drawCenteredString(this.font, TITLE, this.width / 2, centerY - 48, 0xE8E8E8);
+        graphics.drawCenteredString(this.font, STATUS, this.width / 2, centerY - 26, 0xAFAFAF);
+        graphics.drawCenteredString(this.font, LINE_ONE, this.width / 2, centerY, 0xD8D8D8);
+        graphics.drawCenteredString(this.font, LINE_TWO, this.width / 2, centerY + 14, 0xBEBEBE);
+        graphics.drawCenteredString(this.font, LINE_THREE, this.width / 2, centerY + 28, 0xD8D8D8);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 

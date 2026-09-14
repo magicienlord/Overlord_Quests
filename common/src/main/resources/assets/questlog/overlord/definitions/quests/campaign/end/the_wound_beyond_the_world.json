@@ -1,0 +1,54 @@
+{
+  "title": "The Wound Beyond the World",
+  "description": "The catastrophe around the old Tower did more than ruin land. It scarred the boundaries between realms and left a dimensional Wasteland behind. That wound still exists. Reach it, Sire. Whatever waits there has had centuries too long to imagine itself beyond your reach.",
+  "description_completed": "The Overlord has entered the dimensional Wasteland represented by Minecraft's End. The central campaign is now armed for its final mechanical resolution without imposing any civilization or Tower-completion checklist.",
+  "icon": {"item": "minecraft:ender_eye"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 200,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:visit_dimension_history",
+      "dimension": "minecraft:the_end",
+      "required_amount": 1,
+      "name": "Enter the dimensional Wasteland"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:campaign/ending_armed",
+      "value": true,
+      "auto_claim": true,
+      "name": "Arm the central ending"
+    },
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:campaign/dimensional_wasteland_reached",
+      "value": true,
+      "auto_claim": true,
+      "name": "Record entry into the dimensional Wasteland"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "warning",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}

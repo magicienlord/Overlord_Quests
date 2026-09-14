@@ -2,6 +2,7 @@
 """Static safety contracts for the OVERLORD REIGN ending activation boundary."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +24,7 @@ FORGE_PACKETS = ROOT / "forge/src/main/java/org/infernalstudios/questlog/network
 DEV_QUEST = ROOT / "examples/questlog/quests/overlord_ending_arm_dev.json"
 PRODUCTION_QUESTS = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/quests"
 PRODUCTION_INDEX = ROOT / "common/src/main/resources/assets/questlog/overlord/definitions/index.json"
+PRODUCTION_ARM_QUEST = PRODUCTION_QUESTS / "campaign/end/the_wound_beyond_the_world.json"
 ENDING_ARM_FACT = "overlord_reign:campaign/ending_armed"
 DOC = ROOT / "docs/OVERLORD_ENDING_SCREEN_INTEGRATION.md"
 PROTOCOL = ROOT / "docs/ENDING_SCREEN_TEST_PROTOCOL.md"
@@ -41,12 +43,13 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
         errors.append(message)
 
 
-def validate_dormant_production_activation(errors: list[str]) -> None:
-    """Fail closed until the hidden production ending gate is explicitly authored."""
+def validate_production_activation(errors: list[str]) -> None:
+    """Require one exact production setter for the reserved ending-arm fact."""
     if not PRODUCTION_QUESTS.is_dir():
         errors.append(f"{PRODUCTION_QUESTS.relative_to(ROOT)}: production quest directory is missing")
         return
 
+    setters: list[Path] = []
     for quest_path in sorted(PRODUCTION_QUESTS.rglob("*.json")):
         try:
             quest_text = quest_path.read_text(encoding="utf-8")
@@ -54,12 +57,37 @@ def validate_dormant_production_activation(errors: list[str]) -> None:
             errors.append(f"{quest_path.relative_to(ROOT)}: {exc}")
             continue
         if ENDING_ARM_FACT in quest_text:
-            errors.append(
-                f"{quest_path.relative_to(ROOT)}: production ending activation is still dormant; "
-                f"remove {ENDING_ARM_FACT!r} until the authoritative final campaign gate is approved"
-            )
+            setters.append(quest_path)
+
+    require(
+        setters == [PRODUCTION_ARM_QUEST],
+        "the reserved ending-arm fact must be set by exactly campaign/end/the_wound_beyond_the_world.json",
+        errors,
+    )
+
+    try:
+        arm_definition = json.loads(PRODUCTION_ARM_QUEST.read_text(encoding="utf-8"))
+    except Exception as exc:
+        errors.append(f"{PRODUCTION_ARM_QUEST.relative_to(ROOT)}: cannot validate ending arm reward: {exc}")
+        arm_definition = {}
+
+    rewards = arm_definition.get("rewards", []) if isinstance(arm_definition, dict) else []
+    valid_reward = isinstance(rewards, list) and any(
+        isinstance(entry, dict)
+        and entry.get("type") == "questlog:set_fact"
+        and entry.get("fact") == ENDING_ARM_FACT
+        and entry.get("value") is True
+        and entry.get("auto_claim") is True
+        for entry in rewards
+    )
+    require(valid_reward, "production ending-arm quest must auto-claim the reserved fact with value=true", errors)
 
     index_text = read(PRODUCTION_INDEX, errors)
+    require(
+        "campaign/end/the_wound_beyond_the_world.json" in index_text,
+        "production index must register the central ending-arm quest",
+        errors,
+    )
     require(
         "overlord_ending_arm_dev" not in index_text,
         "bundled production index must never reference the development ending-arm fixture",
@@ -113,7 +141,7 @@ def main() -> int:
     require("CLIENT_TO_SERVER" in ack_packet, "ending acknowledgement packet must be client-to-server", errors)
     require("ctx.getSender() instanceof ServerPlayer sender" in ack_packet, "ending acknowledgement must require an authenticated server player", errors)
     require("ending_state" in packets and "ending_presented" in packets, "ending packets must be appended to the packet registry", errors)
-    require('PROTOCOL_VERSION = "overlord-quests-4"' in forge_packets, "Forge protocol must advance for the new packet contract", errors)
+    require('PROTOCOL_VERSION = "overlord-quests-4"' in forge_packets, "Forge protocol must retain the ending packet contract", errors)
 
     require("OverlordEndingActivation.onPlayerLogin(player);" in events, "server login must synchronize ending state", errors)
     require("OverlordEndingActivation.onNarrativeFactChanged(player.server, this.fact);" in set_fact, "set_fact must synchronize the ending arm transition", errors)
@@ -134,7 +162,9 @@ def main() -> int:
     require("if (this.finished)" in screen, "ending screen must guard its completion callback against duplicate invocation", errors)
     require("this.finished = true;" in screen, "ending screen must latch completion before invoking callback", errors)
     require("this.onFinished.run();" in screen, "ending screen must invoke its continuation callback", errors)
-    require("ENDING PRESENTATION DEVELOPMENT SCAFFOLD" in screen, "visible content must remain marked as a development scaffold", errors)
+    require("CENTRAL CAMPAIGN COMPLETE" in screen, "production ending screen must identify central campaign completion", errors)
+    require("Continue Your Reign" in screen, "production ending screen must explicitly return the player to the continuing reign", errors)
+    require("DEVELOPMENT SCAFFOLD" not in screen, "development scaffold copy must not remain in the production ending screen", errors)
 
     require("OverlordEndingScreens.replace(replacement)" in forge_events, "Forge screen-opening hook must route WinScreen through the ending boundary", errors)
     require("OverlordEndingScreens.tick();" in forge_events, "Forge client tick must service direct sequence-break presentation", errors)
@@ -142,11 +172,11 @@ def main() -> int:
 
     require(f'"{ENDING_ARM_FACT}"' in dev_quest, "development ending fixture must arm only the reserved fact", errors)
     require("[DEV]" in dev_quest, "ending arm fixture must remain visibly development-only", errors)
-    validate_dormant_production_activation(errors)
+    validate_production_activation(errors)
 
-    require("TECHNICAL ACTIVATION INFRASTRUCTURE IMPLEMENTED" in doc, "ending integration doc must record the implemented activation boundary", errors)
+    require("PRODUCTION CENTRAL END CAMPAIGN IMPLEMENTED" in doc, "ending integration doc must record the production central campaign", errors)
     require("Prior-Dragon sequence-break path" in doc, "ending integration doc must describe prior-Dragon delivery", errors)
-    require("No bundled production quest currently sets it" in doc, "ending integration doc must preserve dormant production activation", errors)
+    require("campaign/end/the_wound_beyond_the_world.json" in doc, "ending integration doc must identify the production arm quest", errors)
     require("prior-Dragon sequence break" in protocol, "runtime protocol must exercise the sequence-break path", errors)
 
     if errors:
@@ -156,7 +186,7 @@ def main() -> int:
         return 1
 
     print("OVERLORD ending-screen contracts: PASS")
-    print("activation: server-authoritative arm fact, production setter remains CI-forbidden")
+    print("activation: server-authoritative production arm quest plus persistent Dragon state")
     print("sequence break: persistent Dragon state can request direct one-time presentation")
     print("world continuity: vanilla callback preserved on normal End-poem path")
     return 0

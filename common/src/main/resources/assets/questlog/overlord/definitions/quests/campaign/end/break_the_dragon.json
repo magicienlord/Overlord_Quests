@@ -1,0 +1,46 @@
+{
+  "title": "Break the Dragon",
+  "description": "There it is, Sire: the Dragon. No council to bargain with, no petty ruler to frighten into obedience, and no excuse to leave the matter unfinished. Kill it. The world can continue being complicated after the important part has been settled.",
+  "description_completed": "The Ender Dragon is dead. The central OVERLORD REIGN campaign has reached its mechanical conclusion, while the same world and every unresolved parallel arc remain playable.",
+  "icon": {"item": "minecraft:dragon_head"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 201,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/end/the_wound_beyond_the_world",
+      "required_amount": 1,
+      "name": "Reach the dimensional Wasteland"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:ender_dragon_defeated",
+      "required_amount": 1,
+      "name": "Defeat the Ender Dragon"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:campaign/central_campaign_completed",
+      "value": true,
+      "auto_claim": true,
+      "name": "Record central campaign completion"
+    }
+  ],
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "speaker_id": "overlord_reign:gnarl",
+  "speaker_reaction": "directive",
+  "speaker_pane_width": 184,
+  "speaker_alpha_cleanup": true,
+  "overlay": "questlog:textures/gui/overlord/gnarl_popup.png",
+  "overlay_width": 176,
+  "overlay_height": 176,
+  "overlay_x_offset": 0,
+  "overlay_y_offset": 0
+}
