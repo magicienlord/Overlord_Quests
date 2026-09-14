@@ -107,16 +107,20 @@ This is an explicit fidelity limitation. The source-game recovery identities are
 
 The final authority explicitly says that absence from the quest log can be correct.
 
-A dedicated system-reaction channel now covers the source-backed cases that benefit from a one-time or milestone acknowledgement without becoming quests:
+A dedicated system-reaction channel covers the source-backed cases that require or clearly benefit from a one-time or milestone acknowledgement without becoming quests:
 
 - Enchanting System Overhaul introductory acknowledgement;
 - LevelUP introductory acknowledgement after real stat investment;
 - RPG Skill Trees introductory acknowledgement after a real skill unlock;
-- Spice of Life: Carrot Edition milestones at 10, 25, 50, 75 and 100 distinct foods.
+- Spice of Life: Carrot Edition milestones at 10, 25, 50, 75 and 100 distinct foods;
+- Legendary Farming acknowledgement after a real mega-crop harvest;
+- Crop Critters acknowledgement after native player ownership of a tamed critter is observed;
+- Golem Overhaul acknowledgement on direct encounter with one of its golem entities;
+- BloomingNature acknowledgement on direct interaction with its Wandering Gardener provider.
 
 See `docs/SYSTEM_REACTIONS.md`.
 
-Other reviewed content assigned popup-only, absorbed, ambient, provider-support, quest-location, Tower-substrate, systemic, or no quest-facing treatment is deliberately not expanded into fake questlines merely to increase coverage count. Examples include Darker Depths, Born in Chaos, Realm RPG: Imps & Demons, creature/taming systems, Artifacts/Relics, general equipment systems, Pale Garden Backport, Nether Depths Upgrade, Small Ships, Creeper Overhaul, storage/infrastructure mods, navigation mods and combat frameworks.
+Other reviewed content assigned popup-only, absorbed, ambient, provider-support, quest-location, Tower-substrate, systemic, or no quest-facing treatment is deliberately not expanded into fake questlines merely to increase coverage count. Examples include Darker Depths, Born in Chaos, Realm RPG: Imps & Demons, mounts and companions, Artifacts/Relics, general equipment systems, Pale Garden Backport, Nether Depths Upgrade, Small Ships, Creeper Overhaul, storage/infrastructure mods, navigation mods and combat frameworks.
 
 Future sparse acknowledgements may be added only when there is a genuinely eventful source-backed trigger. The authority does not require one popup for every reviewed mod.
 

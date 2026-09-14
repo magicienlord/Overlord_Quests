@@ -1,9 +1,11 @@
 package org.infernalstudios.questlog.overlord.reaction;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,6 +13,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -30,6 +33,11 @@ public final class OverlordSystemReactionBridgeForge {
     private static final String PUFFISH_SKILLS_MOD = "puffish_skills";
     private static final String RPG_SKILL_TREES_MOD = "rpg_skill_trees";
     private static final String SOL_CARROT_MOD = "solcarrot";
+    private static final String LEGENDARY_FARMING_MOD = "legendary_farming";
+    private static final String CROP_CRITTERS_MOD = "cropcritters";
+    private static final String GOLEM_OVERHAUL_MOD = "golemoverhaul";
+    private static final String BLOOMINGNATURE_MOD = "bloomingnature";
+    private static final ResourceLocation WANDERING_GARDENER = new ResourceLocation(BLOOMINGNATURE_MOD, "wandering_gardener");
 
     private static Capability<?> levelUpCapability;
     private static Method levelUpStatsGetter;
@@ -63,18 +71,78 @@ public final class OverlordSystemReactionBridgeForge {
         OverlordSystemReactions.trigger(player, OverlordSystemReactions.ENCHANTING_SYSTEM_OVERHAUL);
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onMegaCropHarvest(BlockEvent.BreakEvent event) {
+        if (!ModList.get().isLoaded(LEGENDARY_FARMING_MOD)
+                || event.isCanceled()
+                || !(event.getPlayer() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(event.getState().getBlock());
+        if (LEGENDARY_FARMING_MOD.equals(blockId.getNamespace())
+                && blockId.getPath().startsWith("mega_")
+                && blockId.getPath().endsWith("_block")) {
+            OverlordSystemReactions.trigger(player, OverlordSystemReactions.LEGENDARY_FARMING);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteraction(PlayerInteractEvent.EntityInteract event) {
+        if (event.getHand() != InteractionHand.MAIN_HAND
+                || event.getLevel().isClientSide()
+                || !(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(event.getTarget().getType());
+        if (ModList.get().isLoaded(BLOOMINGNATURE_MOD) && WANDERING_GARDENER.equals(entityId)) {
+            OverlordSystemReactions.trigger(player, OverlordSystemReactions.BLOOMINGNATURE_GARDENER);
+            return;
+        }
+
+        if (ModList.get().isLoaded(GOLEM_OVERHAUL_MOD)
+                && GOLEM_OVERHAUL_MOD.equals(entityId.getNamespace())
+                && entityId.getPath().endsWith("_golem")) {
+            OverlordSystemReactions.trigger(player, OverlordSystemReactions.GOLEM_OVERHAUL);
+        }
+    }
+
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END
                 || event.player.level().isClientSide()
                 || !(event.player instanceof ServerPlayer player)
-                || player.tickCount % 20 != 0
-                || !ModList.get().isLoaded(LEVELUP_MOD)
-                || OverlordSystemReactions.hasShown(player, OverlordSystemReactions.LEVELUP)) {
+                || player.tickCount % 20 != 0) {
             return;
         }
 
-        checkLevelUp(player);
+        if (ModList.get().isLoaded(LEVELUP_MOD)
+                && !OverlordSystemReactions.hasShown(player, OverlordSystemReactions.LEVELUP)) {
+            checkLevelUp(player);
+        }
+
+        if (ModList.get().isLoaded(CROP_CRITTERS_MOD)
+                && !OverlordSystemReactions.hasShown(player, OverlordSystemReactions.CROP_CRITTERS)) {
+            checkOwnedCropCritter(player);
+        }
+    }
+
+    private static void checkOwnedCropCritter(ServerPlayer player) {
+        boolean hasOwnedCritter = !player.level().getEntitiesOfClass(
+                TamableAnimal.class,
+                player.getBoundingBox().inflate(32.0D),
+                tameable -> {
+                    ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(tameable.getType());
+                    return CROP_CRITTERS_MOD.equals(entityId.getNamespace())
+                            && tameable.isTame()
+                            && player.getUUID().equals(tameable.getOwnerUUID());
+                }
+        ).isEmpty();
+
+        if (hasOwnedCritter) {
+            OverlordSystemReactions.trigger(player, OverlordSystemReactions.CROP_CRITTERS);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

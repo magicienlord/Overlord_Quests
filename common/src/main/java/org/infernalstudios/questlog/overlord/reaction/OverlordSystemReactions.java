@@ -25,6 +25,10 @@ public final class OverlordSystemReactions {
     public static final ResourceLocation SPICE_OF_LIFE_50 = id("system/spice_of_life_50");
     public static final ResourceLocation SPICE_OF_LIFE_75 = id("system/spice_of_life_75");
     public static final ResourceLocation SPICE_OF_LIFE_100 = id("system/spice_of_life_100");
+    public static final ResourceLocation LEGENDARY_FARMING = id("system/legendary_farming");
+    public static final ResourceLocation CROP_CRITTERS = id("system/crop_critters");
+    public static final ResourceLocation GOLEM_OVERHAUL = id("system/golem_overhaul");
+    public static final ResourceLocation BLOOMINGNATURE_GARDENER = id("system/bloomingnature_gardener");
 
     private static final Map<ResourceLocation, Reaction> DEFINITIONS = definitions();
 
@@ -68,6 +72,22 @@ public final class OverlordSystemReactions {
         definitions.put(SPICE_OF_LIFE_100, new Reaction(
                 "A Hundred Tastes",
                 "100 distinct foods tasted. The milestone is complete."
+        ));
+        definitions.put(LEGENDARY_FARMING, new Reaction(
+                "A Legendary Harvest",
+                "A mega crop has entered the harvest. Legendary Farming remains part of the wider agricultural system rather than a separate questline."
+        ));
+        definitions.put(CROP_CRITTERS, new Reaction(
+                "A Crop Takes to You",
+                "A Crop Critter has accepted you as its keeper. Its care and work remain part of the agricultural world rather than a separate campaign."
+        ));
+        definitions.put(GOLEM_OVERHAUL, new Reaction(
+                "Unusual Constructs",
+                "Not every golem follows the old iron pattern. These constructs belong to the world's broader utility systems rather than a separate questline."
+        ));
+        definitions.put(BLOOMINGNATURE_GARDENER, new Reaction(
+                "The Wandering Gardener",
+                "A Wandering Gardener carries BloomingNature's plants and materials through the world. The trader remains a supporting provider, not a new civilization."
         ));
         return Map.copyOf(definitions);
     }

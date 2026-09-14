@@ -131,14 +131,18 @@ The current quests are therefore IMPLEMENTED WITH A FIDELITY LIMITATION. Do not 
 
 ## Sparse system reactions
 
-The final assignment ledger explicitly keeps several systems outside the quest log. Questlog now has a persistent one-time reaction channel for source-backed cases where an introductory or milestone popup is specifically useful.
+The final assignment ledger explicitly keeps several systems outside the quest log. Questlog has a persistent one-time reaction channel for source-backed cases where an introductory or milestone popup is specifically useful.
 
 Implemented bindings:
 
-- Enchanting System Overhaul: first main-hand interaction with the real enchanting table while the mod is loaded;
+- Enchanting System Overhaul: first main-hand interaction with the real enchanting table;
 - LevelUP: first detected base-stat investment;
 - RPG Skill Trees: first actual skill unlock in the `rpg_skill_trees` Pufferfish Skills category;
-- Spice of Life: Carrot Edition: distinct-food milestones at 10, 25, 50, 75 and 100.
+- Spice of Life: Carrot Edition: distinct-food milestones at 10, 25, 50, 75 and 100;
+- Legendary Farming: first successful harvest of a registered mega crop block;
+- Crop Critters: first nearby native owner-state detection for a tamed Crop Critter owned by the player;
+- Golem Overhaul: first direct interaction with a Golem Overhaul golem;
+- BloomingNature: first interaction with the exact Wandering Gardener provider.
 
 These reactions are intentionally not production quest definitions and do not write narrative facts.
 
