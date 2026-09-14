@@ -113,6 +113,7 @@ public final class QuestProviderService {
         if (!(quest.manager.player instanceof ServerPlayer player)) return false;
         if (!rule.matchesPlayer(player)) return false;
         if (!UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)) return false;
+        if (!PiglinChieftainAudienceBridge.allowsProviderInteraction(provider, player)) return false;
 
         for (ResourceLocation unlockId : rule.unlockQuests()) {
             Quest unlock = quest.manager.getQuest(unlockId);
@@ -147,6 +148,7 @@ public final class QuestProviderService {
         if (!(quest.manager.player instanceof ServerPlayer player)) return false;
         if (!rule.matchesPlayer(player)) return false;
         if (!UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)) return false;
+        if (!PiglinChieftainAudienceBridge.allowsProviderInteraction(provider, player)) return false;
 
         return switch (rule.turnInMode()) {
             case NONE -> false;

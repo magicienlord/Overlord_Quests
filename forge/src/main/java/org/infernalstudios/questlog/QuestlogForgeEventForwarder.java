@@ -21,6 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.client.ending.OverlordEndingScreens;
 import org.infernalstudios.questlog.commands.OverlordNarrativeCommands;
+import org.infernalstudios.questlog.overlord.provider.PiglinChieftainAudienceBridge;
 import org.infernalstudios.questlog.overlord.provider.QuestAnchorProtection;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
 import org.infernalstudios.questlog.overlord.provider.UmvuthiAudienceBridge;
@@ -70,16 +71,15 @@ public class QuestlogForgeEventForwarder {
     }
 
     /**
-     * After the designated Umvuthi has entered an authored peaceful political
-     * state, suppress only his ordinary player-target acquisition. Mowzie's own
-     * misbehaviour tracking remains authoritative, so a player it has explicitly
-     * marked as an offender can still become a native combat target.
+     * Suppress player targeting only for explicitly authored political-audience
+     * exceptions. Ordinary native mob targeting remains authoritative.
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingChangeTarget(LivingChangeTargetEvent event) {
         if (event.getEntity().level().isClientSide()) return;
         if (!(event.getNewTarget() instanceof ServerPlayer player)) return;
-        if (UmvuthiAudienceBridge.shouldSuppressPlayerTarget(event.getEntity(), player)) {
+        if (UmvuthiAudienceBridge.shouldSuppressPlayerTarget(event.getEntity(), player)
+                || PiglinChieftainAudienceBridge.shouldSuppressPlayerTarget(event.getEntity(), player)) {
             event.setCanceled(true);
         }
     }

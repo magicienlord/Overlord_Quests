@@ -21,7 +21,8 @@ public final class QuestProviderInteraction {
                 || !provider.isAlive()
                 || ServerPlayerManager.INSTANCE == null
                 || !QuestProviderService.isWithinInteractionRange(player, provider)
-                || !UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)) {
+                || !UmvuthiAudienceBridge.allowsProviderInteraction(provider, player)
+                || !PiglinChieftainAudienceBridge.allowsProviderInteraction(provider, player)) {
             return false;
         }
 

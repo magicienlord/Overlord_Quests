@@ -1,0 +1,27 @@
+name: Piglin Campaign Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-piglin-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-piglin-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate Piglin Chieftain campaign contract
+        run: python3 tools/validate_piglin_campaign_contract.py

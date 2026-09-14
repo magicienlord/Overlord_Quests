@@ -77,7 +77,8 @@
     "campaign/civilizations/dwarves/first_contact.json",
     "campaign/civilizations/umvuthana/first_contact.json",
     "campaign/civilizations/umvuthana/suns_blessing.json",
-    "campaign/civilizations/illagers/break_the_bastille.json"
+    "campaign/civilizations/illagers/break_the_bastille.json",
+    "campaign/civilizations/piglins/first_contact.json"
   ],
   "chapters": ["main.json"]
 }

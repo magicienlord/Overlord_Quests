@@ -1,0 +1,50 @@
+{
+  "title": "An Audience in Gold",
+  "description": "One Piglin Brute rules the designated Nether Village as its local Chieftain. Wear gold to earn enough restraint for an audience; this opens political contact, not submission.",
+  "description_completed": "The designated Chieftain has heard the Overlord's claim. Contact with this village is established, but its final political state remains unsettled.",
+  "icon": {
+    "item": "minecraft:gold_ingot"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 180,
+  "provider": {
+    "entity_types": [
+      "minecraft:piglin_brute"
+    ],
+    "scoreboard_tags": [
+      "overlord_anchor:piglin_main_chieftain"
+    ],
+    "civilization": "overlord_reign:piglins",
+    "required_facts": [
+      "overlord_reign:reign/initial_foundation_established"
+    ],
+    "dialogue": {
+      "offer": "Gold buys you a moment, Overlord. Speak before the village decides your claim is worth less than the metal on your back.",
+      "ready_to_turn_in": "I have heard enough. This village knows your name now. Do not mistake an audience for obedience.",
+      "completed": "Your claim has been heard. What this village becomes under your reign has not yet been decided."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:fact",
+      "fact": "overlord_reign:reign/initial_foundation_established",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:civilizations/piglins/contact_established",
+      "auto_claim": true,
+      "name": "Record formal audience with the designated Piglin Chieftain"
+    }
+  ],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": false,
+  "toast_on_complete": false
+}
