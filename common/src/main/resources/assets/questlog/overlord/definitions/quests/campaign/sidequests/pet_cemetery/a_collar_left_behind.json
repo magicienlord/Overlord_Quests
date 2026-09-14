@@ -14,7 +14,7 @@
   "sort_order": 390,
   "prerequisites": [
     {
-      "type": "questlog:owned_tame_death",
+      "type": "overlord_reign:owned_tame_death",
       "entity": "#pet_cemetery:drops_pet_collar",
       "required_amount": 1,
       "name": "Lose one of your supported tamed pets"

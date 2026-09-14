@@ -8,7 +8,7 @@ The Pet Cemetery assignment is a small conditional resurrection arc. It must rem
 
 ## Implementation
 
-The opening quest uses the Questlog objective `questlog:owned_tame_death` as a prerequisite. The objective listens for an actual tameable-entity death, verifies that the dead tameable belongs to the current Questlog player, and then applies the authored entity matcher.
+The opening quest uses the OVERLORD REIGN extension objective `overlord_reign:owned_tame_death` as a prerequisite. The objective listens for an actual tameable-entity death, verifies that the dead tameable belongs to the current Questlog player, and then applies the authored entity matcher.
 
 The production definition restricts that matcher to `#pet_cemetery:drops_pet_collar`. This is the native Pet Cemetery entity-type tag for pets that participate in its collar-resurrection system. A different player's pet death cannot open the quest, and merely obtaining or creating a Pet Collar cannot open it.
 

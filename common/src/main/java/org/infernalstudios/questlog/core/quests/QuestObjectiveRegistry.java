@@ -56,7 +56,7 @@ public class QuestObjectiveRegistry {
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
         register(new ResourceLocation("questlog", "entity_tame"), EntityTameObjective::new,
                 new EditorMetadata("entity", "Entity ID:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
-        register(new ResourceLocation("questlog", "owned_tame_death"), OwnedTameDeathObjective::new,
+        register(new ResourceLocation("overlord_reign", "owned_tame_death"), OwnedTameDeathObjective::new,
                 new EditorMetadata("entity", "Owned tameable ID / tag:", "required_amount", EditorMetadata.SuggestionType.ENTITY_TYPE));
 
         // Logic
@@ -84,9 +84,6 @@ public class QuestObjectiveRegistry {
         // Misc
         register(new ResourceLocation("questlog", "stat"), StatisticObjective::new,
                 new EditorMetadata("stat", "Stat ID:", "required_amount", EditorMetadata.SuggestionType.CUSTOM_STAT));
-        // TrampleObjective listens specifically for the farmland-trample event and
-        // does not consume a block predicate. Do not expose a block field that the
-        // runtime would silently ignore.
         register(new ResourceLocation("questlog", "trample"), TrampleObjective::new,
                 new EditorMetadata(null, null, "required_amount"));
         register(new ResourceLocation("questlog", "enchant"), EnchantObjective::new,

@@ -49,7 +49,7 @@ def main() -> int:
         if rel not in indexed:
             errors.append(f"{rel}: production quest is not indexed")
 
-    death = entries(opening, "prerequisites", "questlog:owned_tame_death")
+    death = entries(opening, "prerequisites", "overlord_reign:owned_tame_death")
     if len(death) != 1:
         errors.append("Pet Cemetery opening must have exactly one owned-tame-death trigger")
     elif death[0].get("entity") != "#pet_cemetery:drops_pet_collar":
@@ -91,8 +91,8 @@ def main() -> int:
         errors.append("owned_tame_death must retain authored entity filtering")
 
     registry_source = REGISTRY.read_text(encoding="utf-8") if REGISTRY.exists() else ""
-    if 'new ResourceLocation("questlog", "owned_tame_death")' not in registry_source:
-        errors.append("owned_tame_death objective is not registered")
+    if 'new ResourceLocation("overlord_reign", "owned_tame_death")' not in registry_source:
+        errors.append("owned_tame_death objective is not registered under the OVERLORD REIGN extension namespace")
     if "OwnedTameDeathObjective::new" not in registry_source:
         errors.append("owned_tame_death registry entry does not construct the intended objective")
 
