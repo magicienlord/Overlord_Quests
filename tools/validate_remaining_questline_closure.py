@@ -106,7 +106,6 @@ def collect_errors() -> list[str]:
         require(relative in bundled, f"manifest missing {relative}", errors)
         require((QUESTS / relative).is_file(), f"definition missing {relative}", errors)
 
-    # Villager: delegated world-fit anchor, no invented profession/capital/disposition.
     villager = load(QUESTS / NEW_QUESTS[0], errors)
     vp = validate_provider(
         villager, errors,
@@ -122,7 +121,6 @@ def collect_errors() -> list[str]:
     require(set_fact_reward(villager, "overlord_reign:civilizations/villagers/contact_established"), "Villager contact fact missing", errors)
     require("set_disposition" not in json.dumps(villager), "Villager first contact must not pre-resolve disposition", errors)
 
-    # Illager: local cowed phase layered over neutral after hostile authority.
     illager = load(QUESTS / NEW_QUESTS[1], errors)
     ip = validate_provider(
         illager, errors,
@@ -148,14 +146,13 @@ def collect_errors() -> list[str]:
     for fragment in (
         "minecraft\", \"pillager",
         "overlord_anchor:illager_bastille_intermediary",
-        "overlord_quest_protected",
+        "QuestAnchorProtection.isProtected",
         "authority_established",
         "LivingChangeTargetEvent",
         "LivingAttackEvent",
     ):
         require(fragment in bridge, f"Illager restraint bridge missing contract fragment: {fragment}", errors)
 
-    # NightWalker: exact alpha.3 owner state, no invented advancement dependency.
     init = QUESTLOG.read_text(encoding="utf-8") if QUESTLOG.is_file() else ""
     require("NightwalkerVampireObjective.register();" in init, "NightWalker vampire objective is not registered", errors)
     require("NightwalkerPowerCountObjective.register();" in init, "NightWalker power-count objective is not registered", errors)
@@ -220,7 +217,6 @@ def collect_errors() -> list[str]:
     for forbidden in ("television", "new orleans", "paris", "minecraft", "multiverse", "another universe"):
         require(forbidden not in combined_lestat, f"Lestat quest text crossed the REIGN continuity firewall: {forbidden}", errors)
 
-    # Status documents must not revive delegated choices as approval blockers.
     civ_status = (ROOT / "docs/CIVILIZATION_SIDEQUEST_STATUS.md").read_text(encoding="utf-8")
     remaining = (ROOT / "docs/REMAINING_ASSIGNED_QUESTLINES.md").read_text(encoding="utf-8")
     current = (ROOT / "docs/CURRENT_IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
