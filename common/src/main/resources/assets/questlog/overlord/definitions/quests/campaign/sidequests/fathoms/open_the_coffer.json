@@ -1,0 +1,44 @@
+{
+  "title": "Open the Coffer",
+  "description": "Fathoms has a native milestone for opening one of its coffers. Follow that mechanism to the end and bring the Historian a result from something the depths kept sealed.",
+  "description_completed": "The coffer is open. Whatever else the deeper waters conceal, you now have direct proof that their contents can be reached.",
+  "icon": {
+    "item": "fathoms:sunken_key"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 422,
+  "provider": {
+    "entity_types": ["minecraft:villager"],
+    "villager_professions": ["fathoms:historian"],
+    "required_facts": ["overlord_reign:reign/initial_foundation_established"],
+    "dialogue": {
+      "offer": "Catches are only part of the record. Find a coffer from these waters, open it by the proper method, then return.",
+      "ready_to_turn_in": "Opened, then. Good. A sealed object tells us more than another rumor ever could.",
+      "completed": "The coffer is accounted for. The catalogue is next."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/fathoms/an_aberration_on_the_line",
+      "required_amount": 1,
+      "name": "Catch an aberration"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "fathoms:nautical/open_coffer",
+      "required_amount": 1,
+      "name": "Open a Fathoms coffer"
+    }
+  ],
+  "rewards": []
+}

@@ -1,0 +1,44 @@
+{
+  "title": "An Aberration on the Line",
+  "description": "The Historian's next useful proof is one Fathoms calls an aberration. Catch one through the native fishing progression rather than substituting an unrelated monster or trophy.",
+  "description_completed": "An aberration has come up on your line. The investigation can move from catches to what the depths keep locked away.",
+  "icon": {
+    "item": "fathoms:aberrant_fishing_rod"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 421,
+  "provider": {
+    "entity_types": ["minecraft:villager"],
+    "villager_professions": ["fathoms:historian"],
+    "required_facts": ["overlord_reign:reign/initial_foundation_established"],
+    "dialogue": {
+      "offer": "Bait proves the method. An aberration proves the waters are worth studying. Catch one and return.",
+      "ready_to_turn_in": "There it is. That is enough to move past ordinary fishing records.",
+      "completed": "One aberration is evidence. The next question is what lies sealed below."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/fathoms/sounding_the_depths",
+      "required_amount": 1,
+      "name": "Sound the depths with bait"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "fathoms:nautical/catch_aberration",
+      "required_amount": 1,
+      "name": "Catch an aberration"
+    }
+  ],
+  "rewards": []
+}

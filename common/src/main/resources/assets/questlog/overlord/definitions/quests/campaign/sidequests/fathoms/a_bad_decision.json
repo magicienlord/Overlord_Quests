@@ -1,0 +1,44 @@
+{
+  "title": "A Bad Decision",
+  "description": "The Historian's investigation has reached the ritual path implemented by Fathoms. Perform the ritual associated with the aberration idols and let the backport's own nautical milestone decide when the act is complete.",
+  "description_completed": "The ritual is complete. The Historian has no further field test to prescribe; the conclusion now rests on what you actually found in the depths.",
+  "icon": {
+    "item": "fathoms:odd_aberration_idol"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 424,
+  "provider": {
+    "entity_types": ["minecraft:villager"],
+    "villager_professions": ["fathoms:historian"],
+    "required_facts": ["overlord_reign:reign/initial_foundation_established"],
+    "dialogue": {
+      "offer": "There is one step left. Perform the ritual tied to the aberration idols. Then come back and tell me what the record cannot.",
+      "ready_to_turn_in": "You actually did it. Then the field record is complete.",
+      "completed": "I have no deeper instruction to give you. From here, the depths speak for themselves."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/fathoms/catalogue_the_depths",
+      "required_amount": 1,
+      "name": "Complete the Fathoms fish catalogue"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "fathoms:nautical/make_a_bad_decision",
+      "required_amount": 1,
+      "name": "Complete the aberration-idol ritual"
+    }
+  ],
+  "rewards": []
+}

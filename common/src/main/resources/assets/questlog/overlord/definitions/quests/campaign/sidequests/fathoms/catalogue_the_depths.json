@@ -1,0 +1,44 @@
+{
+  "title": "Catalogue the Depths",
+  "description": "One aberration and one coffer are samples. Complete Fathoms' own fish catalogue milestone so the Historian's investigation rests on the whole implemented catch set rather than a single curiosity.",
+  "description_completed": "The catalogue is complete. The Historian has one final procedure left to place before you.",
+  "icon": {
+    "item": "minecraft:fishing_rod"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 423,
+  "provider": {
+    "entity_types": ["minecraft:villager"],
+    "villager_professions": ["fathoms:historian"],
+    "required_facts": ["overlord_reign:reign/initial_foundation_established"],
+    "dialogue": {
+      "offer": "A single specimen is a story. A complete catalogue is evidence. Finish the Fathoms catch record and come back.",
+      "ready_to_turn_in": "That is the complete catalogue. There is only one field test left in this line of inquiry.",
+      "completed": "The catches are recorded. What remains is not fishing."
+    },
+    "lock_to_provider": true,
+    "turn_in": "same_provider"
+  },
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/sidequests/fathoms/open_the_coffer",
+      "required_amount": 1,
+      "name": "Open a coffer from the depths"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "fathoms:nautical/catch_all_fish",
+      "required_amount": 1,
+      "name": "Catch every fish required by the Fathoms catalogue"
+    }
+  ],
+  "rewards": []
+}

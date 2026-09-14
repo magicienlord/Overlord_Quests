@@ -26,5 +26,8 @@ jobs:
       - name: Validate delegated civilization and NightWalker closure
         run: python3 tools/validate_remaining_questline_closure.py
 
+      - name: Validate Fathoms Historian closure
+        run: python3 tools/validate_fathoms_sidequest_contracts.py
+
       - name: Validate production narrative-fact documentation
         run: python3 tools/validate_narrative_fact_documentation.py

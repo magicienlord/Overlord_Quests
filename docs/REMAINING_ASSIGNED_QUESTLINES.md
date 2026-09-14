@@ -6,7 +6,7 @@ This document reconciles the Overlord Quests implementation against the read-onl
 
 ## Dedicated content implemented
 
-Core campaign/Tower, core magic, assigned adventure content, central End completion, Minion recovery, Quaver's optional Tower-band arc, Pet Cemetery, civilization entry coverage and the conditional NightWalker/Lestat transition arc all have production Quest definitions or deliberate systemic treatment.
+Core campaign/Tower, core magic, assigned adventure content, central End completion, Minion recovery, Quaver's optional Tower-band arc, Pet Cemetery, civilization entry coverage, the conditional NightWalker/Lestat transition arc and the Historian-led Overlord Depths / Fathoms arc all have production Quest definitions or deliberate systemic treatment.
 
 Implemented dedicated adventure arcs include Twilight Forest, L_Ender's Cataclysm, The Graveyard, The Bumblezone, Knight Quest, The Lost Castle, Rats / Ratlantis, Church of Sin and Oddities / Orchid Shrine.
 
@@ -92,35 +92,43 @@ See `docs/NIGHTWALKER_LESTAT_INTEGRATION.md`.
 
 ### Overlord Depths / Fathoms
 
-Assignment: dedicated Historian-led sidequest when the backport has a validated implementation boundary.
+Status: **IMPLEMENTED AGAINST VALIDATED DEPTHS CHECKPOINT**.
 
-Status: DEFERRED BY CURRENT EXTERNAL TECHNICAL VALIDATION ONLY.
-
-Fresh live check on 2026-09-14:
+Technical authority used for this pass:
 
 ```text
+repository: magicienlord/Overlord_Depths
 branch: validation/source-closure-direct-2026-09-13
-head: 9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f
-message: Align runtime advancement count with source
+head: b00ef7a33550267a826f98d4989f6ea63e6909a9
+tree: 25e8c3a3de67543fe4f62a02ae3625a471423068
 ```
 
-The exact head has five observed workflows. Source Resource Closure Audit succeeds, but **three exact-head workflows still fail**:
+All five exact-head workflows observed on that checkpoint were successful, including Forge build and the Core and YUNG Rocky Waters worldgen validations.
 
-- Build Forge 1.20.1 Backport;
-- Target YUNG Rocky Waters;
-- Target Core Worldgen Rocky Waters.
+The production arc uses the native `fathoms:historian` Villager profession and observes the native nautical progression in order:
 
-Therefore the Historian arc remains the sole assigned external-backport quest deferred by a live technical boundary. This is not an unresolved lore/design question. Recheck the live Depths branch and exact-head CI before the next integration attempt; do not bind production Quest objectives to this failing checkpoint.
+1. `fathoms:nautical/use_bait`;
+2. `fathoms:nautical/catch_aberration`;
+3. `fathoms:nautical/open_coffer`;
+4. `fathoms:nautical/catch_all_fish`;
+5. `fathoms:nautical/make_a_bad_decision`.
+
+The final step is the native aberration-idol ritual advancement verified by the Depths source-closure work. No speculative boss, deity, Dredge plot or invented Fathoms ending is added.
+
+See `docs/FATHOMS_HISTORIAN_INTEGRATION.md`.
+
+Historical superseded boundary: the earlier checkpoint `9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f` was deferred because three exact-head workflows still failed. That deferral is no longer operational.
 
 ## Known implementation limitations
 
 - Church of Sin kill objectives are not structure-location-bound after cathedral discovery.
 - Red/Green/Blue recovery uses practical item proxies rather than direct source-game Hive recreations.
 - Villager, Illager intermediary and Lestat anchors require final-world placement/tagging and manual full-instance qualification.
+- The Fathoms wrapper still needs full-instance qualification of presentation, Historian interaction and native advancement handoff in the final modpack environment.
 - Full-instance presentation and optional-mod paths still require manual validation beyond standalone CI.
 
 ## Remaining assigned-work boundary
 
-There are no remaining authority questions blocking Villager, Illager or NightWalker content.
+There are no remaining authority questions blocking Villager, Illager, NightWalker or Fathoms content.
 
-The only currently deferred assigned dedicated arc is Overlord Depths / Fathoms, and the deferral is strictly technical: its live backport checkpoint is not yet green. Once a stable exact Depths checkpoint exists, inspect that implementation's real Historian, structures, items, bosses and progression signals and author the mandatory Historian-led sidequest from those mechanics.
+The previous sole assigned dedicated-arc deferral, Overlord Depths / Fathoms, is now implemented from a validated exact Depths checkpoint. The mandatory assigned questline inventory is therefore accounted for at the repository-content level. Further work is validation, refinement, final-world provider placement where applicable, and any later explicitly approved content expansion rather than recovery of a silently omitted mandatory arc.

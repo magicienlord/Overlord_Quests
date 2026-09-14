@@ -34,7 +34,8 @@ The current pass additionally adds:
 - a local Illager post-Bastille restraint bridge that affects only the designated protected intermediary;
 - production Villager main-entry content;
 - production Illager fearful/cowed continuation;
-- the conditional Lestat-led NightWalker transition arc.
+- the conditional Lestat-led NightWalker transition arc;
+- the source-backed Historian-led Overlord Depths / Fathoms nautical arc.
 
 ## Bundled production campaign coverage
 
@@ -113,28 +114,33 @@ The one-time system-reaction channel remains the production treatment for Enchan
 
 ## Overlord Depths / Fathoms
 
-Status: DEFERRED BY EXTERNAL TECHNICAL VALIDATION, NOT BY LORE.
+Status: IMPLEMENTED AGAINST VALIDATED DEPTHS CHECKPOINT.
 
-Fresh live checkpoint checked during this closure pass:
+Validated source boundary checked during this pass:
 
 ```text
+repository: magicienlord/Overlord_Depths
 branch: validation/source-closure-direct-2026-09-13
-head: 9e1c5ed6dab40da0bc728abd9dcb62f59710ef4f
+head: b00ef7a33550267a826f98d4989f6ea63e6909a9
+tree: 25e8c3a3de67543fe4f62a02ae3625a471423068
 ```
 
-Five exact-head workflows were observed. Source Resource Closure Audit is green, while three exact-head workflows fail: Build Forge 1.20.1 Backport, Target YUNG Rocky Waters and Target Core Worldgen Rocky Waters.
+All five exact-head workflows observed on this checkpoint succeeded. The earlier external technical deferral is therefore closed.
 
-The Historian-led Depths sidequest therefore remains deferred until the backport exposes a stable green boundary. This is the only remaining assigned dedicated-arc deferral.
+The sidequest uses the real `fathoms:historian` Villager profession and observes five native nautical advancements: bait use, aberration catch, coffer opening, full fish catalogue, and the source-owned `fathoms:nautical/make_a_bad_decision` ritual capstone. Questlog does not replace Fathoms mechanics and does not invent a boss or lore ending.
+
+See `docs/FATHOMS_HISTORIAN_INTEGRATION.md`.
 
 ## Known technical limitations
 
 - Church of Sin kill objectives are not location-bound after cathedral discovery.
 - Minion recovery uses practical item proxies instead of direct Hive recreations.
 - Villager, Illager intermediary and Lestat anchors require final-world placement/tagging.
+- The Fathoms arc still requires full-instance qualification of presentation, native Historian interaction and advancement handoff.
 - Full-instance manual validation remains necessary for presentation and optional-mod interaction paths.
 
 ## Validation rule
 
 A green repository workflow proves only its stated static/build/smoke contract. It does not substitute for full-instance gameplay qualification.
 
-When Depths reaches a stable exact checkpoint, re-read that live implementation before authoring its Historian arc. Do not restore obsolete Villager, Illager or NightWalker “authority blocker” language in later handoffs.
+The mandatory assigned dedicated-arc inventory is now represented in production definitions. Future work should focus on exact-head validation, full-instance qualification, refinement from new source evidence, and later explicitly approved expansion rather than restoring superseded Villager, Illager, NightWalker or Fathoms blocker language.
