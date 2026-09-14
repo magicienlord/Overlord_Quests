@@ -20,6 +20,11 @@ import java.util.Set;
  *
  * This is intentionally not a global Illager AI rewrite. Other Pillagers,
  * Bastilles, patrols, raids and warbands retain their native hostility.
+ *
+ * The authority fact opens the first cowed audience only while the designated
+ * polity still has the technical UNRESOLVED disposition. Once an authored
+ * disposition exists, that disposition is authoritative: NEUTRAL/SUBJUGATED
+ * preserve access, while any other explicit state restores native hostility.
  */
 @Mod.EventBusSubscriber(modid = Questlog.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class IllagerBastilleAudienceBridgeForge {
@@ -57,8 +62,10 @@ public final class IllagerBastilleAudienceBridgeForge {
         if (!QuestAnchorProtection.isProtected(source)) return false;
 
         OverlordNarrativeState narrative = OverlordNarrativeState.get(player.server);
-        if (narrative.hasFact(AUTHORITY_FACT)) return true;
-        return PEACEFUL_STATES.contains(narrative.getDisposition(CIVILIZATION));
+        ResourceLocation disposition = narrative.getDisposition(CIVILIZATION);
+        if (PEACEFUL_STATES.contains(disposition)) return true;
+        return OverlordNarrativeState.UNRESOLVED.equals(disposition)
+                && narrative.hasFact(AUTHORITY_FACT);
     }
 
     private static boolean isDesignatedIntermediary(Entity entity) {

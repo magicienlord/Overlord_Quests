@@ -11,7 +11,7 @@ A disposition is world-scoped current state for one authored civilization polity
 - a narrative fact records that an event happened and is normally monotonic;
 - a disposition records the polity's current exclusive political state and may be replaced by a later authored outcome.
 
-The generalized disposition roster established by `magicienlord/Overlord_Lore_and_Canon` is:
+The generalized disposition roster is:
 
 - Villagers;
 - Illagers;
@@ -44,19 +44,25 @@ when no explicit state has been written for a civilization.
 
 Status: ACTIVE PRODUCTION STATE
 
-Current bundled writer:
+Current bundled writers:
 
 ```text
 campaign/civilizations/umvuthana/first_contact
+campaign/civilizations/illagers/the_bastille_bows
 ```
 
-For the designated canonical Umvuthana Grove this means the peaceful audience has been completed and ordinary renewed hostility toward the non-offending Overlord is suppressed for that designated Umvuthi. Mowzie's native misbehaviour state remains authoritative and can override that peace for an offending player. Unrelated Umvuthis and Groves remain unchanged.
+For the designated canonical Umvuthana Grove, NEUTRAL follows the legitimate first audience. The exact designated Umvuthi may remain peacefully accessible subject to Mowzie's native misbehaviour behavior; unrelated Umvuthis and Groves remain unchanged.
 
-It does NOT mean subjugation, alliance, universal Umvuthana neutrality, immunity from authored destructive consequences, or erasure of Mowzie's native boss route.
+For the designated Illager Bastille, NEUTRAL is written only after the Overlord has broken the local command structure and completed the fearful/cowed audience with the exact protected intermediary. It represents local restraint under demonstrated force, not friendship, alliance, civilization-wide pacification, or a claim that all Illagers have surrendered.
 
-No other bundled civilization first-contact definition currently writes `overlord_reign:neutral`.
+The historical reason for the Illager transition is separately preserved by:
 
-In particular, the implemented Piglin first audience deliberately leaves disposition unresolved. Wearing gold grants only enough restraint for an audience with the exact protected Chieftain. The contact quest records `overlord_reign:civilizations/piglins/contact_established` and does not convert the village to neutral.
+```text
+overlord_reign:civilizations/illagers/authority_established
+overlord_reign:civilizations/illagers/bastille_cowed
+```
+
+The disposition and historical facts remain separate state dimensions.
 
 ### `overlord_reign:subjugated`
 
@@ -64,43 +70,45 @@ Status: PLANNED / IMPLEMENTATION-RECOGNIZED, NOT YET WRITTEN BY BUNDLED CAMPAIGN
 
 The civilization decisions establish SUBJUGATED as a legitimate authored outcome where an individual civilization design permits it.
 
-The Umvuthi local-peace bridge and designated Piglin Chieftain audience bridge recognize this state so a future explicit local subjugation does not accidentally restore ordinary access hostility. No current bundled quest sets this state.
+The exact Umvuthi, Piglin Chieftain and Illager Bastille audience bridges recognize this state only for their specifically authored local anchors so a future explicit local subjugation does not accidentally restore ordinary access hostility.
 
-Its first production writer must be introduced together with the relevant civilization outcome quest and runtime consequences. The ID must not be used as a generic reward before that authored outcome exists.
+No current bundled quest sets `overlord_reign:subjugated`. Its first production writer must be introduced together with the relevant authored political outcome and consequences.
 
-## Current first-contact disposition behavior
+## Current first-contact and opening behavior
 
-Implemented first-contact content intentionally does not force one generic political result across civilizations.
+Production content intentionally does not force one generic political result across civilizations.
 
 - Umvuthana first audience writes `overlord_reign:neutral` for the designated Grove.
-- Piglin first audience records contact only and leaves disposition unresolved.
+- Illager hostile opening records `overlord_reign:civilizations/illagers/authority_established` but writes no disposition. The subsequent provider-native cowed audience records `overlord_reign:civilizations/illagers/bastille_cowed` and writes `overlord_reign:neutral` for that designated Bastille polity.
+- Villager first contact records `overlord_reign:civilizations/villagers/contact_established` and leaves disposition unresolved.
+- Piglin first audience records contact only and leaves disposition unresolved. Gold is an audience-access condition for the exact protected Chieftain, not a political outcome.
 - Goblin, Gnumu, Ribbit, Kobold, Sea Dweller and Dwarven first contacts leave disposition unresolved.
-- Illager Bastille authority is recorded as a historical fact while disposition remains unresolved pending the later political phase.
-- Villager main-entry content remains unresolved because its principal settlement/provider has not been selected.
 
 This asymmetry is intentional. Political outcomes belong to each civilization's authored branch rather than to a universal first-contact rule.
 
+## Illager transition precedence
+
+The designated protected Illager intermediary has one narrow temporary exception so the post-victory cowed audience can actually occur.
+
+The bridge applies restraint when:
+
+- the Illager disposition is still technical `questlog:unresolved` and the local authority fact is present; or
+- the current disposition is `overlord_reign:neutral`; or
+- the current disposition is `overlord_reign:subjugated`.
+
+Once any other explicit disposition is authored, that later disposition takes precedence over the old monotonic authority fact. The authority fact therefore cannot permanently pacify the intermediary after a future non-peaceful political outcome.
+
+This precedence rule does not create a new production disposition ID. It ensures the bridge remains compatible with future authored states.
+
 ## Authoring rules
 
-Disposition changes must come from explicit player actions and authored quests. There is no autonomous drift.
+Disposition changes must come from explicit player actions and authored political quests. There is no autonomous drift.
 
-Do not use disposition as a substitute for historical event facts. For example:
+Do not use disposition as a substitute for historical event facts. For example, the Illager authority and cowed facts record what happened; NEUTRAL records the designated Bastille polity's current political state after the cowed audience.
 
-```text
-overlord_reign:civilizations/umvuthana/contact_established
-```
+Local anchor outcomes must remain local. A disposition attached to the designated Goblin Camp, Kobold Den, Ribbit Village, Sea Village, Dwarven successor hold, Piglin Nether Village, Umvuthana Grove, Illager Bastille, Villager successor settlement, or another authored local polity must not silently rewrite every naturally generated member of that species or faction.
 
-records that the first formal audience occurred, while:
-
-```text
-overlord_reign:neutral
-```
-
-records the designated Grove's current political state after that audience.
-
-Local anchor outcomes must remain local. A disposition attached to the designated Goblin Camp, Kobold Den, Ribbit Village, Sea Village, Dwarven successor hold, Piglin Nether Village, Umvuthana Grove, Illager Bastille, or another authored local polity must not silently rewrite every naturally generated member of that species or faction.
-
-Do not add a new disposition state merely to represent a temporary quest phase when an ordinary quest/fact state is sufficient. The Illager fearful/cowed phase is specifically expected to remain a quest-state phase layered over a normal disposition rather than automatically creating an extra global disposition value.
+Do not add a new disposition state merely to represent a temporary quest phase when an ordinary quest/fact state is sufficient. The Illager fearful/cowed phase is represented by explicit history plus a normal disposition rather than by a special global `cowed` disposition.
 
 ## Administrative surface
 

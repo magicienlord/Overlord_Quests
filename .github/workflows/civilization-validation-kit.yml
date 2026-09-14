@@ -23,6 +23,12 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Validate current civilization closure contracts
+        run: |
+          python3 tools/validate_remaining_questline_closure.py
+          python3 tools/validate_illager_campaign_contract.py
+          python3 tools/validate_piglin_campaign_contract.py
+
       - name: Resolve successful same-commit Forge build
         if: github.event_name == 'push'
         id: source_build
@@ -106,13 +112,15 @@ jobs:
           cp "$JAR" "$KIT/mods/"
 
           PROTOCOLS=(
+            VILLAGER_CIVILIZATION_TEST_PROTOCOL.md
+            ILLAGER_CIVILIZATION_TEST_PROTOCOL.md
             DWARVEN_CIVILIZATION_TEST_PROTOCOL.md
             GNUMU_CIVILIZATION_TEST_PROTOCOL.md
             GOBLIN_CIVILIZATION_TEST_PROTOCOL.md
-            ILLAGER_CIVILIZATION_TEST_PROTOCOL.md
             KOBOLD_CIVILIZATION_TEST_PROTOCOL.md
             RIBBIT_CIVILIZATION_TEST_PROTOCOL.md
             SEA_DWELLER_CIVILIZATION_TEST_PROTOCOL.md
+            PIGLIN_CIVILIZATION_TEST_PROTOCOL.md
             UMVUTHANA_CIVILIZATION_TEST_PROTOCOL.md
             GNUMU_MERCHANT_SIDEQUEST_TEST_PROTOCOL.md
             GOBLIN_ENGINEER_SIDEQUEST_TEST_PROTOCOL.md
@@ -130,6 +138,8 @@ jobs:
             NARRATIVE_FACTS.md
             NPC_PROVIDER_TEST_PROTOCOL.md
             QUEST_ANCHOR_PROTECTION_TEST_PROTOCOL.md
+            VILLAGER_CIVILIZATION_INTEGRATION.md
+            ILLAGER_BASTILLE_INTEGRATION.md
           )
 
           for DOC in "${PROTOCOLS[@]}" "${SUPPORTING_DOCS[@]}"; do
@@ -154,7 +164,7 @@ jobs:
           7. Run the protocols listed in PROTOCOLS.txt one at a time, resetting synthetic test state when each protocol requires it.
           8. Record the exact native-mod versions and any divergence from the protocol.
 
-          Villager and Piglin civilization main-entry validation is intentionally absent because those production entry mechanics remain unresolved. This kit does not authorize speculative providers, political outcomes, or disposition consequences.
+          All ten generalized civilization main entries are represented in this kit. World-specific anchors and native-mod behavior still require manual full-instance qualification; this package does not turn a test setup into new setting canon.
           EOF
 
           BUILD_RUN_ID='manual-local-build'
@@ -172,11 +182,11 @@ jobs:
           forge=47.4.10
           java=17
           production_definitions=bundled_in_runtime_jar
-          civilization_entry_protocols=8
+          civilization_entry_protocols=10
           production_sidequest_protocols=6
-          unresolved_main_entries=Villagers,Piglins
-          unresolved_minion_recovery=Red,Green,Blue
-          unresolved_final_central_setter=true
+          unresolved_main_entries=none
+          minion_recovery=implemented_with_documented_fidelity_limitations
+          central_end=implemented
           EOF
 
           (
@@ -189,7 +199,9 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fxq "source_commit=$GITHUB_SHA" build/civilization-validation-kit/BUILD_INFO.txt
-          test "$(wc -l < build/civilization-validation-kit/PROTOCOLS.txt)" -eq 14
+          grep -Fxq 'civilization_entry_protocols=10' build/civilization-validation-kit/BUILD_INFO.txt
+          grep -Fxq 'unresolved_main_entries=none' build/civilization-validation-kit/BUILD_INFO.txt
+          test "$(wc -l < build/civilization-validation-kit/PROTOCOLS.txt)" -eq 16
           test -n "$(find build/civilization-validation-kit/mods -maxdepth 1 -type f -name '*.jar' | head -n 1)"
           (
             cd build/civilization-validation-kit

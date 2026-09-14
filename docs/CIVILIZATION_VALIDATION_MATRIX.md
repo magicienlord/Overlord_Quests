@@ -2,28 +2,34 @@
 
 Status: TECHNICAL / MANUAL FULL-INSTANCE VALIDATION INDEX
 
-This file is an engineering index for the consolidated civilization validation artifact. It does not establish new OVERLORD REIGN story canon and does not convert an unresolved provider, consequence, political state, or reward into production content.
+This file is an engineering index for the consolidated civilization validation artifact. It does not establish new OVERLORD REIGN story canon or promote a test setup into a final world decision.
 
 ## Purpose
 
-The standalone repository now validates compilation, packaged production definitions, provider contracts, narrative-state persistence, client/server bootstrap, quest-anchor protection, ending transport, optional objectives, and other focused contracts. Several civilization integrations still depend on behavior owned by other installed mods and therefore require a complete OVERLORD REIGN instance for player-facing qualification.
+Repository CI validates compilation, packaged production definitions, provider contracts, narrative-state persistence, client/server bootstrap, quest-anchor protection, ending transport, optional objectives and focused civilization contracts. Several civilization integrations still depend on behavior owned by other installed mods and therefore require the complete OVERLORD REIGN instance for final player-facing qualification.
 
-The `Civilization Validation Kit` workflow packages the exact Quest JAR from a successful `Build Forge 1.20.1` run with the protocols in this matrix. The workflow records the source commit and build run identity and verifies the package checksums before upload.
-
-A successful package build means the kit is internally consistent. It does not mean every protocol has been manually completed in the full modpack.
+The `Civilization Validation Kit` workflow packages the exact Quest JAR from a successful same-commit `Build Forge 1.20.1` run with the protocols in this matrix. A successful package build means the kit is internally consistent; it does not mean every protocol has been manually completed in the full modpack.
 
 ## Production civilization entry protocols
 
+Generalized civilization roster: 10.
+
+Production main-entry coverage: 10/10.
+
 | Civilization | Production entry | Protocol | Principal full-instance concern |
 | --- | --- | --- | --- |
-| Dwarves | `campaign/civilizations/dwarves/first_contact` | `DWARVEN_CIVILIZATION_TEST_PROTOCOL.md` | Dwarven Forge provider identity, native trade preservation, and the non-canon reputation/price probe |
+| Villagers | `campaign/civilizations/villagers/first_contact` | `VILLAGER_CIVILIZATION_TEST_PROTOCOL.md` | Exact local representative at the deliberately authored world-fit human successor/remnant settlement; no universal polity or profession leakage |
+| Illagers | `campaign/civilizations/illagers/break_the_bastille` + `campaign/civilizations/illagers/the_bastille_bows` | `ILLAGER_CIVILIZATION_TEST_PROTOCOL.md` | Exact tagged commander history, protected cowed intermediary, local restraint, disposition precedence and unrelated-Illager locality |
+| Dwarves | `campaign/civilizations/dwarves/first_contact` | `DWARVEN_CIVILIZATION_TEST_PROTOCOL.md` | Dwarven Forge provider identity, native trade preservation and the non-canon reputation/price probe |
 | Gnumus | `campaign/civilizations/gnumus/first_contact` | `GNUMU_CIVILIZATION_TEST_PROTOCOL.md` | Elder Shaman authored-role scoping and native Gnumu interaction preservation |
 | Goblins | `campaign/civilizations/goblins/first_contact` | `GOBLIN_CIVILIZATION_TEST_PROTOCOL.md` | Principal-camp leader scoping and native Goblins Tyranny interaction preservation |
-| Illagers | `campaign/civilizations/illagers/break_the_bastille` | `ILLAGER_CIVILIZATION_TEST_PROTOCOL.md` | Exact tagged Bastille command target and player-attributed historical kill behavior |
 | Kobolds | `campaign/civilizations/kobolds/first_contact` | `KOBOLD_CIVILIZATION_TEST_PROTOCOL.md` | Marked Captain provider behavior while preserving native Captain interaction/trade |
 | Ribbits | `campaign/civilizations/ribbits/first_contact` | `RIBBIT_CIVILIZATION_TEST_PROTOCOL.md` | Reflection-backed Gardener profession matching against Ribbits 3.0.5 |
-| Sea Dwellers | `campaign/civilizations/sea_dwellers/first_contact` | `SEA_DWELLER_CIVILIZATION_TEST_PROTOCOL.md` | Mermorph tag matching, authored Sea Elder role scoping, and native barter preservation |
+| Sea Dwellers | `campaign/civilizations/sea_dwellers/first_contact` | `SEA_DWELLER_CIVILIZATION_TEST_PROTOCOL.md` | Mermorph tag matching, authored Sea Elder role scoping and native barter preservation |
+| Piglins | `campaign/civilizations/piglins/first_contact` | `PIGLIN_CIVILIZATION_TEST_PROTOCOL.md` | Exact protected Brute Chieftain, gold-gated local audience, native hostility elsewhere and no automatic disposition |
 | Umvuthana | `campaign/civilizations/umvuthana/first_contact` | `UMVUTHANA_CIVILIZATION_TEST_PROTOCOL.md` | Exact designated Umvuthi audience behavior and native hostility/misbehaviour transitions |
+
+Demons remain outside the generalized civilization disposition framework.
 
 ## Production sidequest protocols
 
@@ -49,25 +55,21 @@ The kit also carries:
 - `CIVILIZATION_SIDEQUEST_STATUS.md` for source-backed sidequest boundaries;
 - `CURRENT_IMPLEMENTATION_STATUS.md` for the current engineering boundary.
 
-## Intentionally absent civilization entries
+## Implemented boundaries that remain manual-runtime qualifications
 
-### Villagers
+The following are implemented production content, not unresolved authoring gaps, but still require complete-instance manual validation where their behavior depends on the target world or another mod:
 
-Production main-entry validation is not packaged because the principal village/provider has not been explicitly selected. Existing provider architecture is not permission to invent that anchor.
+- Villager final-world anchor selection and visual historical/biome/terrain fit;
+- Illager designated Bastille commander/intermediary setup and local AI restraint under the complete combat stack;
+- Piglin Chieftain gold-audience behavior under the complete Nether/combat stack;
+- native civilization provider interactions and advancements listed above;
+- provider presentation, exact anchor persistence and save/reload behavior in the complete instance.
 
-### Piglins
+## External technical deferral outside this kit
 
-Production main-entry validation is not packaged because the designated Piglin Brute Chieftain remains natively hostile and the initial political audience transition is unresolved. A generic peaceful provider interaction would contradict the current authoring boundary.
+The personal Overlord Depths / Fathoms Historian sidequest remains deferred while the external backport has failing exact-head validation. That is an external technical integration boundary, not an unresolved civilization design question and not a reason to reduce civilization coverage below 10/10.
 
-## Other unresolved campaign boundaries
-
-This civilization kit does not resolve:
-
-- Red, Green, or Blue Minion diegetic recovery routes;
-- the surviving Illager provider for the post-Bastille political phase;
-- Dwarven political disposition consequences or any authored reputation/price reward;
-- final central quest prerequisites or the production setter for `overlord_reign:campaign/ending_armed`;
-- final ending narration, art, audio, credits treatment, or other presentation decisions.
+The NightWalker / Lestat transition arc is implemented separately and is validated by its own closure/static/build surfaces rather than by this civilization kit.
 
 ## Qualification rule
 

@@ -4,9 +4,12 @@ Status: TECHNICAL RUNTIME VALIDATION PROTOCOL
 
 ## Purpose
 
-Validate the production Illager opening against the exact installed Take a Pillage 1.0.3 behavior and the approved local-Bastille quest architecture.
+Validate both production phases of the designated Illager Bastille arc against Take a Pillage 1.0.3 and the approved local-warband architecture:
 
-This protocol validates one designated Bastille only. It does not establish a global Illager disposition, universal leader, or global AI change.
+1. hostile commander defeat through `campaign/civilizations/illagers/break_the_bastille`;
+2. the later fearful/cowed audience through `campaign/civilizations/illagers/the_bastille_bows`.
+
+This protocol validates one designated Bastille only. It does not create a universal Illager leader, global Illager disposition, or global AI change.
 
 ## Required environment
 
@@ -18,35 +21,41 @@ takesapillage-1.0.3-1.20.1.jar
 
 and the current OVERLORD QUESTS build under test.
 
-The tested player must have an active Questlog manager from before the early-kill sequence-break test begins. `questlog:entity_kill_history` cannot reconstruct a kill that predates the loaded definition.
+The tested player must have an active Questlog manager before any early-kill sequence-break test begins. `questlog:entity_kill_history` cannot reconstruct a kill that predates the loaded definition.
 
 ## World setup
 
 1. Identify the single designated Bastille used for the REIGN Illager anchor.
 2. Choose exactly one native `takesapillage:legioner` inside that Bastille as the authored local commander.
-3. Add this scoreboard tag to that Legioner:
+3. Add only this tag to that Legioner during the hostile opening:
 
 ```text
 overlord_anchor:illager_bastille_commander
 ```
 
-4. Do not add that tag to any other Legioner or Illager.
-5. Do not add `overlord_quest_protected` to this commander during the hostile opening test. Killing the commander before formal quest activation is a legitimate sequence break.
-6. Clear the production authority fact before each independent test run:
+4. Do not add `overlord_quest_protected` to the commander while the hostile opening is valid; the commander is intentionally killable.
+5. Choose exactly one surviving native `minecraft:pillager` associated with the designated Bastille as the fearful intermediary.
+6. Add both tags to that exact intermediary:
 
 ```text
-overlord_reign:civilizations/illagers/authority_established
+overlord_anchor:illager_bastille_intermediary
+overlord_quest_protected
 ```
 
-7. For tests that require the campaign gate to remain closed, clear or withhold:
+7. Do not place either authored role tag on unrelated Illagers.
+8. Reset these facts/dispositions as required between independent tests:
 
 ```text
 overlord_reign:reign/initial_foundation_established
+overlord_reign:civilizations/illagers/authority_established
+overlord_reign:civilizations/illagers/bastille_cowed
 ```
+
+The technical default disposition is `questlog:unresolved`.
 
 ## Test A: unrelated Illagers do not satisfy the opening
 
-With the foundation fact present and the production quest visible:
+With the foundation fact present and the production opener visible:
 
 1. Kill an ordinary Pillager outside the designated Bastille.
 2. Kill an untagged Take a Pillage Legioner outside the designated Bastille if available.
@@ -54,7 +63,7 @@ With the foundation fact present and the production quest visible:
 
 Expected:
 
-- none of these kills satisfies the marked commander objective;
+- none satisfies the marked commander objective;
 - no Illager authority fact is written;
 - unrelated Illager populations remain native and unchanged.
 
@@ -66,81 +75,117 @@ Expected:
 Expected:
 
 - Take a Pillage awards its native advancement normally;
-- the production REIGN opener does not complete merely because any Bastille was entered;
-- the native advancement is not treated as identity proof for the designated REIGN Bastille.
+- the REIGN opener does not complete merely because any Bastille was entered;
+- the native advancement is not treated as identity proof for the designated Bastille.
 
 ## Test C: normal-order commander defeat
 
 With the foundation fact present:
 
-1. Locate the marked `takesapillage:legioner` assigned to the designated Bastille.
-2. Kill that Legioner directly as the player.
-3. Allow Questlog to process the completion.
+1. Kill the exact marked commander directly as the player.
+2. Allow Questlog to process completion.
 
 Expected:
 
 - the tagged kill-history objective completes exactly once;
 - `overlord_reign:civilizations/illagers/authority_established` becomes true;
-- no Illager disposition is written by this quest;
-- no unrelated Illager changes behavior because of this fact alone.
+- the opening quest itself writes no disposition;
+- unrelated Illagers do not change behavior.
 
 ## Test D: pre-activation commander defeat
 
-This is the critical sequence-break test.
-
-1. Ensure the foundation fact is absent, so `Break the Bastille` remains locked.
-2. Ensure the Questlog definition is already loaded for the player.
-3. Kill the marked Legioner directly as the player while the quest is still locked.
-4. Save and quit.
-5. Reload the same world.
-6. Establish or administratively set the initial foundation fact.
+1. Ensure the foundation fact is absent while the Questlog definition is already loaded.
+2. Kill the exact marked commander directly as the player.
+3. Save and quit, then reload.
+4. Establish the foundation fact.
 
 Expected:
 
-- Questlog does not require a replacement commander;
-- the persisted `entity_kill_history` observation survives reload;
-- once the foundation prerequisite becomes true, the Illager opener recognizes the prior marked commander kill;
-- the quest completes without repeating the event;
-- the authority fact is written exactly once.
+- no replacement commander is required;
+- persisted kill history survives reload;
+- the opener recognizes the prior marked kill and writes authority exactly once.
 
 ## Test E: non-player death does not satisfy player authority
 
-On a clean copy or reset setup with a live marked commander:
-
-1. Cause the marked Legioner to die without the player being credited as the damage source, for example through an environmental cause.
+On a clean setup, cause the marked commander to die without player kill attribution.
 
 Expected:
 
-- `questlog:entity_kill_history` does not record the kill;
-- the authority fact remains absent;
-- this behavior distinguishes the authored hostile assertion of authority from an incidental death.
+- the historical player-kill objective remains unsatisfied;
+- the authority fact remains absent.
 
-## Test F: persistence and idempotency
+## Test F: intermediary is hostile before authority
 
-After completing the production quest:
+With the exact protected intermediary present and the authority fact absent:
 
-1. save and quit;
-2. reload;
-3. inspect the quest and narrative fact;
-4. kill unrelated Legioners afterward.
+1. Approach without completing the commander phase.
+2. Attempt the Questlog provider gesture.
 
 Expected:
 
-- the quest remains completed;
-- the authority fact remains present;
-- unrelated later kills do not create new campaign effects;
-- no duplicate reward or repeated transition occurs.
+- Questlog does not expose `The Bastille Bows`;
+- the intermediary's native target/attack behavior is not suppressed by the political bridge merely because it is tagged;
+- protection prevents accidental loss of the future authored provider but does not establish peace.
 
-## Test G: locality
+## Test G: first cowed audience while disposition is unresolved
 
-After completion, visit unrelated Illager content including another Bastille, an outpost, patrol, raid, or mansion where available.
+After the authority fact exists, keep Illager disposition at technical `questlog:unresolved`.
+
+1. Approach the exact protected intermediary.
+2. Confirm it cannot target or damage the testing player while the first cowed audience is available.
+3. Sneak/main-hand interact and accept `The Bastille Bows`.
+4. Turn the provider-native quest in to the same exact intermediary.
 
 Expected:
 
-- those populations remain native Illagers;
-- the completed local Bastille opener does not imply their surrender, neutrality, or subjugation;
-- any later political effect remains confined to separately authored content.
+- restraint applies only to the protected tagged intermediary;
+- `overlord_reign:civilizations/illagers/bastille_cowed` becomes true;
+- Illager disposition becomes `overlord_reign:neutral`;
+- the phase represents fear/restraint, not friendship or global surrender.
+
+## Test H: neutral/subjugated continuation
+
+With the cowed quest completed:
+
+1. Confirm the designated intermediary remains safely interactable under `overlord_reign:neutral`.
+2. In a disposable administrative test state, set the designated Illager polity to `overlord_reign:subjugated` and repeat.
+
+Expected:
+
+- the exact protected intermediary remains restrained in both recognized peaceful-access states;
+- unrelated Pillagers, Legioners, Skirmishers, Archers, patrols, raids, outposts, mansions and other Bastilles remain native.
+
+## Test I: later explicit non-peaceful disposition restores native hostility
+
+This tests future branch compatibility without requiring a production hostile-outcome quest to exist yet.
+
+1. Keep the historical authority fact present.
+2. Administratively set the Illager disposition to any explicit test state other than `questlog:unresolved`, `overlord_reign:neutral`, or `overlord_reign:subjugated`.
+3. Approach the exact protected intermediary.
+
+Expected:
+
+- the old monotonic authority fact does not permanently force restraint;
+- the bridge no longer suppresses target acquisition or outgoing attacks solely because authority once occurred;
+- the explicit later political state is authoritative;
+- protection still prevents ordinary accidental damage to the authored quest anchor until world integration deliberately releases/removes that protection.
+
+This test does not establish the test state's resource ID as a production political state. It validates precedence semantics only.
+
+## Test J: persistence and locality
+
+After completing both production phases:
+
+1. Save and quit, then reload.
+2. Verify opener completion, cowed-audience completion, authority fact, cowed fact and neutral disposition persist.
+3. Visit unrelated Illager content.
+
+Expected:
+
+- no duplicate rewards or repeated transitions occur;
+- unrelated Illagers retain native behavior;
+- the designated Bastille state does not become a global Illager settlement state.
 
 ## Pass condition
 
-The Illager opening is runtime-qualified only when all tests above pass in the intended full instance. Static CI and the standalone development server smoke are necessary but are not substitutes for this full-modpack validation.
+The Illager integration is runtime-qualified only when the hostile opening, sequence-break handling, local cowed audience, disposition precedence, persistence and locality tests all pass in the intended full instance. Repository CI remains a narrower engineering boundary.
