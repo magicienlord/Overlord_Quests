@@ -27,3 +27,4 @@ jobs:
         run: |
           python3 tools/validate_adventure_questlines.py
           python3 tools/validate_lost_castle_questline.py
+          python3 tools/validate_remaining_assigned_questlines.py

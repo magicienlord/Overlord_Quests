@@ -1,0 +1,16 @@
+{
+  "title": "Cut Down the Queen",
+  "description": "Use the Orchid Heart on the native altar and defeat the Queen of Orchid. The boss's own loot table remains authoritative, including its guaranteed Mantis materials and chance at the Blade of the Orchid.",
+  "description_completed": "The Queen of Orchid is dead. The shrine has yielded its climax and its native spoils; the compact Oddities expedition is complete.",
+  "icon": {"item": "oddities:orchid_queen_carapace"},
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 382,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/adventures/oddities/heart_for_the_altar","required_amount":1,"name":"Bring an Orchid Heart to the shrine"}],
+  "objectives": [{"type":"questlog:entity_kill_history","entity":"oddities:queen_of_orchid","required_amount":1,"name":"Defeat the Queen of Orchid"}],
+  "rewards": [{"type":"questlog:set_fact","fact":"overlord_reign:adventure/oddities_orchid_queen_defeated","auto_claim":true,"name":"Record the Orchid Queen's defeat"}]
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Fill Out the Band",
+  "description": "Quaver wants enough range for something resembling a court ensemble rather than two Minions making noise in a corner. Add wind and brass voices to the instruments already assembled.",
+  "description_completed": "Lute, drum, flute, and trumpet are enough for Quaver to field a recognizable Tower band without turning every Immersive Melodies instrument into a collection task.",
+  "icon": {"item": "immersive_melodies:trumpet"},
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 241,
+  "prerequisites": [{"type":"questlog:quest_complete","quest":"questlog:campaign/personnel/quaver/instruments_for_the_court","required_amount":1,"name":"Assemble Quaver's first instruments"}],
+  "objectives": [{"type":"questlog:item_obtain","item":"immersive_melodies:flute","required_amount":1,"name":"Secure a Flute"},{"type":"questlog:item_obtain","item":"immersive_melodies:trumpet","required_amount":1,"name":"Secure a Trumpet"}],
+  "rewards": []
+}

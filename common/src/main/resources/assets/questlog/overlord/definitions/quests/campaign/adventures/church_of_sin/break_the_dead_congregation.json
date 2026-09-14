@@ -1,0 +1,45 @@
+{
+  "title": "Break the Dead Congregation",
+  "description": "The cathedral template contains armed Zombies, Skeletons, and Zombie spawners. Break a representative body of those defenders after discovering the site. Questlog deliberately does not invent a Church of Sin boss or faction that the installed mod does not contain.",
+  "description_completed": "The dead congregation has been bloodied and the cathedral's finite expedition is concluded. Whatever remains inside is plunder, not a hidden second campaign.",
+  "icon": {
+    "item": "minecraft:bone"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 371,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/adventures/church_of_sin/find_the_cursed_cathedral",
+      "required_amount": 1,
+      "name": "Find the Cursed Cathedral"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:entity_kill",
+      "entity": "minecraft:zombie",
+      "required_amount": 4,
+      "name": "Destroy four Zombies after entering the cathedral"
+    },
+    {
+      "type": "questlog:entity_kill",
+      "entity": "minecraft:skeleton",
+      "required_amount": 2,
+      "name": "Destroy two Skeletons after entering the cathedral"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "questlog:set_fact",
+      "fact": "overlord_reign:adventure/church_of_sin_expedition_completed",
+      "auto_claim": true,
+      "name": "Record the cathedral expedition"
+    }
+  ]
+}

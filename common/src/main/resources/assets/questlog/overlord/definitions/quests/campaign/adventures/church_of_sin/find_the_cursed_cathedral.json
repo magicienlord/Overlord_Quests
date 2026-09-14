@@ -1,0 +1,32 @@
+{
+  "title": "The Cursed Cathedral",
+  "description": "A dark cathedral has taken root in the world. Find the installed Church of Sin structure and enter it. The building itself is the subject of this compact expedition, not the start of a fabricated religious faction.",
+  "description_completed": "The Cursed Cathedral has been found. Its halls are occupied by the dead, armed and waiting among the bells, books, skulls, and black banners.",
+  "icon": {
+    "item": "minecraft:wither_skeleton_skull"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 370,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:visit_structure_history",
+      "structure": "church_of_sin:cursedcathedral",
+      "required_amount": 1,
+      "name": "Enter the Cursed Cathedral"
+    }
+  ],
+  "rewards": []
+}

@@ -1,0 +1,32 @@
+{
+  "title": "An Empire Beneath the Cheese",
+  "description": "A Chunky Cheese Token can open a road into Ratlantis, the lost rat empire preserved by the installed Rats progression. Enter it. Questlog observes Ratlantis's own dimension-entry advancement rather than replacing the portal or token mechanics.",
+  "description_completed": "Ratlantis is no rumor. Its ruins, relics, and warlords are now part of the Overlord's field of conquest.",
+  "icon": {
+    "item": "rats:chunky_cheese_token"
+  },
+  "chapter": "main",
+  "include_in_main": true,
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false,
+  "sort_order": 360,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "ratlantis:ratlantis",
+      "required_amount": 1,
+      "name": "Enter Ratlantis"
+    }
+  ],
+  "rewards": []
+}
