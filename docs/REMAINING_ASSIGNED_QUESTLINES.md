@@ -1,80 +1,182 @@
-# Remaining Assigned Questlines
+# Assigned Questline Coverage Closure
 
-Status: PRODUCTION QUEST CONTENT / SOURCE-BACKED IMPLEMENTATION
+Status: PRODUCTION COVERAGE LEDGER
 
-This document records the production implementation for four dedicated assignments that were still absent from the bundled quest manifest: Rats, Church of Sin, Oddities, and Immersive Melodies / Quaver's Tower Band.
+This document reconciles the Overlord Quests implementation against the read-only quest authority in `magicienlord/Overlord_Lore_and_Canon`, especially `reference/32_REIGN_QUESTLINE_COVERAGE_LEDGER.md`, `reference/36_REIGN_MOD_QUESTLINE_ASSIGNMENTS_FINAL.md`, and `reference/37_REIGN_PERSONAL_MOD_SIDEQUEST_DECISIONS.md` at the pinned authority checkpoint used by this implementation pass.
 
-It does not create new world canon. The assignment authority remains the OVERLORD REIGN lore repository. This document records the technical mapping used by Overlord Quests.
+It does not create new world canon. It records what the Quest implementation has actually supplied, what is deliberately absorbed/systemic, and what remains blocked by unresolved authority or unfinished external backports.
 
-## Rats / Ratlantis
+## Dedicated content implemented
 
-Installed artifact: `Rats-1.20.1-8.1.3.jar`.
+### Core campaign and Tower
 
-The installed JAR includes the Ratlantis datapack and durable native advancements for entering Ratlantis, crafting the Gem of Ratlantis, obtaining Oratchalcum, defeating the Rat Baron, and defeating the Flying Dutchrat.
+Implemented:
 
-Production wrapper:
+- opening and Brown Minion return;
+- throne claim and Minion infrastructure;
+- Tower forge, storage, armory, treasury and gates-room restoration;
+- selected Tower magic-room restoration;
+- Tower restoration capstone;
+- expansion foundation;
+- Red, Green and Blue Minion progression unlock quests;
+- central End campaign and production ending presentation.
 
-1. `campaign/adventures/rats/empire_beneath_the_cheese`
-2. `campaign/adventures/rats/wealth_of_a_fallen_empire`
-3. `campaign/adventures/rats/break_the_ratlantean_powers`
+### Core magic
 
-Questlog observes native persistent advancements. It does not recreate the Chunky Cheese Token, Ratlantis portal, material progression, or boss fights.
+Implemented dedicated arcs:
 
-Final fact: `overlord_reign:adventure/ratlantis_campaign_completed`.
+- Iron's Spells 'n Spellbooks;
+- Farmer's Spell / Gluttony;
+- Theurgy;
+- Ars Elixirum;
+- Biomancy;
+- Eidolon: Repraised.
 
-## Church of Sin
+### Dedicated adventure content
 
-Installed artifact: `church_of_sin_Forge_v1.0.jar`, mod id `church_of_sin`, version `1.0.0`.
+Implemented:
 
-The JAR contains worldgen structure `church_of_sin:cursedcathedral`. Inspection of that exact template shows embedded vanilla Zombies, Skeletons, Zombie spawners, books, bells, skulls, banners, and containers. It exposes no Church-specific boss or faction entity.
+- Twilight Forest;
+- L_Ender's Cataclysm;
+- The Graveyard;
+- The Bumblezone;
+- Knight Quest;
+- The Lost Castle;
+- Rats / Ratlantis;
+- Church of Sin;
+- Oddities / Orchid Shrine.
 
-Production wrapper:
+### Small and conditional authored content
 
-1. `campaign/adventures/church_of_sin/find_the_cursed_cathedral`
-2. `campaign/adventures/church_of_sin/break_the_dead_congregation`
+Implemented:
 
-The first stage uses retrospective structure history. The second stage uses live post-discovery Zombie and Skeleton kills. Entity objectives are not location-bound by Questlog, so runtime validation must perform those kills inside the discovered cathedral. This is a known technical limitation, not permission to invent a Church-specific boss.
+- Immersive Melodies / Quaver's Tower Band as an optional Tower personnel arc;
+- Pet Cemetery as a conditional sidequest that becomes visible only after the player's own supported tame dies and then follows the mod's real resurrection advancement.
 
-Final fact: `overlord_reign:adventure/church_of_sin_expedition_completed`.
+## Civilization coverage
 
-## Oddities
+Generalized civilization roster: 10.
 
-Installed artifact: `oddities-1.0.1-forge-1.20.1.jar`, mod id `oddities`, version `1.0.1`.
+Implemented main-entry coverage: 9/10.
 
-Exact installed resources establish structure `oddities:orchid_shrine`, block `oddities:orchid_altar`, item `oddities:orchid_heart`, entity `oddities:queen_of_orchid`, and native Queen loot. Bytecode inspection of `OrchidAltarOnBlockRightclickedProcedure` confirms an unsummoned Orchid Altar consumes an Orchid Heart for non-creative players and begins the Queen summon state. Questlog observes the Heart and Queen outcome but does not duplicate the altar ritual.
+Implemented:
 
-Production wrapper:
+- Dwarves;
+- Gnumus;
+- Goblins;
+- Illagers through the hostile Bastille opening;
+- Kobolds;
+- Piglins;
+- Ribbits;
+- Sea Dwellers;
+- Umvuthana.
 
-1. `campaign/adventures/oddities/find_the_orchid_shrine`
-2. `campaign/adventures/oddities/heart_for_the_altar`
-3. `campaign/adventures/oddities/cut_down_the_queen`
+Authority-blocked:
 
-The final quest uses persistent Questlog kill history so an already-defeated Queen can satisfy the capstone when the branch is discovered late.
+- Villagers: the principal settlement/provider for the main civilization entry is still undefined.
+- Illagers after Bastille authority: the surviving fearful/cowed provider is still undefined.
 
-Final fact: `overlord_reign:adventure/oddities_orchid_queen_defeated`.
+These gaps must not be filled by arbitrarily selecting an NPC role.
 
-## Immersive Melodies / Quaver's Tower Band
+Demons remain explicitly outside the generalized civilization system.
 
-Installed artifact: `immersive_melodies-0.7.0+1.20.1-forge.jar`, mod id `immersive_melodies`, version `0.7.0+1.20.1`.
+## Central End campaign
 
-The installed instrument registry includes Lute, Tiny Drum, Flute, Trumpet and other instruments. Its packaged advancement only unlocks recipes from Copper Ingot acquisition, so that advancement is not evidence of forming or performing with a band.
+Implemented production sequence:
 
-The source-game reference for Quaver establishes his minstrel/court role and the original Overlord II Netherworld band uses string/percussion court music. Immersive Melodies has no harp item, so the production implementation uses Lute plus Tiny Drum as the direct string/percussion nod, then adds Flute and Trumpet to satisfy the approved full-band treatment.
+1. `campaign/end/the_wound_beyond_the_world`
+2. `campaign/end/break_the_dragon`
 
-Production wrapper:
+The first quest records entry into the End as the dimensional Wasteland and auto-claims `overlord_reign:campaign/ending_armed`. The second resolves on persistent Ender Dragon defeat.
 
-1. `campaign/personnel/quaver/instruments_for_the_court`
-2. `campaign/personnel/quaver/fill_out_the_band`
-3. `campaign/personnel/quaver/first_tower_performance`
+YUNG's Better End Island, The Outer End, Better End Cities, Enderman Overhaul and related End extensions remain absorbed into this context rather than becoming separate quest branches.
 
-The first two stages observe possession of the four selected instruments. The finale uses live `questlog:item_use` objectives for Lute and Tiny Drum, so merely owning the instruments does not complete the performance stage.
+The ending does not require all civilizations, all optional content, or full Tower completion. The same world remains playable afterward.
 
-The arc branches from `campaign/tower/claim_the_throne` and deliberately does not require `campaign/tower/restoration_complete`. Quaver's band remains optional court-life content, separate from formal Tower Restoration.
+## Minion recovery fidelity boundary
 
-Final fact: `overlord_reign:tower/quaver_band_established`.
+Red, Green and Blue recovery is implemented through the actual Minion progression owner bridge, but the current proof objectives use practical proxies:
 
-## Validation
+- Red: Blaze Rod;
+- Green: Spider Eye;
+- Blue: Prismarine Crystal.
 
-`tools/validate_remaining_assigned_questlines.py` statically guards all eleven production definitions, manifest inclusion, prerequisite chains, exact native identifiers, capstone facts, and Quaver's separation from formal Tower Restoration.
+This is an explicit fidelity limitation. The source-game recovery identities are known, but the current pack does not provide direct replicas of those exact Hive locations. Do not manufacture fake Hive blocks, fake bosses, or arbitrary cross-mod substitutions solely to make the quest text look closer to source geography.
 
-The normal adventure contract workflow also runs this validator. A separate Quaver-only workflow is unnecessary because this validator covers the complete four-assignment block in one contract.
+## Popup-only and systemic assignments
+
+The final authority explicitly says that absence from the quest log can be correct.
+
+A dedicated system-reaction channel now covers the source-backed cases that benefit from a one-time or milestone acknowledgement without becoming quests:
+
+- Enchanting System Overhaul introductory acknowledgement;
+- LevelUP introductory acknowledgement after real stat investment;
+- RPG Skill Trees introductory acknowledgement after a real skill unlock;
+- Spice of Life: Carrot Edition milestones at 10, 25, 50, 75 and 100 distinct foods.
+
+See `docs/SYSTEM_REACTIONS.md`.
+
+Other reviewed content assigned popup-only, absorbed, ambient, provider-support, quest-location, Tower-substrate, systemic, or no quest-facing treatment is deliberately not expanded into fake questlines merely to increase coverage count. Examples include Darker Depths, Born in Chaos, Realm RPG: Imps & Demons, creature/taming systems, Artifacts/Relics, general equipment systems, Pale Garden Backport, Nether Depths Upgrade, Small Ships, Creeper Overhaul, storage/infrastructure mods, navigation mods and combat frameworks.
+
+Future sparse acknowledgements may be added only when there is a genuinely eventful source-backed trigger. The authority does not require one popup for every reviewed mod.
+
+## Absorbed assignments
+
+The following categories are accounted for by their owning campaign context rather than by independent questlines:
+
+- Hot Iron in Tower forge restoration;
+- storage/display systems in Tower storage/armory contexts;
+- Minion implementations in Minion/Tower progression;
+- Farmer's Delight family in Gluttony/food contexts;
+- Cataclysm: Spellbooks between Cataclysm and spell-study contexts;
+- Enderman Overhaul and End extensions in End/Wasteland content;
+- Pillager Caravans, Savage & Ravage and The Conjurer in Illager material;
+- VillagersPlus and VillagerTradingPlus in the future Villager civilization framework;
+- agricultural/worldgen/support mods in the contexts assigned by the lore ledger.
+
+Absorption is a deliberate completion state, not an omission.
+
+## Personal backport sidequests
+
+### Overlord Depths / Fathoms
+
+Assignment: dedicated Historian-led sidequest when the backport is implemented and stable enough to expose real mechanics.
+
+Current implementation state: DEFERRED.
+
+Latest checked live branch: `validation/source-closure-direct-2026-09-13`.
+Latest checked head: `11740ee915e34e1fac5c8c7bd6c90d7341cc9e53`.
+Exact-head validation still has four failing workflows.
+
+Do not bind production objectives to this moving source boundary.
+
+### Overlord NightWalker / Nycto
+
+Assignment: Lestat-led vampire-transition sidequest when the player becomes a vampire through the implemented NightWalker system.
+
+Current implementation state: DEFERRED.
+
+Latest checked live branch: `fix/nightwalker-runtime-closure-2026-09-14`.
+Latest checked head: `4da22b27755351d9038f0c63ee5b1137d2ece5f2`.
+There are no exact-head GitHub Actions runs proving this runtime-closure state.
+
+Do not author the vampire transition from intermediate mechanics or generic vampire assumptions. Lestat characterization must use the dedicated lore writing authority when implementation becomes stable.
+
+## Known implementation limitations
+
+- Church of Sin kill objectives are not structure-location-bound after cathedral discovery.
+- Red/Green/Blue recovery uses practical item proxies rather than direct source-game Hive recreations.
+- Full-instance manual validation remains necessary for presentation and optional-mod reflection paths.
+
+These are explicit technical limitations, not authority gaps that may be filled with invented lore.
+
+## Content-complete boundary
+
+Within the current read-only lore authority and current external backport state, the remaining authored Quest blockers are:
+
+1. Villager principal settlement/provider selection;
+2. Illager post-Bastille fearful/cowed provider selection;
+3. a stable, validated Overlord Depths implementation boundary;
+4. a stable, validated Overlord NightWalker implementation boundary.
+
+All other dedicated questline assignments in the current final assignment ledger are implemented or deliberately accounted for through their approved absorbed/systemic treatment.

@@ -2,9 +2,15 @@
 
 Status: TECHNICAL / IMPLEMENTATION STATUS
 
-This file records which civilization sidequest pools currently have source-backed production activities and which remain intentionally unfilled. It is not a source of new setting canon.
+This file records which civilization main-entry and sidequest pools currently have source-backed production activities and which remain intentionally unfilled. It is not a source of new setting canon.
 
-See `CIVILIZATION_NATIVE_PROGRESSION_AUDIT.md` for the exact Dwarven Forge, Ribbits, and Kobolds artifact identities and the durable-signal analysis behind the current status below.
+Generalized civilization main-entry coverage is currently 9/10. Villagers are the only civilization without a production main-entry quest because the principal settlement/provider remains unresolved in lore authority.
+
+Illagers have their hostile Bastille opening but not the later fearful/cowed provider phase. That later provider identity remains unresolved.
+
+Demons are explicitly outside the generalized civilization framework.
+
+See `CIVILIZATION_NATIVE_PROGRESSION_AUDIT.md` for the exact Dwarven Forge, Ribbits, and Kobolds artifact identities and durable-signal analysis.
 
 ## Authoring threshold
 
@@ -28,18 +34,15 @@ Current source-backed post-contact pool:
 
 - `campaign/civilizations/goblins/merchant_business`
   - provider: designated principal-camp `goblins_tyranny:merchant`;
-  - native signal: `goblins_tyranny:merchant_success`;
-  - activity owner: Goblins Tyranny native merchant purchase system.
+  - native signal: `goblins_tyranny:merchant_success`.
 - `campaign/civilizations/goblins/engineer_workbench`
   - provider: designated principal-camp `goblins_tyranny:engineer_goblin` or `goblins_tyranny:engineeress_goblin`;
-  - native signal: `goblins_tyranny:engineer_success`;
-  - activity owner: Goblins Tyranny engineer workbench/UI path.
+  - native signal: `goblins_tyranny:engineer_success`.
 - `campaign/civilizations/goblins/tavern_business`
   - provider: designated principal-camp `goblins_tyranny:bartender_goblin`;
-  - native signal: `goblins_tyranny:liquor_success`;
-  - activity owner: Goblins Tyranny bartender/liquor purchase procedures.
+  - native signal: `goblins_tyranny:liquor_success`.
 
-Additional Goblin roles remain eligible for later authored content, but no further production sidequest should be added merely to fill a role slot without an equally defensible objective or consequence.
+Additional Goblin roles remain eligible for later authored content, but no further production sidequest should be added merely to fill a role slot without a defensible objective or consequence.
 
 ## Gnumus
 
@@ -52,7 +55,7 @@ Current source-backed post-contact pool:
   - native signal: `gnumus:business_approach`;
   - activity owner: native Gnumu Merchant interaction using Gnumus Doubloons.
 
-The exact Gnumus 1.0 JAR exposes other durable milestones for food, equipment, creatures, containers and combat. Those may support later sidequests, but assigning them to settlement providers or political consequences requires an authored fit rather than automatic promotion from advancement names.
+Other Gnumus milestones may support later sidequests, but assigning them to settlement providers or political consequences requires authored justification rather than automatic promotion from advancement names.
 
 The hidden Halfling ancestry remains outside ordinary Gnumu cultural sidequests unless a later approved reveal explicitly uses it.
 
@@ -69,10 +72,10 @@ Current source-backed post-contact pool:
 
 Rejected signals:
 
-- `seadwellers:adv_barter_nautilus` exists with an impossible criterion but the exact 2.9.9 binary audit found no award reference. It is not a production milestone.
+- `seadwellers:adv_barter_nautilus` is not a production milestone because the exact installed binary audit found no award reference;
 - `seadwellers:adv_barter_fish` belongs to the wild Mermorph barter path and is not used as the principal Sea Village commerce milestone.
 
-No Ocean Dragon content belongs to OVERLORD REIGN. The earlier Ocean Dragon assumption was removed from lore authority and must not return through sidequest authoring.
+No Ocean Dragon content belongs to OVERLORD REIGN.
 
 ## Umvuthana
 
@@ -94,11 +97,9 @@ First contact: IMPLEMENTED.
 
 Post-contact pool: AUTHORING UNRESOLVED / TECHNICAL SIGNAL AVAILABLE.
 
-The exact Dwarven Forge 1.0.0 audit found 24 recipe-unlock advancements. Those recipe entries are not proof of crafting, trade, or civilization service and must not be used as accomplishment milestones.
+The exact Dwarven Forge audit found recipe-unlock advancements, but recipe entries are not proof of crafting, trade, or civilization service.
 
-A separate exact-source check resolves the useful technical question: Dwarven rune recipes implement vanilla `SmithingRecipe`, vanilla 1.20.1 `SmithingMenu.onTake` calls `ItemStack.onCraftedBy`, and `ItemStack.onCraftedBy` increments the persistent exact-item `Stats.ITEM_CRAFTED` statistic. Questlog's existing `questlog:item_craft_stat` objective can therefore track an authored exact Dwarven craft without replacing Dwarven Forge progression.
-
-No production Dwarven sidequest is added solely because that signal exists. The exact craft, provider, political meaning, and reward still require authored campaign justification.
+A source check established that Dwarven rune smithing can be tracked through persistent exact-item `Stats.ITEM_CRAFTED`, and Questlog already has `questlog:item_craft_stat`. No production Dwarven sidequest is added solely because that signal exists. The exact craft, provider, political meaning, and reward still require authored justification.
 
 ## Ribbits
 
@@ -106,11 +107,11 @@ First contact: IMPLEMENTED.
 
 Post-contact pool: TECHNICALLY UNRESOLVED.
 
-The exact installed Ribbits 3.0.5 artifact is pinned at SHA-256 `e04aa665df7e96844fe8833f29cc343feefac8ad7b949399d7b4a60475123e2b`. Its six packaged advancements are recipe unlocks for mossy-oak building recipes, not records of Ribbit trade, gardening, fishing, music, or Sorcerer activity.
+The installed Ribbits advancements are recipe unlocks, not records of Ribbit trade, gardening, fishing, music, or Sorcerer activity.
 
-Ribbits uses the vanilla `Merchant` menu, so successful trades increment `minecraft:traded_with_villager`. That statistic is global and cannot distinguish a Ribbit trade from another merchant trade after quest trigger. It is therefore too broad for a Ribbit-specific production accomplishment.
+Ribbits uses the vanilla `Merchant` menu, so successful trades increment `minecraft:traded_with_villager`. That statistic cannot distinguish a Ribbit trade from another merchant trade and is too broad for a Ribbit-specific production accomplishment.
 
-If an authored Ribbit sidequest later requires proof of native trade completion, use a narrow filtered bridge. Do not substitute current inventory, an open merchant screen, current Ribbit home state, or the global merchant statistic.
+If a later authored Ribbit sidequest requires proof of native trade completion, use a narrow filtered bridge rather than inventory possession or the global merchant statistic.
 
 ## Kobolds
 
@@ -118,15 +119,17 @@ First contact: IMPLEMENTED.
 
 Post-contact pool: TECHNICALLY UNRESOLVED.
 
-The exact installed Kobolds 2.12.0 JAR exposes no advancement definitions. Captain and specialist trade behavior is implemented through native Kobold AI goals, and the audited path does not award a durable player statistic or advancement when it emits native trade output.
+The installed Kobolds artifact exposes no advancement definitions. Captain and specialist trade behavior is implemented through native Kobold AI goals, and the audited path does not award a durable player statistic or advancement when it emits native trade output.
 
-If an authored Kobold sidequest later requires proof of a Captain or specialist transaction, use the smallest source-specific completion bridge that observes the native action without replacing Kobold AI or reward logic. Item possession alone is not a valid historical signal.
+If an authored Kobold sidequest later requires proof of a Captain or specialist transaction, use the smallest source-specific completion bridge that observes the native action without replacing Kobold AI or reward logic.
 
 ## Villagers
 
-Civilization main entry: UNRESOLVED.
+Civilization main entry: AUTHORITY BLOCKED / UNRESOLVED.
 
-The broader sidequest-provider architecture already supports vanilla and modded Villager professions. However, the principal civilization anchor/provider for the human main arc is not yet canonically selected. Profession sidequests can be authored later when tied to an actual local settlement context and campaign state.
+The provider architecture already supports vanilla and modded Villager professions, but the principal settlement/provider for the human main arc is not selected in lore authority. Do not invent one merely to reach 10/10 coverage.
+
+Profession sidequests can be authored later when tied to an actual selected settlement context and campaign state.
 
 ## Illagers
 
@@ -137,23 +140,36 @@ Current source-backed opening:
 - `campaign/civilizations/illagers/break_the_bastille`
   - target: one exact `takesapillage:legioner` selected as the designated Bastille's local command figure;
   - authored local identity: `overlord_anchor:illager_bastille_commander`;
-  - objective: persistent `questlog:entity_kill_history` for a player-attributed kill of that exact tagged Legioner;
+  - objective: persistent player-attributed kill history for that exact tagged Legioner;
   - result: `overlord_reign:civilizations/illagers/authority_established`;
   - political disposition: intentionally unresolved.
 
-The exact Take a Pillage 1.0.3 audit found no native Bastille ruler or commander role. The marked Legioner is therefore an authored local REIGN command figure layered onto a source-backed elite Bastille soldier, not a universal Illager leader class.
+The marked Legioner is an authored local REIGN command figure layered onto a source-backed elite Bastille soldier, not a universal Illager leader class.
 
-The generic native `takesapillage:bastille` advancement is not used as proof of the designated polity because it can be awarded in any Bastille.
+Post-authority fearful/cowed provider phase: AUTHORITY BLOCKED / UNRESOLVED.
 
-Post-authority fearful/cowed provider phase: AUTHORING / TECHNICAL BOUNDARY UNRESOLVED.
-
-Lore permits peaceful interaction after the designated Bastille is overpowered, but no surviving Bastille NPC has yet been explicitly selected as the first fearful provider. Do not arbitrarily promote Legioner, Archer, Skirmisher, or another Illager subtype into that role. The existing `authority_established` fact can gate the later phase once its provider identity and political transition are explicitly authored.
+Lore permits peaceful interaction after the designated Bastille is overpowered, but no surviving Bastille NPC has been selected as the first fearful provider. Do not arbitrarily promote Legioner, Archer, Skirmisher, or another Illager subtype into that role.
 
 ## Piglins
 
-Civilization anchor: PLANNED.
+First contact: IMPLEMENTED.
 
-The designated local Chieftain is an explicitly marked `minecraft:piglin_brute`, but the initial Brute-hostility to political-audience transition is not yet mechanically authored. Post-contact sidequests should not be created before that boundary is resolved.
+Production entry:
+
+- `campaign/civilizations/piglins/first_contact`
+  - provider: exact protected `minecraft:piglin_brute` tagged `overlord_anchor:piglin_main_chieftain`;
+  - locality: the designated authored Nether Village only;
+  - access bridge: at least one worn gold armor piece grants temporary restraint for the initial audience;
+  - completion fact: `overlord_reign:civilizations/piglins/contact_established`;
+  - political disposition: intentionally unresolved.
+
+The gold bridge suppresses player targeting only for the designated protected Chieftain. Ordinary Piglins and Piglin Brutes remain native elsewhere. Gold establishes an audience opportunity, not obedience, neutrality, alliance, or subjugation.
+
+A later explicitly authored `overlord_reign:neutral` or `overlord_reign:subjugated` state may sustain peaceful access to that same designated Chieftain without gold, but the first-contact quest itself does not write either state.
+
+Post-contact sidequest pool: NOT YET AUTHORED.
+
+No generic Piglin sidequests should be created merely because first contact now exists. Later content still requires a source-backed activity and an authored political/service fit.
 
 ## Validation rule
 

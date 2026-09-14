@@ -1,10 +1,12 @@
 # Adventure Questline Wrapper Contract
 
-Status: PRODUCTION QUEST CONTENT / NATIVE-PROGRESSION WRAPPERS
+Status: PRODUCTION QUEST CONTENT / NATIVE-PROGRESSION AND FINITE EXPEDITION WRAPPERS
 
-The five mandatory adventure integrations implemented here are Twilight Forest, L_Ender's Cataclysm, The Graveyard, The Bumblezone, and Knight Quest.
+The dedicated non-civilization adventure assignments currently implemented are Twilight Forest, L_Ender's Cataclysm, The Graveyard, The Bumblezone, Knight Quest, The Lost Castle, Rats, Church of Sin, and Oddities.
 
-They are full REIGN questlines in the sense that each has an authored beginning, progression, and capstone. They are not replacement progression systems. Questlog observes durable native milestones where available and supplies REIGN framing plus sparse completion facts.
+These arcs are authored REIGN content with a beginning, progression and capstone appropriate to each source. Questlog does not replace a mod's native progression when durable native state already exists. Compact location mods use finite authored expeditions instead of being inflated into large campaign pillars.
+
+Quaver's Tower Band is tracked separately as a Tower personnel arc. Pet Cemetery is tracked separately as a conditional sidequest. The End remains central-campaign material rather than an adventure-wrapper branch.
 
 ## Twilight Forest
 
@@ -18,7 +20,7 @@ Final marker: `overlord_reign:adventure/twilight_forest_progression_completed`.
 
 The wrapper first observes representative structure discovery, then several defining boss milestones, then closes on Cataclysm's own `cataclysm:kill_all_bosses` advancement.
 
-Using the native all-bosses capstone deliberately avoids copying the entire boss roster into a second Questlog checklist while still giving the assigned full questline a real end state.
+Using the native all-bosses capstone avoids copying the entire boss roster into a second Questlog checklist while still giving the assigned questline a real end state.
 
 Final marker: `overlord_reign:adventure/cataclysm_capstone_completed`.
 
@@ -32,36 +34,79 @@ Final marker: `overlord_reign:adventure/graveyard_expedition_completed`.
 
 ## The Bumblezone
 
-The installed pack uses Bumblezone 7.13.4 for Minecraft 1.20.1. The upstream `1.20.x-Arch` source tree confirms advancement resources directly under the `the_bumblezone` namespace, including `root.json`, Beehemoth milestones, and essence milestones. The production wrapper therefore uses:
+The installed pack uses Bumblezone 7.13.4 for Minecraft 1.20.1. Production uses the native `the_bumblezone` advancement namespace and samples major progression rather than requiring every advancement.
 
-- `the_bumblezone:root`
-- `the_bumblezone:beehemoth/tamed_beehemoth`
-- `the_bumblezone:beehemoth/queen_beehemoth`
-- `the_bumblezone:essence/bee_essence_infusion`
-
-The older duplicated `the_bumblezone:the_bumblezone/...` form seen in some historical third-party quest packs is not used.
-
-The wrapper intentionally samples major native progression rather than requiring all 135 non-recipe advancements.
+Observed milestones include the dimension root, Beehemoth progression, and essence progression. Questlog does not replace Bumblezone access, Beehemoth mechanics, or essence systems.
 
 Final marker: `overlord_reign:adventure/bumblezone_essence_reached`.
 
 ## Knight Quest
 
-Knight Quest exposes a large recipe-advancement surface but only one useful non-recipe entry advancement: `knightquest:knightquest`, granted when Small Essence is obtained. REIGN therefore does not pretend the recipe book is a native campaign.
+Knight Quest exposes a large recipe-advancement surface but only one useful non-recipe entry advancement, `knightquest:knightquest`, granted when Small Essence is obtained. REIGN therefore supplies the authored progression instead of pretending the recipe book is a native campaign.
 
-The authored progression follows mechanics verified in Knight Quest and Knight-Lib:
+The arc proceeds through Small Essence, the Great Chalice and Great Essence, Radiant Essence, the native Chalice interaction, Netherman summoning, and a persistent Netherman kill-history capstone.
 
-1. acquire Small Essence and trigger the native Knight Quest root;
-2. secure `knightlib:great_chalice` and `knightlib:great_essence` for the Chalice progression;
-3. obtain `knightquest:radiant_essence`, whose native recipe uses Small Essence and a Nether Star;
-4. fill the Great Chalice through Knight-Lib's native essence interaction, use Radiant Essence on the full vessel to summon `knightquest:netherman`, and defeat it.
-
-Questlog does not simulate Chalice charge state. The final `questlog:entity_kill_history` objective records the Netherman kill retrospectively, so the capstone itself proves the player reached the native summoning outcome without requiring a fragile duplicate state machine.
+Questlog does not simulate Chalice charge state.
 
 Final marker: `overlord_reign:adventure/knight_quest_completed`.
 
-## Sequence breaks
+## The Lost Castle
 
-Twilight Forest, Cataclysm, Graveyard, and Bumblezone primarily use `questlog:advancement`, which polls the player's real advancement completion state retrospectively.
+Assignment scale: finite expedition.
 
-Knight Quest uses its persistent native root advancement for entry and the persistent Questlog kill-history bridge for the Netherman capstone. The intermediate Great Chalice, Great Essence, and Radiant Essence objectives are inventory observations; their completion is persisted by Questlog once observed.
+Production wrapper:
+
+1. `campaign/adventures/lost_castle/a_castle_off_the_map`
+2. `campaign/adventures/lost_castle/break_the_lost_court`
+3. `campaign/adventures/lost_castle/nothing_left_to_rule`
+
+The arc treats the authored castle as one coherent expedition: discover it, overcome its court, and conclude the site. It does not extrapolate a wider civilization or political system from the location.
+
+## Rats / Ratlantis
+
+Production wrapper:
+
+1. `campaign/adventures/rats/empire_beneath_the_cheese`
+2. `campaign/adventures/rats/wealth_of_a_fallen_empire`
+3. `campaign/adventures/rats/break_the_ratlantean_powers`
+
+Questlog observes the native Ratlantis entry and durable material/boss milestones. It does not recreate the portal, native crafting progression, Rat Baron encounter, or Flying Dutchrat encounter.
+
+Final marker: `overlord_reign:adventure/ratlantis_campaign_completed`.
+
+## Church of Sin
+
+Assignment scale: compact finite sinister-location arc.
+
+Production wrapper:
+
+1. `campaign/adventures/church_of_sin/find_the_cursed_cathedral`
+2. `campaign/adventures/church_of_sin/break_the_dead_congregation`
+
+The installed content exposes the Cursed Cathedral and ordinary undead population, not a Church-specific boss or faction entity. The first stage therefore uses retrospective structure discovery and the second uses live Zombie/Skeleton kills after discovery.
+
+Technical limitation: Questlog's entity-kill objective is not structure-location-bound. The kills can technically occur outside the cathedral once the second stage is unlocked. Runtime validation should perform them inside the cathedral; this limitation is not permission to invent a boss.
+
+Final marker: `overlord_reign:adventure/church_of_sin_expedition_completed`.
+
+## Oddities / Orchid Shrine
+
+Production wrapper:
+
+1. `campaign/adventures/oddities/find_the_orchid_shrine`
+2. `campaign/adventures/oddities/heart_for_the_altar`
+3. `campaign/adventures/oddities/cut_down_the_queen`
+
+The installed Orchid Altar consumes an Orchid Heart and drives the native Queen of Orchid summon state. Questlog observes the shrine, Heart acquisition and persistent Queen kill outcome instead of duplicating the ritual.
+
+Final marker: `overlord_reign:adventure/oddities_orchid_queen_defeated`.
+
+## Sequence-break rule
+
+Where a source exposes durable advancements, persistent kill history, or retrospective location history, the wrapper uses those signals so content completed before quest discovery can still be recognized where appropriate.
+
+Inventory observations are used only when they are the narrowest defensible signal and remain persisted after Questlog observes them.
+
+## Validation
+
+The adventure contract and focused validators guard manifest inclusion, prerequisite chains, exact native identifiers, capstone facts and sequence-break behavior. New adventure content should follow the same rule: observe the real source mechanic when possible and avoid building a duplicate progression system inside Questlog.

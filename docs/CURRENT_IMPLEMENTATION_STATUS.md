@@ -2,9 +2,7 @@
 
 Status: LIVE ENGINEERING LEDGER
 
-This file records the current repository implementation boundary. It is not a source of new OVERLORD REIGN world or story canon.
-
-For engineering status, this ledger supersedes status statements in older milestone and handoff documents such as `FOUNDATION_B_HANDOFF.md` and early sections of `OVERLORD_ADAPTATION.md`. Those files remain useful historical records of the decisions and tests made at their checkpoints.
+This file records the current repository implementation boundary. It is not a source of new OVERLORD REIGN world or story canon. Lore authority remains `magicienlord/Overlord_Lore_and_Canon`, read-only from the Quest implementation.
 
 ## Runtime target
 
@@ -23,7 +21,7 @@ Implemented and repository-validated:
 
 - inherited Questlog quest/chapter loading and config override workflow;
 - bundled production definitions under `assets/questlog/overlord/definitions/`;
-- strict definition validation, wire-size checks, dependency-cycle checks, cache authority, event-bus lifecycle guards and server packet hardening;
+- strict definition validation, wire-size checks, dependency-cycle checks, cache authority, event-bus lifecycle guards and packet hardening;
 - persistent narrative facts and civilization dispositions;
 - NPC provider rules, exact provider UUID binding, same-provider turn-in, distance revalidation, provider dialogue and protected quest anchors;
 - native/provider compatibility bridges used only where exact mod mechanics require them;
@@ -33,144 +31,151 @@ Implemented and repository-validated:
 - failure-consequence support;
 - Gnarl/incorporeal speaker presentation and provider presentation split;
 - OVERLORD death-screen compatibility boundary;
-- server-authoritative central-ending activation transport, one-time presentation persistence and prior-Dragon sequence-break delivery;
-- dedicated static contracts for Illager campaign behavior, ending activation and optional-objective semantics;
-- Forge development dedicated-server bootstrap smoke;
-- Forge development client bootstrap smoke under a virtual display;
-- two-boot real-server narrative-state persistence smoke driven through authenticated localhost RCON, covering fact and disposition write, save, restart, read, cleanup and second clean shutdown.
+- production central-ending activation, one-time presentation persistence and prior-Dragon sequence-break delivery;
+- a separate one-time system-reaction channel for sparse popup-only assignments, without manufacturing hidden quests or narrative facts;
+- Forge development dedicated-server and client bootstrap smoke boundaries;
+- real two-boot narrative-state persistence coverage through authenticated localhost RCON.
 
-The current standalone Quest checkpoint has therefore exercised both client and server bootstrap and has proved narrative fact/disposition SavedData round-tripping across a real server restart. These checks remain narrower than the complete OVERLORD REIGN instance.
+Manual in-game qualification is still required for player-facing presentation details and exact full-modpack interaction paths. Standalone static validation and Forge bootstrap checks do not replace those checks.
 
-Manual in-game qualification is still required for player-facing presentation details and several exact full-modpack interaction paths. Standalone static validation, Forge development client/server bootstrap and the narrative-state persistence smoke do not replace those checks.
+## Bundled production campaign coverage
 
-## Bundled production campaign
+### Opening and Dark Tower
 
-The bundled production manifest is populated. Current production definitions include:
+The opening, Brown Minion restoration, throne claim, Minion infrastructure, forge, storage, armory, treasury, gates room, magic-room restoration and Tower restoration capstone are implemented.
 
-### Opening and Tower
+### Core magic arcs
 
-- `campaign/opening/a_new_master`
-- `campaign/opening/restore_browns`
-- `campaign/opening/browns_return`
-- `campaign/opening/make_an_impression`
-- `campaign/opening/direct_action_reaction`
-- `campaign/tower/prepare_the_forge`
-- `campaign/tower/forge_prepared_reaction`
-- `campaign/expansion/the_reign_takes_shape`
+Dedicated production progression exists for:
 
-### Civilization campaign and sidequest slices
+- Iron's Spells 'n Spellbooks;
+- Farmer's Spell / Gluttony;
+- Theurgy;
+- Ars Elixirum;
+- Biomancy;
+- Eidolon: Repraised.
 
-Dwarves:
-- `campaign/civilizations/dwarves/first_contact`
+### Adventure and personnel arcs
 
-Gnumus:
-- `campaign/civilizations/gnumus/first_contact`
-- `campaign/civilizations/gnumus/merchant_business`
+Dedicated production content exists for:
 
-Goblins:
-- `campaign/civilizations/goblins/first_contact`
-- `campaign/civilizations/goblins/engineer_workbench`
-- `campaign/civilizations/goblins/merchant_business`
-- `campaign/civilizations/goblins/tavern_business`
+- Twilight Forest;
+- L_Ender's Cataclysm;
+- The Graveyard;
+- The Bumblezone;
+- Knight Quest;
+- The Lost Castle;
+- Rats / Ratlantis;
+- Church of Sin;
+- Oddities / Orchid Shrine;
+- Quaver's Tower Band as an optional Tower personnel arc;
+- Pet Cemetery as a conditional pet-resurrection sidequest.
 
-Illagers:
-- `campaign/civilizations/illagers/break_the_bastille`
+### Central End campaign
 
-Kobolds:
-- `campaign/civilizations/kobolds/first_contact`
+Production central-campaign content is implemented:
 
-Ribbits:
-- `campaign/civilizations/ribbits/first_contact`
+1. `campaign/end/the_wound_beyond_the_world` requires only the established first foundation and retrospective entry into `minecraft:the_end`.
+2. That quest auto-claims `overlord_reign:campaign/ending_armed` and records the dimensional Wasteland entry.
+3. `campaign/end/break_the_dragon` resolves on the persistent Ender Dragon defeat boundary.
+4. The custom ending presentation is production text, not a development scaffold, and returns the player to the still-playable world.
 
-Sea Dwellers:
-- `campaign/civilizations/sea_dwellers/first_contact`
-- `campaign/civilizations/sea_dwellers/aquamarine_barter`
+The ending does not require all civilizations, all optional content, or formal completion of every Tower branch.
 
-Umvuthana:
-- `campaign/civilizations/umvuthana/first_contact`
-- `campaign/civilizations/umvuthana/suns_blessing`
+## Civilization coverage
 
-Development fixtures under `examples/questlog/` remain excluded from the bundled production manifest.
+Generalized civilization roster: 10.
 
-## Source-backed mod integration already present
+Main-entry coverage implemented: 9/10.
 
-The repository contains selective integration work for exact mechanics already justified by approved quest design, including:
+Implemented civilization entries:
 
-- Overlord Minions progression ownership and unlock observation;
-- Hot Iron Tower forge progression;
-- Goblins Tyranny provider/business roles;
-- Gnumus provider/business roles;
-- Ribbits native profession role matching;
-- Kobolds Captain provider identity;
-- Dwarven Forge Dwarf/Forger provider identity through the inherited vanilla Villager profession channel;
-- Dwarven Forge price-path source support through inherited Villager reputation, MerchantOffer special-price adjustment and separate Hero of the Village discounts, with no authored political price-change trigger bundled yet;
-- Realm RPG Sea Dwellers Mermorph provider/barter surfaces;
-- Mowzie's Mobs Umvuthi audience and blessing behavior;
-- vanilla/structure-backed Illager Bastille campaign observation.
+- Dwarves;
+- Gnumus;
+- Goblins;
+- Illagers through the hostile Bastille opening;
+- Kobolds;
+- Piglins;
+- Ribbits;
+- Sea Dwellers;
+- Umvuthana.
 
-These integrations are intentionally narrow. Native mod progression remains authoritative where possible rather than being duplicated inside Questlog.
+Still unresolved at the authority level:
 
-## Central ending boundary
+- Villagers: the principal settlement/provider for the main civilization entry has not been selected.
+- Illagers: the surviving fearful/cowed post-Bastille provider has not been selected.
 
-The final mechanical resolution remains the Ender Dragon defeat, but the hidden production quest that makes the central campaign ending-ready is not authored yet.
+Demons remain explicitly outside the generalized civilization disposition system.
 
-Technical support is implemented:
+### Piglin implementation boundary
 
-- the server-authoritative implementation fact is `overlord_reign:campaign/ending_armed`;
-- no bundled production quest sets that fact;
-- Minecraft's persistent prior-Dragon defeat state is recognized;
-- one-time presentation acknowledgement is stored separately from narrative state;
-- an already-defeated Dragon can satisfy the presentation boundary without being respawned or replayed;
-- the current visible ending is still a neutral development scaffold.
+The designated local Chieftain is the exact protected `minecraft:piglin_brute` carrying `overlord_anchor:piglin_main_chieftain`.
 
-Final narration, Gnarl dialogue, art, music, credits treatment and hidden prerequisite authoring remain unresolved or intentionally spoiler-protected.
+Gold armor provides only enough temporary restraint for the initial audience. The bridge suppresses hostility only for that protected designated Chieftain and only while the player is wearing at least one gold armor piece, or later if an explicitly authored peaceful disposition exists.
 
-## Current blocked authoring boundaries
+The first audience records `overlord_reign:civilizations/piglins/contact_established`. It deliberately does not assign the Piglin village's final political disposition.
 
-These are not safe to fill by assumption:
+## Red, Green and Blue Minion recovery
 
-### Villagers
+Production recovery quests exist for all three later traditional Minion slots and use the real Minion progression owner bridge.
 
-The principal village/provider for the production main arc has not been explicitly selected. Do not invent it.
+Current practical recovery proofs are:
 
-### Illagers
+- Red: Blaze Rod;
+- Green: Spider Eye;
+- Blue: Prismarine Crystal.
 
-`break_the_bastille` is implemented, but the exact surviving fearful/cowed provider who carries the follow-up political phase is not defined. Do not invent that NPC role.
+These are implementation proxies, not claims that the source-game Hives were those items. Source-game identity is known: Red Hive at Melvin's Kitchen / Mellow Hills, Green Hive in the Viridian Caverns / Evernight, and Blue Hive in the Moist Hollows / Heaven's Peak.
 
-### Piglins
+The current quests are therefore IMPLEMENTED WITH A FIDELITY LIMITATION. Do not replace the proxies with invented fake Hive items, structures, bosses, or unrelated-mod mappings merely to imitate source geography.
 
-Canon establishes one designated Nether Village and one protected marked Piglin Brute Chieftain, while preserving ordinary native hostility before political resolution. The exact initial audience mechanism that lets the hostile Chieftain participate in a provider flow is unresolved. Do not author a normal peaceful provider interaction that contradicts this boundary.
+## Sparse system reactions
 
-### Red, Green and Blue Minion recovery
+The final assignment ledger explicitly keeps several systems outside the quest log. Questlog now has a persistent one-time reaction channel for source-backed cases where an introductory or milestone popup is specifically useful.
 
-The four-slot Brown/Red/Green/Blue progression ownership, summon gating and Questlog unlock bridge exist, but the diegetic recovery routes for Red, Green and Blue remain unresolved. Do not invent biome, boss, item or unrelated-mod mappings.
+Implemented bindings:
 
-### Final central quest
+- Enchanting System Overhaul: first main-hand interaction with the real enchanting table while the mod is loaded;
+- LevelUP: first detected base-stat investment;
+- RPG Skill Trees: first actual skill unlock in the `rpg_skill_trees` Pufferfish Skills category;
+- Spice of Life: Carrot Edition: distinct-food milestones at 10, 25, 50, 75 and 100.
 
-The technical ending transport exists, but the actual hidden prerequisite chain and production setter for `overlord_reign:campaign/ending_armed` are not defined in the visible implementation authority. Do not bundle a speculative final quest.
+These reactions are intentionally not production quest definitions and do not write narrative facts.
 
-## Validation boundary
+Other content assigned popup-only, absorbed, ambient or no quest-facing treatment remains deliberately absent from the quest log unless a later eventful source-backed acknowledgement is worth adding. Absence is not itself a coverage defect.
 
-A green repository workflow means the checked contracts compiled and/or passed their stated standalone static/runtime boundary. It does not by itself mean that every interaction has been reproduced in the full OVERLORD REIGN modpack.
+## Known technical limitations
 
-The current standalone validation surface includes:
+### Church of Sin location binding
 
-- exact Forge build and assembled-JAR validation;
-- dedicated Forge server bootstrap;
-- Forge client bootstrap under a virtual display;
-- real two-boot narrative fact/disposition persistence through server commands and SavedData;
-- focused static contracts for provider/civilization integrations, ending activation, optional objectives and sequence-break behavior.
+The Church finale uses live Zombie and Skeleton kill objectives after the Cursed Cathedral is discovered. Questlog entity-kill objectives are not structure-location-bound, so those kills can technically occur elsewhere after unlock. Runtime validation should perform them inside the cathedral. This limitation does not justify inventing a Church-specific boss.
 
-Manual full-instance validation still matters particularly for:
+### Minion recovery fidelity
 
-- Gnarl and provider UI composition;
-- Ribbits reflection-backed native profession matching;
-- Umvuthi native hostility/misbehaviour transitions;
-- full Brown -> Red -> Green -> Blue Minion progression and reload reconciliation;
-- central ending normal-victory and prior-Dragon presentation paths;
-- Dwarven reputation-driven price behavior in the complete target instance before an authored political branch relies on it;
-- local civilization disposition consequences once production writers are authored.
+Red, Green and Blue recovery currently uses the practical item proxies listed above rather than source-game location reproductions.
 
-## Maintenance rule
+### Full-instance presentation
 
-When a blocked authoring boundary is explicitly decided, update this file and the appropriate focused integration/test document in the same implementation pass. Do not silently promote a proposal or technical possibility into production campaign canon.
+Standalone validation cannot replace manual checks for Gnarl/provider composition, all optional-mod reflection paths, Minion progression across reloads, and central-ending presentation inside the complete OVERLORD REIGN instance.
+
+## Personal backport sidequests
+
+Lore authority makes both arcs mandatory only when the corresponding personal backport is implemented and stable enough to expose real mechanics.
+
+### Overlord Depths
+
+Status: DEFERRED BY EXTERNAL IMPLEMENTATION BOUNDARY.
+
+At the latest checked live branch `validation/source-closure-direct-2026-09-13`, head `11740ee915e34e1fac5c8c7bd6c90d7341cc9e53`, source-resource closure is still under active validation and four exact-head workflows are failing. Do not bind a production Historian arc to this moving target.
+
+### Overlord NightWalker
+
+Status: DEFERRED BY EXTERNAL IMPLEMENTATION BOUNDARY.
+
+At the latest checked live branch `fix/nightwalker-runtime-closure-2026-09-14`, head `4da22b27755351d9038f0c63ee5b1137d2ece5f2`, the runtime-closure work has no exact-head GitHub Actions evidence. Do not author the Lestat-led vampire transition from unvalidated intermediate mechanics.
+
+## Validation rule
+
+A green repository workflow means the checked contracts compiled and/or passed their stated standalone static/runtime boundary. It does not by itself prove the complete OVERLORD REIGN instance.
+
+When a blocked authoring boundary is explicitly resolved, update this file and the appropriate focused integration/test document in the same implementation pass. Do not silently promote a proposal, provisional backport mechanic, or unspecified provider into production campaign canon.
