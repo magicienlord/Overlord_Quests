@@ -1,0 +1,15 @@
+name: System Reaction Contract
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate sparse system reactions
+        run: python3 tools/validate_system_reactions.py

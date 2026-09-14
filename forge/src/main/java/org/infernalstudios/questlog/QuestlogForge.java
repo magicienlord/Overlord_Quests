@@ -16,6 +16,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.config.QuestlogConfig;
 import org.infernalstudios.questlog.networking.QuestlogPacketsForge;
+import org.infernalstudios.questlog.overlord.reaction.OverlordSystemReactionBridgeForge;
 
 @Mod(Questlog.MODID)
 public class QuestlogForge {
@@ -23,6 +24,7 @@ public class QuestlogForge {
         Questlog.init();
         FMLJavaModLoadingContext.get().getModEventBus().register(QuestlogForge.class);
         MinecraftForge.EVENT_BUS.register(QuestlogForgeEventForwarder.class);
+        MinecraftForge.EVENT_BUS.register(OverlordSystemReactionBridgeForge.class);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ModLoadingContext.get().registerExtensionPoint(
@@ -43,8 +45,11 @@ public class QuestlogForge {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        Questlog.LOGGER.debug("Enqueueing network packet registration");
-        event.enqueueWork(QuestlogPacketsForge::register);
+        Questlog.LOGGER.debug("Enqueueing network packet registration and optional system-reaction bridges");
+        event.enqueueWork(() -> {
+            QuestlogPacketsForge.register();
+            OverlordSystemReactionBridgeForge.initialize();
+        });
     }
 
     @SubscribeEvent

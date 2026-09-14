@@ -18,10 +18,9 @@ public class QuestlogPacketsForge {
      * Requiring an exact protocol prevents a mismatched client from being admitted
      * merely because both sides happen to use the technical `questlog` mod id.
      *
-     * Version 4 appends the server-authoritative ending-state projection and
-     * one-time presentation acknowledgement packets.
+     * Version 5 appends the sparse system-reaction notification packet.
      */
-    private static final String PROTOCOL_VERSION = "overlord-quests-4";
+    private static final String PROTOCOL_VERSION = "overlord-quests-5";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(Questlog.MODID, "messages"))

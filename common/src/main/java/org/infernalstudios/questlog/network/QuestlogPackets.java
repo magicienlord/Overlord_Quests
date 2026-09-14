@@ -32,6 +32,7 @@ public class QuestlogPackets {
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "provider_action"), QuestProviderActionPacket.class, QuestProviderActionPacket.DIRECTION, QuestProviderActionPacket::encode, QuestProviderActionPacket::decode, QuestProviderActionPacket::handle))
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "ending_state"), OverlordEndingStatePacket.class, OverlordEndingStatePacket.DIRECTION, OverlordEndingStatePacket::encode, OverlordEndingStatePacket::decode, OverlordEndingStatePacket::handle))
             .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "ending_presented"), OverlordEndingPresentedPacket.class, OverlordEndingPresentedPacket.DIRECTION, OverlordEndingPresentedPacket::encode, OverlordEndingPresentedPacket::decode, OverlordEndingPresentedPacket::handle))
+            .add(new RegisteredPacket<>(new ResourceLocation(Questlog.MODID, "system_reaction"), SystemReactionPacket.class, SystemReactionPacket.DIRECTION, SystemReactionPacket::encode, SystemReactionPacket::decode, SystemReactionPacket::handle))
             .build();
 
     public record RegisteredPacket<T>(ResourceLocation id, Class<T> clazz, IPacketContext.Direction direction,
