@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate final quest-assignment reconciliation against the reviewed lore ledger."""
+"""Validate quest-assignment reconciliation without masking known open authority debt."""
 from __future__ import annotations
 
 import json
@@ -11,7 +11,8 @@ DEFINITIONS = ROOT / "common/src/main/resources/assets/questlog/overlord/definit
 INDEX = DEFINITIONS / "index.json"
 QUEST_ROOT = DEFINITIONS / "quests"
 RECONCILIATION = ROOT / "docs/FINAL_ASSIGNMENT_RECONCILIATION.md"
-AUTHORITY_HEAD = "235845c4985b61cba9c106b2f4c4af8894bb98ae"
+DEBT = ROOT / "docs/RECONCILIATION_DEBT.md"
+AUTHORITY_HEAD = "649bae2fe49f9da210bcf6d7400316f3e4413464"
 
 ADVENTURE_PREFIXES = {
     "Twilight Forest": "campaign/adventures/twilight/",
@@ -72,7 +73,7 @@ CORE_TOWER = {
     "campaign/tower/establish_armory.json",
 }
 
-MAGIC_TOWER = {
+IMPLEMENTED_MAGIC_TOWER = {
     "campaign/tower/magic/open_alchemy_laboratory.json",
     "campaign/tower/magic/establish_theurgy_laboratory.json",
     "campaign/tower/magic/open_gluttony_kitchen.json",
@@ -80,7 +81,11 @@ MAGIC_TOWER = {
     "campaign/tower/magic/prepare_eidolon_chamber.json",
 }
 
-ALLOWED_TOWER = CORE_TOWER | MAGIC_TOWER | {
+# Latest authority adds Biomancy. It is allowed now but remains open debt until implemented.
+BIOMANCY_TOWER = "campaign/tower/magic/prepare_biomancy_chamber.json"
+
+ALLOWED_TOWER = CORE_TOWER | IMPLEMENTED_MAGIC_TOWER | {
+    BIOMANCY_TOWER,
     "campaign/tower/forge_prepared_reaction.json",
     "campaign/tower/restoration_complete.json",
 }
@@ -139,18 +144,16 @@ def collect_errors() -> list[str]:
 
     for quest in sorted(quests):
         if quest.startswith("campaign/tower/"):
-            require(quest in ALLOWED_TOWER, f"Tower quest is not reconciled to the reviewed Tower authority: {quest}", errors)
+            require(quest in ALLOWED_TOWER, f"Tower quest is not reconciled to current Tower authority: {quest}", errors)
         else:
             require(any(quest.startswith(prefix) for prefix in ALLOWED_PREFIXES),
                     f"production quest namespace is not reconciled to the reviewed assignment ledger: {quest}", errors)
 
-    for quest in sorted(MINION_RECOVERY | CORE_TOWER | MAGIC_TOWER):
-        require(quest in quests, f"required absorbed/Tower assignment missing from manifest: {quest}", errors)
+    for quest in sorted(MINION_RECOVERY | CORE_TOWER | IMPLEMENTED_MAGIC_TOWER):
+        require(quest in quests, f"required existing absorbed/Tower assignment missing from manifest: {quest}", errors)
 
     require(not any(q.startswith("campaign/civilizations/demons/") for q in quests),
             "Demons must remain outside the generalized civilization quest branch", errors)
-    require(not any(q.startswith("campaign/tower/magic/biomancy") for q in quests),
-            "Biomancy must not acquire a Tower room without later explicit Tower authority", errors)
 
     completion = load_json(QUEST_ROOT / "campaign/tower/restoration_complete.json", errors)
     prereqs = completion.get("prerequisites", [])
@@ -168,15 +171,29 @@ def collect_errors() -> list[str]:
 
     doc = RECONCILIATION.read_text(encoding="utf-8") if RECONCILIATION.is_file() else ""
     for token in (
-        "STATIC REPOSITORY CONTENT COMPLETE",
+        "REOPENED - SOURCE AUTHORITY RECONCILIATION IN PROGRESS",
         AUTHORITY_HEAD,
-        "reference/32_REIGN_QUESTLINE_COVERAGE_LEDGER.md",
-        "reference/34_REIGN_TOWER_RESTORATION_DECISIONS.md",
-        "reference/36_REIGN_MOD_QUESTLINE_ASSIGNMENTS_FINAL.md",
-        "reference/37_REIGN_PERSONAL_MOD_SIDEQUEST_DECISIONS.md",
+        "docs/RECONCILIATION_DEBT.md",
+        "Gnarl's Ramblings",
+        "Biomancy",
         "10/10",
     ):
         require(token in doc, f"final assignment reconciliation document missing: {token}", errors)
+    require("STATIC REPOSITORY CONTENT COMPLETE" not in doc,
+            "reconciliation must not claim static completion while debt is open", errors)
+
+    debt = DEBT.read_text(encoding="utf-8") if DEBT.is_file() else ""
+    for token in (
+        "Status: OPEN - BLOCKS CONTENT-COMPLETE CLAIM",
+        AUTHORITY_HEAD,
+        "Gnarl's Ramblings",
+        "Biomancy Tower activation",
+        "Explicit non-debts",
+        "physical Brown/Red/Green/Blue Hive objects",
+        "permanent physical Dark Tower entity placement",
+        "hard-coding final coordinates",
+    ):
+        require(token in debt, f"reconciliation debt ledger missing: {token}", errors)
 
     return errors
 
@@ -188,10 +205,10 @@ def main() -> int:
         for error in errors:
             print(f" - {error}", file=sys.stderr)
         return 1
-    print("Final assignment reconciliation: PASS")
-    print("mandatory authored arcs: present; generalized civilizations: 10/10")
+    print("Final assignment reconciliation guard: PASS")
+    print("mandatory authored namespaces: present; generalized civilizations: 10/10")
     print("formal Tower completion: seven core operational milestones")
-    print("ambient, absorbed, popup-only and no-treatment mods: no unauthorized dedicated branch")
+    print("reconciliation debt: OPEN; content-complete claim is prohibited")
     return 0
 
 
