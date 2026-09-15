@@ -18,9 +18,11 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.client.ending.OverlordEndingScreens;
 import org.infernalstudios.questlog.commands.OverlordNarrativeCommands;
+import org.infernalstudios.questlog.overlord.commentary.GnarlCommentaryEngine;
 import org.infernalstudios.questlog.overlord.provider.PiglinChieftainAudienceBridge;
 import org.infernalstudios.questlog.overlord.provider.QuestAnchorProtection;
 import org.infernalstudios.questlog.overlord.provider.QuestProviderInteraction;
@@ -55,6 +57,12 @@ public class QuestlogForgeEventForwarder {
     public static void registerCommands(RegisterCommandsEvent event) {
         QuestlogEvents.registerCommands(event.getDispatcher());
         OverlordNarrativeCommands.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        GnarlCommentaryEngine.tick(ServerLifecycleHooks.getCurrentServer());
     }
 
     /**

@@ -13,6 +13,7 @@ import org.infernalstudios.questlog.core.quests.rewards.Reward;
 import org.infernalstudios.questlog.event.events.QuestEvent;
 import org.infernalstudios.questlog.network.packet.QuestCompletedPacket;
 import org.infernalstudios.questlog.network.packet.QuestTriggeredPacket;
+import org.infernalstudios.questlog.overlord.commentary.GnarlCommentaryEngine;
 import org.infernalstudios.questlog.overlord.ending.OverlordEndingActivation;
 import org.infernalstudios.questlog.overlord.minions.UnlockMinionReward;
 import org.infernalstudios.questlog.platform.Services;
@@ -74,6 +75,7 @@ public class QuestlogEvents {
                 return;
             }
             Services.PLATFORM.sendPacketToClient(serverPlayer, new QuestTriggeredPacket(event.quest.getId()));
+            GnarlCommentaryEngine.onQuestTriggered(serverPlayer, event.quest);
         } else {
             QuestlogClientEvents.onQuestTriggered(event);
         }
@@ -113,6 +115,8 @@ public class QuestlogEvents {
             if (minionProgressionCommitted && ServerPlayerManager.INSTANCE != null) {
                 ServerPlayerManager.INSTANCE.syncAllQuestState();
             }
+
+            GnarlCommentaryEngine.onQuestCompleted(serverPlayer, event.quest);
         } else {
             QuestlogClientEvents.onQuestCompleted(event);
         }

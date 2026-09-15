@@ -1,0 +1,232 @@
+{
+  "quests": {
+    "questlog:campaign/opening/a_new_master": {
+      "register": "CEREMONIAL",
+      "delivery_direction": "Observation, actionable instruction, dry consequence.",
+      "objective_clarification": "Sire, claim the Tower's first obedience. Everything useful follows from possession.",
+      "first_reminder": "Sire, the Tower is waiting. Sentiment is no substitute for possession.",
+      "repeat_reminders": ["Master, a throne unclaimed is merely expensive furniture.", "Sire, do begin ruling before the world mistakes silence for mercy."],
+      "success": "Excellent, Sire. The Tower recognizes its master. Now we may become unreasonable.",
+      "post_quest": "The first claim is made. Next we require Minions, facilities, and better victims."
+    },
+    "questlog:campaign/opening/restore_browns": {
+      "register": "DIRECTIVE",
+      "delivery_direction": "Problem, requirement, practical payoff.",
+      "objective_clarification": "Sire, the Browns are your first working hands. Recover their command before demanding elegance.",
+      "first_reminder": "Master, an Overlord without Minions is merely a well-dressed pedestrian.",
+      "repeat_reminders": ["Sire, recover the Browns. The Tower will not restore itself out of respect."],
+      "success": "Good. Brown command is restored. At last, something else can carry the heavy objects.",
+      "post_quest": "The first Minions are back in service. We can now make restoration properly unfair."
+    },
+    "questlog:campaign/tower/claim_the_throne": {
+      "register": "CEREMONIAL",
+      "delivery_direction": "Authority first, then practical consequence.",
+      "objective_clarification": "Sire, formalize the seat of rule. A Tower needs a master it can answer to.",
+      "first_reminder": "Master, the throne is not decorative. Claim it before someone develops ideas.",
+      "repeat_reminders": ["Sire, sovereignty improves considerably once it has a seat."],
+      "success": "The throne is operational, Sire. Bureaucracy may now fear the correct person.",
+      "post_quest": "The seat of power is restored. The remaining rooms may be treated as assets."
+    },
+    "questlog:campaign/tower/prepare_the_forge": {
+      "register": "ADMINISTRATIVE",
+      "delivery_direction": "Facility need, proof of operation, utility.",
+      "objective_clarification": "Sire, restore a working forge. Conquest consumes metal with admirable enthusiasm.",
+      "first_reminder": "Master, weapons do not improve through optimism. Prepare the forge.",
+      "repeat_reminders": ["Sire, a cold forge is an insult to every future campaign."],
+      "success": "The forge is prepared. We may now replace improvisation with properly sharpened malice.",
+      "post_quest": "Forge capacity is restored. Equipment can now support the reign instead of delaying it."
+    },
+    "questlog:campaign/tower/magic/prepare_biomancy_chamber": {
+      "register": "ADMINISTRATIVE",
+      "delivery_direction": "Clarify the limited facility scope and avoid mastery creep.",
+      "objective_clarification": "Sire, Gnarl's flesh-work needs a room, not mastery. Establish the Bio-Forge and move on.",
+      "first_reminder": "The Biomancy chamber need only become operational. Perfection can wait for fresh specimens.",
+      "repeat_reminders": ["Master, one working Bio-Forge is sufficient for the Tower. The uglier refinements come later."],
+      "success": "Good. The flesh laboratory lives. Deeper abominations may proceed on their own schedule.",
+      "post_quest": "Biomancy now has a place in the Tower without becoming a condition of restoration."
+    },
+    "questlog:campaign/tower/restoration_complete": {
+      "register": "CEREMONIAL",
+      "delivery_direction": "Acknowledge core readiness without implying optional completionism.",
+      "objective_clarification": "Sire, finish the seven core facilities. Optional studies may remain gloriously unfinished.",
+      "first_reminder": "Master, restore the Tower's essentials. We are building a seat of power, not a museum catalogue.",
+      "repeat_reminders": ["Sire, the core rooms decide readiness. Exotic laboratories may continue wasting time afterward."],
+      "success": "The Dark Tower is operational, Sire. It need not be finished to be feared.",
+      "post_quest": "The foundation of the reign is secure. Expansion can now become everyone else's problem."
+    },
+    "questlog:campaign/expansion/the_reign_takes_shape": {
+      "register": "ADMINISTRATIVE",
+      "delivery_direction": "Summarize readiness, then point outward.",
+      "objective_clarification": "Sire, consolidate the first foundation. After that, the world becomes a list of acquisitions.",
+      "first_reminder": "Master, finish the foundation before multiplying fronts. Even evil benefits from accounting.",
+      "repeat_reminders": ["Sire, a reign expands more efficiently once its first obligations are actually complete."],
+      "success": "Excellent. The reign has a foundation. We may now acquire specialists, peoples, and grudges.",
+      "post_quest": "The early structure is stable. Expansion and specialized disciplines are now legitimate priorities."
+    },
+    "questlog:campaign/magic/irons/open_the_spellbook": {
+      "register": "HISTORICAL",
+      "delivery_direction": "Identify the discipline, then direct practical study.",
+      "objective_clarification": "Sire, active spellcraft rewards practice, not reverence. Open the discipline and learn what obeys.",
+      "first_reminder": "Master, mana is available. Ignorance is therefore a voluntary limitation.",
+      "repeat_reminders": ["Sire, study the spellbook before someone less deserving becomes competent."],
+      "success": "Good. Formal spellcraft is open to you. The schools may now compete for usefulness."
+    },
+    "questlog:campaign/magic/gluttony/feed_the_spell": {
+      "register": "MOCKING",
+      "delivery_direction": "Explain magical cuisine without degrading mundane cooking.",
+      "objective_clarification": "Sire, Gluttony begins where cooking stops being merely edible and starts consuming mana.",
+      "first_reminder": "Master, the meal is supposed to be magical. Ordinary dinner remains distressingly common.",
+      "repeat_reminders": ["Sire, feed the spell properly. Appetite alone is not yet a school of magic."],
+      "success": "There. Cuisine has crossed into spellcraft. The kitchen may now commit more interesting offenses."
+    },
+    "questlog:campaign/magic/theurgy/first_rod": {
+      "register": "HISTORICAL",
+      "delivery_direction": "Define matter-work and give the next practical step.",
+      "objective_clarification": "Sire, Theurgy studies the hidden laws of matter. Begin by making those laws answer questions.",
+      "first_reminder": "Master, minerals are remarkably cooperative once one stops asking politely.",
+      "repeat_reminders": ["Sire, prepare the rod. Material truth is useful when ownership is negotiable."],
+      "success": "Good. Matter has begun surrendering information before we force it to surrender form."
+    },
+    "questlog:campaign/magic/alchemy/beyond_the_first_dose": {
+      "register": "DIRECTIVE",
+      "delivery_direction": "Define pharmacology, then move toward controlled effects.",
+      "objective_clarification": "Sire, Ars Elixirum is controlled effect composition. Move beyond crude potions and make the dose deliberate.",
+      "first_reminder": "Master, a bottle is not mastery. Refine the effect until the result is intentional.",
+      "repeat_reminders": ["Sire, continue the alchemical work. Accidental medicine is for peasants."],
+      "success": "Excellent. The mixture is becoming a discipline rather than a cupboard of suspicious liquids."
+    },
+    "questlog:campaign/magic/biomancy/a_lesson_from_the_silence": {
+      "register": "HISTORICAL",
+      "delivery_direction": "State Gnarl's recent discovery, then require first proof.",
+      "objective_clarification": "Sire, during the Silence I learned that enough magic makes flesh reconsider its limitations. Begin there.",
+      "first_reminder": "Master, flesh is waiting to be improved. It has had quite long enough in its natural condition.",
+      "repeat_reminders": ["Sire, secure the Primordial Core and Living Flesh milestones. The theory deserves specimens."],
+      "objective_updates": {"1": "One principle is proven. Complete the second before declaring the flesh obedient."},
+      "success": "Good. You have the premise. Flesh can be made to function as more than anatomy.",
+      "post_quest": "The foundation is understood. Processing apparatus is the next sensible indignity."
+    },
+    "questlog:campaign/magic/biomancy/flesh_as_machinery": {
+      "register": "TACTICAL",
+      "delivery_direction": "Track apparatus growth and keep each machine purposeful.",
+      "objective_clarification": "Sire, build the processing chain. Forge, decompose, digest, and make flesh perform useful work.",
+      "first_reminder": "Master, biological engineering requires machinery, even when the machinery is disturbingly alive.",
+      "repeat_reminders": ["Sire, continue the apparatus. A half-built organism is merely waste with ambition."],
+      "objective_updates": {"1": "The first apparatus is working. Add the next process before admiring it.", "2": "Two processes are established. Complete the chain and make the laboratory useful."},
+      "success": "Splendid. Flesh now behaves like an engineered system instead of an excuse for anatomy."
+    },
+    "questlog:campaign/magic/biomancy/the_living_laboratory": {
+      "register": "DIRECTIVE",
+      "delivery_direction": "Track advanced laboratory milestones without folding them into Tower restoration.",
+      "objective_clarification": "Sire, this is mastery work now. Bio-Lab, Injector, and Cradle belong to Biomancy itself.",
+      "first_reminder": "Master, the Tower room is already sufficient. These devices are for making the discipline dangerous.",
+      "repeat_reminders": ["Sire, continue the living laboratory. Gnarl's old experiments deserve competent supervision."],
+      "objective_updates": {"1": "The Bio-Lab is established. Controlled flesh-work can finally become systematic.", "2": "The Injector is ready. One final apparatus remains before the laboratory is complete."},
+      "warning": "Sire, advanced Biomancy is not ordinary crafting. Treat unstable flesh as a problem before it becomes personnel.",
+      "success": "Splendid. Biomancy is now a discipline rather than one of Gnarl's unfortunate hobbies.",
+      "post_quest": "The living laboratory is complete. Further monstrosity may now proceed intentionally."
+    },
+    "questlog:campaign/magic/eidolon/raise_the_altar": {
+      "register": "OMINOUS",
+      "delivery_direction": "Frame ritual occultism as deliberate preparation.",
+      "objective_clarification": "Sire, Eidolon rewards preparation. Raise the altar before expecting souls and rites to behave.",
+      "first_reminder": "Master, rituals without apparatus are merely dramatic mistakes.",
+      "repeat_reminders": ["Sire, prepare the occult workspace. The dead are rarely punctual on their own."],
+      "success": "Good. The ritual foundation is ready. We may now make death more administratively useful."
+    },
+    "questlog:campaign/adventures/twilight/old_forest_new_master": {
+      "register": "TACTICAL",
+      "delivery_direction": "Treat the realm as a conquest problem, not inherited lore.",
+      "objective_clarification": "Sire, the Twilight Forest has its own barriers and rulers. Learn the order before breaking it.",
+      "first_reminder": "Master, the forest will not simplify itself. Establish the first route through its protections.",
+      "repeat_reminders": ["Sire, proceed through the forest's order. Then we can decide which parts deserve to remain."],
+      "success": "Good. The old forest has noticed a new master. Continue before it develops confidence."
+    },
+    "questlog:campaign/adventures/bumblezone/enter_the_hive": {
+      "register": "MOCKING",
+      "delivery_direction": "Identify the exceptional realm and make exploration actionable.",
+      "objective_clarification": "Sire, the hive realm is absurdly full of bees and therefore, regrettably, resources. Enter it deliberately.",
+      "first_reminder": "Master, the bees remain unconquered by your reluctance to visit them.",
+      "repeat_reminders": ["Sire, enter the hive. Try not to be defeated by organized pollination."],
+      "success": "Excellent. The hive is accessible. We may now discover what the insects were hiding."
+    },
+    "questlog:campaign/adventures/cataclysm/ruins_that_wake": {
+      "register": "TACTICAL",
+      "delivery_direction": "Warn about high-threat ruins and demand reconnaissance.",
+      "objective_clarification": "Sire, these ruins contain threats built for heroes to fear. That makes them worth inspecting.",
+      "first_reminder": "Master, identify the awakened ruin before charging into whichever horror owns it.",
+      "repeat_reminders": ["Sire, the ruin is still there. Its inhabitants have not improved with patience."],
+      "warning": "Sire, Cataclysm sites punish careless entry. Retreating to return stronger is management, not mercy.",
+      "success": "Good. We know where the danger lives. The next step is making that information fatal to it.",
+      "failure": "Withdraw, Sire. A temporary retreat is preferable to leaving the Tower to less competent management."
+    },
+    "questlog:campaign/adventures/graveyard/places_the_dead_keep": {
+      "register": "OMINOUS",
+      "delivery_direction": "Separate hostile undead sites from diplomatic civilization logic.",
+      "objective_clarification": "Sire, the dead keep places of their own. Find the site; do not mistake occupation for diplomacy.",
+      "first_reminder": "Master, locate the graveyard. Corpses are easier to manage when one knows where they gather.",
+      "repeat_reminders": ["Sire, the dead remain where they are least useful. Correct the information deficit."],
+      "warning": "Undead are not a civilization waiting for terms, Sire. Treat whatever answers as a magical or military problem.",
+      "success": "The site is known. We may now decide which dead deserve a second death and which deserve employment."
+    },
+    "questlog:campaign/adventures/knight/essence_in_the_dust": {
+      "register": "HISTORICAL",
+      "delivery_direction": "Treat the relic trail as useful evidence rather than imported mythology.",
+      "objective_clarification": "Sire, follow the essence trail. Old power is usually most valuable before someone explains its proper use.",
+      "first_reminder": "Master, the relic will not volunteer itself. Continue the search.",
+      "repeat_reminders": ["Sire, pursue the essence. Antiquity is not a defense against confiscation."],
+      "success": "Good. The trail is real. Let us see what sort of power believed dust was adequate security."
+    },
+    "questlog:campaign/adventures/lost_castle/a_castle_off_the_map": {
+      "register": "TACTICAL",
+      "delivery_direction": "Make discovery a reconnaissance task.",
+      "objective_clarification": "Sire, a castle missing from ordinary maps is either valuable or badly managed. Find out which.",
+      "first_reminder": "Master, locate the castle. Hidden fortifications become much less mysterious once invaded.",
+      "repeat_reminders": ["Sire, continue the search. Someone is enjoying privacy they have not earned."],
+      "success": "There it is. The castle is no longer lost, which is unfortunate for whoever occupies it."
+    },
+    "questlog:campaign/adventures/rats/empire_beneath_the_cheese": {
+      "register": "MOCKING",
+      "delivery_direction": "Acknowledge the ridiculous premise, then treat the threat seriously.",
+      "objective_clarification": "Sire, there appears to be an empire of rats. Laugh after we know what they own.",
+      "first_reminder": "Master, investigate the rat empire. Ridicule is more satisfying with accurate intelligence.",
+      "repeat_reminders": ["Sire, the rodents remain organized. This is becoming embarrassing for larger species."],
+      "success": "Good. Their little empire is confirmed. Now we can decide how much of it is worth stealing."
+    },
+    "questlog:campaign/adventures/church_of_sin/find_the_cursed_cathedral": {
+      "register": "OMINOUS",
+      "delivery_direction": "Identify the site without importing its theology as canon.",
+      "objective_clarification": "Sire, find the cursed cathedral. Its symbols matter less than whatever power still answers inside.",
+      "first_reminder": "Master, locate the cathedral before its congregation acquires more initiative.",
+      "repeat_reminders": ["Sire, cursed architecture is still architecture. Find the place and assess its occupants."],
+      "success": "The cathedral is located. We can now separate useful occultism from useless devotion."
+    },
+    "questlog:campaign/adventures/oddities/find_the_orchid_shrine": {
+      "register": "DIRECTIVE",
+      "delivery_direction": "Treat the shrine as an anomalous resource site.",
+      "objective_clarification": "Sire, locate the orchid shrine. Anything that attracts this much strangeness deserves inspection.",
+      "first_reminder": "Master, find the shrine. Unclaimed oddities have an irritating habit of becoming someone else's advantage.",
+      "repeat_reminders": ["Sire, continue the search. Strange plants are still resources if handled aggressively enough."],
+      "success": "Good. The shrine is found. We may now determine whether the oddity is useful, hostile, or both."
+    },
+    "questlog:campaign/end/the_wound_beyond_the_world": {
+      "register": "OMINOUS",
+      "delivery_direction": "Connect Ender phenomena to the dimensional Wasteland without overexplaining cosmology.",
+      "objective_clarification": "Sire, the End is tied to the old dimensional wound. Enter it as a catastrophe's consequence, not ordinary travel.",
+      "first_reminder": "Master, the wound beyond the world remains open. Reach it when the expedition is prepared.",
+      "repeat_reminders": ["Sire, the End will wait. Unfortunately, so will everything living there."],
+      "warning": "Sire, that realm is not ordinary distance. The Cataclysm left reality badly stitched.",
+      "success": "You have crossed the wound. Now discover what survived on the other side.",
+      "post_quest": "The dimensional Wasteland is accessible. Ender power is no longer an abstraction."
+    },
+    "questlog:campaign/end/break_the_dragon": {
+      "register": "TACTICAL",
+      "delivery_direction": "Treat the dragon as the immediate military obstacle, not cosmological ownership.",
+      "objective_clarification": "Sire, the dragon controls the obvious battlefield. Break it before drawing larger conclusions about the realm.",
+      "first_reminder": "Master, the dragon remains alive. This is a correctable administrative defect.",
+      "repeat_reminders": ["Sire, kill the dragon. Dimensional study improves once the largest interruption stops breathing."],
+      "warning": "Do not confuse victory over one creature with understanding the Wasteland, Sire.",
+      "success": "Excellent. The dragon is dead. The realm remains, which makes it the more interesting problem.",
+      "post_quest": "The immediate obstacle is removed. The End can now be explored without pretending its history is solved."
+    }
+  }
+}
