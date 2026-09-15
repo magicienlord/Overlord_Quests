@@ -2,11 +2,9 @@
 
 Status: IMPLEMENTED AGAINST SUPPLIED ALPHA.3
 
-This integration implements the mandatory conditional vampire-transition sidequest established by the OVERLORD REIGN authority. It treats Nycto as the operative vampirism ruleset and Lestat as a REIGN-authored Tower character layered onto a real Nycto vampire entity.
+This integration implements the conditional vampire-transition sidequest established by OVERLORD REIGN authority. Nycto remains the operative vampirism ruleset. Lestat is REIGN-native contextual quest presentation and does not require a permanent physical provider entity.
 
 ## Exact technical source
-
-Supplied build:
 
 ```text
 nycto-forge-1.20.1-overlordreign-1.0.0-alpha.3.jar
@@ -17,7 +15,7 @@ Minecraft: 1.20.1
 Forge: 47.4.10+
 ```
 
-The packaged artifact contains the real `VampireData`, `BloodBottleItem` and `VampireAltarBlock` classes. Source inspection of the matching alpha.3 implementation establishes the relevant owner-state contract:
+The supplied implementation establishes the owner-state contract:
 
 ```text
 player persistent-data root: Nycto
@@ -27,50 +25,38 @@ choosable powers represented by mask: 13
 runtime identity guard: nycto:vampirism effect
 ```
 
-The temporary `nycto:vampirism` effect begins/transports the transformation state; it is not used as proof that transformation completed. The quest objective observes the durable `Nycto.vampire` flag instead.
-
-Alpha.3 has no packaged `data/nycto/advancements` progression tree. Questlog therefore does not fabricate a Nycto advancement merely to obtain a convenient trigger.
+The temporary `nycto:vampirism` effect is not used as proof of completed transformation. Questlog observes the durable `Nycto.vampire` flag.
 
 ## Optional compatibility architecture
 
 Questlog does not link to Nycto Java classes and does not declare NightWalker as a hard dependency.
 
-`NightwalkerState` checks for the registered `nycto:vampirism` effect and reads only Nycto-owned persistent data. Two custom objectives expose that state to Quest definitions:
+`NightwalkerState` reads only Nycto-owned persistent data behind a runtime-presence guard. Two custom objectives expose the owner state to Quest definitions:
 
 ```text
 overlord_reign:nightwalker_vampire
 overlord_reign:nightwalker_power_count
 ```
 
-`nightwalker_vampire` recognizes a completed transformation and latches the observation. A later cure cannot retroactively erase that the transition legitimately occurred.
+`nightwalker_vampire` latches a legitimately observed completed transformation so a later cure does not erase historical quest progress.
 
-`nightwalker_power_count` reads the real `powerMask` and records the greatest observed purchased-power count. This allows sequence-breaking: a player who already bought a power before reaching Lestat's final lesson is not forced to buy another one.
+`nightwalker_power_count` reads the real `powerMask` and records the greatest observed purchased-power count, allowing sequence-breaking if the player bought a power before Lestat's final lesson.
 
-## Lestat world anchor
+## Contextual Lestat boundary
 
-Lestat is represented by one real:
+The final Lore authority does not require Lestat to exist as a permanently spawned quest-provider entity in the Dark Tower. Questlog therefore does not require a Nycto vampire entity, a dedicated Lestat anchor tag, a protection tag or fixed coordinates to progress this arc.
 
-```text
-nycto:vampire
-```
+Lestat enters through contextual quest presentation after the player becomes a vampire. His continuing presence is represented by the authored historical fact `overlord_reign:personal/nightwalker/lestat_joined_tower`, not by an entity UUID contract.
 
-with both authored tags:
-
-```text
-overlord_anchor:lestat
-overlord_quest_protected
-```
-
-This means only that this specific Nycto vampire is the REIGN-native Lestat. It does not mean Nycto contains a built-in Lestat character or that ordinary Nycto vampires share his biography or role.
-
-Exact Tower coordinates are not stored in Questlog. World integration should place or otherwise provide this protected entity at the Dark Tower in a way consistent with the final Tower build. Lestat is a later court/personnel addition, not a formal Tower Restoration requirement.
+This prevents world-placement details from becoming a technical blocker while preserving the in-universe result that Lestat voluntarily remains around the Tower as a vampire adviser.
 
 ## Production sidequest
 
 The conditional sequence is:
 
 1. `campaign/sidequests/nightwalker/lestat_arrives`
-   - unlock condition: real completed NightWalker vampirism;
+   - unlock condition: campaign foundation plus real completed NightWalker vampirism;
+   - contextual read acknowledgement presents Lestat's arrival;
    - establishes `overlord_reign:personal/nightwalker/lestat_joined_tower`.
 2. `campaign/sidequests/nightwalker/hunger_is_a_fact`
    - requires actual use of one supported Nycto blood-bottle variant while on the vampire path.
@@ -80,7 +66,7 @@ The conditional sequence is:
    - recognizes at least one real choosable Vampire Altar power in `Nycto.powerMask`;
    - establishes `overlord_reign:personal/nightwalker/transition_guided`.
 
-The four blood-bottle IDs accepted by the hunger lesson are the alpha.3 registry surface:
+Supported alpha.3 blood-bottle IDs:
 
 ```text
 nycto:blood_bottle
@@ -93,25 +79,23 @@ The arc intentionally stops after first deliberate progression. It does not dupl
 
 ## Character and continuity boundary
 
-Dialogue follows the transcript-derived Lestat writing authority and the later REIGN continuity ledger. Lestat is native to OVERLORD REIGN. He has no awareness of television continuity, Minecraft, mods or game abstractions.
+Lestat is native to OVERLORD REIGN. He has no awareness of television continuity, Minecraft, mods or game abstractions.
 
-Nycto controls operative vampire mechanics. Source-character material controls characterization where adopted by REIGN authority; it does not import unsupported vampire powers or cosmology.
+Nycto controls operative vampire mechanics. Adopted character authority controls characterization without importing unsupported vampire powers or cosmology.
 
 Gnarl remains the institutional Tower adviser. Lestat occupies the narrower domain of lived vampiric existence and does not replace Gnarl, command Minions, outrank the Overlord or automatically enter a romantic relationship with the player character.
 
 ## Runtime qualification protocol
 
-1. Install the exact alpha.3 build identified above with the Quest build under test.
-2. Confirm a non-vampire player does not unlock the Lestat arrival quest merely by possessing vampire blood.
-3. Complete Nycto's transformation and verify `A Guest with Fangs` becomes available through the real `Nycto.vampire` state.
-4. Use the tagged protected `nycto:vampire` Lestat anchor to complete the arrival interaction.
+1. Install the exact alpha.3 build above with the Quest build under test.
+2. Confirm a non-vampire player does not unlock `A Guest with Fangs` merely by possessing vampire blood.
+3. Complete Nycto transformation and verify the quest becomes available from real `Nycto.vampire` state without spawning a Lestat entity.
+4. Acknowledge the contextual arrival and confirm `overlord_reign:personal/nightwalker/lestat_joined_tower` is written.
 5. Drink one supported blood-bottle variant and confirm the hunger lesson advances.
 6. Interact with `nycto:vampire_altar` and confirm the altar lesson advances.
 7. Purchase at least one choosable altar power and confirm `Choose the Price` resolves.
-8. Repeat with a save where the first power was purchased before the final lesson; confirm retrospective owner-state recognition.
-9. Cure after the transition was already observed and confirm historical quest progress is not erased.
-10. Remove Nycto and confirm Questlog still boots; the NightWalker objectives must remain unsatisfied rather than crash or fabricate state.
-11. Confirm an untagged ordinary `nycto:vampire` does not act as Lestat.
-12. Confirm the Lestat anchor remains protected from ordinary accidental combat.
+8. Repeat with a save where the first power was purchased before the final lesson and confirm retrospective recognition.
+9. Cure after transition was already observed and confirm historical quest progress is not erased.
+10. Remove Nycto and confirm Questlog still boots; NightWalker objectives must remain unsatisfied rather than crash or fabricate state.
 
-Full-instance presentation and Tower placement still require manual qualification in the complete OVERLORD REIGN instance.
+Full-instance presentation remains a manual qualification item in the complete OVERLORD REIGN instance.

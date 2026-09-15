@@ -1,14 +1,10 @@
 # Final Assignment Reconciliation
 
-Status: REOPENED - SOURCE AUTHORITY RECONCILIATION IN PROGRESS
+Status: IMPLEMENTATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING
 
 This is an implementation reconciliation record. It does not create or revise OVERLORD REIGN canon.
 
-The previous `STATIC REPOSITORY CONTENT COMPLETE` conclusion is superseded. Known unfinished work is tracked in `docs/RECONCILIATION_DEBT.md`, which blocks a new content-complete claim while its status is `OPEN`.
-
 ## Authority checkpoint
-
-Current read-only lore authority:
 
 ```text
 repository: magicienlord/Overlord_Lore_and_Canon
@@ -16,72 +12,51 @@ branch: main
 head: 649bae2fe49f9da210bcf6d7400316f3e4413464
 ```
 
-This postdates the previous Quest reconciliation checkpoint `235845c4985b61cba9c106b2f4c4af8894bb98ae`.
+Governing references include `GNARL_WRITING_RULES.md`, quest architecture decisions, Tower restoration decisions, final mod questline assignments, Minion unlock anchors, authority/discretion guidance and the final Lestat continuity clarifications.
 
-Governing references include:
+## Reconciled production coverage
 
-- `reference/GNARL_WRITING_RULES.md`
-- `reference/27_REIGN_QUEST_ARCHITECTURE_DECISIONS.md`
-- `reference/32_REIGN_QUESTLINE_COVERAGE_LEDGER.md`
-- `reference/34_REIGN_TOWER_RESTORATION_DECISIONS.md`
-- `reference/36_REIGN_MOD_QUESTLINE_ASSIGNMENTS_FINAL.md`
-- `reference/37_REIGN_PERSONAL_MOD_SIDEQUEST_DECISIONS.md`
-- `reference/38_REIGN_MINION_TYPE_UNLOCK_ANCHORS.md`
-- `reference/39_REIGN_QUEST_AUTHORITY_AND_INTENTIONAL_DISCRETION.md`
-- `reference/44_REIGN_LESTAT_CONTINUITY_AUTHORITY_FINAL.md`
-- `reference/45_REIGN_SILENT_ORDER_AND_LESTAT_RELIGION_CLARIFICATION.md`
+The production manifest contains:
 
-## Dedicated authored coverage already present
-
-The production manifest already contains the previously reconciled dedicated categories:
-
-- nine adventure arcs: Twilight Forest, The Bumblezone, L_Ender's Cataclysm, The Graveyard, Knight Quest, The Lost Castle, Rats, Church of Sin and Oddities;
-- six core magic arcs: Iron's Spells 'n Spellbooks, Farmer's Spell / Gluttony, Theurgy, Ars Elixirum, Biomancy and Eidolon: Repraised;
-- civilization main-entry coverage: **10/10** for Villagers, Illagers, Dwarves, Gnumus, Goblins, Kobolds, Ribbits, Sea Dwellers, Piglins and Umvuthana;
+- nine dedicated adventure families;
+- six core magic families;
+- generalized civilization main-entry coverage **10/10**;
 - Quaver's optional Tower-band personnel arc;
-- the conditional Pet Cemetery resurrection tutorial;
-- the central End / Ender Dragon campaign;
-- Brown/Red/Green/Blue Minion recovery progression;
-- the approved NightWalker / Lestat and Overlord Depths / Fathoms arcs.
+- conditional Pet Cemetery resurrection guidance;
+- Brown/Red/Green/Blue authored Minion recovery progression;
+- NightWalker/Lestat and Overlord Depths/Fathoms sidequests;
+- the central End campaign.
 
 Demons remain outside the generalized civilization branch.
 
-This inventory is not equivalent to total content completion because cross-cutting assigned systems can remain incomplete even when every dedicated namespace exists.
+## Tower reconciliation
 
-## Reopened Tower reconciliation
+Formal Tower Restoration remains gated by the seven core operational milestones: Throne Room, Forge, Minion infrastructure, Gates, Treasury, Storage Room and Armory.
 
-The seven authoritative core operational milestones remain Throne Room, Forge, Minion infrastructure, Gates, Treasury, Storage Room and Armory.
+Selected magical Tower functions are Alchemy, Theurgy, Gluttony, spell study/making, Eidolon and Biomancy. Biomancy now has an explicit Tower activation quest backed by `biomancy:biomancy/bio_forge`. Deeper Biomancy mastery remains in the dedicated Biomancy arc, and no magical branch gates formal Tower completion.
 
-The latest `reference/34_REIGN_TOWER_RESTORATION_DECISIONS.md` selected magical Tower functions are Alchemy, Theurgy, Gluttony, spell study/making, Eidolon, and **Biomancy**. The repository currently implements the first five Tower activations but not Biomancy. The older validator rule that rejected Tower Biomancy is superseded authority and must be removed.
+Quaver remains optional personnel content rather than a formal restoration requirement.
 
-Formal Tower Restoration completion remains gated by the core operational milestones rather than by mastery of every magical system. Physical room activation belongs to Tower Restoration; deeper system mastery remains in each system's own progression.
+## Gnarl's Ramblings
 
-Quaver remains separate optional Tower personnel content and does not gate formal restoration.
+Gnarl's Ramblings is implemented through a generalized lifecycle-commentary runtime with player-specific world persistence separate from narrative facts.
 
-## Gnarl's Ramblings reconciliation
+Authored coverage includes objective clarification, finite first/repeated reminder pools, objective updates, warnings, branch framing where applicable, success/failure reactions and delayed post-quest comments. Coverage deliberately spans major campaign transitions, all six core magic families, all nine dedicated adventure families and the central End sequence.
 
-The existing one-time `SYSTEM_REACTIONS` catalogue is partial implementation, not proof that the generalized Gnarl commentary layer is complete.
+The older `SYSTEM_REACTIONS` channel remains separate and continues to serve installed systems whose final assignment is sparse/popup-only acknowledgement rather than quest lifecycle commentary.
 
-Source-backed Gnarl lifecycle authoring includes, where useful, objective clarification, reminder/repeat-reminder pools, objective updates, warnings, branch framing, success variants, failure/retreat reactions, and post-quest world-state commentary. Popup-only and sparse-commentary mod assignments also require deliberate coverage review.
+## Corrected integration boundaries
 
-Therefore **Gnarl's Ramblings remains open implementation debt**. See `docs/RECONCILIATION_DEBT.md`.
+Brown/Red/Green/Blue recovery anchors are authored Quest progression, not temporary Hive proxies. Overlord Minions still owns durable command/unlock state.
 
-## Corrected Minion, Lestat and civilization boundaries
+The NightWalker arc now uses contextual Lestat presentation and no longer requires a physical final-world Lestat entity, anchor tag, protection tag or coordinate.
 
-Brown/Red/Green/Blue Quest anchors are authored recovery/unlock progression owned by Overlord Quests under `reference/38_REIGN_MINION_TYPE_UNLOCK_ANCHORS.md`. Their current proof items must not be described as temporary Hive substitutes awaiting physical gameplay Hives.
+Villager and Illager providers remain locally resolved around authored quest context. Fixed final-world coordinates are not completion artifacts.
 
-Lestat must not be carried as a final-world physical-placement blocker. The NightWalker integration must be reconciled to the popup/contextual presentation and the final Lestat authority.
+## Qualification boundary
 
-Villager and Illager provider handling must remain compatible with local role/provider resolution around the relevant quest context. Fixed final-world coordinates are not a required completion artifact.
+Source-authority implementation debt is closed against the pinned Lore head. Repository CI must still pass on the exact implementation head.
 
-## Remaining qualification boundary
+The remaining non-source gate is assembled-instance/manual qualification of presentation and optional-mod handoffs, including Gnarl commentary presentation, Fathoms Historian interaction, NightWalker contextual presentation and the final reconciled campaign flow.
 
-The Fathoms wrapper and other optional-mod interaction/presentation paths still require assembled-instance qualification after implementation closure. Gnarl presentation and the final source-reconciled campaign flow require the same honest runtime/manual check.
-
-A green repository workflow proves only its stated static/build/smoke contract. It does not by itself close `docs/RECONCILIATION_DEBT.md`.
-
-## Closure rule
-
-Do not restore a content-complete status until every open item in `docs/RECONCILIATION_DEBT.md` has been resolved, the validator reflects the current Lore authority, and exact-head validation has passed.
-
-`tools/validate_final_assignment_reconciliation.py` must protect this reopened state while debt is open and must be updated together with the eventual closure implementation.
+Until that qualification is recorded, this document must not be read as a final release-qualified or fully gameplay-qualified claim.

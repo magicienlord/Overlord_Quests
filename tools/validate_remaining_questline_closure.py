@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate closure of delegated civilization, NightWalker and assigned personal-mod questlines."""
+"""Validate closure of delegated civilization, contextual NightWalker and personal-mod questlines."""
 from __future__ import annotations
 
 import json
@@ -174,14 +174,25 @@ def collect_errors() -> list[str]:
     lestat_paths = NEW_QUESTS[2:]
     lestat = [load(QUESTS / path, errors) for path in lestat_paths]
     for path, quest in zip(lestat_paths, lestat):
-        p = quest.get("provider", {})
-        require(p.get("entity_types") == ["nycto:vampire"], f"{path}: Lestat must use the real nycto:vampire entity", errors)
-        require(p.get("scoreboard_tags") == ["overlord_anchor:lestat", "overlord_quest_protected"], f"{path}: Lestat anchor/protection tags changed", errors)
-        require("location" not in p, f"{path}: must not invent Dark Tower coordinates", errors)
+        require("provider" not in quest, f"{path}: Lestat must remain contextual and must not require a physical provider", errors)
+        require(quest.get("show_popup_on_unlock") is True, f"{path}: contextual Lestat guidance must present on unlock", errors)
+        serialized = json.dumps(quest)
+        require("overlord_anchor:lestat" not in serialized, f"{path}: stale physical Lestat anchor remains", errors)
+        require("overlord_quest_protected" not in serialized, f"{path}: stale Lestat protection requirement remains", errors)
 
     require(fact_prerequisite(lestat[0], FOUNDATION), "Lestat arrival must remain campaign-foundation gated", errors)
     require(custom_prerequisite(lestat[0], "overlord_reign:nightwalker_vampire"), "Lestat arrival must require completed Nycto vampirism", errors)
     require(set_fact_reward(lestat[0], LESTAT_JOINED), "Lestat arrival fact missing", errors)
+    arrival_objectives = lestat[0].get("objectives", [])
+    require(
+        isinstance(arrival_objectives, list)
+        and len(arrival_objectives) == 1
+        and isinstance(arrival_objectives[0], dict)
+        and arrival_objectives[0].get("type") == "questlog:read"
+        and arrival_objectives[0].get("required_amount") == 1,
+        "Lestat arrival must be a contextual read acknowledgement, not a physical NPC turn-in",
+        errors,
+    )
 
     hunger = lestat[1]
     objective = hunger.get("objectives", [{}])[0] if hunger.get("objectives") else {}
@@ -222,6 +233,7 @@ def collect_errors() -> list[str]:
     civ_status = (ROOT / "docs/CIVILIZATION_SIDEQUEST_STATUS.md").read_text(encoding="utf-8")
     remaining = (ROOT / "docs/REMAINING_ASSIGNED_QUESTLINES.md").read_text(encoding="utf-8")
     current = (ROOT / "docs/CURRENT_IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
+    nightwalker_doc = (ROOT / "docs/NIGHTWALKER_LESTAT_INTEGRATION.md").read_text(encoding="utf-8")
     for name, text in (("civilization status", civ_status), ("remaining ledger", remaining), ("current status", current)):
         require("10/10" in text, f"{name}: generalized civilization coverage must be 10/10", errors)
         require("Villager principal settlement/provider selection" not in text, f"{name}: stale Villager false blocker remains", errors)
@@ -231,6 +243,12 @@ def collect_errors() -> list[str]:
         require(DEPTHS_VALIDATED_HEAD in text, f"{name}: missing validated Depths checkpoint", errors)
         require(DEPTHS_IMPLEMENTED_STATUS in text, f"{name}: missing implemented Fathoms status", errors)
         require("external technical deferral recorded" not in text.lower(), f"{name}: stale active Fathoms deferral language remains", errors)
+        require("Lestat anchors require final-world placement" not in text, f"{name}: stale physical Lestat placement debt remains", errors)
+    for name, text in (("current status", current), ("remaining ledger", remaining), ("NightWalker integration", nightwalker_doc)):
+        require("overlord_anchor:lestat" not in text, f"{name}: stale physical Lestat anchor contract remains", errors)
+        require("protected tagged `nycto:vampire`" not in text, f"{name}: stale physical Lestat provider wording remains", errors)
+    require("practical proof proxies" not in current, "current status still mislabels authored Minion recovery anchors as proxies", errors)
+    require("practical proof proxies" not in remaining, "remaining ledger still mislabels authored Minion recovery anchors as proxies", errors)
 
     return errors
 
@@ -243,8 +261,8 @@ def main() -> int:
             print(f"  * {error}", file=sys.stderr)
         return 1
     print("Remaining delegated questline closure: PASS")
-    print("civilizations: 10/10 main-entry coverage; Illager cowed continuation implemented")
-    print("NightWalker: alpha.3 vampire state, blood economy, altar and first power purchase integrated")
+    print("civilizations: 10/10 main-entry coverage; local Villager and Illager provider logic retained")
+    print("NightWalker: alpha.3 owner state plus contextual Lestat guidance, blood economy, altar and first power purchase integrated")
     print("Depths: validated source checkpoint recorded; Historian-led Fathoms arc implemented")
     return 0
 

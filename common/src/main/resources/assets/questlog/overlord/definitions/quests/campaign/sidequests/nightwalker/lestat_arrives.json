@@ -1,32 +1,13 @@
 {
   "title": "A Guest with Fangs",
-  "description": "The transformation is complete. The condition is no longer a fever, a bottle, or a possibility: the Overlord is a vampire. A stranger named Lestat has come to the Dark Tower because this is one subject on which Gnarl cannot plausibly claim centuries of practical expertise. Meet him as a sovereign, not as a patient.",
-  "description_completed": "Lestat has taken up residence in the Dark Tower as the Overlord's vampire adviser. He is not a Minion, not a replacement for Gnarl, and not part of formal Tower Restoration. His usefulness begins with the fact that he knows what it is to live with the condition the Overlord has just acquired.",
+  "description": "The transformation is complete. The condition is no longer a fever, a bottle, or a possibility: the Overlord is a vampire. Lestat has come to the Dark Tower because the newly changed sovereign has entered a subject Gnarl does not pretend to know through lived experience. Hear him out as a sovereign, not as a patient.",
+  "description_completed": "Lestat has voluntarily remained at the Dark Tower as the Overlord's vampire adviser. He is not a Minion, not a replacement for Gnarl, and not part of formal Tower Restoration. His presence is narrative and contextual; Questlog does not require a permanently spawned Lestat entity.",
   "icon": {
     "item": "nycto:vampire_blood_bottle"
   },
   "chapter": "main",
   "include_in_main": true,
   "sort_order": 400,
-  "provider": {
-    "entity_types": [
-      "nycto:vampire"
-    ],
-    "scoreboard_tags": [
-      "overlord_anchor:lestat",
-      "overlord_quest_protected"
-    ],
-    "required_facts": [
-      "overlord_reign:reign/initial_foundation_established"
-    ],
-    "dialogue": {
-      "offer": "So. This is what Gnarl has been circling as though irritation were a medical discipline. You are hungry, newly changed, and pretending neither fact is especially interesting. Come. If you are going to be a vampire and an Overlord, you may as well learn to be both deliberately.",
-      "ready_to_turn_in": "Better. You looked at the condition instead of pretending it was only another weapon. That is already an improvement.",
-      "completed": "I will remain in your Tower for a while. Gnarl will call it supervision. I will call it preventing an immortal sovereign from learning vampirism entirely by accident."
-    },
-    "lock_to_provider": true,
-    "turn_in": "same_provider"
-  },
   "prerequisites": [
     {
       "type": "questlog:fact",
@@ -40,7 +21,13 @@
       "name": "Become a vampire through NightWalker"
     }
   ],
-  "objectives": [],
+  "objectives": [
+    {
+      "type": "questlog:read",
+      "required_amount": 1,
+      "name": "Hear Lestat's first advice after the transformation"
+    }
+  ],
   "rewards": [
     {
       "type": "questlog:set_fact",
@@ -49,8 +36,8 @@
       "name": "Record Lestat's arrival at the Dark Tower"
     }
   ],
-  "show_popup_on_unlock": false,
-  "toast_on_unlock": true,
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
   "toast_on_complete": true,
   "hide_when_completed": false
 }

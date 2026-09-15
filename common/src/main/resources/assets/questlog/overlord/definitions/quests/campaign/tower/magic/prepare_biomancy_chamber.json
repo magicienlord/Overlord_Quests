@@ -1,0 +1,30 @@
+{
+  "title": "Prepare the Biomancy Chamber",
+  "description": "Gnarl's flesh-work needs a proper place in the Dark Tower. Establish a functioning Bio-Forge so the chamber can process living matter safely enough to be useful. This activates the Tower facility only; deeper Biomancy mastery remains in the dedicated discipline arc.",
+  "description_completed": "The Dark Tower now has an operational Biomancy chamber centered on a working Bio-Forge. Decomposers, Digesters, Bio-Labs, Injectors, Cradles and deeper flesh-work remain part of Biomancy's own progression rather than formal Tower Restoration.",
+  "icon": {"item": "minecraft:rotten_flesh"},
+  "chapter": "main",
+  "include_in_main": true,
+  "sort_order": 75,
+  "prerequisites": [
+    {
+      "type": "questlog:quest_complete",
+      "quest": "questlog:campaign/expansion/the_reign_takes_shape",
+      "required_amount": 1,
+      "name": "Establish the first foundation of the reign"
+    }
+  ],
+  "objectives": [
+    {
+      "type": "questlog:advancement",
+      "advancement": "biomancy:biomancy/bio_forge",
+      "required_amount": 1,
+      "name": "Establish a working Bio-Forge"
+    }
+  ],
+  "rewards": [],
+  "show_popup_on_unlock": false,
+  "toast_on_unlock": true,
+  "toast_on_complete": true,
+  "hide_when_completed": false
+}

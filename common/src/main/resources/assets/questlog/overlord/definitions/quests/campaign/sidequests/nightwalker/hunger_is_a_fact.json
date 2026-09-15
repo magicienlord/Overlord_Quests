@@ -1,6 +1,6 @@
 {
   "title": "Hunger Is a Fact",
-  "description": "Lestat's first lesson is deliberately unromantic: vampirism has a blood economy whether the Overlord finds that poetic or tedious. Refill that reserve through one of NightWalker's real blood-bottle paths, then return to him.",
+  "description": "Lestat's first lesson is deliberately unromantic: vampirism has a blood economy whether the Overlord finds that poetic or tedious. Refill that reserve through one of NightWalker's real blood-bottle paths. Lestat's point is simple: feed because you choose to, not because desperation chooses for you.",
   "description_completed": "The Overlord has deliberately fed the NightWalker blood reserve after transformation. Hunger is now an understood operating condition rather than an unexplained penalty.",
   "icon": {
     "item": "nycto:blood_bottle"
@@ -8,26 +8,6 @@
   "chapter": "main",
   "include_in_main": true,
   "sort_order": 401,
-  "provider": {
-    "entity_types": [
-      "nycto:vampire"
-    ],
-    "scoreboard_tags": [
-      "overlord_anchor:lestat",
-      "overlord_quest_protected"
-    ],
-    "required_facts": [
-      "overlord_reign:personal/nightwalker/lestat_joined_tower"
-    ],
-    "dialogue": {
-      "offer": "The hunger is not a philosophy, mon Overlord. It is a fact. Ignore it and your body will explain the matter less elegantly. Feed the reserve on purpose once. Then we can discuss power without pretending appetite is beneath you.",
-      "in_progress": "Still resisting the lesson because it is simple? Hunger is wonderfully indifferent to dignity.",
-      "ready_to_turn_in": "There. Better to feed because you chose to than because desperation chose for you.",
-      "completed": "Remember the distinction. Appetite is not shameful. Being ruled by an appetite you refuse to understand is merely sloppy."
-    },
-    "lock_to_provider": true,
-    "turn_in": "same_provider"
-  },
   "prerequisites": [
     {
       "type": "questlog:quest_complete",
@@ -74,8 +54,8 @@
     }
   ],
   "rewards": [],
-  "show_popup_on_unlock": false,
-  "toast_on_unlock": true,
+  "show_popup_on_unlock": true,
+  "toast_on_unlock": false,
   "toast_on_complete": true,
   "hide_when_completed": false
 }
