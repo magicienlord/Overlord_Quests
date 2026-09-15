@@ -55,25 +55,42 @@ Villager and Illager providers remain locally resolved around authored quest con
 
 ## Repository qualification
 
-The implementation checkpoint:
+The exact qualified Quest artifact checkpoint is:
 
 ```text
-dbc2d328fd90c061cf9f85ff216c80f8110be346
+3a5c9f266a52dca9c6a29180bcebc50075bca816
 ```
 
-completed the full set of 17 triggered repository workflows successfully. This includes Forge compilation, client and dedicated-server bootstrap smoke, narrative-state persistence, provider runtime smoke, source/questline closure validators, Minion recovery, Tower restoration and the remaining campaign contracts.
+All 17 triggered repository workflows on that exact head completed successfully. This includes Forge compilation and packaging, client and dedicated-server bootstrap smoke, narrative-state persistence, provider runtime smoke, source/questline closure validators, Minion recovery, Tower restoration and the remaining campaign contracts.
 
-Provider Runtime Smoke #3 is green after correcting CI dependency preparation. The preceding provider-smoke failures occurred before provider assertions and did not identify a gameplay/provider defect.
+The exact Forge artifact is:
 
-Source-authority implementation debt is therefore closed and repository CI qualification is established for the implementation checkpoint above.
+```text
+artifact name: overlord-quests-forge-1.20.1
+artifact id: 10378199508
+SHA-256: eb9978a7c24d6b69b6e8b3dc6a4037fe52a263037029e5bec793a2356668e4d2
+```
 
-A later production implementation change must establish new exact-head CI evidence. Documentation-only reconciliation does not retroactively invalidate the qualified implementation checkpoint, but its own branch checks must still remain green.
+Provider Runtime Smoke is green on this checkpoint. The earlier provider-smoke failures occurred before provider assertions and identified CI dependency-preparation defects, not a provider gameplay defect.
+
+Source-authority implementation debt is therefore closed and repository CI qualification is established for the exact artifact checkpoint above.
+
+A later production implementation change must establish new exact-head CI evidence and a new artifact identity. Documentation-only reconciliation does not create new gameplay evidence.
+
+## Supplied instance baseline boundary
+
+The supplied project instance capture predates the qualified Quest artifact.
+
+The project baseline records a 2026-09-09 207-JAR capture, followed by the 2026-09-11 Reputation! removal and an intended 206-JAR roster pending refresh. At that project checkpoint Overlord Quests was still documented as a planned replacement framework and the unified main/sidequest implementation remained active development.
+
+That older capture cannot be promoted into final assembled-instance evidence for the September 15 Quest artifact. Final gameplay qualification requires a refreshed disposable assembled instance containing the exact Quest build under test and compatible owner-mod artifacts.
 
 ## Full-instance qualification boundary
 
-The remaining non-source gate is assembled-instance acceptance of presentation and optional-mod handoffs, including:
+The remaining non-source gate is refreshed assembled-instance acceptance of presentation and optional-mod handoffs, including:
 
 - generalized Gnarl commentary presentation and cadence in the assembled client;
+- client provider presentation and provider-screen distance closure;
 - Fathoms Historian interaction and native Fathoms handoff;
 - NightWalker contextual Lestat presentation and Nycto owner-state handoff;
 - OVERLORD Minions Red to Green to Blue save/reload progression with the compatible owner artifact installed;
@@ -81,6 +98,6 @@ The remaining non-source gate is assembled-instance acceptance of presentation a
 
 These are gameplay/integration acceptance checks, not missing authored Quest source.
 
-The detailed evidence matrix and remaining acceptance conditions are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
+The detailed evidence matrix, exact artifact identity and remaining acceptance conditions are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
 
-Until those checks are recorded, this document must not be read as a final release-qualified or fully gameplay-qualified claim.
+Until those checks are recorded against a refreshed assembled instance, this document must not be read as a final release-qualified or fully gameplay-qualified claim.

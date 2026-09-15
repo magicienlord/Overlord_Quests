@@ -18,18 +18,26 @@ OVERLORD REIGN is a single-player project. Dedicated-server boot remains a compa
 
 ## Repository qualification checkpoint
 
-The last implementation checkpoint before this documentation reconciliation is:
+The current qualified Quest artifact checkpoint is:
 
 ```text
-dbc2d328fd90c061cf9f85ff216c80f8110be346
-Resolve provider smoke runtime before offline launch
+3a5c9f266a52dca9c6a29180bcebc50075bca816
+Harden reconciliation validators against prose formatting
 ```
 
 All 17 workflows triggered for that exact checkpoint completed successfully. This includes Forge build, dedicated-server smoke, client bootstrap smoke, narrative-state persistence smoke, provider runtime smoke, remaining-questline closure, Minion recovery, Tower restoration, civilization validation, quest-anchor protection, core magic, adventure, ending, optional objectives, system reactions, Illager and Piglin campaign contracts.
 
-Provider Runtime Smoke #3 is green. Its two preceding failures were CI dependency-resolution defects that occurred before provider assertions. The corrected smoke resolves the launch runtime online, then performs the actual server launch and provider assertions offline.
+Exact Forge artifact:
 
-Repository qualification therefore no longer blocks source-complete status. A later production implementation change must establish its own exact-head green CI evidence.
+```text
+artifact name: overlord-quests-forge-1.20.1
+artifact id: 10378199508
+SHA-256: eb9978a7c24d6b69b6e8b3dc6a4037fe52a263037029e5bec793a2356668e4d2
+```
+
+Provider Runtime Smoke is green on this exact head. Its earlier failures were CI dependency-resolution defects that occurred before provider assertions and were corrected without changing provider gameplay semantics.
+
+Repository qualification therefore no longer blocks source-complete status. A later production implementation change must establish its own exact-head green CI evidence and artifact identity.
 
 ## Engine state
 
@@ -46,7 +54,8 @@ Implemented in the repository:
 - optional NightWalker owner-state objectives without a hard Nycto Java dependency;
 - contextual Lestat guidance without a required spawned Lestat entity;
 - source-backed Historian-led Overlord Depths / Fathoms integration;
-- Forge server/client bootstrap and narrative-state smoke boundaries.
+- Forge server/client bootstrap and narrative-state smoke boundaries;
+- dedicated provider server-runtime qualification for narrative gates, Villager profession matching, UUID binding, persistence serialization, same-provider locking and distance enforcement.
 
 ## Campaign coverage
 
@@ -126,12 +135,20 @@ tree: 25e8c3a3de67543fe4f62a02ae3625a471423068
 
 The five-step sidequest uses the real `fathoms:historian` profession and observes native Fathoms nautical progression. Questlog does not replace Fathoms mechanics or invent a boss/lore ending.
 
+## Supplied instance baseline boundary
+
+The supplied project archives are not a current assembled qualification target for this exact Quest build.
+
+The project baseline records a 2026-09-09 captured 207-JAR instance, followed by the 2026-09-11 removal of Reputation! and an intended 206-JAR roster pending refreshed archives. At that checkpoint Overlord Quests was still documented as a planned replacement framework and its main/sidequest unification as active development.
+
+That historical capture therefore predates the exact September 15 Quest artifact above. It remains useful forensic evidence for the older pack state, but it cannot establish final assembled-instance acceptance for this Quest build.
+
 ## Remaining qualification boundary
 
-Repository source/content implementation is closed against the pinned Lore authority, and the exact implementation checkpoint above is green across the complete 17-workflow repository suite.
+Repository source/content implementation is closed against the pinned Lore authority, and the exact Quest artifact checkpoint above is green across the complete 17-workflow repository suite.
 
-What remains is assembled-instance acceptance, not unimplemented Quest source. The manual/integration boundary includes direct gameplay confirmation of optional-mod handoffs, presentation, save/reload behavior where the owner mod is required, and the final reconciled campaign flow in the assembled OVERLORD REIGN instance.
+What remains is assembled-instance acceptance in a refreshed disposable test instance, not unimplemented Quest source. The manual/integration boundary includes direct gameplay confirmation of optional-mod handoffs, client presentation, save/reload behavior where the owner mod is required, client provider-screen distance closure, and the final reconciled campaign flow.
 
-The detailed evidence and remaining acceptance matrix are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
+The detailed evidence, exact artifact identity and remaining acceptance matrix are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
 
-Until those assembled-instance checks are recorded, this repository should be described as source-complete and repository-qualified, not fully gameplay-qualified for release.
+Until those refreshed assembled-instance checks are recorded, this repository should be described as source-complete and repository-qualified, not fully gameplay-qualified for release.

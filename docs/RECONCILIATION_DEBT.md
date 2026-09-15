@@ -40,13 +40,20 @@ Tower, remaining-questline, final-assignment, Minion recovery and generalized Gn
 
 ## Repository qualification
 
-The qualified implementation checkpoint is:
+The exact qualified Quest artifact checkpoint is:
 
 ```text
-dbc2d328fd90c061cf9f85ff216c80f8110be346
+3a5c9f266a52dca9c6a29180bcebc50075bca816
 ```
 
 All 17 workflows triggered for that exact checkpoint completed successfully, including Forge build, client and server smoke, narrative persistence, provider runtime smoke, Minion recovery and the campaign/source closure contracts.
+
+Exact Forge artifact:
+
+```text
+artifact id: 10378199508
+SHA-256: eb9978a7c24d6b69b6e8b3dc6a4037fe52a263037029e5bec793a2356668e4d2
+```
 
 Repository CI is therefore no longer reconciliation debt for this implementation checkpoint.
 
@@ -54,9 +61,14 @@ Repository CI is therefore no longer reconciliation debt for this implementation
 
 This ledger distinguishes source implementation from final assembled-instance qualification.
 
+The supplied project instance capture cannot close this gate because it predates the qualified Quest artifact. The project baseline records a 2026-09-09 207-JAR capture, followed by the 2026-09-11 Reputation! removal and an intended 206-JAR roster pending refresh. At that baseline Overlord Quests was still documented as a planned replacement framework and active development.
+
+A refreshed disposable assembled instance is therefore required for final gameplay qualification.
+
 The following still require truthful full-instance/manual confirmation before a final release-qualified or fully gameplay-qualified claim:
 
 - Gnarl commentary presentation and cadence in the assembled client;
+- client provider presentation and provider-screen distance closure;
 - Fathoms presentation and native Historian handoff;
 - NightWalker contextual Lestat presentation and Nycto owner-state handoff;
 - OVERLORD Minions Red to Green to Blue cross-mod save/reload progression;
@@ -65,7 +77,7 @@ The following still require truthful full-instance/manual confirmation before a 
 
 These are acceptance gates, not missing source-authoring debt.
 
-The exact evidence matrix and acceptance boundary are maintained in `docs/FULL_INSTANCE_QUALIFICATION.md`.
+The exact evidence matrix, artifact identity and acceptance boundary are maintained in `docs/FULL_INSTANCE_QUALIFICATION.md`.
 
 ## Explicit non-debts
 
