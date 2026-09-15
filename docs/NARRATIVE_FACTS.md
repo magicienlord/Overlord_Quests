@@ -98,13 +98,9 @@ Civilization facts are scoped to the deliberately designated local polity/quest 
 | `overlord_reign:civilizations/sea_dwellers/contact_established` | `campaign/civilizations/sea_dwellers/first_contact` | Formal contact with the designated principal Sea Dweller polity was established. |
 | `overlord_reign:civilizations/dwarves/contact_established` | `campaign/civilizations/dwarves/first_contact` | Formal contact with the designated Dwarven successor polity was established. |
 | `overlord_reign:civilizations/umvuthana/contact_established` | `campaign/civilizations/umvuthana/first_contact` | The legitimate mask-gated first audience with the designated Umvuthi was completed. |
-| `overlord_reign:civilizations/illagers/authority_established` | `campaign/civilizations/illagers/break_the_bastille` | The designated Bastille's local command was broken through its authored commander encounter. |
-| `overlord_reign:civilizations/illagers/bastille_cowed` | `campaign/civilizations/illagers/the_bastille_bows` | The designated local Illager polity completed the fearful/cowed audience; this is historical restraint, not friendship or species-wide pacification. |
+| `overlord_reign:civilizations/illagers/authority_established` | `campaign/civilizations/illagers/break_the_bastille` | The designated Bastille's local command was broken through its authored commander encounter. This fact does not write disposition, does not globally pacify Illagers, and does not mean the later cowed audience has occurred. |
+| `overlord_reign:civilizations/illagers/bastille_cowed` | `campaign/civilizations/illagers/the_bastille_bows` | The designated local Illager polity completed the fearful/cowed audience. This records fear/restraint, not friendship or species-wide surrender. A later explicit non-peaceful disposition may restore local native hostility while this historical fact remains true. |
 | `overlord_reign:civilizations/piglins/contact_established` | `campaign/civilizations/piglins/first_contact` | Formal first audience with the designated local Piglin polity was completed. |
-
-Illager authority boundary: `overlord_reign:civilizations/illagers/authority_established` does not write disposition, does not globally pacify illagers, and does not mean the later cowed audience has occurred.
-
-Illager cowed boundary: `overlord_reign:civilizations/illagers/bastille_cowed` records fear/restraint. It does not imply species-wide surrender, friendship or permanent pacification. A later explicit non-peaceful disposition may restore local native hostility while this historical fact remains true.
 
 ## Central End / dimensional Wasteland
 
