@@ -48,12 +48,13 @@ jobs:
           TARGET_SHA: e0a0c8667e389f735b8c138227cf62cc889e28c3
         run: |
           set -euo pipefail
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release delete "$TAG" --cleanup-tag --yes
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
           fi
           gh release create "$TAG" \
             Overlord_Quests-1.20.1-e0a0c866.jar \
             Overlord_Quests-1.20.1-e0a0c866.jar.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
             --target "$TARGET_SHA" \
             --title 'Overlord Quests 1.20.1 e0a0c866 validated artifact' \
             --notes 'Direct JAR extracted from GitHub Actions artifact 10379446060. That artifact was produced by Forge build run 34924583259 from exact validated commit e0a0c8667e389f735b8c138227cf62cc889e28c3.'
