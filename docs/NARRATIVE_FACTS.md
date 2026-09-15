@@ -102,6 +102,10 @@ Civilization facts are scoped to the deliberately designated local polity/quest 
 | `overlord_reign:civilizations/illagers/bastille_cowed` | `campaign/civilizations/illagers/the_bastille_bows` | The designated local Illager polity completed the fearful/cowed audience; this is historical restraint, not friendship or species-wide pacification. |
 | `overlord_reign:civilizations/piglins/contact_established` | `campaign/civilizations/piglins/first_contact` | Formal first audience with the designated local Piglin polity was completed. |
 
+Illager authority boundary: `overlord_reign:civilizations/illagers/authority_established` does not write disposition, does not globally pacify illagers, and does not mean the later cowed audience has occurred.
+
+Illager cowed boundary: `overlord_reign:civilizations/illagers/bastille_cowed` records fear/restraint. It does not imply species-wide surrender, friendship or permanent pacification. A later explicit non-peaceful disposition may restore local native hostility while this historical fact remains true.
+
 ## Central End / dimensional Wasteland
 
 | Fact | Writer | Meaning / boundary |
