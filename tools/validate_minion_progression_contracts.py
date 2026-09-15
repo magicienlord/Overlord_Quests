@@ -114,7 +114,8 @@ def main() -> int:
     require("mandatory = false" in mods_toml[mods_toml.find('modId = "overlord_minions"'):], "OVERLORD Minions integration must remain optional at loader level", errors)
 
     require("Build #118" in doc, "Minion integration doc must record the validated Build #118 baseline", errors)
-    require("Brown `0`, Red `1`, Green `2`, Blue `3`" in doc, "Minion integration doc must preserve the fixed slot order", errors)
+    for order_line in ("0 Brown", "1 Red", "2 Green", "3 Blue"):
+        require(order_line in doc, f"Minion integration doc must preserve fixed slot order entry: {order_line}", errors)
     require("MINION_PROGRESSION_TEST_PROTOCOL.md" in doc, "Minion integration doc must link the runtime validation protocol", errors)
     require('"type": "questlog:unlock_minion"' in recovery_doc, "Minion recovery contract must document the production unlock reward", errors)
     require('"slot": "red"' in recovery_doc, "Minion recovery contract must document the canonical slot field", errors)

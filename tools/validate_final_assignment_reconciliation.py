@@ -145,7 +145,9 @@ def collect_errors() -> list[str]:
 
     final_doc = RECONCILIATION.read_text(encoding="utf-8") if RECONCILIATION.is_file() else ""
     for token in (
-        "IMPLEMENTATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING",
+        "Status: IMPLEMENTATION CLOSED",
+        "REPOSITORY CI QUALIFIED",
+        "FULL-INSTANCE QUALIFICATION PENDING",
         AUTHORITY_HEAD,
         "Gnarl's Ramblings",
         "Biomancy",
@@ -158,7 +160,9 @@ def collect_errors() -> list[str]:
 
     debt = DEBT.read_text(encoding="utf-8") if DEBT.is_file() else ""
     for token in (
-        "SOURCE RECONCILIATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING",
+        "Status: SOURCE RECONCILIATION CLOSED",
+        "REPOSITORY CI QUALIFIED",
+        "FULL-INSTANCE QUALIFICATION PENDING",
         AUTHORITY_HEAD,
         "Gnarl's Ramblings: CLOSED",
         "Biomancy Tower activation: CLOSED",
@@ -181,6 +185,7 @@ def main() -> int:
         return 1
     print("Final assignment reconciliation guard: PASS")
     print("source implementation debt: closed against pinned Lore authority")
+    print("repository qualification: separately recorded at an exact green implementation checkpoint")
     print("release qualification: full assembled-instance/manual validation remains separately pending")
     return 0
 
