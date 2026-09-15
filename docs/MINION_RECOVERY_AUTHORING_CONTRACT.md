@@ -1,53 +1,53 @@
 # OVERLORD REIGN Minion Recovery Authoring Contract
 
-Status: ACTIVE AUTHORING BOUNDARY
+Status: PRODUCTION RECOVERY ANCHORS IMPLEMENTED / DEEPER DIEGETIC MANIFESTATION UNKNOWN
 
-Implementation state: MINION CAPABILITY BRIDGE READY / RED, GREEN, AND BLUE PRODUCTION RECOVERY SCENARIOS NOT YET AUTHORED
+Implementation state: RED, GREEN, AND BLUE PRODUCTION RECOVERY SCENARIOS IMPLEMENTED
 
 ## 1. Purpose
 
-This document constrains production authoring for the Red, Green, and Blue Minion recovery milestones.
+This document records the authoring boundary for the traditional Red, Green, and Blue Minion recovery milestones after their production implementation.
 
-The technical unlock bridge is already implemented against `Overlord_Minions` Build #118. The remaining work is narrative and world-facing: determine source-faithful present-day recovery scenarios without inventing facts that have not been adopted into OVERLORD REIGN.
+The earlier version of this contract correctly prohibited inventing unsupported present-day geography, arbitrary Hive locations, or native-mod dependencies while the production recovery scenarios were unresolved. That authoring phase is now superseded by the implemented campaign definitions.
 
-This document is deliberately a boundary record rather than a concealed campaign outline. It records what may safely be implemented and what must remain unresolved until supported by canon, source evidence, or validated world mechanics.
+The implemented gameplay recovery anchors do not resolve every in-universe detail. In particular, they do not invent a physical Hive transport mechanic, a new Hive location, or a visible Hive manifestation that the owning Minion implementation does not provide.
 
 ## 2. Authority
 
-Authoring must reconcile all of the following:
+Authoring and maintenance must reconcile:
 
-1. `magicienlord/Overlord_Lore_and_Canon` as read-only lore and source authority;
+1. `magicienlord/Overlord_Lore_and_Canon` as read-only lore/source authority;
 2. `docs/CAMPAIGN_AUTHORING_CONTRACT.md` for campaign-state and spoiler rules;
 3. `docs/MINION_UNLOCK_INTEGRATION.md` for cross-mod ownership;
-4. the public `OverlordMinionProgression` API in `magicienlord/Overlord_Minions` Build #118;
-5. verified current modpack mechanics before a native advancement, structure, item, biome, boss, or dimension signal is used as a production objective.
+4. `docs/MINION_TYPE_RECOVERY_CONTRACT.md` for the implemented production sequence;
+5. the public `OverlordMinionProgression` API in the validated OVERLORD Minions progression baseline;
+6. verified current modpack mechanics before adding any new advancement, structure, item, biome, boss, dimension or provider dependency.
 
-The implementation repository must not resolve lore UNKNOWNs merely because a technically convenient objective exists.
+Implementation convenience must not be used to fill a remaining lore UNKNOWN.
 
-## 3. Established REIGN facts
+## 3. Established REIGN constraints
 
-The following constraints are established and may be relied upon by production content:
+The following constraints remain authoritative for the implementation:
 
-- Brown, Red, Green, and Blue remain the four traditional Minion tribes.
-- The traditional Hives survive into the current era.
-- During the Silence, the Minion population withdrew into the Netherworld and became scattered or dormant, with ordinary spawning impaired in the absence of an active Master.
-- The vanilla Nether is the Netherworld in OVERLORD REIGN.
-- The current Overlord begins the process of restoring the Minion forces.
+- Brown, Red, Green and Blue are the four traditional Minion tribes.
 - Brown is the bootstrap tribe and is restored through the Master's Staff path owned by the Minion implementation.
 - Later capability order is fixed as Brown, Red, Green, Blue.
-- Red, Green, and Blue are campaign-earned capabilities.
-- In the original games, Hive recovery is associated with restoration of the corresponding tribe's availability.
-- OVERLORD REIGN does not require the player to physically carry a Hive back as the implementation mechanic. The authored recovery milestone may establish the equivalent restored state through a REIGN-specific sequence once that sequence is actually defined.
+- Red, Green and Blue are campaign-earned capabilities.
+- The vanilla Nether is the Netherworld in OVERLORD REIGN.
+- During the Silence, Minion forces became scattered or dormant and ordinary spawning was impaired without an active Master.
+- The current Overlord restores the Minion forces.
+- Original-game Hive recovery is a source precedent for restoration of corresponding tribe availability.
+- OVERLORD REIGN does not require the player to physically carry a Hive as the implementation mechanic.
 
-The exact diegetic process for present-day Red, Green, and Blue reactivation remains unresolved.
+The exact physical or magical manifestation of a recovered Hive in the present-day world remains outside Questlog unless separately established by authority and implemented by the owning system.
 
-## 4. Source precedents, not present-day location canon
+## 4. Source precedents
 
-Original-game recovery material may constrain tone, identity, ordering, and environmental logic. It does not automatically establish current REIGN geography.
+Original-game recovery material constrains identity, ordering, tone and environmental associations. It does not automatically establish present-day REIGN geography.
 
-### 4.1 Red source precedent
+### 4.1 Red
 
-The Overlord 1 source corpus associates Red recovery with the Hells Kitchen sequence and state records including:
+Overlord 1 source material associates Red recovery with the Hells Kitchen sequence and state records such as:
 
 ```text
 D1_FINDREDS
@@ -55,13 +55,13 @@ D1_REDMINIONS
 TOWER_REDHIVE
 ```
 
-The Red tribe's source identity includes fire association, ranged combat, and fire immunity.
+Red identity includes fire association, ranged combat and fire immunity.
 
-These references are evidence for the original recovery pattern. They do not establish a present-day REIGN location named Hells Kitchen, a mandatory fire-biome objective, or a specific mod integration.
+This does not establish a present-day REIGN location named Hells Kitchen or a mandatory imported source-game structure.
 
-### 4.2 Green source precedent
+### 4.2 Green
 
-The Overlord 1 source corpus associates Green recovery with the Green Cave or Viridian Caverns sequence and state records including:
+Overlord 1 source material associates Green recovery with the Green Cave / Viridian Caverns sequence and records such as:
 
 ```text
 D2_GREENLAIR
@@ -69,13 +69,13 @@ D2S1_GREENHIVE
 TOWER_GREENHIVE
 ```
 
-The Green tribe's source identity includes stealth, back attacks, and poison immunity.
+Green identity includes stealth, back attacks and poison immunity.
 
-These references are evidence for the original recovery pattern. They do not establish a present-day REIGN Viridian Caverns location, a mandatory poison-biome objective, or a specific mod integration.
+This does not establish a present-day REIGN Viridian Caverns location or a mandatory imported source-game structure.
 
-### 4.3 Blue source precedent
+### 4.3 Blue
 
-The Overlord 1 source corpus associates Blue recovery with the Blue Cave or Moist Hollows sequence and local state records including:
+Overlord 1 source material associates Blue recovery with the Blue Cave / Moist Hollows sequence and records such as:
 
 ```text
 D3_BLUECAVE
@@ -86,21 +86,44 @@ D3S1_BLUEHIVE
 TOWER_BLUEHIVE
 ```
 
-The Blue tribe's source identity includes magical aptitude, water traversal, relative combat fragility, and resurrection.
+Blue identity includes magical aptitude, water traversal, relative combat fragility and resurrection.
 
-The source sequence has a meaningful local order, but the source dependency evidence does not justify promoting every local event into a formal hard quest dependency. REIGN authoring must preserve meaningful environmental progression without converting source implementation details into an artificial checklist corridor.
+The source sequence informs Blue identity and environmental logic but does not establish a present-day Moist Hollows location, a mandatory aquatic boss, geyser mechanic or imported source-game corridor.
 
-These references do not establish a present-day REIGN Moist Hollows location, a mandatory aquatic boss, a mandatory geyser mechanic, or a specific mod integration.
+## 5. Adopted production gameplay anchors
 
-## 5. Technical unlock contract
+The production campaign now uses sequence-break-safe ordinary Minecraft materials as the recovery tests:
+
+```text
+Red   -> minecraft:blaze_rod
+Green -> minecraft:spider_eye
+Blue  -> minecraft:prismarine_crystals
+```
+
+These are implemented Quest objectives and are the actual current recovery anchors. They are not placeholders, temporary Hive proxies, fictional crafting ingredients consumed by OVERLORD Minions, or claims that a physical Hive object exists in the Minecraft implementation.
+
+The production action/confirmation pairs are:
+
+```text
+campaign/expansion/restore_reds.json
+campaign/expansion/reds_return.json
+campaign/expansion/restore_greens.json
+campaign/expansion/greens_return.json
+campaign/expansion/restore_blues.json
+campaign/expansion/blues_return.json
+```
+
+Each action quest performs the authored field test and requests the corresponding owner-side unlock. Each following Gnarl confirmation waits for authoritative owner state before recording the recovery as narrative history.
+
+## 6. Technical unlock contract
 
 The permanent capability owner is `Overlord_Minions`.
 
-Production unlock rewards must use the Questlog integration surface rather than modifying Minion state directly.
+Production unlock rewards use the Questlog integration surface rather than modifying Minion state directly.
 
 ### Red
 
-The final Red recovery milestone must grant:
+`restore_reds` follows `questlog:campaign/expansion/the_reign_takes_shape`, requires one Blaze Rod, then auto-claims:
 
 ```json
 {
@@ -110,132 +133,89 @@ The final Red recovery milestone must grant:
 }
 ```
 
-It may only become reachable after the Brown bootstrap state is established through the production campaign.
+`reds_return` requires both completion of the action quest and authoritative `questlog:minion_unlocked` Red state.
 
 ### Green
 
-The final Green recovery milestone must require both:
+`restore_greens` follows `reds_return`, requires one Spider Eye and auto-claims the Green unlock.
 
-- completion of the authored Red recovery milestone;
-- authoritative owner state showing Red unlocked through `questlog:minion_unlocked`.
-
-Its final capability reward must grant Green through `questlog:unlock_minion`.
+`greens_return` requires both completion of the action quest and authoritative Green owner state.
 
 ### Blue
 
-The final Blue recovery milestone must require both:
+`restore_blues` follows `greens_return`, requires Prismarine Crystals and auto-claims the Blue unlock.
 
-- completion of the authored Green recovery milestone;
-- authoritative owner state showing Green unlocked through `questlog:minion_unlocked`.
-
-Its final capability reward must grant Blue through `questlog:unlock_minion`.
+`blues_return` requires both completion of the action quest and authoritative Blue owner state.
 
 ### Ownership rules
 
 Questlog must not:
 
-- maintain a duplicate Red, Green, or Blue unlocked boolean;
+- maintain a duplicate Red, Green or Blue capability boolean;
 - mutate Minion roster internals directly;
-- assume the API call needs to be non-idempotent;
-- manufacture a parallel narrative fact whose only meaning is that the Minion slot is unlocked.
+- create a second Brown unlock route;
+- treat a completed action quest as proof that the owner API accepted the unlock;
+- infer Minion capability from renderer appearance, current Minion count, UUID order, provider state or inventory possession alone.
 
-Narrative facts remain available for distinct historical consequences, but Minion capability state itself belongs to `Overlord_Minions`.
+The recovery facts written by confirmation quests are narrative history, not duplicate capability ownership.
 
-## 6. Sequence-break policy
+## 7. Sequence-break policy
 
-A recovery milestone should observe native world progress retroactively where the player could legitimately satisfy its underlying requirement before receiving the formal quest.
+The material objectives use normal item-obtain observation, allowing already-held legitimate items to satisfy the recovery test when Questlog evaluates the objective.
 
-Use verified Questlog history surfaces where appropriate:
+The owner-side sequence is independently fail-closed. Green cannot become narratively confirmed until Red has been accepted by the owner system, and Blue cannot become narratively confirmed until Green has been accepted.
 
-- exact item craft statistics;
-- exact entity kill statistics;
-- native advancements;
-- dimension history;
-- structure history;
-- bounded position history;
-- explicit narrative facts;
-- authoritative Minion owner state.
+Future changes should prefer verified native history/state surfaces where the player may legitimately complete an underlying action before receiving a formal quest. Do not invent a duplicate collectible or advancement merely to make recovery trackable.
 
-Do not invent an artificial collectible or duplicate a native advancement merely to make a recovery sequence trackable.
+## 8. Authoring prohibitions still in force
 
-If a local source-inspired sequence contains several environmental steps, distinguish between:
+Do not:
 
-- actual hard prerequisites required by world logic;
-- observations that can be recognized after the fact;
-- presentation beats that do not need their own quest node.
-
-## 7. Authoring prohibitions
-
-Until a production recovery scenario is resolved, do not:
-
-- assign Red, Green, or Blue to arbitrary color-themed biomes solely because the theme matches;
+- assign a new Red, Green or Blue location solely because its colour/theme matches;
 - import an original-game named location into current REIGN geography without explicit adoption;
 - claim the player physically carries a Hive unless that mechanic is explicitly adopted;
-- assign Theurgy, Ars Elixirum, Biomancy, Eidolon, or another native mod a mandatory recovery role simply because its theme is convenient;
-- invent a boss, structure, advancement, item ID, dimension gate, or provider role that has not been verified;
+- add Theurgy, Ars Elixirum, Biomancy, Eidolon or another mod as a mandatory recovery dependency merely because its theme is convenient;
+- invent a boss, structure, advancement, item ID, dimension gate or provider role without verification and authority;
 - turn every source-local event into a hard quest prerequisite;
-- create a hidden universal morality, friendship, domination, or reputation variable around Minion recovery;
-- use a civilization disposition as a surrogate Minion progression flag;
-- use a Questlog narrative fact as a duplicate Minion unlock state.
+- create a hidden morality, friendship, domination or reputation variable around Minion recovery;
+- use civilization disposition as a surrogate Minion progression flag;
+- use Questlog narrative facts as duplicate owner unlock state.
 
-## 8. Remaining UNKNOWNs
+## 9. Remaining UNKNOWNs
 
-The following remain intentionally unresolved:
+The following are not defined by the current Quest implementation and must not be silently invented:
 
-- the exact present-day diegetic reactivation mechanism for Red;
-- the exact present-day diegetic reactivation mechanism for Green;
-- the exact present-day diegetic reactivation mechanism for Blue;
-- the exact world anchors, structures, or local environments used for those recoveries;
-- which verified native mod signals, if any, should serve as recovery objectives;
-- the exact Gnarl dialogue for those milestones;
-- whether each color uses one principal quest or a short local sequence;
-- whether and how Hive restoration receives a visible world-state manifestation;
-- whether any source location is deliberately adopted into current REIGN geography for a recovery.
+- any exact present-day physical Hive location for Red, Green or Blue;
+- whether a recovered Hive receives a visible world-state manifestation;
+- the exact physical/magical mechanism by which the campaign milestone corresponds to Hive restoration beyond the established capability recovery outcome;
+- whether any original-game named recovery location will later be deliberately adopted into current REIGN geography.
 
-These unknowns must not be filled by implementation convenience.
+These UNKNOWNs do not make the implemented production recovery quests provisional. They constrain only additional diegetic/world manifestation beyond the established recovery progression.
 
-## 9. Promotion rule
+## 10. Validation
 
-A Red, Green, or Blue production recovery scenario may be authored when its defining scenario is constrained by at least one authoritative basis and remains compatible with the others:
+`tools/validate_minion_recovery_contract.py` guards the production action/confirmation pairs, fixed order, exact material anchors, auto-claimed owner API unlocks, owner-state confirmation, narrative facts, production index membership and Brown exclusion.
 
-- an explicit Overlord decision;
-- an adopted decision in `Overlord_Lore_and_Canon`;
-- source evidence strong enough to support the adapted event without importing unresolved geography;
-- a verified current-modpack progression signal that fits already established lore;
-- a validated final-world anchor created for that purpose.
+The corresponding Minion Recovery Contract workflow is part of the repository qualification suite.
 
-Once a recovery scenario is promoted into production content, update together:
+The assembled cross-mod runtime boundary remains `docs/MINION_PROGRESSION_TEST_PROTOCOL.md`.
 
-- bundled campaign definitions and index;
-- `docs/MINION_UNLOCK_INTEGRATION.md`;
-- this authoring contract;
-- the production campaign validator;
-- Minion progression validation fixtures or tests where necessary;
-- `docs/NARRATIVE_FACTS.md` only if the recovery establishes a reusable historical truth distinct from the Minion capability itself.
-
-## 10. Runtime evidence still required
-
-Static integration is not the final validation boundary.
-
-The completed production sequence must eventually be validated in the full modpack for:
+Required assembled evidence includes:
 
 ```text
 Brown bootstrap
--> Red recovery and unlock
+-> Red recovery and owner unlock
 -> save/reload
--> Green recovery and unlock
+-> Green recovery and owner unlock
 -> save/reload
--> Blue recovery and unlock
+-> Blue recovery and owner unlock
 -> save/reload
 ```
 
-Validation must also cover:
+It also includes owner-side out-of-order rejection and idempotent repeated handoff.
 
-- rejected out-of-order unlock attempts;
-- idempotent repeated handoff attempts;
-- Questlog state reconciliation after login;
-- owner-state prerequisites after reload;
-- absence of duplicate Questlog Minion persistence;
-- any world-state or Hive presentation added by the eventual recovery scenarios.
+Production Red, Green, and Blue recovery scenarios: IMPLEMENTED.
 
-Until those production quests exist, Build #118 static bridge validation remains the authoritative technical baseline.
+Repository contract validation: QUALIFIED AT THE CHECKPOINT RECORDED IN `docs/FULL_INSTANCE_QUALIFICATION.md`.
+
+Assembled-instance Minion progression acceptance: PENDING.

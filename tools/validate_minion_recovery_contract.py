@@ -18,6 +18,9 @@ QUESTS = DEFINITIONS / "quests/campaign"
 INDEX = DEFINITIONS / "index.json"
 BRIDGE = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/minions/OverlordMinionProgressionBridge.java"
 REWARD = ROOT / "common/src/main/java/org/infernalstudios/questlog/overlord/minions/UnlockMinionReward.java"
+AUTHORING_DOC = ROOT / "docs/MINION_RECOVERY_AUTHORING_CONTRACT.md"
+INTEGRATION_DOC = ROOT / "docs/MINION_UNLOCK_INTEGRATION.md"
+RUNTIME_AUDIT_DOC = ROOT / "docs/MINIONS_REMASTERED_RUNTIME_AUDIT.md"
 
 BROWN_ACTION = QUESTS / "opening/restore_browns.json"
 BROWN_REACTION = QUESTS / "opening/browns_return.json"
@@ -80,6 +83,49 @@ def exact_auto_reward(data: dict[str, Any], type_id: str, key: str, value: str) 
         and rewards[0].get(key) == value
         and rewards[0].get("auto_claim") is True
     )
+
+
+def validate_documentation(errors: list[str]) -> None:
+    documents = {
+        "authoring": AUTHORING_DOC,
+        "integration": INTEGRATION_DOC,
+        "runtime audit": RUNTIME_AUDIT_DOC,
+    }
+    texts: dict[str, str] = {}
+    for label, path in documents.items():
+        try:
+            texts[label] = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"unable to read Minion {label} documentation: {exc}")
+
+    authoring = texts.get("authoring", "")
+    integration = texts.get("integration", "")
+    audit = texts.get("runtime audit", "")
+
+    if "Production Red, Green, and Blue recovery scenarios: IMPLEMENTED." not in authoring:
+        errors.append("Minion recovery authoring contract must record the production Red/Green/Blue scenarios as implemented")
+
+    stale_authoring_markers = (
+        "PRODUCTION RECOVERY SCENARIOS NOT YET AUTHORED",
+        "Until those production quests exist",
+    )
+    for marker in stale_authoring_markers:
+        if marker in authoring:
+            errors.append(f"Minion recovery authoring contract still contains stale pre-production marker: {marker}")
+
+    stale_integration_markers = (
+        "concealed production Red recovery milestone",
+        "concealed production Green recovery milestone",
+        "concealed production Blue recovery milestone",
+        "Production Red, Green, Blue campaign authoring: PENDING",
+    )
+    for marker in stale_integration_markers:
+        if marker in integration or marker in audit:
+            errors.append(f"Minion integration documentation still claims implemented production recovery is pending: {marker}")
+
+    for text, label in ((integration, "integration"), (audit, "runtime audit")):
+        if "PENDING AUTHORED RECOVERY MILESTONES" in text:
+            errors.append(f"Minion {label} documentation still carries obsolete authored-milestone debt")
 
 
 def collect_errors() -> list[str]:
@@ -187,6 +233,7 @@ def collect_errors() -> list[str]:
         if "BOOTSTRAP_OWNED_BY_STAFF" not in reward_text:
             errors.append("unlock_minion reward must retain explicit Brown-bootstrap rejection handling")
 
+    validate_documentation(errors)
     return errors
 
 
