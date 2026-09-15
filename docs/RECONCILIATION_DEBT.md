@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Reconciliation Debt
 
-Status: SOURCE RECONCILIATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING
+Status: SOURCE RECONCILIATION CLOSED / REPOSITORY CI QUALIFIED / FULL-INSTANCE QUALIFICATION PENDING
 
 This is the durable engineering ledger for `magicienlord/Overlord_Quests`. It does not create OVERLORD REIGN canon.
 
@@ -20,15 +20,15 @@ A generalized Gnarl lifecycle-commentary subsystem is implemented with separate 
 
 ### Biomancy Tower activation: CLOSED
 
-Tower Restoration now contains `campaign/tower/magic/prepare_biomancy_chamber`, backed by the native `biomancy:biomancy/bio_forge` milestone. Decomposer, Digester, Bio-Lab, Injector, Cradle and deeper Biomancy mastery remain outside the Tower activation quest. Formal Tower completion still requires only the seven core operational milestones.
+Tower Restoration contains `campaign/tower/magic/prepare_biomancy_chamber`, backed by the native `biomancy:biomancy/bio_forge` milestone. Decomposer, Digester, Bio-Lab, Injector, Cradle and deeper Biomancy mastery remain outside the Tower activation quest. Formal Tower completion still requires only the seven core operational milestones.
 
 ### Minion Hive-proxy assumption: CLOSED
 
-Brown/Red/Green/Blue are authored Quest recovery progression. Brown remains the Master's Staff bootstrap; Red, Green and Blue call the public Overlord Minions progression API after sequence-break-safe authored recovery objectives. The proof materials are not described as temporary Hive replacements.
+Brown/Red/Green/Blue are authored Quest recovery progression. Brown remains the Master's Staff bootstrap; production Red, Green and Blue action/confirmation pairs are authored and indexed. Their Blaze Rod, Spider Eye and Prismarine Crystal objectives are recovery anchors, not temporary Hive replacements. Red, Green and Blue call the public OVERLORD Minions progression API in enforced order and wait for authoritative owner state before writing narrative recovery facts.
 
 ### Lestat physical-placement assumption: CLOSED
 
-Lestat is contextual quest presentation for the NightWalker transition arc. The production quests no longer require a spawned/tagged/protected `nycto:vampire`, a provider UUID or fixed Tower coordinates.
+Lestat is contextual quest presentation for the NightWalker transition arc. The production quests do not require a spawned/tagged/protected `nycto:vampire`, a provider UUID or fixed Tower coordinates.
 
 ### Villager/Illager coordinate assumption: CLOSED
 
@@ -36,7 +36,19 @@ Existing local provider logic remains authoritative for the designated quest con
 
 ### Final reconciliation validators: CLOSED
 
-Tower, remaining-questline, final-assignment and generalized Gnarl commentary validators are reconciled to the pinned Lore authority. The old rule forbidding Tower Biomancy and the old rule requiring a physical Lestat provider are removed.
+Tower, remaining-questline, final-assignment, Minion recovery and generalized Gnarl commentary validators are reconciled to the pinned Lore authority. The old rule forbidding Tower Biomancy and the old rule requiring a physical Lestat provider are removed.
+
+## Repository qualification
+
+The qualified implementation checkpoint is:
+
+```text
+dbc2d328fd90c061cf9f85ff216c80f8110be346
+```
+
+All 17 workflows triggered for that exact checkpoint completed successfully, including Forge build, client and server smoke, narrative persistence, provider runtime smoke, Minion recovery and the campaign/source closure contracts.
+
+Repository CI is therefore no longer reconciliation debt for this implementation checkpoint.
 
 ## Remaining qualification gate
 
@@ -47,16 +59,20 @@ The following still require truthful full-instance/manual confirmation before a 
 - Gnarl commentary presentation and cadence in the assembled client;
 - Fathoms presentation and native Historian handoff;
 - NightWalker contextual Lestat presentation and Nycto owner-state handoff;
+- OVERLORD Minions Red to Green to Blue cross-mod save/reload progression;
 - optional-mod interaction paths;
 - the final reconciled campaign flow in the assembled OVERLORD REIGN instance.
 
-Repository CI, Forge compilation and dedicated-server smoke are necessary evidence, but they do not by themselves prove these client-facing/manual boundaries.
+These are acceptance gates, not missing source-authoring debt.
+
+The exact evidence matrix and acceptance boundary are maintained in `docs/FULL_INSTANCE_QUALIFICATION.md`.
 
 ## Explicit non-debts
 
 Do not reintroduce the following as blockers unless later authority changes them:
 
 - physical Brown/Red/Green/Blue Hive objects;
+- production authoring for Red, Green or Blue recovery;
 - a permanent physical Lestat entity in the Dark Tower;
 - hard-coded final coordinates for Villager or Illager providers;
 - dedicated questlines for mods whose final assignment is ambient, absorbed, systemic, popup-only, provider-support, Tower-substrate, quest-location, decorative or no-treatment.

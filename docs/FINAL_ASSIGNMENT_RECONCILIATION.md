@@ -1,6 +1,6 @@
 # Final Assignment Reconciliation
 
-Status: IMPLEMENTATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING
+Status: IMPLEMENTATION CLOSED / REPOSITORY CI QUALIFIED / FULL-INSTANCE QUALIFICATION PENDING
 
 This is an implementation reconciliation record. It does not create or revise OVERLORD REIGN canon.
 
@@ -33,7 +33,7 @@ Demons remain outside the generalized civilization branch.
 
 Formal Tower Restoration remains gated by the seven core operational milestones: Throne Room, Forge, Minion infrastructure, Gates, Treasury, Storage Room and Armory.
 
-Selected magical Tower functions are Alchemy, Theurgy, Gluttony, spell study/making, Eidolon and Biomancy. Biomancy now has an explicit Tower activation quest backed by `biomancy:biomancy/bio_forge`. Deeper Biomancy mastery remains in the dedicated Biomancy arc, and no magical branch gates formal Tower completion.
+Selected magical Tower functions are Alchemy, Theurgy, Gluttony, spell study/making, Eidolon and Biomancy. Biomancy has an explicit Tower activation quest backed by `biomancy:biomancy/bio_forge`. Deeper Biomancy mastery remains in the dedicated Biomancy arc, and no magical branch gates formal Tower completion.
 
 Quaver remains optional personnel content rather than a formal restoration requirement.
 
@@ -47,16 +47,40 @@ The older `SYSTEM_REACTIONS` channel remains separate and continues to serve ins
 
 ## Corrected integration boundaries
 
-Brown/Red/Green/Blue recovery anchors are authored Quest progression, not temporary Hive proxies. Overlord Minions still owns durable command/unlock state.
+Brown/Red/Green/Blue recovery anchors are authored Quest progression, not temporary Hive proxies. Red, Green and Blue production recovery pairs are present, indexed and guarded by the Minion Recovery Contract. OVERLORD Minions still owns durable command/unlock state.
 
-The NightWalker arc now uses contextual Lestat presentation and no longer requires a physical final-world Lestat entity, anchor tag, protection tag or coordinate.
+The NightWalker arc uses contextual Lestat presentation and does not require a physical final-world Lestat entity, anchor tag, protection tag or coordinate.
 
 Villager and Illager providers remain locally resolved around authored quest context. Fixed final-world coordinates are not completion artifacts.
 
-## Qualification boundary
+## Repository qualification
 
-Source-authority implementation debt is closed against the pinned Lore head. Repository CI must still pass on the exact implementation head.
+The implementation checkpoint:
 
-The remaining non-source gate is assembled-instance/manual qualification of presentation and optional-mod handoffs, including Gnarl commentary presentation, Fathoms Historian interaction, NightWalker contextual presentation and the final reconciled campaign flow.
+```text
+dbc2d328fd90c061cf9f85ff216c80f8110be346
+```
 
-Until that qualification is recorded, this document must not be read as a final release-qualified or fully gameplay-qualified claim.
+completed the full set of 17 triggered repository workflows successfully. This includes Forge compilation, client and dedicated-server bootstrap smoke, narrative-state persistence, provider runtime smoke, source/questline closure validators, Minion recovery, Tower restoration and the remaining campaign contracts.
+
+Provider Runtime Smoke #3 is green after correcting CI dependency preparation. The preceding provider-smoke failures occurred before provider assertions and did not identify a gameplay/provider defect.
+
+Source-authority implementation debt is therefore closed and repository CI qualification is established for the implementation checkpoint above.
+
+A later production implementation change must establish new exact-head CI evidence. Documentation-only reconciliation does not retroactively invalidate the qualified implementation checkpoint, but its own branch checks must still remain green.
+
+## Full-instance qualification boundary
+
+The remaining non-source gate is assembled-instance acceptance of presentation and optional-mod handoffs, including:
+
+- generalized Gnarl commentary presentation and cadence in the assembled client;
+- Fathoms Historian interaction and native Fathoms handoff;
+- NightWalker contextual Lestat presentation and Nycto owner-state handoff;
+- OVERLORD Minions Red to Green to Blue save/reload progression with the compatible owner artifact installed;
+- final reconciled campaign progression in the assembled OVERLORD REIGN instance.
+
+These are gameplay/integration acceptance checks, not missing authored Quest source.
+
+The detailed evidence matrix and remaining acceptance conditions are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
+
+Until those checks are recorded, this document must not be read as a final release-qualified or fully gameplay-qualified claim.

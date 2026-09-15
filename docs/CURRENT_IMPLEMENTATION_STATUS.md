@@ -1,6 +1,6 @@
 # OVERLORD QUESTS Current Implementation Status
 
-Status: SOURCE IMPLEMENTATION CLOSED - FULL-INSTANCE QUALIFICATION PENDING
+Status: SOURCE IMPLEMENTATION CLOSED / REPOSITORY CI QUALIFIED / FULL-INSTANCE QUALIFICATION PENDING
 
 This file records the repository implementation boundary. It does not create OVERLORD REIGN canon. Lore authority remains `magicienlord/Overlord_Lore_and_Canon`, read-only from this repository.
 
@@ -15,6 +15,21 @@ Lore authority head: 649bae2fe49f9da210bcf6d7400316f3e4413464
 ```
 
 OVERLORD REIGN is a single-player project. Dedicated-server boot remains a compatibility smoke boundary rather than a player-facing multiplayer support promise.
+
+## Repository qualification checkpoint
+
+The last implementation checkpoint before this documentation reconciliation is:
+
+```text
+dbc2d328fd90c061cf9f85ff216c80f8110be346
+Resolve provider smoke runtime before offline launch
+```
+
+All 17 workflows triggered for that exact checkpoint completed successfully. This includes Forge build, dedicated-server smoke, client bootstrap smoke, narrative-state persistence smoke, provider runtime smoke, remaining-questline closure, Minion recovery, Tower restoration, civilization validation, quest-anchor protection, core magic, adventure, ending, optional objectives, system reactions, Illager and Piglin campaign contracts.
+
+Provider Runtime Smoke #3 is green. Its two preceding failures were CI dependency-resolution defects that occurred before provider assertions. The corrected smoke resolves the launch runtime online, then performs the actual server launch and provider assertions offline.
+
+Repository qualification therefore no longer blocks source-complete status. A later production implementation change must establish its own exact-head green CI evidence.
 
 ## Engine state
 
@@ -57,7 +72,7 @@ Selected magical Tower functions are separate optional activation branches: Alch
 
 ## Gnarl's Ramblings
 
-Gnarl's Ramblings is implemented as a dedicated lifecycle-commentary layer rather than as hidden quests or an expansion of narrative facts.
+Gnarl's Ramblings is implemented as a dedicated lifecycle-commentary layer rather than hidden quests or an expansion of narrative facts.
 
 The runtime provides bounded authored commentary for major quest transitions, including objective clarification, branch framing where applicable, first and repeated reminder variants, objective-count updates, warnings, success/failure reactions and delayed post-quest comments. Coverage deliberately includes all six core magic families, all nine dedicated adventure families, major campaign/Tower transitions and the central End sequence.
 
@@ -80,13 +95,23 @@ Questlog reads Nycto-owned player state:
 - `Nycto.powerMask` for choosable Vampire Altar purchases;
 - registered `nycto:vampirism` as the runtime-presence guard.
 
-The four-step Lestat sequence covers arrival after completed transformation, deliberate blood replenishment, Vampire Altar use and at least one real altar power purchase. Lestat is contextual quest presentation for this implementation boundary, not a permanent physical provider requirement. No dedicated Lestat anchor tag, protection tag or Tower coordinate is required to progress the arc.
+The four-step Lestat sequence covers arrival after completed transformation, deliberate blood replenishment, Vampire Altar use and at least one real altar power purchase. Lestat is contextual quest presentation, not a permanent physical provider requirement. No dedicated Lestat anchor tag, protection tag or Tower coordinate is required to progress the arc.
 
 ## Minion recovery fidelity
 
 Overlord Quests owns the authored Brown, Red, Green and Blue recovery progression. `Overlord_Minions` remains authoritative for durable command/unlock state.
 
-Brown remains the Master's Staff bootstrap. Red, Green and Blue recovery quests use sequence-break-safe material anchors and then call the public Minion progression API in its enforced order. Blaze Rod, Spider Eye and Prismarine Crystal are authored recovery objectives, not temporary Hive substitutes and not claims that physical source-game Hive objects exist in this implementation.
+Brown remains the Master's Staff bootstrap. The production Red, Green and Blue action/confirmation pairs are authored, indexed and guarded by `tools/validate_minion_recovery_contract.py`.
+
+Their recovery anchors are:
+
+```text
+Red   -> Blaze Rod
+Green -> Spider Eye
+Blue  -> Prismarine Crystals
+```
+
+Each action calls the public Minion progression API in enforced order. Each confirmation waits for authoritative owner state before writing the narrative recovery fact. These materials are authored recovery objectives, not temporary Hive substitutes.
 
 ## Overlord Depths / Fathoms
 
@@ -103,6 +128,10 @@ The five-step sidequest uses the real `fathoms:historian` profession and observe
 
 ## Remaining qualification boundary
 
-Repository source/content implementation is closed against the pinned Lore authority. This is not yet a final release-qualified claim.
+Repository source/content implementation is closed against the pinned Lore authority, and the exact implementation checkpoint above is green across the complete 17-workflow repository suite.
 
-The remaining gate is assembled-instance/manual qualification of presentation and optional-mod handoffs, especially Gnarl commentary presentation, Fathoms Historian interaction, NightWalker contextual presentation and the final reconciled campaign flow. Standalone CI and dedicated-server smoke tests are necessary but do not substitute for that client-facing qualification.
+What remains is assembled-instance acceptance, not unimplemented Quest source. The manual/integration boundary includes direct gameplay confirmation of optional-mod handoffs, presentation, save/reload behavior where the owner mod is required, and the final reconciled campaign flow in the assembled OVERLORD REIGN instance.
+
+The detailed evidence and remaining acceptance matrix are recorded in `docs/FULL_INSTANCE_QUALIFICATION.md`.
+
+Until those assembled-instance checks are recorded, this repository should be described as source-complete and repository-qualified, not fully gameplay-qualified for release.
