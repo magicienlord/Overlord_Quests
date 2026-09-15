@@ -1,0 +1,64 @@
+name: Publish exact validated Quest JAR
+
+on:
+  push:
+    branches:
+      - delivery/quest-jar-e0a0c866
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact validated source
+        uses: actions/checkout@v5
+        with:
+          ref: e0a0c8667e389f735b8c138227cf62cc889e28c3
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Build exact Forge JAR
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :forge:build --stacktrace
+
+      - name: Verify and stage release JAR
+        run: |
+          set -euo pipefail
+          JAR="$(find forge/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*sources*' | head -n 1)"
+          if [ -z "$JAR" ]; then
+            echo "No Forge runtime jar was produced."
+            exit 1
+          fi
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/Questlog.class'
+          jar tf "$JAR" | grep -Fxq 'org/infernalstudios/questlog/QuestlogForge.class'
+          jar tf "$JAR" | grep -Fxq 'assets/questlog/overlord/definitions/index.json'
+          jar tf "$JAR" | grep -Fxq 'META-INF/mods.toml'
+          cp "$JAR" Overlord_Quests-1.20.1-e0a0c866.jar
+          sha256sum Overlord_Quests-1.20.1-e0a0c866.jar > Overlord_Quests-1.20.1-e0a0c866.jar.sha256
+
+      - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: e0a0c8667e389f735b8c138227cf62cc889e28c3
+          TAG: overlord-quests-e0a0c866
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --cleanup-tag --yes
+          fi
+          gh release create "$TAG" \
+            Overlord_Quests-1.20.1-e0a0c866.jar \
+            Overlord_Quests-1.20.1-e0a0c866.jar.sha256 \
+            --target "$TARGET_SHA" \
+            --title "Overlord Quests 1.20.1 e0a0c866" \
+            --notes "Exact Forge JAR built from validated commit e0a0c8667e389f735b8c138227cf62cc889e28c3 for Minecraft 1.20.1 Forge 47.4.10."
