@@ -16,6 +16,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.infernalstudios.questlog.client.death.OverlordDeathScreens;
 import org.infernalstudios.questlog.config.QuestlogConfig;
 import org.infernalstudios.questlog.networking.QuestlogPacketsForge;
+import org.infernalstudios.questlog.overlord.provider.ProviderRuntimeContractSmokeForge;
 import org.infernalstudios.questlog.overlord.reaction.OverlordSystemReactionBridgeForge;
 
 @Mod(Questlog.MODID)
@@ -25,6 +26,9 @@ public class QuestlogForge {
         FMLJavaModLoadingContext.get().getModEventBus().register(QuestlogForge.class);
         MinecraftForge.EVENT_BUS.register(QuestlogForgeEventForwarder.class);
         MinecraftForge.EVENT_BUS.register(OverlordSystemReactionBridgeForge.class);
+        if (Boolean.getBoolean(ProviderRuntimeContractSmokeForge.ENABLE_PROPERTY)) {
+            MinecraftForge.EVENT_BUS.register(ProviderRuntimeContractSmokeForge.class);
+        }
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ModLoadingContext.get().registerExtensionPoint(

@@ -31,6 +31,11 @@ legacyForge {
         server {
             server()
         }
+        providerRuntimeSmoke {
+            type = "server"
+            programArgument '--nogui'
+            systemProperty 'questlog.providerRuntimeSmoke', 'true'
+        }
     }
 
     mods {

@@ -1,0 +1,87 @@
+name: Provider Runtime Smoke
+
+on:
+  push:
+    branches:
+      - gnarl-bootstrap
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlord-quests-provider-runtime-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  provider-runtime-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Configure disposable test server
+        run: |
+          mkdir -p forge/run
+          printf 'eula=true\n' > forge/run/eula.txt
+          cat > forge/run/server.properties <<'EOF'
+          online-mode=false
+          level-type=minecraft:flat
+          generate-structures=false
+          view-distance=2
+          simulation-distance=2
+          spawn-protection=0
+          EOF
+
+      - name: Prepare provider runtime smoke
+        run: ./gradlew :common:createMinecraftArtifacts :forge:prepareProviderRuntimeSmokeRun --no-daemon --stacktrace
+
+      - name: Run provider runtime contract smoke
+        shell: bash
+        run: |
+          set -uo pipefail
+          LOG="$GITHUB_WORKSPACE/provider-runtime-smoke.log"
+
+          set +e
+          timeout --signal=TERM --kill-after=15s 120s \
+            ./gradlew :forge:runProviderRuntimeSmoke --offline --no-daemon --stacktrace \
+            >"$LOG" 2>&1
+          STATUS=$?
+          set -e
+
+          cat "$LOG"
+
+          if grep -Fq 'OVERLORD_PROVIDER_RUNTIME_SMOKE: FAIL' "$LOG"; then
+            echo '::error::Provider runtime contract smoke reported failure.'
+            exit 1
+          fi
+
+          if grep -Fq 'OVERLORD_PROVIDER_RUNTIME_SMOKE: PASS' "$LOG"; then
+            echo 'Provider runtime contract smoke passed.'
+            exit 0
+          fi
+
+          echo "::error::Provider runtime contract smoke did not emit its pass marker (command status: $STATUS)."
+          exit 1
+
+      - name: Upload provider runtime smoke log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-provider-runtime-smoke-${{ github.run_number }}
+          path: provider-runtime-smoke.log
+          if-no-files-found: error
+          retention-days: 14
