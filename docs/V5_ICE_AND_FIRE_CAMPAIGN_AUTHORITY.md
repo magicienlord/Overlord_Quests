@@ -4,7 +4,7 @@ Status: WORKING V5 CAMPAIGN AUTHORITY
 
 Date: 2026-09-16
 
-Authority relationship: this focused companion resolves the Ice & Fire questions raised by `docs/V5_SUPPLIED_MOD_TECHNICAL_AUDIT_2026-09-16.md` and the pending Myrmex mapping in `docs/V5_CIVILIZATION_SYSTEM_AUTHORITY.md`. Later explicit decisions in this file supersede those earlier pending/UNKNOWN notes.
+Authority relationship: this focused companion resolves the Ice & Fire questions raised by `docs/V5_SUPPLIED_MOD_TECHNICAL_AUDIT_2026-09-16.md` and works with the civilization authority in `docs/V5_CIVILIZATION_SYSTEM_AUTHORITY.md` and the detailed Myrmex route authority in `docs/V5_MYRMEX_CIVILIZATION_BLUEPRINT.md`. Later explicit decisions in this file supersede earlier pending or UNKNOWN notes.
 
 ## 1. Exact target artifacts
 
@@ -43,6 +43,8 @@ Ice & Fire owns the native per-hive opinion state. V5 owns the authored politica
 
 The systems are related but not interchangeable.
 
+The complete approved inner political routes are recorded in `docs/V5_MYRMEX_CIVILIZATION_BLUEPRINT.md`.
+
 ### 3.1 Native thresholds
 
 Verified native thresholds:
@@ -67,23 +69,29 @@ The canonical hive reaches a final authored independent settlement at native opi
 
 The political result remains `NEUTRAL` because the hive survives as an independent polity. Native trade access represents the practical peace reached by the authored route.
 
-Native opinion alone does not create this terminal state. The inner Myrmex civilization route must still be completed.
+The approved route learns the hive's caste behavior, reaches 50+ through source-backed actions, gains trade access, completes a meaningful authored trade/colony relationship sequence, then ends with an explicit Queen-facing recognition of independence.
+
+Native opinion alone does not create this terminal state.
 
 #### SUBJUGATED
 
 The canonical hive reaches a final authored submission at native opinion 75 or higher.
 
-The Myrmex Staff command threshold is appropriate to represent practical authority over the existing hive without falsely claiming that the Overlord founded it.
+The Myrmex Staff command threshold represents practical authority over the existing hive without falsely claiming that the Overlord founded it.
 
-Native opinion alone does not create this terminal state. The authored submission route must still be completed.
+The approved route reaches 75+, gains legitimate Staff command access for the existing canonical hive, performs at least one meaningful non-destructive hive command, then ends with a Queen-facing authored submission.
+
+Native opinion alone does not create this terminal state.
 
 #### DESTROYED
 
-The destructive inner route destroys or irreversibly ruins the designated canonical hive, including the Queen or other source-backed political core required by the final authored route.
+The destructive route deliberately turns against the designated canonical hive and kills its Queen.
+
+The Queen kill is the political core of the route. Any additional colony function may be required only if the final source/objective pass proves it indispensable to the authored polity.
 
 This is a local anchor result. Myrmex remain extant elsewhere.
 
-The exact destructive objective sequence is still to be authored from Myrmex source mechanics and REIGN lore. Do not reduce it to an arbitrary reputation threshold.
+The exact objective micro-sequence remains a source/objective detail. The political meaning is no longer unresolved, and the route must not be reduced to an arbitrary reputation threshold or generic Myrmex kill count.
 
 ### 3.3 Opinion protection after terminal resolution
 
