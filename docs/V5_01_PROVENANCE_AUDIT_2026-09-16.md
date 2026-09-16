@@ -34,7 +34,9 @@ Explicitly established and retainable:
 - final presenter roster must be settled before art production;
 - PNG presenter use is restricted to non-corporeal presenter characters, with the Historian as the explicit corporeal exception;
 - Gristle owns all food-adjacent campaign quests and Ramblings;
-- Grubbisson Jr is not excluded and must receive an explicit V5 theme decision;
+- Grubbison Jr owns all mining-related campaign quests and Ramblings;
+- Giblet the Sixth owns all forging-related campaign quests and Ramblings;
+- Gnarl, Mortis, Quaver, Historian, Lestat, Gristle, Grubbison Jr and Giblet the Sixth remain in presenter-roster closure work;
 - final V5 must settle the complete presenter roster now rather than defer future exceptions.
 
 Unauthorized and therefore quarantined:
@@ -44,6 +46,8 @@ Unauthorized and therefore quarantined:
 - any claim that the roster should be the smallest possible roster;
 - any open-ended future presenter-exception mechanism;
 - any presenter theme not explicitly approved by the Overlord.
+
+Correction: a prior audit pass incorrectly attached the Overlord's `Option 3` answer to the presenter five-state question. The Overlord clarified that Option 3 concerned the dragon-mastery wording instead. The final five-state vocabulary remains `UNKNOWN / REQUIRES OVERLORD DECISION`.
 
 The older Gnarl keys `neutral / directive / mocking / approving / severe` remain historical implementation context, not the final V5 decision by default.
 
@@ -58,13 +62,12 @@ Explicitly established and retainable:
 - Ramblings are sparse contextual reactions, not quests or reminders;
 - meaningful native achievements or discoveries may receive Ramblings instead of dedicated quests;
 - not every native achievement deserves a popup;
-- L_Ender's Cataclysm should use its other meaningful achievements as popup Ramblings to complement broad quest entries and deliver lore close to the relevant discoveries;
-- Gristle owns all food-adjacent Ramblings;
-- Quaver owns music-themed material where V5 ultimately assigns it;
-- Mortis is established for death / resurrection material already explicitly assigned to him;
-- Lestat is established for NightWalker presentation.
+- L_Ender's Cataclysm may use meaningful native achievements as popup Ramblings to complement broad quest entries and deliver lore close to the relevant discoveries;
+- Gristle owns food-adjacent Ramblings;
+- Grubbison Jr owns mining-related Ramblings;
+- Giblet the Sixth owns forging-related Ramblings.
 
-Unauthorized and therefore quarantined unless separately traceable to an older explicit project decision:
+Unauthorized and therefore quarantined unless separately traceable to an explicit project decision:
 
 - exact `required`, `eligible`, or `excluded` Rambling trigger lists selected by the assistant;
 - exact Cataclysm advancement-to-popup mapping selected by the assistant;
@@ -72,7 +75,7 @@ Unauthorized and therefore quarantined unless separately traceable to an older e
 - assistant-created Fathoms, NightWalker, Dragon, End, civilization, Church of Sin, Born in Chaos, or other per-mod Rambling selections;
 - assistant-created popup quotas or milestone counts.
 
-The final V5 must enumerate the exact required Ramblings and exact speaker ownership according to a process explicitly approved by the Overlord.
+The final V5 must enumerate exact required Ramblings and exact speaker ownership through explicit Overlord decisions.
 
 ## 4. Civilization graph contamination
 
@@ -169,7 +172,7 @@ Explicitly established and retainable includes the previously approved high-leve
 - Quaver acquiring instruments, with Minions assumed as performers;
 - Bumblezone Queen's Desires -> Essence of the Bees culmination concept;
 - L_Ender's Cataclysm full major-boss capstone;
-- dragon-mastery final player-facing concept `Bond with a dragon and take flight on it.`
+- dragon-mastery final player-facing concept exactly `Bond with a dragon and take flight on it`.
 
 Unauthorized and therefore quarantined includes:
 
@@ -197,11 +200,11 @@ Examples of unapproved material currently repeated there include:
 
 ## 9. Next audit batches requiring Overlord decisions
 
-The provenance audit will now close unresolved authoring in coherent batches rather than silently filling gaps.
+The provenance audit will close unresolved authoring in coherent batches rather than silently filling gaps.
 
 Priority system-level batches:
 
-1. final PNG presenter roster, exact theme ownership, and final five visual states;
+1. final PNG presenter roster, exact remaining theme ownership, and final five visual states;
 2. civilization anchor-start interaction policy, including hostile and non-humanoid exceptions;
 3. exact Ramblings authoring policy and then exact trigger / speaker tables;
 4. central campaign exact quest graphs;
