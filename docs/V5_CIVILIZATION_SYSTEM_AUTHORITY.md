@@ -8,7 +8,7 @@ Authority relationship: this document is a focused companion to `docs/V5_CAMPAIG
 
 ## 1. Core civilization presentation
 
-Each civilization is represented by one designated canonical anchor polity and one civilization Questlog presentation.
+Each civilization is represented by one canonical anchor polity for the current playthrough and one civilization Questlog presentation.
 
 The civilization Questlog is the anchor presentation for the political arc. Its terminal resolution is an OR among three authored outcomes:
 
@@ -22,11 +22,52 @@ DESTROYED
 
 `UNRESOLVED` is only the absence of a completed terminal route. It is not an outcome.
 
-The three outcomes apply to the designated anchor polity. They do not mean that the entire species, culture, or every procedurally generated settlement in the world has changed state.
+The three outcomes apply to the selected anchor polity. They do not mean that the entire species, culture, or every procedurally generated settlement in the world has changed state.
 
 A completed terminal outcome is permanent for the canonical anchor unless a later explicit V5 decision creates a post-resolution exception.
 
-## 2. Inner Villager Retaliation style architecture
+## 2. Runtime anchor selection
+
+Civilization anchors are not preplaced by authored coordinates and are not chosen during a separate world-integration pass.
+
+The world generates eligible settlements and structures normally. The canonical anchor is selected at runtime when the player deliberately starts that civilization questline from one qualifying settlement or structure.
+
+The required pattern is:
+
+```text
+find a qualifying settlement or structure
+-> perform the civilization's explicit anchor-start action inside it
+-> validate that the candidate is eligible and that no anchor for this civilization is already locked
+-> permanently bind that generated settlement or structure as the civilization anchor for this playthrough
+-> identify suitable local NPCs for authored quest roles
+-> bind those existing NPCs to the required roles where possible
+-> spawn any required quest-role NPCs that are missing
+-> distribute the civilization's authored provider quests among the bound local cast
+-> begin the civilization arc
+```
+
+The exact anchor-start action may differ by civilization and should use the simplest source-appropriate signal available.
+
+The action must be deliberate and difficult to trigger accidentally. Mere proximity, entering a settlement, incidental combat, ordinary looting, or encountering a generic member of the civilization is not sufficient.
+
+Once an anchor is locked, later settlements or structures of the same civilization remain ordinary world populations unless an authored sidequest explicitly uses them.
+
+This runtime selection model supersedes older wording that implied a later coordinate-placement step for civilization anchors.
+
+### 2.1 Missing required NPCs
+
+A generated candidate does not need to contain every authored provider naturally before it can qualify.
+
+After anchor lock:
+
+- reuse appropriate existing NPCs when possible;
+- assign protected authored roles to those selected NPCs where required;
+- spawn missing required quest-role NPCs inside the selected anchor when the native population does not provide them;
+- do not duplicate roles merely because more generic NPCs later appear.
+
+The V5 campaign blueprint must define the roles that are required for each civilization. The later implementation determines the least invasive source-compatible way to bind or spawn them.
+
+## 3. Inner Villager Retaliation style architecture
 
 The civilization Questlog is not itself a detached three-choice menu.
 
@@ -51,7 +92,7 @@ A Dwarven blacksmith or Forger chain may, for example, reveal leverage over the 
 
 The political meaning comes from the exact provider chain and its consequence, not from a generic count of completed errands.
 
-## 3. No hidden sidequest score
+## 4. No hidden sidequest score
 
 There is no civilization reputation meter implemented by OVERLORD QUESTS and no rule such as:
 
@@ -74,13 +115,13 @@ Provider quests may instead write sparse explicit facts such as:
 
 Only facts that matter to later authored content should persist.
 
-## 4. Three route construction
+## 5. Three route construction
 
 Each civilization receives three coherent inner political routes leading to the three terminal outcomes.
 
 The routes may share opening contact and investigation content, but each terminal path must have its own authored logic.
 
-### 4.1 NEUTRAL
+### 5.1 NEUTRAL
 
 Neutrality is a deliberate final settlement of the local political problem.
 
@@ -88,7 +129,7 @@ It is not first contact, temporary non-hostility, a successful audience, or pass
 
 The route must contain an affirmative authored resolution that leaves the anchor independent.
 
-### 4.2 SUBJUGATED
+### 5.2 SUBJUGATED
 
 Subjugation is a deliberate political victory in which the anchor survives and accepts the Overlord's supremacy.
 
@@ -96,7 +137,9 @@ Its route should normally exploit civilization-specific leverage, authority, fea
 
 Subjugation must preserve the civilization as useful subjects rather than merely duplicating destruction.
 
-### 4.3 DESTROYED
+A subjugation route does not need to culminate in combat. Political, economic, social, religious, or provider-driven submission is valid when it fits the civilization better and avoids unnecessary compatibility work.
+
+### 5.3 DESTROYED
 
 Destruction is the authored elimination or irreversible ruin of the designated anchor polity.
 
@@ -104,13 +147,11 @@ It is local. Other settlements and members of the civilization may continue to e
 
 The route should use the civilization's actual political or structural vulnerability rather than reducing every destructive resolution to a generic kill counter.
 
-## 5. Intermediary states are quest phases, not terminal dispositions
+## 6. Intermediary states are quest phases, not terminal dispositions
 
 Older content sometimes wrote `NEUTRAL` too early. V5 supersedes that pattern.
 
-Examples:
-
-### Illagers
+### 6.1 Illagers
 
 ```text
 HOSTILE native opening
@@ -122,7 +163,27 @@ HOSTILE native opening
 
 `COWED` is not a civilization disposition.
 
-### Umvuthana
+The approved terminal architecture after the canonical Bastille is cowed is:
+
+#### NEUTRAL
+
+The Overlord forces a lasting nonaggression settlement while leaving the Bastille under its own Illager authority.
+
+The Bastille leadership understands that challenging the Overlord again is untenable, but the Illagers remain politically independent and are not his subjects.
+
+#### SUBJUGATED
+
+The Overlord exploits the broken military hierarchy and the Bastille's surviving useful infrastructure until its leadership accepts his supremacy.
+
+The anchor survives as an Overlord-aligned Illager warband and military asset. This does not pacify unrelated Illagers or erase their ordinary hostility toward Villagers.
+
+#### DESTROYED
+
+The Overlord deliberately continues beyond the cowed state and eliminates the Bastille's leadership and functional polity.
+
+The result applies only to the selected canonical Bastille.
+
+### 6.2 Umvuthana
 
 ```text
 HOSTILE/native inaccessible opening
@@ -136,7 +197,19 @@ HOSTILE/native inaccessible opening
 
 The mask remains a native access mechanism, not the final political resolution.
 
-## 6. Provider quest rules
+The previously proposed SUBJUGATED implementation based on intercepting the Umvuthi boss encounter and converting near-death into a nonlethal surrender is rejected.
+
+V5 must not require:
+
+- custom boss-health interception;
+- a synthetic defeated-but-alive Umvuthi combat state;
+- special cancellation of his native death solely to support submission.
+
+The Umvuthana SUBJUGATED route must instead be a quest-driven political or religious submission that leaves Umvuthi alive without requiring a fight against him as its terminal action.
+
+The exact submission chain remains under authoring and must be supported by the native Grove, mask, Umvuthi interaction, and provider surfaces wherever possible.
+
+## 7. Provider quest rules
 
 Provider quests exist because a person or institution has a reason to involve the Overlord.
 
@@ -156,7 +229,7 @@ A provider quest is valid inside a civilization arc when it does one or more of 
 
 Do not create filler merely because a provider role exists.
 
-## 7. Sparse branch implementation
+## 8. Sparse branch implementation
 
 The three terminal routes must remain implementable without a combinatorial state machine.
 
@@ -172,7 +245,29 @@ Do not synchronize every sidequest with every other provider quest.
 
 A terminal route should inspect only the facts it actually needs.
 
-## 8. Dwarf and Kobold rivalry
+## 9. Villagers and Spree
+
+The Villager civilization anchor identity is Spree.
+
+This decision is fixed for V5 and should not be reopened as a question of whether another historical human settlement should replace it.
+
+Spree does not mean that the campaign requires a pre-authored world location or a reconstruction at fixed placement.
+
+Instead:
+
+```text
+eligible generated Villager settlement
+-> deliberate Villager anchor-start action
+-> that settlement becomes the canonical present-day Spree for this playthrough
+-> local Villager cast is bound or completed as required
+-> Spree civilization questline begins
+```
+
+The selected settlement may reflect its generated environment and layout. The narrative identity and civilization role are Spree.
+
+The exact deliberate start action and the internal provider blueprint remain to be authored from the Villager campaign design.
+
+## 10. Dwarf and Kobold rivalry
 
 The approved Dwarf-Kobold shared rivalry chain is optional and opens after discovery of both designated anchors.
 
@@ -185,9 +280,9 @@ Implementation rule:
 - it does not require continuous cross-civilization synchronization;
 - each civilization can still be resolved independently if the optional rivalry chain is ignored.
 
-This is the preferred implementation because it preserves meaningful cross-civilization consequence without materially increasing runtime or authoring complexity.
+This preserves meaningful cross-civilization consequence without materially increasing runtime or authoring complexity.
 
-## 9. Gnumu ancestry choice
+## 11. Gnumu ancestry choice
 
 The approved Gnumu ancestry decision remains inside the one Gnumu civilization arc.
 
@@ -197,26 +292,23 @@ This is a remembered historical truth choice, not one of the three terminal poli
 
 It may affect later dialogue, knowledge, or route consequences where explicitly authored.
 
-## 10. Myrmex technical boundary pending final mapping
+## 12. Myrmex mapping
 
-The exact supplied Ice & Fire artifact is `iceandfire-2.1.13-1.20.1-beta-5.jar`, SHA-256 `2b80245fc9b7d6fdc61d71f9892f4c6114eb7f303f65634845aaab25f84d1e82`.
+The Myrmex technical boundary and terminal political mapping are finalized in `docs/V5_ICE_AND_FIRE_CAMPAIGN_AUTHORITY.md`.
 
-Ice & Fire already owns a per-hive player reputation system:
+Summary:
 
-- default opinion: 0;
-- 25: colony becomes non-hostile;
-- 50: colony trades with the player;
-- 75: player may command the hive through a Myrmex Staff;
-- a player-founded hive created from a hatched queen egg binds to the player and receives opinion 100.
+- native Ice & Fire opinion remains source-owned;
+- native opinion does not automatically select a terminal political state;
+- authored NEUTRAL requires the completed independent route and native opinion 50 or higher;
+- authored SUBJUGATED requires the completed submission route and native opinion 75 or higher;
+- DESTROYED is a local authored hive-destruction result;
+- a player-founded 100-opinion hive is not used as a substitute for conquering the existing canonical hive.
 
-Native opinion changes through Myrmex gameplay, including resin gifting, trading, attacking, and killing colony members.
+This section supersedes the earlier pending Myrmex mapping note.
 
-V5 must not confuse this native access/opinion mechanic with the Questlog political terminal state.
-
-The final mapping between native opinion thresholds and `NEUTRAL`, `SUBJUGATED`, and `DESTROYED` is intentionally left unresolved until the Overlord approves it.
-
-## 11. Production reconciliation rule
+## 13. Production reconciliation rule
 
 This document is V5 campaign authority only.
 
-Do not reconcile current production quests, Java, configs, provider code, or world-state persistence until the V5 campaign authority pass is complete and approved.
+Do not reconcile current production quests, Java, configs, provider code, anchor persistence, NPC spawning, or world-state persistence until the V5 campaign authority pass is complete and approved.
