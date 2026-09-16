@@ -114,29 +114,34 @@ Still open: exact provider obligations, Captain resource leverage, destructive i
 
 ### Ribbits
 
-Closed at political/provider level by `docs/V5_RIBBIT_CIVILIZATION_BLUEPRINT.md`.
+Closed at political/provider and music-allocation level by `docs/V5_RIBBIT_CIVILIZATION_BLUEPRINT.md`.
 
 Resolved after the audit:
 
 - no fabricated local crisis;
 - political question is the Overlord's treatment of a harmless functioning society;
 - Gardener-Elder, Fisherman, Merchant and Sorcerer cast is fixed;
-- terminal route meanings are fixed.
+- terminal route meanings are fixed;
+- music remains characterization, native play and possible sparse Rambling material;
+- music is not a mandatory visible civilization objective and does not justify a custom mandatory detector by itself.
 
-Still open: exact visible objective actions, exact submission obligations, destructive indispensable targets, and whether music receives a visible objective or remains characterization/native play/Rambling.
+Still open: exact visible objective actions, exact Merchant/Fisherman/Sorcerer submission obligations, and destructive indispensable targets.
 
 ### Sea Dwellers
 
-Closed at political-spine level by `docs/V5_SEA_DWELLER_CIVILIZATION_BLUEPRINT.md`.
+Closed at political-spine and submission-cast level by `docs/V5_SEA_DWELLER_CIVILIZATION_BLUEPRINT.md`.
 
 Resolved after the audit:
 
 - political spine is sovereignty over underwater resources, professions, protected property and trade;
 - Sea Elder, Blacksmith and Collector roles are fixed;
+- Blacksmith and Collector are the two mandatory personal commitment pillars for SUBJUGATED;
+- no third mandatory submission provider is required;
+- profession Seashells, Aquamarine commerce and Depth metallurgy provide broader institutional leverage rather than additional provider-count requirements;
 - native property taboo is explicitly used by the destructive route;
 - terminal route meanings are fixed.
 
-Still open: exact Sea Elder source binding where technically ambiguous, whether any third submission provider is necessary, exact profession/resource leverage sequence, destructive indispensable targets, and any stronger historical claim beyond the currently approved broad possible Elven ancestry.
+Still open: exact Sea Elder source binding where technically ambiguous, exact Blacksmith and Collector obligations, exact profession/resource leverage sequence, destructive indispensable targets, and any stronger historical claim beyond the currently approved broad possible Elven ancestry.
 
 ### Piglins
 
@@ -156,7 +161,7 @@ Still open: exact objective micro-sequences and technical compatibility mechanis
 
 ### Umvuthana
 
-Closed at political/provider level by:
+Closed at political/provider and commitment-meaning level by:
 
 - `docs/V5_UMVUTHANA_CIVILIZATION_BLUEPRINT.md`
 - `docs/V5_CIVILIZATION_SYSTEM_AUTHORITY.md`
@@ -167,11 +172,14 @@ Resolved after the audit:
 - NEUTRAL uses the native peaceful Umvuthi relationship plus an explicit independence resolution;
 - SUBJUGATED keeps Umvuthi alive;
 - the required submission pillars are native Crane as Grove Healer and native Raptor as martial/pack authority;
+- Crane submission is a patronage/dependency chain in which the Overlord becomes materially indispensable to the Grove's healing/support function and the Crane commits that function to his service;
+- Raptor submission is a martial-authority chain in which the Overlord proves superior command and the Raptor transfers its allegiance beneath him;
+- no lethal duel with either recurring provider is required;
 - a Trader may remain ordinary local content but is not a mandatory submission commitment;
 - missing Crane/Raptor quest-role entities may be spawned after canonical Grove selection;
 - DESTROYED kills the canonical Umvuthi.
 
-Still open: exact source-compatible Crane and Raptor provider-chain objectives that create their approved commitments.
+Still open: exact source-compatible Crane and Raptor accomplishments and technical detectors. These are not new political questions unless source inspection leaves materially different interpretations of patronage or superior command.
 
 ### Myrmex
 
@@ -217,17 +225,22 @@ The further skeleton-pet path is optional native play or possible sparse Ramblin
 
 ## 5. Current authored-decision queue
 
-The following are genuine campaign-authoring questions only where source investigation cannot resolve them without inventing intent:
+The following remain genuine campaign-authoring questions only where source investigation cannot resolve them without inventing intent:
 
 - exact Spree Farmer, Miner and Guard route accomplishments, especially how SUBJUGATED creates the approved material dependencies;
-- exact Umvuthana Crane and Raptor commitment mechanisms;
 - exact Dwarf, Gnumu and Goblin objective micro-sequences where several equally source-compatible actions would create materially different campaign meaning;
 - Kobold provider obligations and detailed optional Dwarf-Kobold rivalry sequence;
-- Ribbit provider obligations and whether music becomes visible progression;
-- Sea Dweller third-provider necessity, exact submission leverage, destructive indispensable functions, and any stronger ancestry presentation;
+- exact Ribbit Merchant, Fisherman and Sorcerer obligations, plus destructive indispensable targets;
+- exact Sea Dweller Blacksmith and Collector obligations, the profession/resource leverage sequence, destructive indispensable functions, and any stronger ancestry presentation;
 - exact Piglin route accomplishments where source behavior does not itself establish the political interpretation;
 - exact Myrmex route accomplishments beyond the already-fixed native thresholds and terminal meanings;
 - any remaining civilization-specific destructive target that changes the intended political meaning rather than merely its technical detector.
+
+Umvuthana Crane and Raptor political meanings are closed. Their exact source-compatible accomplishments should be investigated technically first and return to the Overlord only if the available options would materially change those approved meanings.
+
+Ribbit music is closed as characterization/native play/Rambling rather than mandatory visible progression.
+
+Sea Dweller third-provider necessity is closed: there is no third mandatory submission provider.
 
 These questions should be asked narrowly after source analysis. They must not be filled from convenience.
 
