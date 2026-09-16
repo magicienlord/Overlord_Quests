@@ -309,13 +309,30 @@ Instead:
 eligible generated Villager settlement
 -> deliberate Villager anchor-start action
 -> that settlement becomes the canonical present-day Spree for this playthrough
--> local Villager cast is bound or completed as required
+-> suitable local Villager becomes Mayor of Spree
+-> required local provider cast is bound or completed as needed
 -> Spree civilization questline begins
 ```
 
-The selected settlement may reflect its generated environment and layout. The narrative identity and civilization role are Spree.
+The Mayor title continues source-faithful Spree civic vocabulary without asserting that one unchanged municipal institution survived for centuries.
 
-The exact deliberate start action and the internal provider blueprint remain to be authored from the Villager campaign design.
+The approved Spree political spine is civic viability and dependency. The three required civic pillars are:
+
+```text
+food and agriculture
+commerce and specialist work
+Guard Villager security
+```
+
+The approved terminal architecture is:
+
+- `NEUTRAL`: prove that all three civic pillars can remain viable without Overlord ownership, then explicitly recognize Spree's independence;
+- `SUBJUGATED`: make selected critical parts of those same pillars materially dependent on Overlord resources, access, protection, opportunities or authority, then secure the Mayor's acceptance of supremacy while he remains civic administrator;
+- `DESTROYED`: remove the Mayor and irreversibly break the exact indispensable civic and defensive functions selected by the source-backed objective pass, ending present-day Spree as the canonical polity without requiring every Villager or village block to be destroyed.
+
+The detailed provider and objective authority is recorded in `docs/V5_SPREE_CIVILIZATION_BLUEPRINT.md`.
+
+The remaining Spree questions are source/objective details such as exact provider professions, Guard Villager roles, anchor-start action and trackable actions. They are not unresolved political structure.
 
 ## 10. Dwarf and Kobold rivalry
 
@@ -344,20 +361,45 @@ It may affect later dialogue, knowledge, or route consequences where explicitly 
 
 ## 12. Myrmex mapping
 
-The Myrmex technical boundary and terminal political mapping are finalized in `docs/V5_ICE_AND_FIRE_CAMPAIGN_AUTHORITY.md`.
+The Myrmex technical boundary and terminal political mapping are finalized across `docs/V5_ICE_AND_FIRE_CAMPAIGN_AUTHORITY.md` and `docs/V5_MYRMEX_CIVILIZATION_BLUEPRINT.md`.
 
-Summary:
+Native Ice & Fire opinion remains source-owned and never automatically selects a terminal political state.
 
-- native Ice & Fire opinion remains source-owned;
-- native opinion does not automatically select a terminal political state;
-- authored NEUTRAL requires the completed independent route and native opinion 50 or higher;
-- authored SUBJUGATED requires the completed submission route and native opinion 75 or higher;
-- DESTROYED is a local authored hive-destruction result;
-- a player-founded 100-opinion hive is not used as a substitute for conquering the existing canonical hive.
+The approved inner routes are:
 
-This section supersedes the earlier pending Myrmex mapping note.
+- `NEUTRAL`: learn native caste behavior, raise the canonical hive to 50+ opinion through source-backed actions, gain trade access, complete a meaningful authored trade/colony relationship sequence, then explicitly recognize the Queen and hive as independent;
+- `SUBJUGATED`: reach 75+ opinion, gain legitimate Myrmex Staff command access for the existing canonical hive, perform at least one meaningful non-destructive hive command, then complete a Queen-facing submission resolution;
+- `DESTROYED`: deliberately turn against the canonical hive and kill its Queen, with any additional colony target included only if source analysis proves it indispensable to the polity.
 
-## 13. Production reconciliation rule
+After terminal resolution, native opinion must not fall below 50 for `NEUTRAL` or 75 for `SUBJUGATED`.
+
+A player-founded 100-opinion Queen colony is not used as a substitute for conquering the existing canonical hive.
+
+The remaining Myrmex work is technical/objective detail, including exact opinion actions, trade surfaces, Staff commands, hive-state signals and the least invasive implementation of the opinion floors.
+
+## 13. Piglins
+
+The Piglin civilization anchor is one runtime-selected Piglin-built Nether Village. A suitable native Piglin Brute is bound to the authored title `Chieftain` and serves as local political authority.
+
+The approved political spine is territorial inheritance versus the returning Master.
+
+Piglins expanded during the Silence while Minion numbers and territorial dominance declined. Their canonical village is genuinely Piglin-built and Piglin-held present territory. Their descent from an ancient Minion and pig union, and their close recognition of Minions as cousin-people, are political context rather than automatic Overlord ownership.
+
+The approved terminal architecture is:
+
+- `NEUTRAL`: learn the village's gold, barter and protected-property customs, establish meaningful exchange, and explicitly recognize the legitimacy and independence of the Piglin-built polity;
+- `SUBJUGATED`: establish meaningful control, access or indispensable leverage over gold access, barter wealth and village-resource foundations, then force the Chieftain to accept the returned Master as superior sovereign;
+- `DESTROYED`: deliberately violate the village's protected gold/property order, defeat the Chieftain, remove any additional indispensable local function only if source-backed objective analysis proves it necessary, and end the selected village as a functioning polity.
+
+Once `SUBJUGATED`, the canonical village must be safe for the Overlord regardless of gold armor and must permit local protected-container access and local gold extraction without native retaliation. Native barter and approved village services remain usable.
+
+The installed Nether Villages mod adds village worldgen and functional-looking structures but no parallel Piglin profession or reputation system. V5 must not invent Piglin professions merely because the village contains a forge, mine, storage, farm or tower.
+
+The detailed authority is recorded in `docs/V5_PIGLIN_CIVILIZATION_BLUEPRINT.md`, with the exact artifact and native mechanical audit in `docs/V5_PIGLIN_NATIVE_AUDIT_2026-09-16.md`.
+
+The remaining Piglin work is technical/objective detail, not unresolved political structure.
+
+## 14. Production reconciliation rule
 
 This document is V5 campaign authority only.
 
