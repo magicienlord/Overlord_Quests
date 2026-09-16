@@ -95,25 +95,27 @@ The following are `OVERLORD APPROVED`:
 - PNG presenter treatment is for non-corporeal NPC presenters.
 - The Historian is the single corporeal PNG-presenter exception in V5. V5 must not preserve an open-ended mechanism for approving additional corporeal presenter exceptions later.
 - The complete presenter roster is to be settled inside V5 itself before production asset generation.
-- Gnarl, Mortis, Quaver, the Historian, Lestat, Gristle, and Grubbison Jr remain in the V5 presenter-roster closure work. Grubbison Jr is not excluded because his theme has not yet been assigned.
+- Gnarl, Mortis, Quaver, the Historian, Lestat, Gristle, Grubbison Jr, and Giblet the Sixth remain in the V5 presenter-roster closure work.
 - Gristle owns food-adjacent campaign presentation and Ramblings.
+- Grubbison Jr owns mining-related campaign presentation and Ramblings.
+- Giblet the Sixth owns forging-related campaign presentation and Ramblings.
 - Presenter design uses thematic ownership to vary the pool of quest-presenting NPCs. Theme ownership is therefore an authored V5 decision, not an implementation convenience.
 - Ordinary physical civilization providers do not automatically become PNG presenters.
 - Registered presenters use five visual states.
 
-The Overlord selected Option 3 for the outstanding five-state presenter question in the current V5 review. The exact wording of that option must be transcribed from the originating decision prompt before the state contract is normalized. No author may substitute an inferred vocabulary for that approved answer.
+The exact final five-state vocabulary and semantics remain `UNKNOWN / REQUIRES OVERLORD DECISION` until explicitly settled.
 
 The assistant-authored vocabulary `neutral / pleased / assertive / concerned / hostile` is not approved authority.
 
 The older Gnarl-specific vocabulary `neutral / directive / mocking / approving / severe` is historical implementation context only unless explicitly selected by the Overlord for the final V5 contract.
 
-Grubbison Jr's final thematic ownership remains `UNKNOWN / REQUIRES OVERLORD DECISION` until explicitly decided.
-
 ## 6. Dragon correction currently established
 
-The final approved player-facing wording for the last dragon-mastery concept is:
+The Overlord clarified that the previously referenced `Option 3` concerned the dragon-mastery wording correction, not the presenter five-state question.
 
-`Bond with a dragon and take flight on it.`
+The final approved player-facing wording for the last dragon-mastery concept is exactly:
+
+`Bond with a dragon and take flight on it`
 
 Exact implementation signals remain technical work and must not silently alter that player-facing requirement.
 
@@ -126,6 +128,8 @@ The following are `OVERLORD APPROVED` at system level:
 - Not every native advancement deserves a Rambling.
 - L_Ender's Cataclysm may use meaningful native achievements as contextual popup Ramblings to complement its broader Questlog coverage.
 - Gristle owns food-adjacent Ramblings.
+- Grubbison Jr owns mining-related Ramblings.
+- Giblet the Sixth owns forging-related Ramblings.
 
 The following are not blanket-approved and remain unresolved until individually decided:
 
