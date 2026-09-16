@@ -287,8 +287,8 @@ Native remainder:
 
 Campaign role:
 
-- small Dark Tower personnel arc;
-- restore a proper evil court atmosphere through Quaver's effort to organize live music;
+- small Dark Tower court-life arc;
+- restore a proper evil court atmosphere through Quaver's effort to equip a Minion band;
 - deliberately reference Overlord II court life without making music a Tower Restoration gate.
 
 Principal presenter/provider:
@@ -304,17 +304,13 @@ Prerequisites:
 
 Visible accomplishment:
 
-- acquire / craft the Immersive Melodies instruments or performance equipment needed to begin rebuilding a Tower band.
+- acquire or craft an initial practical set of Immersive Melodies instruments suitable for the Tower band.
 
 Purpose:
 
-- support Quaver's character goal, not teach every instrument recipe.
+- support Quaver's court-restoration goal without teaching every instrument recipe.
 
-Boundary:
-
-- exact minimum instrument set remains a later content choice and must be based on the final intended band composition.
-
-### TOWER-QUAVER-020: Assemble the band
+### TOWER-QUAVER-020: Equip the Tower band
 
 Prerequisite:
 
@@ -322,41 +318,29 @@ Prerequisite:
 
 Visible accomplishment:
 
-- recruit, assign, or otherwise establish the performers required for the intended Tower band.
+- acquire the complete compact instrument set selected for the authored Tower ensemble.
 
 Purpose:
 
-- turn the arc into personnel restoration rather than item collection.
+- close the arc on supplying the instruments needed for restored court music.
 
-Presentation rule:
+Authoritative fiction:
 
-- any speaking recruited characters added by this arc enter the final V5 presenter-roster review if they receive authored dialogue.
+- completion assumes the acquired instruments are handed to Minions who become the performers under Quaver's direction;
+- no named performer recruitment, performer roster, performer count objective, or detected live performance is required.
 
-Current V5 boundary:
+Implementation boundary:
 
-- exact performer count and identities are not yet established by current authority and must not be invented during technical implementation.
-
-### TOWER-QUAVER-030: Restore court performance
-
-Prerequisite:
-
-- intended band assembled.
-
-Visible accomplishment:
-
-- complete one deliberate band performance in the Dark Tower using the assembled personnel and Immersive Melodies system.
-
-Purpose:
-
-- close the arc on restored court life rather than equipment ownership.
+- exact instrument item IDs and the compact set size are technical/content-selection work from the installed Immersive Melodies surface;
+- the set must demonstrate a usable ensemble without becoming an exhaustive instrument collection checklist.
 
 Completion state:
 
-- Quaver Tower-personnel arc complete.
+- Quaver Tower court-life arc complete.
 
 Consequence:
 
-- improved court atmosphere / personnel presence;
+- restored Minion court music under Quaver's direction;
 - no effect on formal initial Tower Restoration readiness.
 
 ## 7. Content intentionally excluded from dedicated compact questlines
@@ -391,8 +375,6 @@ V5 allocation:
 
 ## 8. Current V5 decision boundary
 
-The compact arcs above expose one unresolved authored choice:
+No player-facing decision remains unresolved in the compact arcs above.
 
-- Quaver's intended final band composition, including the number and identities of recurring performers, is not established yet.
-
-This choice affects `TOWER-QUAVER-010`, `TOWER-QUAVER-020`, the final speaking-character roster, and later presenter PNG production. It should be fixed as campaign content before implementation decides performer slots arbitrarily.
+For Quaver, V5 now requires only acquisition of the selected compact instrument set. The instruments are fictionally issued to Minions, who constitute the Tower performers under Quaver's direction. Exact item IDs and the smallest useful ensemble set remain technical translation work and do not authorize invention of named performers.
