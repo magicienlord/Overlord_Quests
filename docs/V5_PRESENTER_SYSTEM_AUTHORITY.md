@@ -3,8 +3,9 @@
 Status: V5 CAMPAIGN AUTHORITY
 
 Date: 2026-09-16
+Last revised: 2026-09-17
 
-Authority relationship: this document is a focused companion to `docs/V5_CAMPAIGN_SYSTEM_AUTHORITY.md`. `docs/V5_DECISION_BATCH_01_AUTHORITY.md` supersedes earlier presenter proposals where they differ.
+Authority relationship: this document is a focused companion to `docs/V5_CAMPAIGN_SYSTEM_AUTHORITY.md`. `docs/V5_DECISION_BATCH_01_AUTHORITY.md` supersedes earlier presenter proposals where they differ. `docs/V5_RAMBLING_SYSTEM_AUTHORITY.md` is the controlling focused authority for Rambling eligibility, quest overlap, completion Ramblings, exclusions, and advancement-audit rules.
 
 ## 1. Presenter system scope
 
@@ -138,23 +139,35 @@ The Historian owns:
 
 Generic world history remains Gnarl's domain.
 
-Fathoms native advancements or milestones outside the authored five-quest investigation may be allocated as Historian Ramblings when they satisfy the approved Rambling eligibility rule.
+Fathoms native advancements or milestones may be allocated as Historian Ramblings whether or not those same milestones are also used by visible quests. Significant completion advancements may also receive Historian Ramblings even when the completion advancement itself is narratively thin, because pursued completion is independently worthy of acknowledgement.
 
 ### 4.8 Lestat
 
 Lestat owns all authored NightWalker / vampirism presentation and vampire-specific Ramblings unless a scene explicitly requires another already established character.
 
-Nycto native advancements or milestones outside the authored NightWalker quest beats may be allocated as Lestat Ramblings when they satisfy the approved Rambling eligibility rule.
+Nycto native advancements or milestones may be allocated as Lestat Ramblings whether or not those same milestones are also used by visible NightWalker quests, subject to the global Rambling eligibility rule.
 
-## 5. Rambling speaker precedence
+## 5. Rambling eligibility and speaker precedence
 
-When a native achievement, discovery, or milestone has already been approved for Rambling treatment:
+Ramblings are governed globally by `docs/V5_RAMBLING_SYSTEM_AUTHORITY.md`.
+
+The controlling rules are:
+
+1. quest use does not disqualify an advancement or milestone from Rambling treatment;
+2. meaningful native advancements, discoveries, milestones, and equivalent source-owned events are eligible when an approved presenter has worthwhile character, lore, specialist, interpretive, humorous, approving, critical, or contextual commentary to provide;
+3. significant completion advancements are independently eligible even when narratively thin, because completion of a substantial collection, mastery track, advancement family, catalog, or equivalent pursuit is itself worthy of acknowledgement;
+4. trivial, repetitive, purely technical, debug, compatibility, bookkeeping, or narratively empty incremental events that also lack completion significance should not receive Ramblings;
+5. Ramblings must not become disguised reminders or repetitive progress spam.
+
+When an eligible event receives Rambling treatment:
 
 1. use the specialist presenter if the event clearly belongs to an approved specialist theme;
 2. otherwise use Gnarl;
 3. do not create a new presenter merely because an advancement or milestone exists.
 
-This precedence selects the speaker only after the milestone itself has been authorized for Rambling use. Technical existence of an advancement does not authorize a popup.
+Do not apply the obsolete rule that Ramblings are only for milestones outside visible quests. The same native advancement or milestone may validly support both a quest and a Rambling because they serve different functions.
+
+When auditing a mod, inspect the complete relevant advancement and milestone surface, including events already used by quests. Do not restrict the Rambling audit to otherwise-unclaimed advancements.
 
 ## 6. Presenter identity versus physical quest provider
 
