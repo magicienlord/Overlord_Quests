@@ -1,0 +1,19 @@
+OVERLORD REIGN / Overlord_Quests conversation handoff
+
+Captured implementation branch:
+  gnarl-bootstrap
+
+Captured implementation head:
+  e0a0c8667e389f735b8c138227cf62cc889e28c3
+  Pin exact Quest qualification artifact
+
+Preservation branch:
+  conversation-handoff-2026-09-16-e0a0c866
+
+Immediate conversation restart:
+  Ask the three civilization decisions in HANDOFF/NEXT_QUESTIONS.md before writing the affected V5 sections.
+
+Do not use main as implementation authority.
+Do not resume production implementation until V5 authoring is complete/approved.
+Do not write to magicienlord/Overlord_Lore_and_Canon.
+Do not invent missing V5 lore/design; ask the Overlord first.
