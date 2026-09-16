@@ -4,7 +4,7 @@ Status: VERIFIED TECHNICAL FACT / V5 SUPPORTING AUDIT
 
 Date: 2026-09-16
 
-Purpose: record exact installed technical surfaces relevant to the Piglin civilization arc without assigning new political meaning before Overlord approval.
+Purpose: record exact installed technical surfaces relevant to the Piglin civilization arc and distinguish those source-owned mechanics from the approved V5 political authority.
 
 ## 1. Exact village artifact
 
@@ -66,14 +66,30 @@ Already-established authority remains:
 - subjugation must make the canonical village safe for the Overlord regardless of gold armor and must permit local container access and local gold extraction without native retaliation;
 - `DESTROYED` means the selected anchor ceases to function as a polity, not that every village block must be erased.
 
-## 5. Remaining V5 gap
+## 5. Resolved political authority
 
-The source and existing canon do not yet determine the exact political pressure that distinguishes:
+The former political gap is resolved by explicit Overlord approval and is now authored in `docs/V5_PIGLIN_CIVILIZATION_BLUEPRINT.md`.
+
+The approved political spine is territorial inheritance versus the returning Master.
 
 ```text
-independent coexistence -> NEUTRAL
-submission to the returning Master -> SUBJUGATED
-deliberate destruction -> DESTROYED
+NEUTRAL
+-> learn the village's gold, barter and protected-property order
+-> establish meaningful exchange
+-> recognize the legitimacy and independence of the Piglin-built polity
+
+SUBJUGATED
+-> establish meaningful control, access or indispensable leverage over gold, barter wealth and village-resource foundations
+-> use Minion-Piglin kinship as political context rather than automatic ownership
+-> force the Chieftain to accept the returned Master as superior sovereign
+
+DESTROYED
+-> deliberately violate the village's protected gold/property order
+-> defeat the Chieftain
+-> remove any additional indispensable local function only if source-backed objective analysis proves it necessary
+-> end the selected village as a functioning polity
 ```
 
-The village facilities, vanilla gold economy, territorial history and Minion kinship provide strong ingredients, but the political meaning must be approved before they are turned into route objectives.
+The political meaning is no longer unresolved.
+
+Remaining work is technical and objective-level: identify the exact source-backed actions that best prove exchange, leverage, anchor-local property violation, terminal gameplay consequences and any indispensable local functions without inventing unsupported Piglin professions or a parallel reputation system.
