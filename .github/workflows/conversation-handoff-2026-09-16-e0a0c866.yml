@@ -1,0 +1,70 @@
+name: Conversation Handoff 2026-09-16 e0a0c866
+
+on:
+  push:
+    branches:
+      - conversation-handoff-2026-09-16-e0a0c866
+
+permissions:
+  contents: read
+
+jobs:
+  package-handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preservation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify handoff-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=e0a0c8667e389f735b8c138227cf62cc889e28c3
+          WORKFLOW=.github/workflows/conversation-handoff-2026-09-16-e0a0c866.yml
+          git cat-file -e "${BASE}^{commit}"
+          git diff --name-only "$BASE"..HEAD | tee handoff_changed_files.txt
+          while IFS= read -r path; do
+            case "$path" in
+              HANDOFF/*|"$WORKFLOW") ;;
+              *)
+                echo "Unexpected non-handoff change: $path" >&2
+                exit 1
+                ;;
+            esac
+          done < handoff_changed_files.txt
+
+      - name: Assemble handoff package
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=e0a0c8667e389f735b8c138227cf62cc889e28c3
+          ROOT=overlord-quests-conversation-handoff-2026-09-16-e0a0c866
+          mkdir -p "package/$ROOT/HANDOFF"
+          cp -a HANDOFF/. "package/$ROOT/HANDOFF/"
+          cp handoff_changed_files.txt "package/$ROOT/HANDOFF_BRANCH_CHANGED_FILES.txt"
+          cat > "package/$ROOT/IMPLEMENTATION_CHECKPOINT.txt" <<EOF
+          repository=magicienlord/Overlord_Quests
+          implementation_branch=gnarl-bootstrap
+          implementation_head=$BASE
+          preservation_branch=conversation-handoff-2026-09-16-e0a0c866
+          preservation_head=$(git rev-parse HEAD)
+          EOF
+          git archive --format=zip --output "package/overlord-quests-source-e0a0c866.zip" "$BASE"
+          (
+            cd package
+            zip -qr "$ROOT.zip" "$ROOT"
+            sha256sum "$ROOT.zip" overlord-quests-source-e0a0c866.zip > SHA256SUMS.txt
+          )
+
+      - name: Upload conversation handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlord-quests-conversation-handoff-2026-09-16-e0a0c866
+          path: |
+            package/overlord-quests-conversation-handoff-2026-09-16-e0a0c866.zip
+            package/overlord-quests-source-e0a0c866.zip
+            package/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
