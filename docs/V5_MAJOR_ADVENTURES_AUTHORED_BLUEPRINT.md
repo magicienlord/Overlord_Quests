@@ -15,7 +15,7 @@ No final quest names or final dialogue are assigned here. Beat IDs are authoring
 5. Durable native advancements, kill history, structure history and other source-owned state are preferred where they already prove the accomplishment.
 6. Early legitimate progress must be recognized when a durable source signal can prove it.
 7. A source mod's content does not acquire Cataclysm, Empire, civilization, religious, or Overlord historical meaning merely because it appears in an Adventure arc.
-8. Where V5 has not yet selected a player-facing culmination, this document leaves that point explicitly unresolved rather than inheriting an older production choice by default.
+8. Meaningful native advancements that carry useful historical or character context may trigger one-time popup Ramblings even when the enclosing Adventure uses broader Questlog beats. Ramblings complement the authored Questlog structure and do not create a second parallel quest state.
 
 ## 2. Twilight Forest
 
@@ -170,7 +170,7 @@ Campaign role:
 - compact authored Adventure over a deep native progression system;
 - discover a natural magical pocket realm of bees;
 - encounter its major civilization and Queen;
-- select one meaningful native culmination without duplicating the mod's large advancement catalogue.
+- culminate in the Queen's own progression and the Essence of the Bees without duplicating the mod's large advancement catalogue.
 
 Established history:
 
@@ -211,24 +211,36 @@ Boundary:
 - exact advancement IDs and interaction state are technical translation work from the installed 7.13.4 source;
 - no generalized OVERLORD REIGN civilization disposition is created for the Bumblezone without a separate explicit decision.
 
-### ADV-BUMBLE-030: Meaningful culmination
+### ADV-BUMBLE-030: Complete the Queen's culmination
 
 Prerequisite:
 
 - `ADV-BUMBLE-020` complete.
 
-Status:
+Visible accomplishments:
 
-- REQUIRED V5 DECISION.
+- complete the Queen's native Queen's Desires progression after meaningful Queen contact;
+- obtain the source-owned Essence of the Bees awarded by that progression;
+- consume the Essence of the Bees through its native use so the culmination is demonstrated rather than merely stored.
 
-Established requirement:
+Purpose:
 
-- one source-owned meaningful culmination closes the authored Bumblezone Adventure;
-- the remaining native progression stays native.
+- close the compact authored Adventure through the Queen's own major progression rather than an arbitrary collection target;
+- give the player one substantial native culmination while leaving the rest of Bumblezone progression under Bumblezone ownership.
 
-Source-supported candidate surfaces include Queen-centered progression and the native essence progression already proven by the installed source audit.
+Source-backed sequence:
 
-V5 must select the authored culmination before implementation chooses one arbitrarily.
+- successful Queen interaction opens the Queen's Desires progression;
+- completing that progression awards the Essence of the Bees;
+- the Essence has meaningful native post-completion utility, including access/safety effects within later Bumblezone content.
+
+Completion state:
+
+- Bumblezone Adventure complete when the approved Queen's Desires and Essence culmination has been demonstrated.
+
+Native remainder:
+
+- Beehemoth mastery, Crystalline Flower progression, pollen systems, Royal Jelly, other essence branches, collections, equipment and the broader advancement catalogue remain native play or sparse contextual Ramblings unless separately authored.
 
 ## 4. KnightQuest
 
@@ -452,7 +464,9 @@ Global rule:
 
 - this is one Adventure, not eight separate historical questlines;
 - discovering one Cataclysm structure never proves that all other Cataclysm content shares its origin;
-- source-owned structure and boss advancements are the preferred accomplishment signals.
+- source-owned structure and boss advancements are the preferred accomplishment signals;
+- the full Adventure requires all major native Cataclysm bosses for its capstone;
+- individual structure-discovery and boss achievements that carry established REIGN context should trigger one-time popup Ramblings so their specific history is delivered at the moment of discovery or victory rather than being compressed into only the broader Questlog entries.
 
 ### ADV-CATA-010: Discover that the sites do not share one origin
 
@@ -468,6 +482,12 @@ Purpose:
 Implementation:
 
 - retrospective source-owned structure advancements may satisfy the relevant discoveries.
+
+Rambling rule:
+
+- the first relevant structure-discovery advancements should provide concise contextual Ramblings for the specific site where established history exists;
+- later structure discoveries continue to receive one-time context where they materially add a distinct historical fact;
+- no Rambling may invent history for an achievement whose REIGN meaning remains UNKNOWN.
 
 ### ADV-CATA-020: Ancient Netherworld remnants
 
@@ -492,6 +512,10 @@ Relevant source signals include:
 - `cataclysm:find_burning_arena`;
 - `cataclysm:kill_ignis`.
 
+Presentation:
+
+- the discovery and kill signals above should each be eligible for one-time contextual Ramblings that distinguish ancient Overlord/Minion infrastructure from the independent Ignis warrior tradition.
+
 ### ADV-CATA-030: Imperial industry and Ruborian resurrection
 
 Visible accomplishments:
@@ -511,6 +535,10 @@ Relevant source signals include:
 - `cataclysm:find_cursed_pyramid`;
 - `cataclysm:kill_remnant`.
 
+Presentation:
+
+- these achievements should support one-time Ramblings that explicitly contrast Empire manufacture with a genuinely Cataclysm-resurrected Ruborian creature.
+
 ### ADV-CATA-040: Oceanic leakage and older independent ruins
 
 Visible accomplishments:
@@ -529,6 +557,10 @@ Relevant source signals include:
 - `cataclysm:kill_leviathan`;
 - `cataclysm:find_acropolis`;
 - `cataclysm:kill_scylla`.
+
+Presentation:
+
+- the corresponding one-time Ramblings should clarify the parallel oceanic contamination context for Leviathan while preventing Scylla from being falsely absorbed into Cataclysm history.
 
 ### ADV-CATA-050: The Frosted Prison
 
@@ -554,6 +586,10 @@ Relevant source signals include:
 - `cataclysm:find_frosted_prison`;
 - `cataclysm:kill_maledictus`.
 
+Presentation:
+
+- Frosted Prison discovery and Maledictus defeat should receive one-time contextual Ramblings, but those Ramblings must preserve the three explicit UNKNOWNs rather than filling them for dramatic effect.
+
 ### ADV-CATA-060: The transformed End ruins
 
 Availability:
@@ -575,6 +611,10 @@ Relevant source signals include:
 - `cataclysm:find_ruined_citadel`;
 - `cataclysm:kill_ender_guardian`.
 
+Presentation:
+
+- the Ruined Citadel and Ender Guardian achievements should support one-time Ramblings that connect them directly to the transformed Cataclysm Dimension without presenting them as the origin of unrelated Cataclysm-mod sites.
+
 ### ADV-CATA-070: Interpret the breadth of the record
 
 Prerequisite:
@@ -588,29 +628,43 @@ Purpose:
 Presentation boundary:
 
 - Gnarl may interpret what is established and explicitly leave the Maledictus unknowns unresolved;
-- no new universal Cataclysm theory is introduced.
+- no new universal Cataclysm theory is introduced;
+- this broader Questlog interpretation does not replace the more precise one-time achievement Ramblings attached to individual sites and victories.
 
-### ADV-CATA-080: Adventure capstone
+### ADV-CATA-080: Defeat the full Cataclysm roster
 
-Status:
+Prerequisite:
 
-- REQUIRED V5 DECISION.
+- legitimate access to all native boss encounters required by the installed Cataclysm completion advancement.
 
-Technical option already available:
+Visible accomplishment:
 
-- the installed source exposes `cataclysm:kill_all_bosses`, which can serve as a clean total-completion capstone without Questlog duplicating every boss counter.
+- complete the installed source's full major-boss requirement.
 
-Authored alternative:
+Authoritative capstone signal:
 
-- V5 may instead close the REIGN Adventure after a selected breadth of the historically authored strands, leaving additional Cataclysm bosses as native or Post-Credits play.
+- `cataclysm:kill_all_bosses`.
 
-The capstone must be selected explicitly because choosing all bosses versus selected historical breadth materially changes the intended scope of the authored Adventure.
+Purpose:
+
+- close the substantial Adventure on full conquest of the installed major Cataclysm boss roster without creating a parallel Questlog kill counter for every boss;
+- allow individual boss and structure achievements to carry their own historical popup Ramblings while the final capstone remains mechanically simple.
+
+Additional native achievement treatment:
+
+- meaningful individual Cataclysm achievements outside the grouped visible Questlog accomplishments may also receive one-time Ramblings when they have established lore, character, threat or location context worth presenting;
+- such Ramblings are contextual reactions, not new mandatory Questlog beats;
+- achievements with no established REIGN interpretation remain native unless a future authority decision assigns one.
+
+Completion state:
+
+- L_Ender's Cataclysm Adventure complete when `cataclysm:kill_all_bosses` is satisfied and the authored historical interpretation has been exposed through the Adventure's Questlog beats and contextual Ramblings.
 
 ## 7. Current V5 decision boundary
 
-Two player-facing Adventure decisions remain unresolved in this blueprint:
+The Bumblezone culmination and L_Ender's Cataclysm capstone are now closed by explicit Overlord decision:
 
-1. Bumblezone culmination: which one source-owned milestone should close the compact authored arc after meaningful Queen contact?
-2. L_Ender's Cataclysm capstone: should the authored Adventure require the native all-bosses completion, or close after a selected breadth of the historically interpreted strands while leaving remaining encounters native?
+- Bumblezone culminates through the Queen's Desires progression, obtaining and consuming the Essence of the Bees;
+- L_Ender's Cataclysm requires the installed full major-boss capstone, while meaningful individual structure and boss achievements carry one-time popup Ramblings to complement the broader quest entries with specific lore.
 
-All other exact advancement IDs, Ratlantis representative items, KnightQuest recipe/state details, source encounter IDs and retrospective detectors are technical translation work unless source inspection exposes a new player-facing choice.
+All remaining exact advancement IDs, Ratlantis representative items, KnightQuest recipe/state details, source encounter IDs, Rambling trigger wiring and retrospective detectors are technical translation work unless source inspection exposes a new player-facing choice.
