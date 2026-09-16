@@ -12,7 +12,7 @@ Questlog speaking presentation is a generic character system, not a Gnarl-only f
 
 Whenever a Questlog entry requires a character to speak directly, that character may be shown through the standard presenter visual layer.
 
-Gnarl is currently the only presenter explicitly described by the existing framework. That does not give Gnarl unique technical ownership of the presentation system.
+Gnarl is currently the only presenter explicitly described by the older framework. That does not give Gnarl unique technical ownership of the presentation system.
 
 Lestat uses the same generic presenter concept for NightWalker material when he is the authored speaking character.
 
@@ -22,16 +22,67 @@ The same rule applies to Mortis, Quaver, civilization figures, or any later char
 
 Each registered speaking presenter requires five visual states for use alongside Questlog entries.
 
-The exact five state labels or identifiers have not been recovered from the current `Overlord_Quests` repository, supplied instance archives, or current NightWalker source during this V5 audit.
+The earlier unimplemented Gnarl-specific reaction vocabulary was:
 
-Therefore:
+```text
+neutral
+directive
+mocking
+approving
+severe
+```
 
-- the count of five visual states is established;
-- the generic presenter requirement is established;
-- exact state names remain `UNKNOWN` until recovered from an older source or explicitly defined;
-- V5 must not invent replacement names merely to keep authoring moving.
+Those labels were designed around Gnarl's speaking functions rather than around a reusable visual language. They were never established in the current framework and are superseded for V5 by the following generic presenter states:
 
-## 3. Presenter identity versus quest provider
+```text
+neutral
+pleased
+assertive
+concerned
+hostile
+```
+
+These are visual attitudes, not dialogue-writing modes.
+
+### 2.1 `neutral`
+
+Use for composed, observational, explanatory, reserved, or emotionally unmarked presentation.
+
+### 2.2 `pleased`
+
+Use for approval, satisfaction, amusement, relief, pride, smug enjoyment, or another visibly positive reaction.
+
+### 2.3 `assertive`
+
+Use for commands, confidence, emphasis, challenge, determination, authority, or forceful direction without requiring hostility.
+
+### 2.4 `concerned`
+
+Use for worry, caution, disappointment, sympathy, unease, doubt, or serious negative attention that is not active hostility.
+
+### 2.5 `hostile`
+
+Use for anger, threat, contempt, aggression, disgust, or overt antagonism.
+
+## 3. Legacy Gnarl mapping
+
+The old Gnarl labels do not receive a mandatory one-to-one migration because they encoded writing intent rather than purely visible attitude.
+
+Typical mapping is:
+
+```text
+neutral -> neutral
+directive -> assertive
+approving -> pleased
+severe -> assertive / concerned / hostile according to the line
+mocking -> pleased when amused or smug, hostile when contemptuous
+```
+
+Quest authoring chooses the visual state from the actual visible attitude of the speaker in that entry.
+
+A portrait state must not force dialogue into one personality. Gnarl, Lestat, Mortis, a Villager, an Umvuthana, or another speaker can all use the same five-state vocabulary while expressing it in character-specific ways.
+
+## 4. Presenter identity versus quest provider
 
 The character who causes or provides a quest and the character who speaks in the Questlog presentation do not have to be the same entity.
 
@@ -41,7 +92,7 @@ Conversely, when the local provider itself speaks through the Questlog, that pro
 
 Do not create duplicate quest state merely because provider and presenter differ.
 
-## 4. V5 presenter roster requirement
+## 5. V5 presenter roster requirement
 
 V5 campaign authoring must record presenter identity wherever a quest entry contains direct character speech.
 
@@ -62,7 +113,7 @@ asset_status
 
 `asset_status` may remain `NOT_GENERATED` during V5 authoring.
 
-## 5. Asset timing
+## 6. Asset timing
 
 Presenter visuals do not need to be generated while V5 is still changing the campaign and speaker roster.
 
@@ -71,15 +122,14 @@ The correct order is:
 ```text
 complete V5 campaign structure
 -> finalize speaking-character roster
--> define or recover the five exact visual-state identifiers
--> generate the necessary presenter assets
+-> generate the five universal visual attitudes for every required presenter
 -> register them in the Questlog presentation framework
 -> implement authored quest content
 ```
 
 This avoids generating assets for characters later removed from the campaign or discovering after implementation that required speakers were omitted.
 
-## 6. Writing discipline
+## 7. Writing discipline
 
 A character does not need a presenter asset merely because that character exists in the world.
 
@@ -87,7 +137,7 @@ A presenter asset is required when V5 actually assigns that character direct Que
 
 Prefer the smallest useful presenter roster consistent with the authored campaign. Local world dialogue, environmental storytelling, books, ordinary native interactions, and non-speaking provider mechanics do not automatically require a Questlog presenter.
 
-## 7. Production boundary
+## 8. Production boundary
 
 The current production framework's Gnarl-only description is incomplete for V5 but is not to be expanded in production yet.
 
