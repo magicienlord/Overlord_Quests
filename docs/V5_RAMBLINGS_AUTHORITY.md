@@ -41,7 +41,9 @@ No author may infer these choices from thematic fit alone.
 
 `OVERLORD APPROVED`:
 
-- Gristle owns food-adjacent Ramblings.
+- Gristle owns all food-adjacent Ramblings.
+- Grubbison Jr owns all mining-related Ramblings.
+- Giblet the Sixth owns all forging-related Ramblings.
 - Presenter ownership is thematic and contributes to a varying pool of eligible quest-presenting NPCs.
 
 Other exact Rambling speaker assignments remain governed by their explicit V5 decisions. Existing source affinity, provider identity, or technical origin does not automatically assign a speaker.
