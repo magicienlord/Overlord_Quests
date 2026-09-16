@@ -31,11 +31,11 @@ Different presenters own themes. Those thematic ownership decisions vary the poo
 
 Theme ownership and presenter eligibility are authored campaign decisions. They are not to be derived automatically from which mod supplied an event, which NPC technically provided a quest, or which presenter would be easiest to implement.
 
-The exact thematic allocation for each presenter must be settled through explicit Overlord decisions in V5.
-
 Established thematic ownership currently includes:
 
-- Gristle: food-adjacent campaign presentation and Ramblings.
+- Gristle: all food-adjacent campaign presentation and Ramblings.
+- Grubbison Jr: all mining-related campaign presentation and Ramblings.
+- Giblet the Sixth: all forging-related campaign presentation and Ramblings.
 
 Any additional ownership must be recorded only after explicit approval.
 
@@ -50,8 +50,7 @@ The following characters remain in the V5 presenter-roster closure work and must
 - Lestat
 - Gristle
 - Grubbison Jr
-
-Grubbison Jr remains included even though his final theme is not yet assigned. Absence of an assigned theme is not authorization to exclude a presenter.
+- Giblet the Sixth
 
 This list records the presenters currently established for roster closure. Final thematic ownership and exact campaign usage must still be explicit where not already approved.
 
@@ -61,9 +60,9 @@ This list records the presenters currently established for roster closure. Final
 
 Each registered presenter uses five visual states.
 
-The Overlord selected Option 3 for the outstanding five-state presenter decision during the current V5 review. The originating Option 3 wording must be transcribed exactly before this section is normalized into final state names or semantics.
+The exact universal state names and semantics are not yet approved. The earlier reference to `Option 3` as a presenter-state decision was incorrect. The Overlord clarified that Option 3 concerned the dragon-mastery wording correction instead.
 
-Until that transcription is recovered:
+Until the five-state contract is explicitly decided:
 
 - do not infer replacement state names;
 - do not promote an assistant-created generic emotion set;
@@ -89,7 +88,7 @@ approving
 severe
 ```
 
-Neither list may be treated as the final V5 state contract without the Overlord-approved Option 3 wording.
+Neither list is final V5 authority.
 
 ## 6. Presenter data that final V5 must settle
 
