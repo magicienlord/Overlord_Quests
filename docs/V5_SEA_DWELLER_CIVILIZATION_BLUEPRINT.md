@@ -68,7 +68,7 @@ Blacksmith
 Purpose:
 
 - represents Depth metallurgy and equipment production;
-- can become one of the critical material pillars used by SUBJUGATED.
+- is one of the two mandatory personal commitment pillars used by SUBJUGATED.
 
 ### 3.3 Collector
 
@@ -82,13 +82,15 @@ Purpose:
 
 - source-owned Nautilus barter gives this role a distinct resource function;
 - represents acquisition and circulation of valuable underwater resources;
-- can become one of the critical economic pillars used by SUBJUGATED.
+- is one of the two mandatory personal commitment pillars used by SUBJUGATED.
 
-### 3.4 Third civic provider
+### 3.4 No third mandatory submission provider
 
-The approved SUBJUGATED route requires another appropriate local profession or civic role only where the detailed source pass establishes a meaningful third pillar.
+V5 does not require a third recurring provider merely to create symmetry with other civilization arcs.
 
-Candidate source professions include Worker, Architect, Hunter and Farmer. V5 must not select one merely to reach a fixed provider count. The role must express actual control over a critical village function.
+Worker, Architect, Hunter, Farmer or other native professions may appear in local characterization, NEUTRAL content, optional provider content or technical support where justified, but none is a mandatory SUBJUGATED political pillar by default.
+
+The Sea Dweller submission route instead combines two explicit personal commitments with broader institutional leverage over the village's profession and material systems.
 
 ## 4. NEUTRAL route
 
@@ -122,8 +124,17 @@ Aquamarine commerce
 Depth metallurgy
 Blacksmith obligation
 Collector obligation
-one additional critical local provider only if source-backed
 ```
+
+The personal political commitments are exactly:
+
+```text
+Blacksmith commitment
+AND
+Collector commitment
+```
+
+The profession Seashell system, Aquamarine commerce and Depth metallurgy provide the broader institutional leverage that makes those two commitments politically consequential. They are not additional provider-count requirements.
 
 Approved meaning:
 
@@ -131,15 +142,18 @@ Approved meaning:
 anchor locked
 -> learn the village's professions and resource economy
 -> use or master the native profession-assignment system through authored content
--> establish control or indispensable patronage over key material flows
--> secure explicit obligations from Blacksmith and Collector
--> secure any additional approved civic obligation required by final authoring
--> confront Sea Elder with the village's practical dependence on Overlord-controlled professions or resources
+-> establish control, access or indispensable patronage over key material flows through Aquamarine commerce and Depth metallurgy
+-> secure explicit Blacksmith obligation tied to the village's productive/metallurgical function
+-> secure explicit Collector obligation tied to valuable resource acquisition/circulation
+-> demonstrate that the village's profession and material systems now operate under decisive Overlord leverage
+-> confront Sea Elder with the village's practical dependence on those compromised systems
 -> Sea Elder retains local office but accepts Overlord supremacy
 -> SUBJUGATED
 ```
 
 The profession Seashell mechanic is political leverage only through the authored route. Simply using a Seashell does not automatically subjugate anyone.
+
+V5 must not add a Worker, Architect, Hunter, Farmer or other third provider as a mandatory commitment merely to reach a fixed provider count.
 
 ## 6. DESTROYED route
 
@@ -200,7 +214,9 @@ V5 should use only those that express the approved political structure. In parti
 
 ## 9. Presenter use
 
-The Sea Elder, Blacksmith, Collector and any later approved recurring provider enter the final presenter roster if they receive direct Questlog speech.
+The Sea Elder, Blacksmith and Collector enter the final presenter roster if they receive direct Questlog speech.
+
+Other native professions enter the roster only if finalized optional content assigns them direct Questlog speech. They are not mandatory submission presenters.
 
 All use:
 
@@ -214,15 +230,18 @@ hostile
 
 ## 10. Remaining authoring boundary
 
-The political spine is approved.
+The political spine and submission cast are approved.
 
 Still unresolved are:
 
 - the exact source-native profession selected for the Sea Elder if multiple candidates remain viable;
-- whether a third SUBJUGATED civic provider is actually required and which source role it uses;
-- the exact sequence linking profession control, Aquamarine and Depth metallurgy into submission leverage;
+- the exact objective sequence linking profession control, Aquamarine commerce and Depth metallurgy into the approved institutional leverage;
+- the exact Blacksmith obligation that expresses metallurgical/productive dependence;
+- the exact Collector obligation that expresses resource-circulation dependence;
 - the exact indispensable functions removed after the Sea Lantern-triggered destructive confrontation;
 - the extent and presentation of remembered Elven ancestry beyond the already-approved broad possibility.
+
+A third mandatory submission provider is not an open question.
 
 Purely technical questions should be solved from source. New political or historical meaning must return to the Overlord.
 
