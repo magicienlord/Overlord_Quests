@@ -185,12 +185,18 @@ The result applies only to the selected canonical Bastille.
 
 ### 6.2 Umvuthana
 
+The canonical Umvuthana Grove is selected through deliberate masked contact with its Umvuthi. Wearing an Umvuthana mask and deliberately initiating the legitimate Umvuthi interaction inside an otherwise eligible Grove is the approved anchor-start signal.
+
+The shared opening is:
+
 ```text
-HOSTILE/native inaccessible opening
--> masked legitimate audience
+find an eligible generated Umvuthana Grove
+-> wear an Umvuthana mask
+-> deliberately initiate legitimate contact with that Grove's Umvuthi
+-> lock that Grove as the canonical Umvuthana anchor
 -> AUDIENCE_ESTABLISHED internal phase/fact
--> Grove and Umvuthi progression
--> terminal NEUTRAL / SUBJUGATED / DESTROYED resolution
+-> bind the required local Umvuthana provider cast
+-> begin the Grove political progression
 ```
 
 `AUDIENCE_ESTABLISHED` is not a civilization disposition.
@@ -205,9 +211,53 @@ V5 must not require:
 - a synthetic defeated-but-alive Umvuthi combat state;
 - special cancellation of his native death solely to support submission.
 
-The Umvuthana SUBJUGATED route must instead be a quest-driven political or religious submission that leaves Umvuthi alive without requiring a fight against him as its terminal action.
+The approved terminal architecture is:
 
-The exact submission chain remains under authoring and must be supported by the native Grove, mask, Umvuthi interaction, and provider surfaces wherever possible.
+#### NEUTRAL
+
+The Overlord completes Umvuthi's native peaceful exchange, paying the configured seven Gold Blocks and receiving Sun's Blessing. The native persistent trade recognition then supports a short Grove relationship sequence.
+
+The route ends with an explicit authored decision that recognizes the canonical Grove as independent. Umvuthi remains its creator-god and sovereign ruler. His persistent recognition of the Overlord and repeat access to replenished Sun's Blessing are the native gameplay expression of the settled peaceful relationship.
+
+The native exchange alone does not automatically write `NEUTRAL`. The explicit authored independence resolution is still required.
+
+#### SUBJUGATED
+
+The Overlord does not defeat Umvuthi in combat.
+
+Instead, he subverts Umvuthi's authority through a small set of specifically authored key worshippers within the canonical Grove. Each required provider chain must end in an explicit allegiance, obligation, dependency, or other authored commitment to the Overlord. This is not a hidden count of generic Umvuthana errands.
+
+The required structure is:
+
+```text
+legitimate audience established
+-> identify the key local worshippers or offices on which Umvuthi's practical authority depends
+-> complete their distinct provider chains
+-> secure explicit authored commitments from each required provider
+-> demonstrate that Umvuthi can no longer rely on unquestioned control of his own people
+-> unlock a final audience with the living Umvuthi
+-> Umvuthi chooses preservation of himself and the Grove over loss of control of his worshippers
+-> Umvuthi publicly acknowledges the Overlord as the superior ruler
+-> SUBJUGATED
+```
+
+Umvuthi remains the Umvuthana creator-god and their immediate local ruler. Politically, he and the canonical Grove now rule beneath the Overlord rather than independently of him.
+
+The humiliation is political and religious: a creator-god is forced to recognize a higher temporal sovereign because the people he created have been brought under that sovereign's influence.
+
+The exact required provider identities remain `UNKNOWN` until the native Grove population audit establishes which source distinctions are stable enough to bind as recurring authored characters. V5 must not invent arbitrary cast roles before that audit is complete.
+
+Any selected provider who speaks directly through Questlog uses the generic five-state presenter PNG system defined in `docs/V5_PRESENTER_SYSTEM_AUTHORITY.md`. Provider identity and presenter identity may be the same character without creating duplicate quest state.
+
+#### DESTROYED
+
+The Overlord rejects accommodation and deliberately kills the canonical Umvuthi.
+
+The native `mowziesmobs:kill_umvuthi` advancement and player-kill acquisition of the Sol Visage are source-backed signals for the destructive terminal route.
+
+The result is local to the canonical Grove. Other Umvuthana Groves remain extant and independent.
+
+The Sol Visage and its player-owned Umvuthana follower mechanic are post-destruction consequences. They are not prerequisites or substitutes for the living-Umvuthi SUBJUGATED route.
 
 ## 7. Provider quest rules
 
