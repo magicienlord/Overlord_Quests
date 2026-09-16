@@ -121,7 +121,7 @@ Good Mana proof:
 
 Evil Mana proof:
 
-- REQUIRED V5 DECISION: current canon establishes Evil Mana and several dark/violent Iron's schools, but does not explicitly designate one Iron's school as the authoritative Evil Mana mastery proof.
+- demonstrate meaningful Blood magic, which is the V5-authorized Iron's proof of Evil Mana mastery.
 
 Completion state:
 
@@ -563,9 +563,11 @@ A cross-discipline item should appear in a quest only when it contributes to the
 
 ## 9. Current V5 decision boundary
 
-One player-facing magic decision remains unresolved:
+No player-facing magic decision remains unresolved in this blueprint.
 
-- Iron's Good Mana mastery has an explicit source-backed proof through Holy magic;
-- V5 still needs one designated Iron's school or exact spell family to serve as the authoritative Evil Mana proof in `MAG-IRON-050`.
+The Iron's closer is now fixed as:
 
-No other magic arc in this blueprint currently requires a new campaign decision. Exact registry IDs, recipe choices, item tiers and objective detector details remain technical translation work unless source inspection exposes a new player-facing choice.
+- Good Mana proof through meaningful Holy magic;
+- Evil Mana proof through meaningful Blood magic.
+
+Exact registry IDs, exact spell choices within those approved schools, recipe choices, item tiers and objective detector details remain technical translation work unless source inspection exposes a new player-facing choice.
