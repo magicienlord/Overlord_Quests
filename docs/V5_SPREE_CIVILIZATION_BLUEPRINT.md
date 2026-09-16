@@ -37,21 +37,26 @@ This model is grounded in franchise Spree, where civic leadership, refugees, far
 
 V5 translates those themes into present-day Villager systems rather than recreating the original Overlord I quest sequence literally.
 
-## 3. Required civic pillars
+## 3. Approved civic provider cast
 
-Spree uses three approved provider/function categories:
+Spree uses one compact approved cast around the Mayor:
 
 ```text
-food and agriculture
-commerce and specialist work
-Guard Villager security
+Mayor of Spree: civic authority
+Vanilla Farmer: food and agriculture pillar
+VillagersPlus Miner: commerce and specialist-work pillar
+Guard Villager: security pillar
 ```
 
-These are political pillars, not fixed profession names yet.
+These providers are selected because their native mechanics can express the three political functions V5 needs. They are not a representative census of every profession in Spree.
 
-The detailed source pass must select concrete Villager professions, Guard Villager roles and trackable actions only where they materially express one of these functions.
+The Farmer owns the food and agriculture chain.
 
-V5 must not create filler providers merely to represent every Villager profession.
+The VillagersPlus Miner owns the commerce and specialist-work chain. Its native material-trade progression is the preferred source surface for showing useful specialist economic activity where the final objective pass can track it cleanly.
+
+The Guard Villager owns the security chain. The installed Guard Villagers surface exposes native recruitment, a `guards_made` statistic, owner state, following state, equipment access, and patrol/checkpoint behavior. Recruitment is performed by giving a sword or an eligible crossbow to a convertible Villager. These are preferred source surfaces for expressing organized Spree security rather than inventing a generic defense flag.
+
+V5 must not add filler providers merely to represent additional Villager professions.
 
 ## 4. Mayor
 
@@ -72,9 +77,9 @@ Approved structure:
 
 ```text
 anchor locked as present-day Spree
--> complete meaningful food/agriculture content that strengthens local self-sufficiency
--> complete meaningful commerce/specialist content that demonstrates a functioning civic economy
--> complete meaningful Guard Villager security content that establishes local defensive continuity
+-> complete meaningful Farmer content that strengthens local food self-sufficiency
+-> complete meaningful Miner content that demonstrates a functioning specialist economy
+-> complete meaningful Guard Villager content that establishes local defensive continuity
 -> demonstrate that those functions can continue without Overlord ownership
 -> final civic settlement with Mayor
 -> explicitly recognize Spree as independent
@@ -93,9 +98,9 @@ Approved structure:
 
 ```text
 anchor locked as present-day Spree
--> identify the food/agriculture function and make a selected critical part materially dependent on Overlord resources, access or protection
--> identify the commerce/specialist function and establish a selected critical dependency or obligation
--> identify the Guard Villager security function and establish that local safety materially depends on Overlord intervention, resources or authority
+-> make a selected critical part of the Farmer function materially dependent on Overlord resources, access or protection
+-> establish a selected critical Miner obligation or economic dependency
+-> establish that Guard Villager security materially depends on Overlord intervention, resources or authority
 -> record only the specific provider obligations actually required by the route
 -> present the resulting dependency structure to Mayor
 -> Mayor accepts Overlord supremacy while remaining civic administrator of Spree
@@ -116,7 +121,7 @@ Approved structure:
 choose destructive route
 -> turn knowledge of Spree's civic functions against the settlement
 -> remove the Mayor
--> destroy or irreversibly break the exact indispensable food/economic/defensive functions selected by the source-backed objective pass
+-> destroy or irreversibly break the exact indispensable Farmer, Miner and Guard functions selected by the source-backed objective pass
 -> present-day Spree ceases to function as the canonical polity
 -> DESTROYED
 ```
@@ -152,9 +157,9 @@ Franchise authority supports:
 - farms and food supply as strategic settlement concerns;
 - trade and paid service as ordinary social/economic behavior.
 
-Minecraft implementation must then select source-compatible Villager and Guard Villager mechanics to express those approved themes.
+Minecraft implementation must use source-compatible Villager and Guard Villager mechanics to express those approved themes.
 
-The next technical/objective pass should prefer native professions, trades, farming actions, raids, Guard Villager behaviors, workstation use or other installed mechanics only where they serve the approved political meaning.
+The next technical/objective pass should select the smallest concrete actions from Farmer, VillagersPlus Miner and Guard Villager mechanics that prove the intended civic state. Native signals should be preferred where they match the accomplishment cleanly.
 
 Do not add a general Villager reputation system simply to connect them.
 
@@ -162,7 +167,7 @@ Do not add a general Villager reputation system simply to connect them.
 
 The Mayor enters the final presenter roster.
 
-Additional food/agriculture, commerce/specialist or Guard Villager providers enter the roster only if their finalized chains give them direct Questlog speech.
+The Farmer, VillagersPlus Miner, and Guard Villager enter the final presenter roster if their finalized chains give them direct Questlog speech.
 
 All use the universal five-state presenter vocabulary:
 
@@ -176,20 +181,18 @@ hostile
 
 ## 11. Remaining authoring boundary
 
-The Spree identity, Mayor role, civic-viability political spine and all three terminal route meanings are approved.
+The Spree identity, Mayor role, compact provider cast, civic-viability political spine and all three terminal route meanings are approved.
 
 Still unresolved are source/objective details only:
 
 - the exact deliberate Villager anchor-start action;
 - the exact criteria for choosing the Mayor;
-- the exact food/agriculture provider or providers;
-- the exact commerce/specialist provider or providers;
-- the exact Guard Villager provider structure;
-- the concrete self-sufficiency objectives used by `NEUTRAL`;
-- the concrete dependencies or obligations used by `SUBJUGATED`;
-- the exact indispensable civic functions used by `DESTROYED`.
+- the concrete Farmer self-sufficiency objectives and route leverage;
+- the concrete VillagersPlus Miner economic objectives and route leverage;
+- the concrete Guard Villager security objectives and route leverage;
+- the exact indispensable civic functions whose loss proves `DESTROYED`.
 
-These should be resolved from the installed Villager, Guard Villager and Questlog surfaces where possible. Any remaining choice that changes campaign meaning must return to the Overlord.
+These should be resolved from the installed Villager, VillagersPlus, Guard Villager and Questlog surfaces where possible. Any remaining choice that changes campaign meaning must return to the Overlord.
 
 ## 12. Production boundary
 
