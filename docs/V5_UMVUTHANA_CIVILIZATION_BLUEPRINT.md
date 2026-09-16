@@ -28,7 +28,7 @@ Mere proximity, accidental combat, ordinary Grove entry, or possession of a mask
 
 `AUDIENCE_ESTABLISHED` is not a terminal disposition.
 
-## 2. Required recurring Grove cast
+## 2. Recurring Grove cast
 
 The approved recurring cast is deliberately small and uses exact native entity distinctions.
 
@@ -49,8 +49,8 @@ Grove Trader / everyday local contact
 Purpose:
 
 - represents ordinary exchange and practical local interests;
-- can expose provider content tied to trade, supply, local obligations, or practical dependence;
-- can become one of the key personal commitments required by the SUBJUGATED route.
+- may expose provider content tied to trade, supply, local obligations, or the Grove's daily life;
+- is not a mandatory political pillar of the SUBJUGATED route.
 
 The source entity's persisted mask identity is not a political office. V5 does not define any mask as a trader caste or council rank.
 
@@ -65,14 +65,14 @@ EntityUmvuthanaCrane
 Authored role:
 
 ```text
-Grove Healer / support figure
+Grove Healer / healing and support authority
 ```
 
 Purpose:
 
 - represents the Grove's healing and support function;
-- can expose provider content tied to protection, recovery, dependency, or care for the Grove;
-- can become one of the key personal commitments required by the SUBJUGATED route.
+- owns one of the two approved SUBJUGATED provider chains;
+- that chain must end by compromising this pillar through an explicit allegiance, obligation, dependency, or equivalent personal commitment to the Overlord.
 
 The Crane's healer identity is source-backed. No additional priestly or political caste is implied.
 
@@ -87,7 +87,7 @@ EntityUmvuthanaRaptor
 Authored role:
 
 ```text
-canonical Grove martial leader
+canonical Grove martial and pack authority
 ```
 
 Purpose:
@@ -95,13 +95,22 @@ Purpose:
 - represents the Grove's organized martial force;
 - commands its own native followers;
 - remains source-classified as devoted to Umvuthi before authored progression changes its political commitment;
-- can become one of the key personal commitments required by the SUBJUGATED route.
+- owns one of the two approved SUBJUGATED provider chains;
+- that chain must end by compromising this pillar through an explicit allegiance, obligation, dependency, or equivalent personal commitment to the Overlord.
 
 This role is local to the selected canonical Grove.
 
 V5 does not establish that all Raptors are Grove generals, that every Grove contains a formal Raptor office, or that Raptors form a civilization-wide military institution.
 
-If the selected Grove does not naturally contain the required recurring cast after anchor lock, the later implementation may spawn the missing native entity types and bind them to these authored roles. Existing suitable entities should be reused where possible.
+### 2.4 Missing-role spawning authority
+
+Native Grove generation guarantees Umvuthi but does not guarantee that both required political provider entity types are present.
+
+After the canonical Grove has been deliberately selected, later implementation is explicitly authorized to spawn a missing native Crane and/or native Raptor and bind each spawned entity to the approved quest role.
+
+Existing suitable native entities should be reused where possible.
+
+This authorization exists only to guarantee the authored provider cast for the selected canonical Grove. It does not change ordinary world generation or establish that every natural Grove always contains those roles.
 
 ## 3. Civilization Questlog structure
 
@@ -146,28 +155,34 @@ The first exchange or Sun's Blessing alone must not write `NEUTRAL`.
 
 Subjugation is political and religious rather than a special combat-state intervention.
 
-The Overlord brings the three approved key Grove figures under his influence through separate meaningful provider chains:
+The Overlord compromises the two approved practical pillars of Umvuthi's local control through separate meaningful provider chains:
 
 ```text
-Grove Trader commitment
-AND
 Grove Healer commitment
 AND
 Grove Raptor commitment
 ```
 
-Each chain must end in an explicit authored allegiance, obligation, dependency, or equivalent personal commitment to the Overlord.
+The Crane chain represents healing and support authority.
 
-This is not a hidden reputation system and not a generic requirement such as completing three arbitrary sidequests.
+The Raptor chain represents martial and pack authority.
 
-The route then resolves as:
+Each chain must end in an explicit authored allegiance, obligation, dependency, or equivalent personal commitment to the Overlord. The exact concrete objectives must be selected from source-backed mechanics in the later objective pass rather than invented here.
+
+The Grove Trader may provide characterization or practical content, but no Trader completion or commitment is required for political submission.
+
+This is not a hidden reputation system and not a generic requirement such as completing two arbitrary sidequests.
+
+The route resolves as:
 
 ```text
 AUDIENCE_ESTABLISHED
--> complete the three specific provider chains
--> record the three explicit commitments
+-> complete the Crane provider chain
+-> record Grove Healer commitment
+-> complete the Raptor provider chain
+-> record Grove Raptor commitment
 -> unlock final audience with the living Umvuthi
--> demonstrate that Umvuthi can no longer rely on unquestioned control of his own trader, healer, and martial leader
+-> demonstrate that Umvuthi can no longer rely on unquestioned control of the Grove's support and martial pillars
 -> Umvuthi chooses preservation of himself and the Grove over further loss of control
 -> Umvuthi publicly acknowledges the Overlord as the superior ruler
 -> SUBJUGATED
@@ -177,7 +192,7 @@ Umvuthi remains the Umvuthana creator-god and immediate local ruler.
 
 Politically, Umvuthi and the canonical Grove now rule beneath the Overlord rather than independently of him.
 
-The humiliation is intentional: a creator-god is forced to acknowledge a higher temporal sovereign because key members of the society he created have been brought under that sovereign's influence.
+The humiliation is intentional: a creator-god is forced to acknowledge a higher temporal sovereign because two critical practical pillars of the society he created have been brought under that sovereign's influence.
 
 ### 5.1 Prohibited implementation
 
@@ -208,9 +223,11 @@ The Sol Visage and its player-owned Umvuthana follower mechanic are post-destruc
 
 ## 7. Presenter system use
 
-Umvuthi and any of the three recurring provider characters may speak directly through Questlog when V5 assigns them dialogue.
+Umvuthi and any recurring provider character assigned direct Questlog speech may enter the final presenter roster.
 
-Any such speaking character enters the final presenter roster and uses the universal five-state PNG vocabulary:
+The Crane and Raptor must be treated as presenter candidates because they own mandatory authored provider chains on the SUBJUGATED route.
+
+Any such speaking character uses the universal five-state PNG vocabulary:
 
 ```text
 neutral
@@ -231,11 +248,12 @@ The later implementation should use sparse explicit state:
 ```text
 umvuthana_anchor_locked
 AUDIENCE_ESTABLISHED
-grove_trader_commitment
 grove_healer_commitment
 grove_raptor_commitment
 terminal disposition
 ```
+
+Trader state should persist only if a finalized authored chain genuinely needs later reference.
 
 Only facts genuinely required by authored follow-up should persist.
 
