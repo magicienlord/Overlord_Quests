@@ -225,27 +225,39 @@ The native exchange alone does not automatically write `NEUTRAL`. The explicit a
 
 The Overlord does not defeat Umvuthi in combat.
 
-Instead, he subverts Umvuthi's authority through a small set of specifically authored key worshippers within the canonical Grove. Each required provider chain must end in an explicit allegiance, obligation, dependency, or other authored commitment to the Overlord. This is not a hidden count of generic Umvuthana errands.
+Instead, he compromises two approved practical pillars of Umvuthi's local control:
+
+```text
+EntityUmvuthanaCrane -> Grove Healer / healing and support authority
+EntityUmvuthanaRaptor -> Grove Raptor / martial and pack authority
+```
+
+Each receives a separate meaningful provider chain. Each chain must end in an explicit allegiance, obligation, dependency, or equivalent personal commitment to the Overlord. This is not a hidden count of generic Umvuthana errands.
 
 The required structure is:
 
 ```text
 legitimate audience established
--> identify the key local worshippers or offices on which Umvuthi's practical authority depends
--> complete their distinct provider chains
--> secure explicit authored commitments from each required provider
--> demonstrate that Umvuthi can no longer rely on unquestioned control of his own people
+-> complete the Crane provider chain
+-> secure the Grove Healer commitment
+-> complete the Raptor provider chain
+-> secure the Grove Raptor commitment
+-> demonstrate that Umvuthi can no longer rely on unquestioned control of the Grove's support and martial pillars
 -> unlock a final audience with the living Umvuthi
--> Umvuthi chooses preservation of himself and the Grove over loss of control of his worshippers
+-> Umvuthi chooses preservation of himself and the Grove over further loss of control
 -> Umvuthi publicly acknowledges the Overlord as the superior ruler
 -> SUBJUGATED
 ```
 
+A Grove Trader may still exist as an everyday local contact, but no Trader commitment is required for political submission.
+
+Native Grove generation guarantees Umvuthi but does not guarantee both approved provider types. Once the canonical Grove is deliberately selected, later implementation is explicitly authorized to spawn a missing native Crane and/or Raptor and bind it to the approved quest role. Existing suitable entities should be reused where possible.
+
 Umvuthi remains the Umvuthana creator-god and their immediate local ruler. Politically, he and the canonical Grove now rule beneath the Overlord rather than independently of him.
 
-The humiliation is political and religious: a creator-god is forced to recognize a higher temporal sovereign because the people he created have been brought under that sovereign's influence.
+The humiliation is political and religious: a creator-god is forced to recognize a higher temporal sovereign because two critical practical pillars of the society he created have been brought under that sovereign's influence.
 
-The exact required provider identities remain `UNKNOWN` until the native Grove population audit establishes which source distinctions are stable enough to bind as recurring authored characters. V5 must not invent arbitrary cast roles before that audit is complete.
+The detailed provider authority is recorded in `docs/V5_UMVUTHANA_CIVILIZATION_BLUEPRINT.md`.
 
 Any selected provider who speaks directly through Questlog uses the generic five-state presenter PNG system defined in `docs/V5_PRESENTER_SYSTEM_AUTHORITY.md`. Provider identity and presenter identity may be the same character without creating duplicate quest state.
 
@@ -316,13 +328,18 @@ eligible generated Villager settlement
 
 The Mayor title continues source-faithful Spree civic vocabulary without asserting that one unchanged municipal institution survived for centuries.
 
-The approved Spree political spine is civic viability and dependency. The three required civic pillars are:
+The approved compact Spree cast is:
 
 ```text
-food and agriculture
-commerce and specialist work
-Guard Villager security
+Mayor of Spree -> civic authority
+Vanilla Farmer -> food and agriculture pillar
+VillagersPlus Miner -> commerce and specialist-work pillar
+Guard Villager -> security pillar
 ```
+
+V5 must not add filler providers merely to represent additional Villager professions.
+
+The Guard Villager source surface includes native recruitment, the `guards_made` statistic, owner state, following state, equipment access, and patrol/checkpoint behavior. Those mechanics are preferred over a fabricated generic defense state when the final objective pass can use them cleanly.
 
 The approved terminal architecture is:
 
@@ -332,7 +349,7 @@ The approved terminal architecture is:
 
 The detailed provider and objective authority is recorded in `docs/V5_SPREE_CIVILIZATION_BLUEPRINT.md`.
 
-The remaining Spree questions are source/objective details such as exact provider professions, Guard Villager roles, anchor-start action and trackable actions. They are not unresolved political structure.
+The remaining Spree questions are source/objective details: anchor-start action, Mayor eligibility and the smallest trackable Farmer, Miner and Guard actions that prove each route. They are not unresolved provider identities or political structure.
 
 ## 10. Dwarf and Kobold rivalry
 
