@@ -3,6 +3,7 @@
 Status: HIGHEST OPERATIONAL V5 AUTHORING GOVERNANCE
 
 Date: 2026-09-16
+Last revised: 2026-09-17
 
 Purpose: ensure the final V5 campaign authority contains no authored campaign choice that was selected without explicit approval from the Overlord.
 
@@ -42,6 +43,25 @@ Presentation-only transitions, Ramblings, native milestones that do not become v
 
 The final V5 document must therefore be sufficient for later implementation to translate quest activation and reward behavior without reopening campaign design.
 
+### 1.2 Mandatory Rambling authority
+
+Every V5 authoring, audit, reconciliation, workbook-preparation, and implementation pass that touches presenter popups, advancements, milestones, or Ramblings must read and obey:
+
+- `docs/V5_RAMBLING_SYSTEM_AUTHORITY.md`
+- `docs/V5_PRESENTER_SYSTEM_AUTHORITY.md`
+
+The global Rambling rules are not optional guidance.
+
+In particular:
+
+- an advancement or milestone is not disqualified from Rambling treatment because it is also used by a visible quest;
+- significant completion advancements may receive Ramblings even when the completion advancement itself is narratively thin;
+- Rambling audits must inspect the complete relevant native advancement and milestone surface, including quest-used events;
+- trivial, repetitive, purely technical, debug, compatibility, bookkeeping, or insignificant incremental events remain normally ineligible unless they independently carry meaningful completion significance;
+- specialist presenter precedence and Gnarl fallback remain authoritative.
+
+Any later document or implementation assumption that treats Ramblings as restricted to non-quest advancements is in conflict with V5 authority and must be corrected rather than propagated.
+
 ## 2. No inference promotion
 
 None of the following constitutes approval:
@@ -73,6 +93,8 @@ For every unresolved V5 section:
 Questions may be grouped when they are genuinely part of one decision batch, but grouping must not conceal individual authored choices.
 
 For every visible quest that becomes sufficiently defined, the authority pass must also close its activation trigger and completion reward before that quest can be considered implementation-ready.
+
+For every Rambling audit, inspect all relevant native advancements and milestones under `docs/V5_RAMBLING_SYSTEM_AUTHORITY.md`; do not pre-filter out milestones merely because Questlog also uses them.
 
 ## 4. Restart boundary
 
