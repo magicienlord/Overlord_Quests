@@ -4,7 +4,7 @@ Status: WORKING V5 CAMPAIGN AUTHORITY
 
 Date: 2026-09-16
 
-Authority relationship: this document is a focused civilization blueprint under `docs/V5_CAMPAIGN_SYSTEM_AUTHORITY.md`, `docs/V5_CIVILIZATION_SYSTEM_AUTHORITY.md`, and `docs/V5_ICE_AND_FIRE_CAMPAIGN_AUTHORITY.md`. It records explicit V5 decisions approved by the Overlord and uses the exact Ice & Fire beta 5 native per-hive opinion and command systems.
+Authority relationship: this document is a focused civilization blueprint under `docs/V5_CAMPAIGN_SYSTEM_AUTHORITY.md`, `docs/V5_CIVILIZATION_SYSTEM_AUTHORITY.md`, `docs/V5_ICE_AND_FIRE_CAMPAIGN_AUTHORITY.md`, `docs/V5_DECISION_BATCH_01_AUTHORITY.md`, and `docs/V5_DECISION_BATCH_02_AUTHORITY.md`. It records explicit V5 decisions approved by the Overlord and uses the exact Ice & Fire beta 5 native per-hive opinion and command systems.
 
 ## 1. Canonical anchor
 
@@ -12,7 +12,18 @@ The canonical Myrmex polity is one runtime-selected native Myrmex hive.
 
 Its political state is local to that hive. Other Myrmex hives remain independent and source-owned.
 
-The exact deliberate anchor-start signal remains a technical/objective detail for the source pass. V5 must bind one real native hive and its Queen rather than creating a separate synthetic settlement or global species state.
+The universal Batch 01 civilization-start rule applies to Myrmex exactly as it does to the other civilizations:
+
+```text
+place the approved banner at a viable local Myrmex anchor
+-> validate the candidate hive
+-> permanently bind that native hive as the canonical Myrmex anchor for this playthrough
+-> bind its Queen and any required quest-role entities
+-> spawn/select required quest-role entities if needed
+-> begin the Myrmex civilization arc
+```
+
+The banner placement is the authored line-start signal. V5 must bind one real native hive and its Queen rather than creating a synthetic settlement or global species state.
 
 ## 2. Political spine
 
@@ -32,7 +43,7 @@ Verified thresholds:
 
 V5 uses those thresholds as native ingredients but never treats opinion alone as a political disposition.
 
-The authored civilization route must still determine whether the canonical hive remains independent, submits, or is destroyed.
+The authored civilization route determines whether the canonical hive remains independent, submits, or is destroyed.
 
 ## 3. Native-opinion boundary
 
@@ -61,46 +72,46 @@ There is no V5 floor for `DESTROYED`.
 
 ## 4. NEUTRAL route
 
-The independent route progresses deeply enough into Myrmex society to establish stable trade without converting that access into command.
+Batch 02 Q140 closes the exact native relationship proof.
 
 Approved structure:
 
 ```text
-anchor locked
--> learn the canonical hive's caste behavior through source-native encounters and actions
--> improve native hive opinion through exact source-backed actions
--> reach 50+ opinion
--> gain native trade access
--> complete a meaningful authored trade/colony relationship sequence
--> final Queen-facing settlement
+canonical hive bound
+-> build native opinion through source-owned behavior
+-> give resin to a worker at least once
+-> complete one native trade with the canonical hive
+-> reach 50+ native opinion
 -> explicitly recognize the Queen and canonical hive as independent
 -> NEUTRAL
 -> protect native opinion from falling below 50
 ```
 
-Reaching 50 or completing one trade does not automatically choose `NEUTRAL`. The explicit independence resolution is mandatory.
+Both positive behaviors are required at least once. No fixed repetition count is imposed beyond whatever source-owned actions are necessary to reach 50+ opinion.
+
+Reaching 50, resin gifting, or trading alone does not automatically choose `NEUTRAL`. The explicit independence resolution remains mandatory.
 
 ## 5. SUBJUGATED route
 
-The submission route moves beyond peaceful access into demonstrated command over the existing canonical hive.
+Batch 02 Q141 closes the qualifying non-destructive Staff command.
 
 Approved structure:
 
 ```text
-anchor locked
+canonical hive bound
 -> develop the hive relationship through source-native actions
--> reach 75+ opinion
+-> reach 75+ native opinion
 -> obtain legitimate Myrmex Staff command access for the existing canonical hive
--> use the Staff against that hive
--> perform at least one meaningful non-destructive native hive command
+-> use a Staff bound to that hive
+-> designate one new FOOD or NURSERY room
 -> demonstrate practical authority rather than mere friendship
--> final Queen-facing resolution
+-> final Queen-facing submission resolution
 -> canonical hive is recorded as operating under the Overlord
 -> SUBJUGATED
 -> protect native opinion from falling below 75
 ```
 
-The exact qualifying Staff command remains to be selected from source mechanics during the detailed objective pass. It must be meaningful, non-destructive and specific to practical authority over the existing hive.
+Either one new FOOD room or one new NURSERY room qualifies. Room deletion and entrance-removal actions do not qualify as the submission proof.
 
 ### 5.1 Why 100 is excluded
 
@@ -112,23 +123,22 @@ The approved submission threshold is 75+, where native Myrmex Staff command beco
 
 ## 6. DESTROYED route
 
-The destructive route deliberately turns against the canonical hive and removes its political core.
+Batch 02 Q139 supersedes the earlier conditional wording that allowed a second indispensable hive target if source analysis found one.
 
 Approved structure:
 
 ```text
-choose destructive route
+choose and commit to the destructive route
 -> turn existing knowledge of the hive against it
 -> deliberately attack the canonical hive
--> kill the canonical Queen
--> eliminate any additional colony function only if the final source pass proves it indispensable to the authored polity
+-> deliberately kill the canonical Queen
 -> canonical hive ceases to function as the selected polity
 -> DESTROYED
 ```
 
-The Queen kill is the political core of the route.
+The canonical Queen's deliberate death is sufficient political proof for `DESTROYED`.
 
-V5 must not replace it with an arbitrary Myrmex kill count or a numeric opinion threshold.
+V5 must not add a second indispensable hive target merely to preserve the earlier conditional wording. It must not require central-resin destruction, clearing every Myrmex, species extermination, total hive demolition, a generic kill count, or a numeric opinion threshold.
 
 Other Myrmex hives remain extant.
 
@@ -136,15 +146,15 @@ Other Myrmex hives remain extant.
 
 The detailed source pass should use native caste distinctions only where they support real authored functions.
 
-V5 already requires:
+V5 requires:
 
 - the Queen as the final political authority;
-- source-native caste behavior as knowledge in the inner route;
+- source-native caste behavior where it supports the inner route;
 - native trade and Staff systems as route mechanics.
 
-It does not yet authorize invented Myrmex offices or a fixed recurring cast beyond source-supported roles.
+It does not authorize invented Myrmex offices or a fixed recurring cast beyond source-supported roles.
 
-Any additional provider must correspond to a stable native entity/caste or another exact source surface.
+Any additional provider must correspond to a stable native entity/caste or another exact source surface and still requires explicit authored allocation where that allocation affects campaign design.
 
 ## 8. Cataclysm interpretation
 
@@ -162,47 +172,50 @@ Ice & Fire owns Myrmex opinion, hive membership and native command mechanics.
 
 OVERLORD QUESTS should integrate with those systems rather than implement a parallel reputation or colony simulation.
 
-The detailed objective pass must verify:
+The detailed technical pass must verify:
 
-- exact opinion-changing actions suitable for authored progression;
-- exact trade surfaces available at 50+;
+- exact source hooks for resin gifting and trade completion against the bound hive;
+- exact native opinion query and persistence for the bound hive UUID;
 - exact Myrmex Staff acquisition and hive-binding behavior at 75+;
-- exact non-destructive commands that can prove authority over the canonical hive;
-- exact Queen kill and hive-state signals;
+- exact signal for adding a new FOOD or NURSERY room with the bound Staff;
+- exact canonical Queen death signal tied to the selected hive;
 - the least invasive method for enforcing post-resolution opinion floors.
+
+These are technical detector questions. They do not reopen Q139, Q140, or Q141.
 
 ## 10. Presenter use
 
-The canonical Queen enters the final presenter roster if the finalized route assigns direct Questlog speech.
+The canonical Queen is a corporeal world authority, not automatically a new PNG presenter. Any direct Questlog speaking allocation for a character outside the locked presenter roster requires explicit Overlord approval.
 
-Any recurring caste provider must be source-backed before being added.
-
-Presenters use the universal five-state vocabulary:
+The universal registered presenter states remain:
 
 ```text
 neutral
-pleased
-assertive
-concerned
-hostile
+approving
+amused
+displeased
+severe
 ```
 
-The alien character of Myrmex presentation should be preserved rather than making the hive speak like an ordinary Villager council.
+The alien character of Myrmex world presentation should be preserved rather than making the hive behave like an ordinary Villager council.
 
 ## 11. Remaining authoring boundary
 
-The political spine, native threshold use and all three terminal route meanings are approved.
+The political spine, banner anchor start, native thresholds, exact NEUTRAL relationship proof, exact SUBJUGATED Staff proof, and exact DESTROYED proof are approved.
 
-Still unresolved are technical/objective details only:
+The following remain unresolved only where another authored choice is genuinely required:
 
-- the exact deliberate anchor-start signal;
-- the exact source-native opinion actions selected for visible objectives;
-- the exact trade/colony relationship sequence that proves stable `NEUTRAL`;
-- the exact non-destructive Myrmex Staff command used to prove `SUBJUGATED`;
-- whether any additional hive function beyond the Queen is truly indispensable for `DESTROYED`;
-- the least invasive implementation of the 50 and 75 post-resolution opinion floors.
+- activation triggers for visible inner Myrmex quests beyond the already-fixed banner line start;
+- prerequisite boundaries where distinct from ordinary sequence;
+- completion consequences beyond the approved terminal state writes and opinion floors;
+- completion rewards or explicit `NONE` for every visible Myrmex quest;
+- any additional provider allocation not already approved.
 
-Technical questions should be resolved from the exact Ice & Fire source. Any new political or historical meaning must return to the Overlord.
+The following are technical-resolution work rather than new campaign decisions unless source research exposes materially different authored experiences:
+
+- detector implementation for resin gifting, trade, opinion thresholds, Staff room designation, and Queen death;
+- bound-hive UUID handling;
+- opinion-floor enforcement.
 
 ## 12. Production boundary
 
