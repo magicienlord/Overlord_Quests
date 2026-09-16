@@ -86,9 +86,24 @@ Purpose:
 - source AI already provides buff behavior;
 - may become a magical-service obligation in SUBJUGATED.
 
-Music remains an important characterization surface and may support provider scenes, objectives or Ramblings where meaningful. It is not automatically a separate political pillar.
+## 4. Music allocation
 
-## 4. NEUTRAL route
+Music is an approved Ribbit characterization surface, not a mandatory civilization-progress objective.
+
+Native Ribbit music, village performance behavior and player-facing Maraca content may appear through:
+
+- ambient village play;
+- provider scenes and characterization;
+- optional native interaction;
+- sparse NPC Ramblings when a musical moment is worth acknowledging.
+
+V5 must not require a custom music detector merely to put a mandatory music checkbox inside the civilization route.
+
+A musical action may still occur naturally during a scene or optional provider beat, but failure to perform such an action cannot block NEUTRAL, SUBJUGATED or DESTROYED unless a later explicit V5 decision changes this rule.
+
+This preserves Ribbit culture without turning its music into checklist progression.
+
+## 5. NEUTRAL route
 
 The independent route participates in ordinary Ribbit life and improves the village without claiming it.
 
@@ -109,7 +124,9 @@ anchor locked
 
 The route is not a friendship meter. The final independence settlement is explicit.
 
-## 5. SUBJUGATED route
+Music may enrich this route but is not a mandatory visible objective.
+
+## 6. SUBJUGATED route
 
 Subjugation converts innocent local favors and services into explicit political obligations.
 
@@ -140,7 +157,9 @@ Their personality and presentation may remain cheerful, simple or awkward even w
 
 No hidden reputation score or generic sidequest count is permitted.
 
-## 6. DESTROYED route
+Music is not an additional mandatory submission pillar.
+
+## 7. DESTROYED route
 
 The destructive route is intentionally cruel because the Ribbits offered no serious provocation.
 
@@ -158,7 +177,7 @@ The route follows the universal V5 `DESTROYED` rule. It does not require every b
 
 Ribbits and other villages remain extant elsewhere.
 
-## 7. Technical objective rule
+## 8. Technical objective rule
 
 Ribbits 3.0.5 has no useful accomplishment advancement ladder. Its packaged advancements are recipe unlocks.
 
@@ -174,7 +193,9 @@ Where V5 requires proof of a specific Ribbit transaction or interaction, the lat
 
 Do not create a parallel Ribbit economy or artificial reputation meter.
 
-## 8. Presenter use
+Do not create a mandatory custom music-tracking bridge merely because music is culturally important.
+
+## 9. Presenter use
 
 The Gardener-Elder, Fisherman, Merchant and Sorcerer enter the final presenter roster if their finalized chains assign direct Questlog speech.
 
@@ -190,9 +211,9 @@ hostile
 
 Their dialogue and portraits should preserve Ribbit characterization even when the political content becomes dark.
 
-## 9. Remaining authoring boundary
+## 10. Remaining authoring boundary
 
-The political model and provider allocation are approved.
+The political model, provider allocation and music allocation are approved.
 
 Still unresolved are the exact source-compatible objectives used for:
 
@@ -200,11 +221,12 @@ Still unresolved are the exact source-compatible objectives used for:
 - the exact Merchant obligation in SUBJUGATED;
 - the exact Fisherman obligation in SUBJUGATED;
 - the exact Sorcerer obligation in SUBJUGATED;
-- the civilization-specific indispensable functions removed by DESTROYED;
-- whether any music action is important enough for a visible objective rather than characterization or Rambling.
+- the civilization-specific indispensable functions removed by DESTROYED.
+
+Music is not an open progression question. It remains characterization, native play and possible sparse Rambling material unless a later explicit V5 decision changes that allocation.
 
 Technical choices can be resolved from the source. Any new campaign meaning must return to the Overlord.
 
-## 10. Production boundary
+## 11. Production boundary
 
 This document is V5 campaign authority only. Do not reconcile production content, provider code, interaction bridges, disposition code or presenter assets until V5 authority is complete and approved.
