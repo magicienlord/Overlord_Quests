@@ -72,7 +72,7 @@ Purpose:
 
 - represents the Grove's healing and support function;
 - owns one of the two approved SUBJUGATED provider chains;
-- that chain must end by compromising this pillar through an explicit allegiance, obligation, dependency, or equivalent personal commitment to the Overlord.
+- that chain ends through patronage and dependency, with the Overlord becoming materially indispensable to the Grove's healing/support function and the Crane explicitly committing that function to his service.
 
 The Crane's healer identity is source-backed. No additional priestly or political caste is implied.
 
@@ -96,7 +96,7 @@ Purpose:
 - commands its own native followers;
 - remains source-classified as devoted to Umvuthi before authored progression changes its political commitment;
 - owns one of the two approved SUBJUGATED provider chains;
-- that chain must end by compromising this pillar through an explicit allegiance, obligation, dependency, or equivalent personal commitment to the Overlord.
+- that chain ends through martial authority, with the Overlord proving himself the superior commander through a source-compatible martial progression and the Raptor explicitly transferring its allegiance beneath him.
 
 This role is local to the selected canonical Grove.
 
@@ -158,28 +158,56 @@ Subjugation is political and religious rather than a special combat-state interv
 The Overlord compromises the two approved practical pillars of Umvuthi's local control through separate meaningful provider chains:
 
 ```text
-Grove Healer commitment
+Grove Healer patronage/dependency commitment
 AND
-Grove Raptor commitment
+Grove Raptor martial-allegiance commitment
 ```
 
-The Crane chain represents healing and support authority.
+### 5.1 Crane commitment
 
-The Raptor chain represents martial and pack authority.
+The Crane chain is a patronage and dependency route.
 
-Each chain must end in an explicit authored allegiance, obligation, dependency, or equivalent personal commitment to the Overlord. The exact concrete objectives must be selected from source-backed mechanics in the later objective pass rather than invented here.
+Approved meaning:
+
+```text
+establish the Grove Healer's practical healing/support role
+-> complete source-compatible content that makes Overlord patronage materially important to that function
+-> demonstrate that the Grove's support pillar now depends on resources, access, protection, or capability secured through the Overlord
+-> Crane explicitly commits the Grove's healing/support function to the Overlord's service
+-> record grove_healer_commitment
+```
+
+The exact source-backed objectives remain a later technical/objective selection. The political meaning is fixed: this is dependency and patronage, not military defeat.
+
+### 5.2 Raptor commitment
+
+The Raptor chain is a martial-authority route.
+
+Approved meaning:
+
+```text
+establish the Raptor as the Grove's martial/pack authority
+-> complete a source-compatible martial progression that demonstrates the Overlord as the superior commander
+-> Raptor explicitly accepts that superior command authority
+-> Raptor transfers its political/martial allegiance beneath the Overlord
+-> record grove_raptor_commitment
+```
+
+The exact martial accomplishment must be selected from source-compatible mechanics during the objective pass.
+
+The Raptor chain must not require a lethal duel with the recurring Raptor provider. It also must not require killing the Crane.
 
 The Grove Trader may provide characterization or practical content, but no Trader completion or commitment is required for political submission.
 
-This is not a hidden reputation system and not a generic requirement such as completing two arbitrary sidequests.
+The two commitments are deliberately different in meaning. V5 must not flatten them into a generic provider completion count or the rule `complete two sidequests -> submit Grove`.
 
 The route resolves as:
 
 ```text
 AUDIENCE_ESTABLISHED
--> complete the Crane provider chain
+-> complete Crane patronage/dependency chain
 -> record Grove Healer commitment
--> complete the Raptor provider chain
+-> complete Raptor martial-authority chain
 -> record Grove Raptor commitment
 -> unlock final audience with the living Umvuthi
 -> demonstrate that Umvuthi can no longer rely on unquestioned control of the Grove's support and martial pillars
@@ -194,7 +222,7 @@ Politically, Umvuthi and the canonical Grove now rule beneath the Overlord rathe
 
 The humiliation is intentional: a creator-god is forced to acknowledge a higher temporal sovereign because two critical practical pillars of the society he created have been brought under that sovereign's influence.
 
-### 5.1 Prohibited implementation
+### 5.3 Prohibited implementation
 
 The SUBJUGATED route must not require:
 
@@ -202,7 +230,9 @@ The SUBJUGATED route must not require:
 - converting near-death into surrender;
 - canceling his native death to preserve him;
 - creating a synthetic defeated-but-alive boss state;
-- obtaining the Sol Visage first.
+- obtaining the Sol Visage first;
+- a lethal duel with the recurring Crane or Raptor provider;
+- a generic provider-count threshold in place of the two distinct commitments.
 
 The native Sol Visage is player-kill loot from Umvuthi and therefore belongs to the destructive route and its aftermath, not to peaceful submission.
 
@@ -265,7 +295,19 @@ Do not introduce:
 - a fabricated Grove council institution;
 - civilization-wide political effects outside the selected anchor.
 
-## 9. Production boundary
+## 9. Remaining authoring boundary
+
+The political meaning of both SUBJUGATED commitments is now fixed.
+
+Remaining work is objective translation only where source inspection can resolve it without creating new campaign meaning:
+
+- select the exact source-compatible Crane patronage/dependency accomplishments;
+- select the exact source-compatible Raptor martial-authority accomplishments;
+- select the least invasive technical detector for each accomplishment.
+
+If source inspection leaves multiple materially different accomplishments that would change what patronage or superior command means in play, that narrower choice must return to the Overlord.
+
+## 10. Production boundary
 
 This blueprint is V5 campaign authority only.
 
