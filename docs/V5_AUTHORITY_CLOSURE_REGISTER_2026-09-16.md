@@ -223,7 +223,64 @@ owned supported pet death
 
 The further skeleton-pet path is optional native play or possible sparse Rambling material, not a mandatory V5 step.
 
-## 5. Current authored-decision queue
+## 5. Magic and Adventure decision supersessions
+
+The following earlier open questions are closed by explicit Overlord decisions and the focused V5 blueprints.
+
+### Iron's Spells first Evil Mana proof
+
+Authority: `docs/V5_MAGIC_AUTHORED_BLUEPRINT.md`.
+
+Resolved:
+
+- Blood magic is the authoritative Evil Mana proof for the final Iron's first-inclination OR closer;
+- Holy remains the Good Mana proof;
+- the first qualifying path is remembered without blocking later native mastery of the opposite path.
+
+This replaces any earlier UNKNOWN note asking which Iron's school should represent Evil Mana.
+
+### Quaver Tower arc
+
+Authority: `docs/V5_COMPACT_ADVENTURES_AUTHORED_BLUEPRINT.md`.
+
+Resolved:
+
+- Quaver's authored arc is instrument acquisition for the Dark Tower;
+- Minions are assumed to perform and do not need an authored recruitment chain;
+- no performer count, performer identities, speaking performer roster, or personnel-assignment objective is required;
+- the arc remains outside formal initial Tower Restoration readiness.
+
+This replaces the earlier proposal that V5 needed to select a recurring band composition.
+
+### Bumblezone culmination
+
+Authority: `docs/V5_MAJOR_ADVENTURES_AUTHORED_BLUEPRINT.md`.
+
+Resolved:
+
+- the compact authored Bumblezone Adventure culminates through meaningful Queen contact;
+- the player completes the Queen's Desires progression;
+- the player obtains and consumes the Essence of the Bees;
+- the rest of the Bumblezone's extensive native progression remains native play or sparse contextual Ramblings unless separately authored.
+
+This replaces the earlier open question asking which source-owned Bumblezone milestone should be selected as the authored culmination.
+
+### L_Ender's Cataclysm capstone and Ramblings
+
+Authority: `docs/V5_MAJOR_ADVENTURES_AUTHORED_BLUEPRINT.md`.
+
+Resolved:
+
+- the substantial optional Cataclysm Adventure requires the installed full major-boss completion surface;
+- `cataclysm:kill_all_bosses` is the authored final capstone signal;
+- individual structure-discovery and boss achievements with established REIGN meaning receive one-time contextual popup Ramblings where useful;
+- those Ramblings complement the grouped Questlog beats and deliver site-specific or victory-specific lore at the relevant moment;
+- achievements with no established REIGN interpretation remain native rather than receiving invented history;
+- Ramblings do not create a parallel quest state.
+
+This replaces the earlier open choice between selected historical breadth and full all-boss completion.
+
+## 6. Current authored-decision queue
 
 The following remain genuine campaign-authoring questions only where source investigation cannot resolve them without inventing intent:
 
@@ -242,9 +299,11 @@ Ribbit music is closed as characterization/native play/Rambling rather than mand
 
 Sea Dweller third-provider necessity is closed: there is no third mandatory submission provider.
 
+Iron's Evil Mana proof, Quaver's performer handling, Bumblezone's culmination and the Cataclysm Adventure capstone are closed and must not be returned to the authored-decision queue.
+
 These questions should be asked narrowly after source analysis. They must not be filled from convenience.
 
-## 6. Technical-resolution queue
+## 7. Technical-resolution queue
 
 The following should normally be solved without returning to the Overlord unless the available technical choices would materially change the authored experience:
 
@@ -258,9 +317,10 @@ The following should normally be solved without returning to the Overlord unless
 - presenter roster bookkeeping after speaking roles are finalized;
 - exact compatibility-hook location;
 - exact persistence-key names;
-- CI and validation mechanics.
+- CI and validation mechanics;
+- exact one-time Rambling trigger wiring for already-approved native achievements.
 
-## 7. Production boundary
+## 8. Production boundary
 
 This register is V5 authoring control only.
 
