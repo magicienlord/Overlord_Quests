@@ -30,6 +30,20 @@ Their purpose may include:
 
 ## 2. Quest overlap is allowed
 
+> **SUPERSEDED BY Q217.** The rule below is reversed. An advancement has exactly **one consumer**.
+> If a Questlog entry gates on an advancement, that advancement is **not available** for a Rambling.
+> Ramblings take only advancements no quest gates on, and of those only the ones meaningful to lore
+> or that reward a deliberate player investment.
+>
+> The Overlord stated this twice before it was inverted: in Q115 — *"The location discovery
+> achievements are already tied to the quests you said so yourself so they can't also be ramblings"* —
+> and in the first clause of Q148 — *"Ramblings are characters lore entries that rewards advancements
+> that are unrelated to the quests"*. Q148's rejection concerned the **stinginess** of three Ramblings
+> for a whole Adventure arc, not the separation.
+>
+> §4 (completion Ramblings), §5 (exclusions), §6 (presenter precedence) and §8 (duplication
+> discipline) are unaffected.
+
 A milestone does NOT become ineligible for a Rambling merely because the same milestone is also used by a visible quest.
 
 Quest allocation and Rambling allocation are independent presentation decisions.
@@ -109,6 +123,10 @@ Presenter assignment remains governed by `docs/V5_PRESENTER_SYSTEM_AUTHORITY.md`
 
 ## 7. Advancement audit rule
 
+> **SUPERSEDED BY Q217.** The audit question is now: *is this event meaningful or
+> completion-significant enough for an approved presenter to acknowledge, AND is it unclaimed by a
+> quest detector?* Both must be true.
+
 When auditing a mod for Ramblings, inspect the complete relevant native advancement and milestone surface rather than only milestones left unused by quests.
 
 The audit question is:
@@ -134,6 +152,9 @@ Multiple source events that are effectively the same repeated accomplishment do 
 Ramblings must remain meaningful reactions rather than progress reminders.
 
 ## 9. Production boundary
+
+> **SUPERSEDED BY Q217.** The instruction to correct any document excluding a milestone for quest use
+> is reversed. Quest use is now a correct and required exclusion.
 
 This document establishes global V5 Rambling authority.
 
