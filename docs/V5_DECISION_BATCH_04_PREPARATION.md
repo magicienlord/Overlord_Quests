@@ -589,6 +589,9 @@ Priority: HIGH.
 
 ### Q205 - Ramblings - Lestat catalog
 
+> **SUPERSEDED BY Q238 and Q250.** Q205 approved Lestat's catalog on the instruction to preserve
+> Q121. Q121 is superseded. The instruction points at a rule that no longer exists.
+
 Question: Should all audit rows marked INCLUDE with proposed presenter `Lestat` become Lestat Ramblings, subject to individual audit-row edits and preserving Q121?
 
 Proposed V5 answer: Yes. Preserve Q121's first-acquisition/cure milestones and approve the additional audit rows that genuinely concern vampire identity or Nycto progression. Do not turn blood refills or repeated power use into popup spam.

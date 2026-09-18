@@ -158,11 +158,22 @@ Approved answer: Use Historian Ramblings for first entry into the Ancient Reserv
 
 ### Q120: NightWalker survival proof
 
+> **SUPERSEDED by Overlord decision, 2026-09-18.** The NightWalker arc no longer uses feed-then-survive-
+> daylight as its second beat. `nycto:become_vampire` is the **arc activation trigger**, not a quest
+> objective. Quest 1 is first blood — feed from a living victim or drink a Blood Bottle, branch-recorded.
+> Quest 2 is taking down a Vampire Hunter (`questlog:entity_kill` on `nycto:hunter`).
+
 Decision: APPROVED
 
 Approved answer: Successfully feed from a valid victim so native Blood increases, then survive the following daylight period and reach nightfall while still a vampire and without curing.
 
 ### Q121: NightWalker Lestat catalog
+
+> **SUPERSEDED BY Q238.** Lestat's Rambling catalog is no longer the six named powers plus a cure
+> line. It is the 27 source-owned Nycto milestones — 13 free power acquisitions, 5 free weakness
+> acceptances, 7 durable state events, 2 completion milestones — plus the conditional hunter-side
+> advancement Ramblings for a player who hunts after turning. The prohibition on covering every power
+> and weakness no longer binds.
 
 Decision: APPROVED
 

@@ -192,6 +192,15 @@ Authority effect: ordinary completion presentation does not populate the quest r
 
 ### Q157: Physical reward preference
 
+> **Q157 — Physical reward preference. Decision: MODIFIED.**
+>
+> Prefer one relevant item, material (following difficulty and overall campaign stage) over generic XP
+> or random loot-table payment. Use generic XP or random loot only if no relevant items can be
+> justified.
+>
+> **Status under Q241:** retained authority, **unexercised**. The V5 campaign authors no quest rewards,
+> so no reward is ever justified. This rule governs only if a later decision supersedes Q241.
+
 Decision: MODIFIED
 
 The Overlord directly rewrote the proposed answer cell to:
